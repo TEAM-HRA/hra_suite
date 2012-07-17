@@ -1,1 +1,14 @@
 * text=auto !eol
+OdJarka/.project -text
+OdJarka/.pydevproject -text
+OdJarka/desktop.ini -text
+OdJarka/src/HRV/calka.py -text
+OdJarka/src/HRV/fourierHRV.py -text
+OdJarka/src/HRV/imputuj.py -text
+OdJarka/src/HRV/interpoluj.py -text
+OdJarka/src/HRV/poincare.py -text
+OdJarka/src/HRV/read_data.py -text
+OdJarka/src/HRV/resample.py -text
+OdJarka/src/ongoing/HRV.py -text
+OdJarka/src/rea2HRV.py -text
+OdJarka/src/rea2HRVnoFourier.py -text
