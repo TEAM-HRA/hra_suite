@@ -3,8 +3,8 @@
 
 <pydev_project>
 <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-<path>/OdJarka/src</path>
-<path>/OdJarka/src/HRV</path>
+<path>/OdJarka (READ ONLY)/src</path>
+<path>/OdJarka (READ ONLY)/src/HRV</path>
 </pydev_pathproperty>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_VERSION">python 2.7</pydev_property>
 <pydev_property name="org.python.pydev.PYTHON_PROJECT_INTERPRETER">H:\python\python_32\Python27\python.exe</pydev_property>
