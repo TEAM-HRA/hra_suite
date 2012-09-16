@@ -148,9 +148,9 @@ class FilesDataSources(object):
                 if self.signal_spec:
                     signal.append(float(contents[self.signal_spec.num]))
                 if self.annotation_spec:
-                    annotation.append(int(float(contents[self.annotation_spec.num])))
+                    annotation.append(int(float(contents[self.annotation_spec.num]))) #@IgnorePep8
 
-        return self.__createDataSource__(filename, array(signal), array(annotation))
+        return self.__createDataSource__(filename, array(signal), array(annotation)) #@IgnorePep8
 
     @property
     def signal_spec(self):
