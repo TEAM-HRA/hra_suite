@@ -7,40 +7,42 @@ import glob
 import os
 from re import findall
 from numpy import array
+from numpy import loadtxt
+from med.globals.globals import NUMPY_USAGE
 
 
 class DataSource(object):
 
-    def __init__(self, data_source=None, _annotation=None):
+    def __init__(self, signal=None, annotation=None):
         '''
         Constructor
         '''
-        if (isinstance(data_source, DataSource)):
-            self.__signal__ = data_source.__signal__
-            self.__annotation__ = data_source.__annotation__
+        if (isinstance(signal, DataSource)):
+            self.signal = signal.signal
+            self.annotation = signal.annotation
         else:
-            self.__signal__ = data_source
-            self.__annotation__ = _annotation
+            self.signal = signal
+            self.annotation = annotation
 
     @property
     def signal(self):
         return self.__signal__
 
     @signal.setter
-    def signal(self, _signal):
-        self.__signal__ = _signal
+    def signal(self, signal):
+        self.__signal__ = signal
 
     @property
     def annotation(self):
         return self.__annotation__
 
     @annotation.setter
-    def annotation(self, _anntotation):
-        self.__annotation__ = _anntotation
+    def annotation(self, anntotation):
+        self.__annotation__ = anntotation
 
     def __str__(self):
-        return (self.__for_str__('signal', self.__signal__) + ' '
-              + self.__for_str__('annotation', self.__annotation__))
+        return (self.__for_str__('signal', self.signal) + ' '
+              + self.__for_str__('annotation', self.annotation))
 
     def __for_str__(self, prefix, data):
         if hasattr(data, 'take') or hasattr(data, '__getslice__'):
@@ -55,8 +57,8 @@ class DataSource(object):
 
 class ColumnSpec(object):
     def __init__(self, header):
-        self.__header__ = header
-        self.__num__ = -1
+        self.header = header
+        self.num = -1
 
     @property
     def num(self):
@@ -92,6 +94,7 @@ class FilesDataSources(object):
         self.__filenames__ = []
         self.__signal_spec__ = None
         self.__annotation_spec__ = None
+        self.__cols__ = []
 
         path = path + ('*.*' if ext == None else ext)
         for filename in glob.glob(path):
@@ -108,6 +111,7 @@ class FilesDataSources(object):
             for num, header in enumerate(self.headers, start=0):
                 if spec.header == header:
                     spec.num = num
+                    self.__cols__.append(num)
                     break
         return spec
 
@@ -117,7 +121,11 @@ class FilesDataSources(object):
     def next(self):
         if self.__filenames__ and len(self.__filenames__) > self.__idx__:
             self.__idx__ += 1
-            return self.__getDataSource__(self.__idx__ - 1)
+            filename = self.__filenames__[self.__idx__ - 1]
+            if NUMPY_USAGE:
+                return self.__getNumPyDataSource__(filename)
+            else:
+                return self.__getDataSource__(filename)
         else:
             raise StopIteration
 
@@ -125,27 +133,60 @@ class FilesDataSources(object):
     def headers(self):
         if not self.__headers__:
             with open(self.__filenames__[0], 'r') as _file:
-                first_line = _file.readline()  # header line
-                self.__headers__ = findall(r'\b[A-Za-z\[\]\-\%\#\!\@\$\^\&\*]+', first_line) #@IgnorePep8
+                header_line = _file.readline()  # header line
+                self.__headers__ = findall(r'\b[A-Za-z\[\]\-\%\#\!\@\$\^\&\*]+', header_line) #@IgnorePep8
         return self.__headers__
 
-    def __getDataSource__(self, idx):
+    def __getDataSource__(self, filename):
         signal = []
         annotation = []
 
-        with open(self.__filenames__[idx], 'r') as _file:
+        with open(filename, 'r') as _file:
             _file.readline()  # skip header line
             for line in _file:
                 contents = findall(r'\b[0-9\.]+', line)
-                if self.__signal_spec__:
-                    signal.append(float(contents[self.__signal_spec__.num]))
-                if self.__annotation_spec__:
-                    annotation.append(int(float(contents[self.__annotation_spec__.num]))) #@IgnorePep8
+                if self.signal_spec:
+                    signal.append(float(contents[self.signal_spec.num]))
+                if self.annotation_spec:
+                    annotation.append(int(float(contents[self.annotation_spec.num])))
 
-        if (self.__annotation_spec__ and self.__signal_spec__
-            and self.__signal_spec__.num == self.__annotation_spec__.num):
+        return self.__createDataSource__(filename, array(signal), array(annotation))
+
+    @property
+    def signal_spec(self):
+        return self.__signal_spec__
+
+    @property
+    def annotation_spec(self):
+        return self.__annotation_spec__
+
+    @property
+    def cols(self):
+        return self.__cols__
+
+    def __getNumPyDataSource__(self, filename):
+        signal = None
+        annotation = None
+
+        if len(self.cols) == 2:
+            (signal, annotation) = loadtxt(filename,
+                                           skiprows=1,
+                                           usecols=self.cols,
+                                           unpack=True)
+            annotation = annotation.astype(int)
+        else:
+            signal = loadtxt(filename,
+                             skiprows=1,
+                             usecols=self.cols,
+                             unpack=True)
+
+        return self.__createDataSource__(filename, signal, annotation)
+
+    def __createDataSource__(self, filename, signal, annotation):
+        if (self.annotation_spec and self.signal_spec
+            and self.signal_spec.num == self.annotation_spec.num):
             annotation = 0 * signal
 
-        data_source = DataSource(array(signal), array(annotation))
-        data_source.filename = self.__filenames__[idx]
+        data_source = DataSource(signal, annotation)
+        data_source.filename = filename  # set up an additional property
         return data_source
