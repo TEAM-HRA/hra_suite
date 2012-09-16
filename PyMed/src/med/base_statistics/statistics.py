@@ -108,7 +108,7 @@ class TotTimeStatistic(Statistic):
 class SDStatistic(Statistic):
     def __calculate__(self):
         if NUMPY_USAGE:
-            return sqrt(var(self.signal, ddof=1))
+            return sqrt(var(self.signal, ddof=1))  # ddof=1 means divide by size-1 @IgnorePep8
         else:
             meanValue = MeanStatistic(self.signal).compute()
             return sqrt(sum(((self.signal - meanValue) ** 2))
@@ -158,7 +158,7 @@ class RStatistic(Statistic):
 
 class RMSSDStatistic(Statistic):
     def __calculate__(self):
-        mean = MeanStatistic((self.signal - self.annotation) ** 2).compute() #@IgnorePep8
+        mean = MeanStatistic((self.signal - self.annotation) ** 2).compute()
         return sqrt(mean)
 
 
