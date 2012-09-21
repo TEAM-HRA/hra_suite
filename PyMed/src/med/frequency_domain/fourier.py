@@ -98,7 +98,7 @@ class FastFourierTransform(FourierTransform):
         boxcar = array([1., 1., 1.0, 1.0]) * .25
 
         #resampling
-        signal_resampled = LinearInterpolatedSampling(_signal, 250).sample
+        signal_resampled = LinearInterpolatedSampling(_signal, 250).sampling
 
         #filtering
         RR_resampled = convolve(signal_resampled[1], boxcar)

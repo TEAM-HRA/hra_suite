@@ -5,6 +5,9 @@ Created on 17-07-2012
 '''
 from pylab import cumsum
 from pylab import arange
+from pylab import where
+from pylab import take
+from med.globals.globals import NUMPY_USAGE
 
 
 class Sampling(object):
@@ -19,10 +22,10 @@ class Sampling(object):
         self.__step__ = step
 
     @property
-    def sample(self):
-        return self.__sample__(self.__signal__, self.__step__)
+    def sampling(self):
+        return self.__sampling__(self.__signal__, self.__step__)
 
-    def __sample__(self, signal, step):
+    def __sampling__(self, signal, step):
         pass
 
 
@@ -39,7 +42,12 @@ class LinearInterpolatedSampling(Sampling):
     '''
     old def resample(signal, step=250):
     '''
-    def __sample__(self, signal, step=250):
+    def __sampling__(self, signal, step=250):
+
+        if NUMPY_USAGE:
+            """ use more pythonic version of the method """
+            return self.__numpy_sampling__(signal, step)
+
         """This function accepts two parameters. The first is the signal
         (signal intervals) which will be linearly interpolated, and the second
         is the step used for resampling. The result is the interpolated
@@ -64,3 +72,22 @@ class LinearInterpolatedSampling(Sampling):
         results.append(t_res)
         results.append(signal_res)
         return results
+
+    def __numpy_sampling__(self, signal, step=250):
+        """This function accepts two parameters. The first is the signal
+        (signal intervals) which will be linearly interpolated, and the second
+        is the step used for resampling. The result is the interpolated
+        tachogram, sampled at the time interval given by the "step" value"""
+        cum_signal = cumsum(signal)
+        cum_res = cumsum(arange(0, sum(signal), step) * 0 + step)
+        res = arange(0, sum(signal), step)[0:-1]
+        signal_res = []  # this is the variable which will contain
+                    # the resampled tachogram
+        alphas = (signal[1:] - signal[:-1]) / signal[1:]
+        for sig, cum_sig, cum_sig_next, alpha in \
+                zip(signal[:-1], cum_signal[:-1], cum_signal[1:], alphas):
+            idx = len(signal_res)
+            signal_res[idx:] = \
+                take(((cum_res[idx:] - cum_sig) * alpha + sig),
+                     where(cum_res[idx:] < cum_sig_next))[0].tolist()
+        return [res, signal_res]
