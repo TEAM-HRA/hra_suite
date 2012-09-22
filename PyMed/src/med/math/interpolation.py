@@ -7,8 +7,11 @@ Created on 03-09-2012
 from numpy import mean
 from pylab import find
 from pylab import arange
+from pylab import append
+from itertools import count
 
 from med.data_sources.datasources import DataSource
+from med.globals.globals import NUMPY_USAGE
 
 
 class Interpolation(DataSource):
@@ -25,6 +28,9 @@ class Interpolation(DataSource):
 
 class LinearInterpolation(Interpolation):
     def __interpolate__(self, _signal, _annotation):
+        if NUMPY_USAGE:
+            return self.__numpy_interpolate__(_signal, _annotation)
+
         #removing nonsinus beats from the beginning
         while _annotation[0] != 0:
             _signal = _signal[1:-1]
@@ -47,6 +53,29 @@ class LinearInterpolation(Interpolation):
                                                          - krok] + delta * k
                 krok += 1
         return _signal
+
+    def __numpy_interpolate__(self, signal, annotation):
+        #removing nonsinus beats from the beginning
+        while annotation[0] != 0:
+            signal = signal[1:]
+            annotation = annotation[1:]
+        #removing nonsinus beats from the end
+        while annotation[-1] != 0:
+            signal = signal[:-2]
+            annotation = annotation[:-2]
+        idx_nonsin = find(annotation != 0)
+
+        # artificially appends index of value -1 (by append function)
+        # to get the same size of arrays, because idx have to
+        # processed all values of idx_nonsin array
+        for step, idx, idx_next in zip(count(start=1),
+                                       idx_nonsin,
+                                       append(idx_nonsin[1:], -1)):
+            if (idx_next - idx) != 1:
+                r = arange(1, step + 1)
+                delta = (signal[idx + 1] - signal[idx - step]) / (step + 1)
+                signal[idx - step + r] = signal[idx - step] + delta * r
+        return signal
 
 
 class MeanInterpolation(Interpolation):
