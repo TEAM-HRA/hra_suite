@@ -8,12 +8,14 @@ from numpy import array
 from pylab import find
 from pylab import arange
 from pylab import r_
+from pylab import in1d
 from med.data_sources.datasources import DataSource
 from med.base_statistics.statistics import StatisticsFactory
 from med.base_statistics.statistics import MeanStatistic
 from med.base_statistics.statistics import SDRRStatistic
 from med.base_statistics.statistics import NtotStatistic
 from med.base_statistics.statistics import TotTimeStatistic
+from med.globals.globals import NUMPY_USAGE
 
 
 class Filter(DataSource):
@@ -85,6 +87,9 @@ class RemoveAnnotatedSignalFilter(Filter):
                               NtotStatistic, TotTimeStatistic)
 
     def __filter__(self, _signal, _annotation):
+        if NUMPY_USAGE:
+            return DataSource(_signal[_annotation == 0])
+
         indexy = find(_annotation == 0)
         indexy = array(indexy)
         _signal = _signal[indexy]
@@ -122,9 +127,17 @@ class ZeroAnnotationFilter(Filter):
         self.__leave_annotations__ = leave_annotations
 
     def __filter__(self, _signal, _annotation):
+        if NUMPY_USAGE:
+            return self.__numpy_filter__(_signal, _annotation)
+
         for pobudzenie in self.__leave_annotations__:
             index_pobudzenie = find(_annotation == pobudzenie)
             index_pobudzenie = array(index_pobudzenie)
             if sum(index_pobudzenie != 0):
                 _annotation[index_pobudzenie] = 0
         return DataSource(_signal, _annotation)
+
+    def __numpy_filter__(self, signal, annotation):
+        if not self.__leave_annotations__ == (0,):
+            annotation[in1d(annotation, self.__leave_annotations__)] = 0
+        return DataSource(signal, annotation)
