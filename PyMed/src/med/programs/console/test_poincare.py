@@ -16,6 +16,7 @@ from med.time_domain.poincare_plot.filters import RemoveAnnotatedSignalFilter
 from med.time_domain.poincare_plot.filters import ZeroAnnotationFilter
 from med.time_domain.poincare_plot.filters import AnnotationShiftedPartsFilter
 from med.frequency_domain.fourier import FastFourierTransform
+from med.globals.globals import DIR_DATA, EXT_MASK
 
 #s = [
 #     750.625000,
@@ -76,8 +77,8 @@ from med.frequency_domain.fourier import FastFourierTransform
 #print('filtered statistics:')
 #print(sdata.statistics)
 
-sciezka = 'o:\\dane\\'
-ext = '*.rea'
+#sciezka = 'o:\\dane\\'
+#ext = '*.rea'
 
 #sys.path.append(sciezka)
 #print('V1')
@@ -112,12 +113,13 @@ def test_data_source():
 
 
 def test_poincare():
-    fd = FilesDataSources(path=sciezka, ext=ext)
+    print('DIR_DATA=' + str(DIR_DATA) + ' EXT_MASK=' + str(EXT_MASK))
+    fd = FilesDataSources(path=DIR_DATA, ext=EXT_MASK)
     fd.setColumnsSpecs(SignalColumnSpec('rri[ms]'), AnnotationColumnSpec('rr-flags[]')) #@IgnorePep8
     print(fd.headers)
 
-    ddd = test_data_source()
-    fd = (ddd,)
+#    ddd = test_data_source()
+#    fd = (ddd,)
 
     for d in fd:
         print(1)
@@ -143,7 +145,8 @@ def test_poincare():
             pp = PoincarePlot(anno).statistics
             print(pp)
 
-            ff = FastFourierTransform(d2).interpolation_mean.calculate
+            ff = FastFourierTransform(d2).interpolation_linear.calculate
+            print(5)
             print(ff)
 
             #print(PoincarePlot(sub_d).statistics)
