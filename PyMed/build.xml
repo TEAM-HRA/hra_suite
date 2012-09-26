@@ -1,0 +1,78 @@
+<project name="PyInstaller builder" default="py_installer.help">
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" />
+	
+	<!-- stable version -->
+	<!--
+	<property name="win-pyinstaller-path"
+	            location="../../../../python/pyinstaller-2.0"/>
+	-->
+
+	<!-- development version but better behaviour -->
+	<property name="win-pyinstaller-path"
+	            location="../../../../python/pyinstaller-pyinstaller-d437018"/>	
+	
+	
+	<property name="python-path"
+	            location="../../../../python/python_32/Python27"/>	
+
+	<property name="py_med.test_poincare.path"
+				location="src"/>
+	
+	<property name="py_med.spec.path"
+				location="spec"/>	
+	
+	<property name="py_med.start.script"
+				location="src/med/programs/console/test_poincare.py"/>
+	
+	<target name="properties.environment">
+		<!--
+		<property environment="env"/>
+		-->
+		<echo message="ENV: ${os.name}"/>
+	</target>	
+	
+	<target name="build.py_med.test_poincare">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		
+		<if>
+			<equals arg1="${os.name}" arg2="Windows Vista"/>
+		    <then>
+		    	<echo>
+		    		Creating build.bat
+				</echo>
+				<echo file="build.bat">
+${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${py_med.start.script} -F -p ${py_med.test_poincare.path} -o ${py_med.spec.path} -n PyMed -c -y
+				</echo>
+				<exec executable="cmd" os="Windows Vista">
+					<arg value="/c" />
+					<arg value="build.bat" />			
+				</exec>		    	
+			</then>
+			<!--
+			<else>
+				<echo>Can't create build.bat !!!</echo>
+			</else>
+			-->
+		</if>
+	</target>	
+	
+	
+	<target name="py_installer.help">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		<exec executable="cmd" os="Windows Vista">
+			<arg value="/c" />
+			<arg value="${python-path}/python.exe" />			
+			<arg value="${win-pyinstaller-path}/pyinstaller.py" />
+			<arg value="--help" />
+		</exec>		
+	</target>
+	
+
+</project>
