@@ -16,7 +16,7 @@
 	<property name="python-path"
 	            location="../../../../python/python_32/Python27"/>	
 
-	<property name="py_med.test_poincare.path"
+	<property name="py_med.src.path"
 				location="src"/>
 	
 	<property name="py_med.spec.path"
@@ -32,12 +32,16 @@
 		<echo message="ENV: ${os.name}"/>
 	</target>	
 	
-	<target name="build.py_med.test_poincare">
+	<target name="build.application">
 		<exec executable="/bin/bash" os="Linux">
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
 		</exec>
 		
+		<!--
+${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${py_med.start.script} -F -p ${py_med.src.path} -o ${py_med.spec.path} -n PyMed -c -y		
+		-->
+		<delete dir="${py_med.spec.path}"/>
 		<if>
 			<equals arg1="${os.name}" arg2="Windows Vista"/>
 		    <then>
@@ -45,7 +49,7 @@
 		    		Creating build.bat
 				</echo>
 				<echo file="build.bat">
-${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${py_med.start.script} -F -p ${py_med.test_poincare.path} -o ${py_med.spec.path} -n PyMed -c -y
+${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${py_med.src.path} -o ${py_med.spec.path} -n ${application.name} ${application.type} -y
 				</echo>
 				<exec executable="cmd" os="Windows Vista">
 					<arg value="/c" />
@@ -59,7 +63,24 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${py_med.start.
 			-->
 		</if>
 	</target>	
+
+	<target name="build.py_med.test_poincare">
+		<antcall target="build.application">
+		    <param name="startup.script" value="src/med/programs/console/test_poincare.py"/>
+		    <param name="application.name" value="PyMed"/>
+			<param name="application.type" value="-c" />
+			<param name="py_med.spec.path" value="spec" />
+		</antcall>
+	</target>
 	
+	<target name="build.py_med.test_QT">
+		<antcall target="build.application">
+		    <param name="startup.script" value="src/med/programs/gui/test_QT.pyw"/>
+		    <param name="application.name" value="PyMedQT"/>
+			<param name="application.type" value="-w" />
+			<param name="py_med.spec.path" value="spec_QT" />
+		</antcall>
+	</target>	
 	
 	<target name="py_installer.help">
 		<exec executable="/bin/bash" os="Linux">

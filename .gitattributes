@@ -62,6 +62,8 @@ PyMed/src/med/math/sampling.py -text
 PyMed/src/med/programs/__init__.py -text
 PyMed/src/med/programs/console/__init__.py -text
 PyMed/src/med/programs/console/test_poincare.py -text
+PyMed/src/med/programs/gui/__init__.py -text
+PyMed/src/med/programs/gui/test_QT.pyw -text
 PyMed/src/med/time_domain/__init__.py -text
 PyMed/src/med/time_domain/poincare_plot/__init__.py -text
 PyMed/src/med/time_domain/poincare_plot/filters.py -text

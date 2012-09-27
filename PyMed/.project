@@ -25,5 +25,10 @@
 			<type>1</type>
 			<location>H:/NumPy/doc/numpy-html/index.html</location>
 		</link>
+		<link>
+			<name>py_QT_27.html</name>
+			<type>1</type>
+			<location>H:/python/python_32/Python27/Lib/site-packages/PyQt4/doc/html/index.html</location>
+		</link>
 	</linkedResources>
 </projectDescription>
