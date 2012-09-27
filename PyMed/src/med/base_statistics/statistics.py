@@ -18,38 +18,6 @@ from med.data_sources.datasources import DataSource
 from med.globals.globals import *  # @UnusedWildImport
 
 
-class StaticticsFactory(object):
-
-    def __init__(self, data_source, statistic_classes):
-        self.__data_source__ = data_source
-        self.__statistic_classes__ = statistic_classes
-        self.__statistics__ = []
-
-    def __enter__(self):
-        self.__getStatistics__(self.__statistic_classes__)
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
-
-    @property
-    def statistics(self):
-        return self.__statistics__
-
-    def __getStatistics__(self, classes__):
-        for class__ in classes__:
-            statistic = class__.__new__(class__)
-            statistic.__init__(self.__data_source__)
-            if (hasattr(self.__data_source__, 'annotation')
-                and hasattr(statistic, 'annotation')):
-                statistic.annotation = self.__data_source__.annotation
-            self.__statistics__.append(statistic)
-
-            #calculate for next level subclasses
-            #Warning: this functionality is deactivated
-            #self.__getStatistics__(class__)
-
-
 class Statistic(DataSource):
     '''
     classdocs
@@ -108,7 +76,8 @@ class TotTimeStatistic(Statistic):
 class SDStatistic(Statistic):
     def __calculate__(self):
         if NUMPY_USAGE:
-            return sqrt(var(self.signal, ddof=1))  # ddof=1 means divide by size-1 @IgnorePep8
+            # ddof=1 means divide by size-1
+            return sqrt(var(self.signal, ddof=1))
         else:
             meanValue = MeanStatistic(self.signal).compute()
             return sqrt(sum(((self.signal - meanValue) ** 2))
@@ -207,14 +176,43 @@ class StatisticsFactory(DataSource):
         '''
         DataSource.__init__(self, data_source)
         self.__statistics_classes__ = statistics_classes
+        self.__statistics_objects__ = []
 
     @property
     def statistics(self):
         __statistics = {}
-        with StaticticsFactory(self, self.__statistics_classes__) as factory:
-            for statistic in factory.statistics:
+        with StatisticsFactory(self.statistics_classes, self) as factory:
+            for statistic in factory.statistics_objects:
                 __statistics[statistic.id] = self >> statistic
         return __statistics
+
+    @property
+    def statistics_classes(self):
+        return self.__statistics_classes__
+
+    def __enter__(self):
+        self.__generate_statistics_objects__(self.statistics_classes)
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+    @property
+    def statistics_objects(self):
+        return self.__statistics_objects__
+
+    def __generate_statistics_objects__(self, classes__):
+        for class__ in classes__:
+            statistic_object = class__.__new__(class__)
+            statistic_object.__init__(self)
+            if (hasattr(self, 'annotation')
+                and hasattr(statistic_object, 'annotation')):
+                statistic_object.annotation = self.annotation
+            self.statistics_objects.append(statistic_object)
+
+            #calculate for next level subclasses
+            #Warning: this functionality is deactivated
+            #self.__generate_statistics_objects__(class__)
 
 
 #def Mean(__signal__):
