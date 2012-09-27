@@ -91,7 +91,8 @@ class FastFourierTransform(FourierTransform):
         # interpolation_<name> property is called before calculate method
         #now (if the user so decides) the mean of the whole recording will
         #be imputated in place of the nonsinus beats
-        # code moved to med.time_domain.poincare_plot.filters.MeanAnnotationFilter @IgnorePep8
+        # code moved to
+        # med.time_domain.poincare_plot.filters.MeanAnnotationFilter
         #if nonsin_out == 2:
         #    __signal__ = imputuj(__signal__, annotation)
         #the filter
@@ -111,7 +112,8 @@ class FastFourierTransform(FourierTransform):
 
         #fast fourier transform calculation
         #moc = ((abs(fft(RR_resampled / len(RR_resampled - 1)))) ** 2) * 2
-        results.moc = ((abs(fft(RR_resampled / len(RR_resampled - 1)))) ** 2) * 2 #@IgnorePep8
+        results.moc = ((abs(fft(RR_resampled
+                                / len(RR_resampled - 1)))) ** 2) * 2
 
         #now we will calculate the frequencies
         # the total recording time is
