@@ -115,7 +115,8 @@ def test_data_source():
 def test_poincare():
     print('DIR_DATA=' + str(DIR_DATA) + ' EXT_MASK=' + str(EXT_MASK))
     fd = FilesDataSources(path=DIR_DATA, ext=EXT_MASK)
-    fd.setColumnsSpecs(SignalColumnSpec('rri[ms]'), AnnotationColumnSpec('rr-flags[]')) #@IgnorePep8
+    fd.setColumnsSpecs(SignalColumnSpec('rri[ms]'),
+                       AnnotationColumnSpec('rr-flags[]'))
     print(fd.headers)
 
 #    ddd = test_data_source()
