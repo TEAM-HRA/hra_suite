@@ -9,21 +9,19 @@
 	-->
 
 	<!-- development version but better behaviour -->
-	<property name="win-pyinstaller-path"
-	            location="../../../../python/pyinstaller-pyinstaller-d437018"/>	
+	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>	
 	
-	
-	<property name="python-path"
-	            location="../../../../python/python_32/Python27"/>	
+	<property name="python-path" location="../../../../python/python_32/Python27"/>	
 
-	<property name="py_med.src.path"
-				location="src"/>
+	<property name="doxygen" location="../../../../Programs/doxygen/bin/doxygen.exe"/>
 	
-	<property name="py_med.spec.path"
-				location="spec"/>	
+	<property name="miktext" location="../../../../MiKTeX2.9/miktex/bin"/>
 	
-	<property name="py_med.start.script"
-				location="src/med/programs/console/test_poincare.py"/>
+	<property name="tmp_latex_dir" location="doc/latex_tmp"/>
+	
+	<property name="doc_latex_dir" location="doc/latex"/>
+	
+	<property name="doc_name" value="PyMed"/>
 	
 	<target name="properties.environment">
 		<!--
@@ -38,10 +36,7 @@
 			<arg value="assembly:directory" />
 		</exec>
 		
-		<!--
-${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${py_med.start.script} -F -p ${py_med.src.path} -o ${py_med.spec.path} -n PyMed -c -y		
-		-->
-		<delete dir="${py_med.spec.path}"/>
+		<delete dir="${spec.path}"/>
 		<if>
 			<equals arg1="${os.name}" arg2="Windows Vista"/>
 		    <then>
@@ -49,7 +44,7 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${py_med.start.
 		    		Creating build.bat
 				</echo>
 				<echo file="build.bat">
-${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${py_med.src.path} -o ${py_med.spec.path} -n ${application.name} ${application.type} -y
+${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${src.path} -o ${spec.path} -n ${application.name} ${application.type} -y
 				</echo>
 				<exec executable="cmd" os="Windows Vista">
 					<arg value="/c" />
@@ -69,7 +64,8 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		    <param name="startup.script" value="src/med/programs/console/test_poincare.py"/>
 		    <param name="application.name" value="PyMed"/>
 			<param name="application.type" value="-c" />
-			<param name="py_med.spec.path" value="spec" />
+			<param name="src.path" value="src" />
+			<param name="spec.path" value="spec" />
 		</antcall>
 	</target>
 	
@@ -78,7 +74,8 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		    <param name="startup.script" value="src/med/programs/gui/test_QT.pyw"/>
 		    <param name="application.name" value="PyMedQT"/>
 			<param name="application.type" value="-w" />
-			<param name="py_med.spec.path" value="spec_QT" />
+			<param name="src.path" value="src" />
+			<param name="spec.path" value="spec_QT" />
 		</antcall>
 	</target>	
 	
@@ -95,5 +92,41 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		</exec>		
 	</target>
 	
+	<target name="gen.documentation">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		<exec executable="cmd" os="Windows Vista">
+			<arg value="/c" />
+			<arg value="${doxygen}" />			
+			<arg value="doc.doxygen" />
+		</exec>
+		
+		<exec executable="cmd" os="Windows Vista" dir="${tmp_latex_dir}">
+			<arg value="/c" />
+			<arg value="${miktext}/pdflatex.exe" />
+			<arg value="refman.tex" />
+			<arg value="-job-name=${doc_name}" />			
+		</exec>
+
+		<exec executable="cmd" os="Windows Vista" dir="${tmp_latex_dir}">
+			<arg value="/c" />
+			<arg value="${miktext}/makeindex.exe" />
+			<arg value="${doc_name}.idx" />
+		</exec>
+		
+		<exec executable="cmd" os="Windows Vista" dir="${tmp_latex_dir}">
+			<arg value="/c" />
+			<arg value="${miktext}/pdflatex.exe" />
+			<arg value="refman.tex" />
+			<arg value="-job-name=${doc_name}" />
+		</exec>
+
+		<mkdir dir="${doc_latex_dir}"/>
+		<move file="${tmp_latex_dir}/${doc_name}.pdf" todir="${doc_latex_dir}"/>
+		<delete dir="${tmp_latex_dir}"/>
+		
+	</target>	
 
 </project>
