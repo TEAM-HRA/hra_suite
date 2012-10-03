@@ -1,9 +1,7 @@
-'''
-Created on 27-07-2012
-
-@author: jurek
-'''
-
+## @package statistics
+#  @author jurek
+#  @date 27-07-2012
+#  Classes with base functionality for statistics
 
 from pylab import sqrt
 from pylab import size
@@ -18,29 +16,36 @@ from med.data_sources.datasources import DataSource
 from med.globals.globals import *  # @UnusedWildImport
 
 
+## Base class for all specific statitistics,
+#  this class have to be treated as an abstract class for such statistics
 class Statistic(DataSource):
-    '''
-    classdocs
-    '''
 
+    ## Constructor
+    #  @param data_source source of data it assumes type of
+    #  med.data_sources.datasources.DataSource
     def __init__(self, data_source=None):
-        '''
-        Constructor
-        '''
         DataSource.__init__(self, data_source)
 
+    ## Method (optional) to put pre calculations done before proper
+    #  calculations
     def __pre_calculate__(self):
         pass
 
+    ## Method which have to be implemented in a derived class and
+    #  it have to contain all proper calculations
     def __calculate__(self):
-        """ statistic implementation method """
         pass
 
+    ## Method used by clients to get a calculated value of specific statistic
+    #  @return calculated value of a statistic
     def compute(self):
         self.__pre_calculate__()
         value = self.__calculate__()
         return value
 
+    ## Method used to get a name of a statistic based on derived statistic's
+    #  class name
+    #  @return the name, of statistic, which doesn't contain word Statistic
     @property
     def id(self):
         name = self.__class__.__name__
@@ -48,6 +53,12 @@ class Statistic(DataSource):
         idx = name.find('Statistic')
         return None if idx == -1 else name[:idx]
 
+    ## Method to give ability for statistic calculation in the form
+    # if right shift operation which is expressed by:
+    #  (data source object) >> (statistic object)
+    #  @param other data source i.e. object of a type
+    #  med.data_sources.datasources.DataSource
+    #  @return calculated value of a statistic
     def __rrshift__(self, other):
         if (isinstance(other, DataSource)):
             self.signal = other.signal
