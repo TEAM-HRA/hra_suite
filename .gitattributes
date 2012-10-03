@@ -15,7 +15,9 @@ OdJarka/src/rea2HRVnoFourier.py -text
 PyMed/.project -text
 PyMed/.pydevproject -text
 PyMed/build.xml -text
-PyMed/doc.doxygen -text
+PyMed/doc_chm.doxygen -text
+PyMed/doc_common.doxygen -text
+PyMed/doc_pdf.doxygen -text
 PyMed/src/med/__init__.py -text
 PyMed/src/med/_for_future/DataSeries.py -text
 PyMed/src/med/_for_future/__init__.py -text

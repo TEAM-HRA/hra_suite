@@ -16,12 +16,18 @@
 	<property name="doxygen" location="../../../../Programs/doxygen/bin/doxygen.exe"/>
 	
 	<property name="miktext" location="../../../../MiKTeX2.9/miktex/bin"/>
+
+	<property name="doc_name" value="PyMed"/>
 	
-	<property name="tmp_latex_dir" location="doc/latex_tmp"/>
+	<property name="doc_temp" location="doc/temp"/>
 	
+	<property name="doc_temp_latex" location="doc/temp/latex"/>	
+
 	<property name="doc_latex_dir" location="doc/latex"/>
 	
-	<property name="doc_name" value="PyMed"/>
+	<property name="doc_temp_html" location="doc/temp/html"/>
+	
+	<property name="doc_html_dir" location="doc/html"/>	
 	
 	<target name="properties.environment">
 		<!--
@@ -92,7 +98,7 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		</exec>		
 	</target>
 	
-	<target name="gen.documentation">
+	<target name="gen.chm.documentation">
 		<exec executable="/bin/bash" os="Linux">
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
@@ -100,23 +106,39 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		<exec executable="cmd" os="Windows Vista">
 			<arg value="/c" />
 			<arg value="${doxygen}" />			
-			<arg value="doc.doxygen" />
+			<arg value="doc_chm.doxygen" />
 		</exec>
 		
-		<exec executable="cmd" os="Windows Vista" dir="${tmp_latex_dir}">
+		<mkdir dir="${doc_html_dir}"/>
+		<move file="${doc_temp_html}/${doc_name}.chm" todir="${doc_html_dir}"/>
+		<delete dir="${doc_temp}"/>		
+	</target>	
+
+	<target name="gen.pdf.documentation">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		<exec executable="cmd" os="Windows Vista">
+			<arg value="/c" />
+			<arg value="${doxygen}" />			
+			<arg value="doc_pdf.doxygen" />
+		</exec>
+
+		<exec executable="cmd" os="Windows Vista" dir="${doc_temp_latex}">
 			<arg value="/c" />
 			<arg value="${miktext}/pdflatex.exe" />
 			<arg value="refman.tex" />
 			<arg value="-job-name=${doc_name}" />			
 		</exec>
 
-		<exec executable="cmd" os="Windows Vista" dir="${tmp_latex_dir}">
+		<exec executable="cmd" os="Windows Vista" dir="${doc_temp_latex}">
 			<arg value="/c" />
 			<arg value="${miktext}/makeindex.exe" />
 			<arg value="${doc_name}.idx" />
 		</exec>
 		
-		<exec executable="cmd" os="Windows Vista" dir="${tmp_latex_dir}">
+		<exec executable="cmd" os="Windows Vista" dir="${doc_temp_latex}">
 			<arg value="/c" />
 			<arg value="${miktext}/pdflatex.exe" />
 			<arg value="refman.tex" />
@@ -124,9 +146,8 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		</exec>
 
 		<mkdir dir="${doc_latex_dir}"/>
-		<move file="${tmp_latex_dir}/${doc_name}.pdf" todir="${doc_latex_dir}"/>
-		<delete dir="${tmp_latex_dir}"/>
-		
+		<move file="${doc_temp_latex}/${doc_name}.pdf" todir="${doc_latex_dir}"/>
+		<delete dir="${doc_temp}"/>
 	</target>	
-
+	
 </project>
