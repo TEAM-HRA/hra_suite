@@ -146,6 +146,7 @@ class FastFourierTransform(FourierTransform):
         return results.values
 
 
+## Class to hold outocomes of FastFourier calculations
 class FourierResults(object):
 
     def __init__(self):
@@ -187,10 +188,13 @@ class FourierResults(object):
     def TP0_4(self, TP0_4):
         self.__TP0_4__ = TP0_4
 
+    ## Method which returns VLF value
+    #  @return VLF value
     @property
     def VLF(self):
         return self.__VLF__
 
+    ## Method to set up VLF value
     @VLF.setter
     def VLF(self, VLF):
         self.__VLF__ = VLF
