@@ -14,6 +14,7 @@ OdJarka/src/rea2HRV.py -text
 OdJarka/src/rea2HRVnoFourier.py -text
 PyMed/.project -text
 PyMed/.pydevproject -text
+PyMed/application.spec -text
 PyMed/build.xml -text
 PyMed/doc_chm.doxygen -text
 PyMed/doc_common.doxygen -text
@@ -37,7 +38,9 @@ PyMed/src/med/math/sampling.py -text
 PyMed/src/med/programs/__init__.py -text
 PyMed/src/med/programs/console/__init__.py -text
 PyMed/src/med/programs/console/test_poincare.py -text
+PyMed/src/med/programs/gui/QtOpenGL_test.py -text
 PyMed/src/med/programs/gui/__init__.py -text
+PyMed/src/med/programs/gui/animation_examples.py -text
 PyMed/src/med/programs/gui/test_QT.pyw -text
 PyMed/src/med/time_domain/__init__.py -text
 PyMed/src/med/time_domain/poincare_plot/__init__.py -text

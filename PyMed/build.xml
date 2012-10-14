@@ -2,16 +2,15 @@
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml" />
 	
-	<!-- stable version -->
-	<!--
-	<property name="win-pyinstaller-path"
-	            location="../../../../python/pyinstaller-2.0"/>
-	-->
-
-	<!-- development version but better behaviour -->
-	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>	
+	<!-- stable version -->	
+	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-2.0"/>
 	
-	<property name="python-path" location="../../../../python/python_32/Python27"/>	
+	<!-- development version
+	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>	
+	-->
+	
+	
+	<property name="python-path" location="../../../../python/python_64/Python27"/>	
 
 	<property name="doxygen" location="../../../../Programs/doxygen/bin/doxygen.exe"/>
 	
@@ -35,56 +34,109 @@
 		-->
 		<echo message="ENV: ${os.name}"/>
 	</target>	
+
 	
-	<target name="build.application">
+	<target name="__build.py_med.test_poincare">
+		<antcall target="build.application">
+			<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>
+		    <param name="application.name" value="test_poincare"/>
+			<param name="start.script" value="src/med/programs/console/test_poincare.py"/>
+			<param name="console.type" value="True"/>
+			<param name="build.type" value="F"/>			
+		</antcall>
+	</target>
+
+	<target name="__build.py_med.test_QT">
+		<antcall target="build.application">
+			<!-- additional path to resolve a problem with some qt dll libraries -->
+			<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>
+		    <param name="application.name" value="test_QT"/>
+			<param name="start.script" value="src/med/programs/gui/test_QT.pyw"/>
+		    <param name="build.type" value="F"/>
+		</antcall>
+	</target>	
+
+
+	<target name="__build.py_med.QtOpenGl_test">
+		<antcall target="build.application">
+			<!-- additional path to resolve a problem with some qt dll libraries -->
+			<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>
+			<!--
+			<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\;C:\\Windows\\SysWOW64\\opengl32.dll;H:\\python\\python_64\\Python27\\lib\\site-packages\\pyopengl-3.0.2-py2.7.egg\\OpenGL\\;H:\\python\\python_64\\Python27\\lib\\site-packages\\pyopengl_accelerate-3.0.2-py2.7-win-amd64.egg\\OpenGL_accelerate"/>
+			-->
+		    <param name="application.name" value="QtOpenGL_test"/>
+			<param name="start.script" value="src/med/programs/gui/QtOpenGL_test.py"/>
+			<param name="console.type" value="True"/>
+			<param name="build.type" value="D"/>			
+		</antcall>
+	</target>	
+
+	
+	<target name="_clean.py_med.test_poincare">
+		<antcall target="clean.application">
+		    <param name="application.name" value="test_poincare"/>
+		</antcall>
+	</target>
+
+	<target name="_clean.py_med.test_QT">
+		<antcall target="clean.application">
+		    <param name="application.name" value="test_QT"/>
+		</antcall>
+	</target>
+
+	<target name="_clean.py_med.test_QT.dist">
+		<antcall target="clean.application.dist">
+		    <param name="application.name" value="test_QT"/>
+		</antcall>
+	</target>
+	
+	
+	
+	
+	<target name="check.application.dist">
+		<if>
+			<equals arg1="${build.type}" arg2="D"/>
+		    <then>
+        		<antcall target="clean.application.dist"/>
+			</then>
+		</if>			
+	</target>
+	
+	<target name="build.application" depends="check.application.dist">
 		<exec executable="/bin/bash" os="Linux">
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
 		</exec>
-		
-		<delete dir="${spec.path}"/>
-		<if>
-			<equals arg1="${os.name}" arg2="Windows Vista"/>
-		    <then>
-		    	<echo>
-		    		Creating build.bat
-				</echo>
-				<echo file="build.bat">
-${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${src.path} -o ${spec.path} -n ${application.name} ${application.type} -y
-				</echo>
-				<exec executable="cmd" os="Windows Vista">
-					<arg value="/c" />
-					<arg value="build.bat" />			
-				</exec>		    	
-			</then>
-			<!--
-			<else>
-				<echo>Can't create build.bat !!!</echo>
-			</else>
-			-->
-		</if>
-	</target>	
+		<exec executable="cmd" os="Windows Vista" >
+			<env key="PATH" path="${env.PATH};${additional.paths}"/>
+			<env key="APPLICATION_NAME" value="${application.name}"/>
+			<env key="START_SCRIPT" value="${start.script}"/>
+			<!-- True - with console -->
+			<env key="CONSOLE_TYPE" value="${console.type}"/>
+			<!-- D - dictionary F- file -->
+			<env key="BUILD_TYPE" value="${build.type}"/>			
 
-	<target name="build.py_med.test_poincare">
-		<antcall target="build.application">
-		    <param name="startup.script" value="src/med/programs/console/test_poincare.py"/>
-		    <param name="application.name" value="PyMed"/>
-			<param name="application.type" value="-c" />
-			<param name="src.path" value="src" />
-			<param name="spec.path" value="spec" />
-		</antcall>
+			<arg value="/c" />
+			<arg value="${python-path}/python.exe" />
+			<arg value="${win-pyinstaller-path}/utils/Build.py" />
+			<arg value="application.spec" />			
+			<arg value="--buildpath=build/${application.name}"/>
+		</exec>
 	</target>
+
 	
-	<target name="build.py_med.test_QT">
-		<antcall target="build.application">
-		    <param name="startup.script" value="src/med/programs/gui/test_QT.pyw"/>
-		    <param name="application.name" value="PyMedQT"/>
-			<param name="application.type" value="-w" />
-			<param name="src.path" value="src" />
-			<param name="spec.path" value="spec_QT" />
-		</antcall>
+	<target name="clean.application.dist">
+		<delete dir="dist/${application.name}"/>
+		<delete file="dist/${application.name}.exe"/>		
 	</target>	
 	
+	<target name="clean.application" depends="clean.application.dist" >
+		<delete dir="build/${application.name}"/>
+	</target>
+
+
+
+
 	<target name="py_installer.help">
 		<exec executable="/bin/bash" os="Linux">
 			<arg value="mvn" />
@@ -148,6 +200,55 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		<mkdir dir="${doc_latex_dir}"/>
 		<move file="${doc_temp_latex}/${doc_name}.pdf" todir="${doc_latex_dir}"/>
 		<delete dir="${doc_temp}"/>
+	</target>	
+
+	<target name="TEST.old.build.application" description="only for testing purposes">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		
+		<delete dir="${spec.path}"/>
+		<if>
+			<equals arg1="${os.name}" arg2="Windows Vista"/>
+		    <then>
+		    	<echo>
+		    		Creating build.bat
+				</echo>
+		    	<!-- D -to a directory  F to a file -->
+				<echo file="build.bat">
+${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${src.path} -o ${spec.path} -n ${application.name} ${application.type} -y --noupx --buildpath build\${application.name} 
+				</echo>
+				<exec executable="cmd" os="Windows Vista">
+					<arg value="/c" />
+					<arg value="build.bat" />			
+				</exec>
+			</then>
+			<else>
+				<echo>Can't create build.bat !!!</echo>
+			</else>
+
+		</if>
+	</target>
+
+	<target name="TEST.old.build.py_med.test_poincare" description="only for testing purposes">
+		<antcall target="TEST.old.build.application">
+		    <param name="startup.script" value="src/med/programs/console/test_poincare.py"/>
+		    <param name="application.name" value="test_poincare"/>
+			<param name="application.type" value="-c" />
+			<param name="src.path" value="src" />
+			<param name="spec.path" value="spec" />
+		</antcall>
+	</target>
+	
+	<target name="TEST.old.build.py_med.test_QT" description="only for testing purposes">
+		<antcall target="TEST.old.build.application">
+		    <param name="startup.script" value="src/med/programs/gui/test_QT.pyw"/>
+		    <param name="application.name" value="test_QT"/>
+			<param name="application.type" value="-w" />
+			<param name="src.path" value="src" />
+			<param name="spec.path" value="spec" />
+		</antcall>
 	</target>	
 	
 </project>
