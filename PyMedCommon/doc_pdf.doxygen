@@ -1,4 +1,4 @@
-@INCLUDE = doc_common.doxygen
+@INCLUDE = ../PyMedCommon/doc_common.doxygen
 
 GENERATE_HTML = NO
 GENERATE_LATEX = YES

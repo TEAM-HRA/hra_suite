@@ -1,6 +1,6 @@
-@INCLUDE = doc_common.doxygen
+@INCLUDE = ../PyMedCommon/doc_common.doxygen
 
 GENERATE_HTML = YES
 GENERATE_HTMLHELP = YES
-CHM_FILE = PyMed.chm
+CHM_FILE = $(APPLICATION_NAME).chm
 HHC_LOCATION = H:/Programs/HTML_Help_Workshop/hhc.exe

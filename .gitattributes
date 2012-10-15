@@ -14,11 +14,7 @@ OdJarka/src/rea2HRV.py -text
 OdJarka/src/rea2HRVnoFourier.py -text
 PyMed/.project -text
 PyMed/.pydevproject -text
-PyMed/application.spec -text
 PyMed/build.xml -text
-PyMed/doc_chm.doxygen -text
-PyMed/doc_common.doxygen -text
-PyMed/doc_pdf.doxygen -text
 PyMed/src/med/__init__.py -text
 PyMed/src/med/_for_future/DataSeries.py -text
 PyMed/src/med/_for_future/__init__.py -text
@@ -48,3 +44,11 @@ PyMed/src/med/time_domain/poincare_plot/filters.py -text
 PyMed/src/med/time_domain/poincare_plot/poincare_plot.py -text
 PyMed/src/med/utils/__init__.py -text
 PyMed/src/med/utils/collections.py -text
+PyMedCommon/.project -text
+PyMedCommon/.pydevproject -text
+PyMedCommon/application.spec -text
+PyMedCommon/build_common.xml -text
+PyMedCommon/doc_chm.doxygen -text
+PyMedCommon/doc_common.doxygen -text
+PyMedCommon/doc_pdf.doxygen -text
+PyMedCommon/src_setup/setup.py -text

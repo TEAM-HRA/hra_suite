@@ -12,6 +12,10 @@ from OpenGL.GLU import *
 from PyQt4 import QtGui
 from PyQt4.QtOpenGL import *   # @UnusedWildImport
 
+from test1 import test2
+
+print(test2.Value)
+
 
 class SpiralWidget(QGLWidget):
     '''
