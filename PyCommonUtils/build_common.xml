@@ -1,0 +1,230 @@
+<project name="PyCommonUtils" default="py_installer.help">
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" />
+
+	<!-- stable version -->	
+	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-2.0"/>
+	
+	<!-- development version
+	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>	
+	-->
+	
+	
+	<property name="python-path" location="../../../../python/python_64/Python27"/>	
+
+	<property name="doxygen" location="../../../../Programs/doxygen/bin/doxygen.exe"/>
+	
+	<property name="miktext" location="../../../../MiKTeX2.9/miktex/bin"/>
+
+	<property name="doc_temp" location="doc/temp"/>
+	
+	<property name="doc_temp_latex" location="doc/temp/latex"/>	
+
+	<property name="doc_latex_dir" location="doc/latex"/>
+	
+	<property name="doc_temp_html" location="doc/temp/html"/>
+	
+	<property name="doc_html_dir" location="doc/html"/>
+	
+	<property name="py_med_egg_setup" location="../PyCommonUtils/src_setup/setup.py"/>
+
+	<target name="properties.environment">
+		<!--
+		<property environment="env"/>
+		-->
+		<echo message="ENV: ${os.name}"/>
+	</target>	
+
+	<!-- additional path to resolve a problem with some qt dll libraries -->
+	<!-- an application runs smoothly also without that setting -->	
+	<!--
+	<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>
+	-->	
+	
+	
+	<target name="_help.py_med.egg">
+		<exec executable="cmd" os="Windows Vista">
+			<arg value="/c" />
+			<arg value="${python-path}/python.exe" />			
+			<arg value="${py_med_egg_setup}" />
+			<arg value="--help-commands" />
+		</exec>		
+	</target>	
+	
+	<target name="build.egg">
+		<exec executable="cmd" os="Windows Vista">
+			<env key="APPLICATION_DESCRIPTION" value="${application.description}"/>
+			<env key="APPLICATION_NAME" value="${application.name}"/>
+			<env key="REQUIRED_PACKAGES" value="${required.packages}"/>
+			<arg value="/c" />
+			<arg value="${python-path}/python.exe" />
+			<arg value="${py_med_egg_setup}" />
+			<arg value="bdist_egg" />
+		</exec>
+		<delete dir="${application.root}/src/${application.name}.egg-info"/>
+	</target>	
+	
+
+	<target name="check.application.dist">
+		<if>
+			<equals arg1="${build.type}" arg2="D"/>
+		    <then>
+        		<antcall target="clean.application.dist"/>
+			</then>
+		</if>			
+	</target>
+	
+	<target name="build.application" depends="check.application.dist">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		<exec executable="cmd" os="Windows Vista" >
+			<env key="PATH" path="${env.PATH};${additional.paths}"/>
+			<env key="APPLICATION_NAME" value="${application.name}"/>
+			<env key="START_SCRIPT" value="${start.script}"/>
+			<!-- True - with console -->
+			<env key="CONSOLE_TYPE" value="${console.type}"/>
+			<!-- D - dictionary F- file -->
+			<env key="BUILD_TYPE" value="${build.type}"/>
+			<!-- True - with debug -->			
+			<env key="DEBUG_INFO" value="${debug.info}"/>
+			<env key="EGG_1" value="${egg.1}"/>
+			<env key="APPLICATION_ROOT" value="${application.root}"/>
+
+
+			<arg value="/c" />
+			<arg value="${python-path}/python.exe" />
+			<arg value="${win-pyinstaller-path}/utils/Build.py" />
+			<arg value="../PyCommonUtils/application.spec" />
+			<arg value="--buildpath=${application.root}/build/${application.name}"/>
+		</exec>
+	</target>
+
+	
+	<target name="clean.application.dist">
+		<delete dir="${application.root}/dist/${application.name}"/>
+		<delete file="${application.root}/dist/${application.name}.exe"/>		
+	</target>	
+	
+	<target name="clean.application" depends="clean.application.dist">
+		<delete dir="${application.root}/build/${application.name}"/>
+	</target>
+
+	<target name="py_installer.help" description="PyInstaller help">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		<exec executable="cmd" os="Windows Vista">
+			<arg value="/c" />
+			<arg value="${python-path}/python.exe" />			
+			<arg value="${win-pyinstaller-path}/pyinstaller.py" />
+			<arg value="--help" />
+		</exec>		
+	</target>
+	
+	<target name="gen.chm.documentation">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		<exec executable="cmd" os="Windows Vista">
+			<env key="APPLICATION_NAME" value="${application.name}"/>			
+			<arg value="/c" />
+			<arg value="${doxygen}" />			
+			<arg value="../PyCommonUtils/doc_chm.doxygen" />
+		</exec>
+		
+		<mkdir dir="${doc_html_dir}"/>
+		<move file="${doc_temp_html}/${application.name}.chm" todir="${doc_html_dir}"/>
+		<delete dir="${doc_temp}"/>		
+	</target>	
+
+	<target name="gen.pdf.documentation">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		<exec executable="cmd" os="Windows Vista">
+			<env key="APPLICATION_NAME" value="${application.name}"/>			
+			<arg value="/c" />
+			<arg value="${doxygen}" />			
+			<arg value="../PyCommonUtils/doc_pdf.doxygen" />
+		</exec>
+
+		<exec executable="cmd" os="Windows Vista" dir="${doc_temp_latex}">
+			<arg value="/c" />
+			<arg value="${miktext}/pdflatex.exe" />
+			<arg value="refman.tex" />
+			<arg value="-job-name=${application.name}" />
+		</exec>
+
+		<exec executable="cmd" os="Windows Vista" dir="${doc_temp_latex}">
+			<arg value="/c" />
+			<arg value="${miktext}/makeindex.exe" />
+			<arg value="${application.name}.idx" />
+		</exec>
+		
+		<exec executable="cmd" os="Windows Vista" dir="${doc_temp_latex}">
+			<arg value="/c" />
+			<arg value="${miktext}/pdflatex.exe" />
+			<arg value="refman.tex" />
+			<arg value="${application.name}.idx" />
+		</exec>
+
+		<mkdir dir="${doc_latex_dir}"/>
+		<move file="${doc_temp_latex}/${application.name}.pdf" todir="${doc_latex_dir}"/>		
+		<delete dir="${doc_temp}"/>
+	</target>	
+
+	<target name="test.old.build.application">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		
+		<delete dir="${spec.path}"/>
+		<if>
+			<equals arg1="${os.name}" arg2="Windows Vista"/>
+		    <then>
+		    	<echo>
+		    		Creating build.bat
+				</echo>
+		    	<!-- D -to a directory  F to a file -o ${spec.path} -->
+				<echo file="build.bat">
+${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${src.path} -o ../PyMed -n ${application.name} ${application.type} -y --noupx --buildpath build\${application.name} 
+				</echo>
+				<exec executable="cmd" os="Windows Vista">
+					<arg value="/c" />
+					<arg value="build.bat" />			
+				</exec>
+			</then>
+			<else>
+				<echo>Can't create build.bat !!!</echo>
+			</else>
+
+		</if>
+	</target>
+
+	<target name="test.old.build.py_med.test_poincare">
+		<antcall target="TEST.old.build.application">
+		    <param name="startup.script" value="src/med/programs/console/test_poincare.py"/>
+		    <param name="application.name" value="test_poincare"/>
+			<param name="application.type" value="-c" />
+			<param name="src.path" value="src" />
+			<param name="spec.path" value="spec" />
+		</antcall>
+	</target>
+	
+	<target name="test.old.build.py_med.test_QT">
+		<antcall target="TEST.old.build.application">
+		    <param name="startup.script" value="src/med/programs/gui/test_QT.pyw"/>
+		    <param name="application.name" value="test_QT"/>
+			<param name="application.type" value="-w" />
+			<param name="src.path" value="src" />
+			<param name="spec.path" value="spec" />
+		</antcall>
+	</target>	
+	
+</project>

@@ -2,7 +2,7 @@
 
 	<property name="application.root" location="../PyMed"/>	
 	
-	<import file="../PyMedCommon/build_common.xml"/>
+	<import file="../PyCommonUtils/build_common.xml"/>
 	
 	<target name="BUILD.test_poincare.egg" description="build py_med egg">
 		<antcall target="build.egg">
