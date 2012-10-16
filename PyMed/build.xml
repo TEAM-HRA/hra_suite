@@ -1,8 +1,15 @@
-<project name="PyInstaller builder" default="py_installer.help">
+<project name="PyMed" default="py_installer.help">
 
-	<property name="application.root" location="../PyMed"/>	
+	<property name="application.name" value="PyMed"/>
+
+	<!--
+	<property name="application.root" location="../PyMed"/>
+	-->
 	
-	<import file="../PyCommonUtils/build_common.xml"/>
+	<property name="common.lib.egg" location="../PyCore/dist/PyCore-0.1-py2.7.egg"/>
+	
+
+	<import file="../PyUtils/build_common.xml"/>
 	
 	<target name="BUILD.test_poincare.egg" description="build py_med egg">
 		<antcall target="build.egg">
@@ -17,7 +24,8 @@
 		    <param name="application.name" value="test_poincare"/>
 			<param name="start.script" value="src/med/programs/console/test_poincare.py"/>
 			<param name="console.type" value="True"/>
-			<param name="build.type" value="F"/>
+			<param name="build.type" value="D"/>
+			<param name="egg.1" value="${common.lib.egg}"/>
 		</antcall>
 	</target>
 	
@@ -61,16 +69,11 @@
 		</antcall>
 	</target>
 	
-	<target name="DOC.pdf.test_poincare" description="generate pdf documentation">
-		<antcall target="gen.pdf.documentation">
-		    <param name="application.name" value="test_poincare"/>
-		</antcall>		
-	</target>
+	
+	<target name="_pdf" description="generate pdf documentation for PyMed" depends="gen.pdf.documentation"/>
 
-	<target name="DOC.chm.test_poincare" description="generate chm documentation">
-		<antcall target="gen.chm.documentation">
-		    <param name="application.name" value="test_poincare"/>
-		</antcall>		
-	</target>
+	<target name="_chm" description="generate chm documentation for PyMed" depends="gen.chm.documentation"/>
 
+	<target name="clean" description="clean PyMed" depends="clean.application"/>	
+	
 </project>

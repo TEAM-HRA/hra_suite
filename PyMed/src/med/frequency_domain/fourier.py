@@ -12,11 +12,12 @@ from pylab import mean
 from pylab import find
 import numpy as np
 
-import med.math.interpolation as interpolation_module
-from med.math.sampling import LinearInterpolatedSampling
-from med.math.integrals import DefiniteIntegral
-from med.utils.collections import *  # @UnusedWildImport
-from med.data_sources.datasources import DataSource
+import core.math.interpolation as interpolation_module
+from core.math.sampling import LinearInterpolatedSampling
+from core.math.integrals import DefiniteIntegral
+from core.common.collections import get_values_as_map
+from core.common.collections import initialize_fields
+from core.math.datasources import DataSource
 
 
 class FourierTransform(DataSource):

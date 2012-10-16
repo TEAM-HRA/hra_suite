@@ -9,13 +9,13 @@ from pylab import find
 from pylab import arange
 from pylab import r_
 from pylab import in1d
-from med.data_sources.datasources import DataSource
+from core.math.datasources import DataSource
 from med.base_statistics.statistics import StatisticsFactory
 from med.base_statistics.statistics import MeanStatistic
 from med.base_statistics.statistics import SDRRStatistic
 from med.base_statistics.statistics import NtotStatistic
 from med.base_statistics.statistics import TotTimeStatistic
-from med.globals.globals import NUMPY_USAGE
+from core.common.globals import NUMPY_USAGE
 
 
 class Filter(DataSource):

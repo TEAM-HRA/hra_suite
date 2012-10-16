@@ -12,8 +12,8 @@ from pylab import compress
 from pylab import equal
 from numpy import var
 
-from med.data_sources.datasources import DataSource
-from med.globals.globals import *  # @UnusedWildImport
+from core.math.datasources import DataSource
+from core.common.globals import *  # @UnusedWildImport
 
 
 ## Base class for all specific statitistics,

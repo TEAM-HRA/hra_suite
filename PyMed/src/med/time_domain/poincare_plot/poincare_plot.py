@@ -18,7 +18,7 @@ from med.base_statistics.statistics import NupStatistic
 from med.base_statistics.statistics import NdownStatistic
 from med.base_statistics.statistics import NonStatistic
 
-from med.data_sources.datasources import DataSource
+from core.math.datasources import DataSource
 
 
 class SymmetryStatistic(Statistic):

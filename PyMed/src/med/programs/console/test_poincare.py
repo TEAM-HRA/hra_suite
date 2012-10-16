@@ -7,16 +7,16 @@ Created on 20-08-2012
 from numpy import array
 from pylab import find
 
-from med.data_sources.datasources import FilesDataSources, DataSource
-from med.data_sources.datasources import SignalColumnSpec
-from med.data_sources.datasources import AnnotationColumnSpec
+from core.math.datasources import FilesDataSources, DataSource
+from core.math.datasources import SignalColumnSpec
+from core.math.datasources import AnnotationColumnSpec
 from med.time_domain.poincare_plot.poincare_plot import PoincarePlot
 from med.time_domain.poincare_plot.poincare_plot import PoincarePlotSegmenter
 from med.time_domain.poincare_plot.filters import RemoveAnnotatedSignalFilter
 from med.time_domain.poincare_plot.filters import ZeroAnnotationFilter
 from med.time_domain.poincare_plot.filters import AnnotationShiftedPartsFilter
 from med.frequency_domain.fourier import FastFourierTransform
-from med.globals.globals import DIR_DATA, EXT_MASK
+from core.common.globals import DIR_DATA, EXT_MASK
 
 #s = [
 #     750.625000,
