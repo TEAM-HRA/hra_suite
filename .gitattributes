@@ -63,8 +63,6 @@ PyMed/src/med/time_domain/__init__.py -text
 PyMed/src/med/time_domain/poincare_plot/__init__.py -text
 PyMed/src/med/time_domain/poincare_plot/filters.py -text
 PyMed/src/med/time_domain/poincare_plot/poincare_plot.py -text
-PyMed/src/med/utils/__init__.py -text
-PyMed/src/med/utils/collections.py -text
 PyMedCommon/.project -text
 PyMedCommon/.pydevproject -text
 PyMedCommon/application.spec -text
