@@ -18,6 +18,12 @@ PyConsole/build.xml -text
 PyConsole/src/pyconsole/__init__.py -text
 PyConsole/src/pyconsole/programs/__init__.py -text
 PyConsole/src/pyconsole/programs/test_poincare.py -text
+PyCore/.project -text
+PyCore/.pydevproject -text
+PyCore/build.xml -text
+PyCore/src/pycore/__init__.py -text
+PyCore/src/pycore/collections.py -text
+PyCore/src/pycore/globals.py -text
 PyUtils/.project -text
 PyUtils/.pydevproject -text
 PyUtils/application.spec -text
