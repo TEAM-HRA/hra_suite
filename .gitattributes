@@ -12,6 +12,12 @@ OdJarka/src/HRV/resample.py -text
 OdJarka/src/ongoing/HRV.py -text
 OdJarka/src/rea2HRV.py -text
 OdJarka/src/rea2HRVnoFourier.py -text
+PyConsole/.project -text
+PyConsole/.pydevproject -text
+PyConsole/build.xml -text
+PyConsole/src/pyconsole/__init__.py -text
+PyConsole/src/pyconsole/programs/__init__.py -text
+PyConsole/src/pyconsole/programs/test_poincare.py -text
 PyUtils/.project -text
 PyUtils/.pydevproject -text
 PyUtils/application.spec -text
