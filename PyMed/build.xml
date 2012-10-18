@@ -1,0 +1,50 @@
+<project name="PyMed" default="BUILD.test_QT">
+
+	<property name="application.name" value="PyMed"/>
+	
+	<import file="../PyUtils/build_common.xml"/>
+
+	<property name="common.lib.egg" location="../PyCore/dist/PyCore-0.1-py2.7.egg"/>
+	
+	<target name="BUILD.test_QT" description="Build test_QT application">
+		<antcall target="build.application">
+		    <param name="application.name" value="test_QT"/>
+			<param name="start.script" value="src/med/programs/gui/test_QT.pyw"/>
+		    <param name="build.type" value="F"/>
+		</antcall>
+	</target>	
+
+
+	<target name="BUILD.QtOpenGl_test" description="Build QtOpenGl_test application">
+		<antcall target="build.application">
+			<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>			
+		    <param name="application.name" value="QtOpenGL_test"/>
+			<param name="start.script" value="src/med/programs/gui/QtOpenGL_test.py"/>
+			<param name="console.type" value="True"/>
+			<param name="build.type" value="F"/>
+			<param name="debug.info" value="True"/>
+			<param name="egg.1" value="..\\OldSources\\lib_test2-0.1-py2.7.egg"/>			
+		</antcall>
+	</target>	
+	
+
+	<target name="CLEAN.test_QT" description="clean test_QT">
+		<antcall target="clean.application">
+		    <param name="application.name" value="test_QT"/>
+		</antcall>
+	</target>
+
+	<target name="CLEAN.QtOpenGl_test" description="clean QtOpenGl_test">
+		<antcall target="clean.application">
+		    <param name="application.name" value="QtOpenGl_test"/>
+		</antcall>
+	</target>
+	
+	
+	<target name="_pdf" description="generate pdf documentation for PyMed" depends="gen.pdf.documentation"/>
+
+	<target name="_chm" description="generate chm documentation for PyMed" depends="gen.chm.documentation"/>
+
+	<target name="clean" description="clean PyMed" depends="clean.application"/>	
+	
+</project>

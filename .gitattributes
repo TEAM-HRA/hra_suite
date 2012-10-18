@@ -41,6 +41,15 @@ PyMath/src/pymath/time_domain/__init__.py -text
 PyMath/src/pymath/time_domain/poincare_plot/__init__.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters.py -text
 PyMath/src/pymath/time_domain/poincare_plot/poincare_plot.py -text
+PyMed/.project -text
+PyMed/.pydevproject -text
+PyMed/build.xml -text
+PyMed/src/pymed/__init__.py -text
+PyMed/src/pymed/programs/__init__.py -text
+PyMed/src/pymed/programs/gui/QtOpenGL_test.py -text
+PyMed/src/pymed/programs/gui/__init__.py -text
+PyMed/src/pymed/programs/gui/animation_examples.py -text
+PyMed/src/pymed/programs/gui/test_QT.pyw -text
 PyUtils/.project -text
 PyUtils/.pydevproject -text
 PyUtils/application.spec -text
