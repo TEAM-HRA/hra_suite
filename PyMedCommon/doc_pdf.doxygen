@@ -1,7 +1,0 @@
-@INCLUDE = ../PyMedCommon/doc_common.doxygen
-
-GENERATE_HTML = NO
-GENERATE_LATEX = YES
-USE_PDFLATEX = YES
-PDF_HYPERLINKS = YES
-LATEX_OUTPUT = latex

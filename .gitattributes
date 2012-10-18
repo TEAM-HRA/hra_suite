@@ -12,14 +12,6 @@ OdJarka/src/HRV/resample.py -text
 OdJarka/src/ongoing/HRV.py -text
 OdJarka/src/rea2HRV.py -text
 OdJarka/src/rea2HRVnoFourier.py -text
-PyMedCommon/.project -text
-PyMedCommon/.pydevproject -text
-PyMedCommon/application.spec -text
-PyMedCommon/build_common.xml -text
-PyMedCommon/doc_chm.doxygen -text
-PyMedCommon/doc_common.doxygen -text
-PyMedCommon/doc_pdf.doxygen -text
-PyMedCommon/src_setup/setup.py -text
 PyUtils/.project -text
 PyUtils/.pydevproject -text
 PyUtils/application.spec -text
