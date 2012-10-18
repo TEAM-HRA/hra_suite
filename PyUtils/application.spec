@@ -23,18 +23,19 @@ if (application_root == None or len(application_root)==0) or application_root ==
 else:
 	application_root += '/'
 
-pathex = ['src', '.']
+
+a = Analysis([start_script],
+             pathex=['src', '.'],
+             hiddenimports=[],
+             hookspath=None)
+
 #add external eggs
 for env_key in os.environ:
 	if (env_key.startswith('EGG_')):
 		value = os.environ.get(env_key)
 		if ( not (value == None or len(value) == 0 or value.startswith('${egg.')) ):
-			pathex.append(value)
-
-a = Analysis([start_script],
-             pathex=pathex,
-             hiddenimports=[],
-             hookspath=None)
+			name = value.split("\\")[-1]
+			a.zipfiles += [('eggs/' + name, value, 'ZIPFILE',)]
 
 pyz = PYZ(a.pure)
 

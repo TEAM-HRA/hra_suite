@@ -91,6 +91,8 @@
 			<!-- True - with debug -->			
 			<env key="DEBUG_INFO" value="${debug.info}"/>
 			<env key="EGG_1" value="${egg.1}"/>
+			<env key="EGG_2" value="${egg.2}"/>
+			<env key="EGG_3" value="${egg.3}"/>			
 			<env key="APPLICATION_ROOT" value="${application.root}"/>
 
 
@@ -98,6 +100,7 @@
 			<arg value="${python-path}/python.exe" />
 			<arg value="${win-pyinstaller-path}/utils/Build.py" />
 			<arg value="../PyUtils/application.spec" />
+			<arg value="-y" />
 			<arg value="--buildpath=${application.root}/build/${application.name}"/>
 		</exec>
 	</target>
