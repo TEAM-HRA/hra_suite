@@ -12,14 +12,6 @@ OdJarka/src/HRV/resample.py -text
 OdJarka/src/ongoing/HRV.py -text
 OdJarka/src/rea2HRV.py -text
 OdJarka/src/rea2HRVnoFourier.py -text
-PyCommonUtils/.project -text
-PyCommonUtils/.pydevproject -text
-PyCommonUtils/application.spec -text
-PyCommonUtils/build_common.xml -text
-PyCommonUtils/doc_chm.doxygen -text
-PyCommonUtils/doc_common.doxygen -text
-PyCommonUtils/doc_pdf.doxygen -text
-PyCommonUtils/src_setup/setup.py -text
 PyCore/.project -text
 PyCore/.pydevproject -text
 PyCore/build.xml -text
