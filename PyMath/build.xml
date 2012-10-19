@@ -1,19 +1,7 @@
-<project name="PyMath" default="_egg">
+<project name="PyMath" default="build.egg">
 
 	<property name="application.name" value="PyMath"/>
-	
+    <property name="application.description" value="Math functionality"/>	
 	<import file="../PyUtils/build_common.xml"/>
-
-	<target name="_egg" description="builds PyMath egg">
-		<antcall target="build.egg">
-		    <param name="application.description" value="Core medical functionality"/>
-		</antcall>
-	</target>
-
-	<target name="pdf" description="generate pdf documentation for PyMath" depends="gen.pdf.documentation"/>
-
-	<target name="chm" description="generate chm documentation for PyMath" depends="gen.chm.documentation"/>
-
-	<target name="clean" description="clean PyMath" depends="clean.application"/>	
-
+	
 </project>

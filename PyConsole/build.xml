@@ -1,26 +1,14 @@
-<project name="PyConsole" default="_build.py.med.console">
-
+<project name="PyConsole" default="build.PyConsole">
 	<property name="application.name" value="PyConsole"/>
-	
 	<import file="../PyUtils/build_common.xml"/>
-
-	<property name="core.lib.egg" location="../PyCore/dist/PyCore-0.1-py2.7.egg"/>
-	<property name="med.core.lib.egg" location="../PyMath/dist/PyMath-0.1-py2.7.egg"/>	
 	
-	<target name="_build.py.med.console" description="build PyConsole application">
+	<target name="build.PyConsole" description="build PyConsole application">
+		<property name="egg.1" location="../PyCore/dist/PyCore-0.1-py2.7.egg"/>
+		<property name="egg.2" location="../PyMath/dist/PyMath-0.1-py2.7.egg"/>			
 		<antcall target="build.application">
-			<param name="start.script" value="src/med/programs/console/test_poincare.py"/>
+			<param name="start.script" value="src/pyconsole/programs/test_poincare.py"/>
 			<param name="console.type" value="True"/>
-			<param name="build.type" value="F"/>
-			<param name="egg.1" value="${med.core.lib.egg}"/>
-			<param name="egg.2" value="${core.lib.egg}"/>				
+			<param name="build.type" value="D"/>
 		</antcall>
-	</target>	
-
-	<target name="pdf" description="generate pdf documentation for PyConsole" depends="gen.pdf.documentation"/>
-
-	<target name="chm" description="generate chm documentation for PyConsole" depends="gen.chm.documentation"/>
-
-	<target name="clean" description="clean PyConsole" depends="clean.application"/>	
-	
+	</target>
 </project>

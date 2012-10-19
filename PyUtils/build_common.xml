@@ -99,7 +99,7 @@
 			<arg value="/c" />
 			<arg value="${python-path}/python.exe" />
 			<arg value="${win-pyinstaller-path}/utils/Build.py" />
-			<arg value="../PyUtils/application.spec" />
+			<arg value="../PyUtils/application.spec.py" />
 			<arg value="-y" />
 			<arg value="--buildpath=${application.root}/build/${application.name}"/>
 		</exec>
@@ -117,7 +117,7 @@
 		</delete>
 	</target>		
 	
-	<target name="clean.application" depends="clean.dist, clean.egg">
+	<target name="clean" depends="clean.dist, clean.egg" description="clean application">
 		<delete includeEmptyDirs="true">
 			<fileset dir="${application.root}/build" includes="**/*"/>
 		</delete>		
@@ -136,7 +136,7 @@
 		</exec>		
 	</target>
 	
-	<target name="gen.chm.documentation">
+	<target name="chm" description="generate chm documentation">
 		<mkdir dir="${doc_html_dir}"/>		
 		<exec executable="/bin/bash" os="Linux">
 			<arg value="mvn" />
@@ -153,7 +153,7 @@
 		<delete dir="${doc_temp}"/>		
 	</target>	
 
-	<target name="gen.pdf.documentation">
+	<target name="pdf" description="generate pdf documentation">
 		<mkdir dir="${doc_latex_dir}"/>		
 		
 		<exec executable="/bin/bash" os="Linux">

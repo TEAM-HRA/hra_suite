@@ -52,7 +52,7 @@ PyMed/src/pymed/programs/gui/animation_examples.py -text
 PyMed/src/pymed/programs/gui/test_QT.pyw -text
 PyUtils/.project -text
 PyUtils/.pydevproject -text
-PyUtils/application.spec -text
+PyUtils/application.spec.py -text
 PyUtils/build_common.xml -text
 PyUtils/doc_chm.doxygen -text
 PyUtils/doc_common.doxygen -text

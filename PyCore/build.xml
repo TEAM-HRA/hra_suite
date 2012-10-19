@@ -1,19 +1,7 @@
-<project name="PyCore" default="__egg">
+<project name="PyCore" default="build.egg">
 
 	<property name="application.name" value="PyCore"/>
-	
+    <property name="application.description" value="Core functionality"/>	
 	<import file="../PyUtils/build_common.xml"/>
-
-	<target name="__egg" description="builds PyCore egg">
-		<antcall target="build.egg">
-		    <param name="application.description" value="Lib for common functionality"/>
-		</antcall>
-	</target>
-
-	<target name="_pdf" description="generate pdf documentation for PyCore" depends="gen.pdf.documentation"/>
-
-	<target name="_chm" description="generate chm documentation for PyCore" depends="gen.chm.documentation"/>
-
-	<target name="clean" description="clean PyCore" depends="clean.application"/>	
-
+	
 </project>
