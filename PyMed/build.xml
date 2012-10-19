@@ -4,10 +4,20 @@
 	
 	<import file="../PyUtils/build_common.xml"/>
 
-	<property name="egg.1" location="../PyCore/dist/PyCore-0.1-py2.7.egg"/>
-	<property name="egg.2" location="../PyMath/dist/PyMath-0.1-py2.7.egg"/>	
-
 	<target name="build.PyMed" description="Build PyMed application">
+
+		<property name="egg.1" location="../PyCore/dist/PyCore-0.1-py2.7.egg"/>
+		<antcall target="check.egg">
+			<param name="egg" value="${egg.1}"/>
+			<param name="egg.project" value="../PyCore"/>
+		</antcall>
+
+		<property name="egg.2" location="../PyMath/dist/PyMath-0.1-py2.7.egg"/>
+		<antcall target="check.egg">
+			<param name="egg" value="${egg.2}"/>
+			<param name="egg.project" value="../PyMath"/>
+		</antcall>		
+
 		<antcall target="build.application">
 			<param name="start.script" value="src/pymed/programs/gui/test_QT.pyw"/>
 		    <param name="build.type" value="F"/>

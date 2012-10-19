@@ -238,5 +238,15 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 			<param name="spec.path" value="spec" />
 		</antcall>
 	</target>	
-	
+
+	<target name="check.egg">
+		<if>
+			<available file="${egg}"/>
+		    <then>
+			</then>
+			<else>
+				<ant dir="${egg.project}" inheritall="false"/>				
+			</else>
+		</if>		
+	</target>		
 </project>
