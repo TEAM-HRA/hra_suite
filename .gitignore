@@ -1,2 +1,11 @@
 OdJarka/src/HRV/RAERAF.EXE
 OdJarka/src/HRV/prvxbrs.exe
+PyConsole/build
+PyConsole/dist
+PyConsole/doc
+PyCore/build
+PyCore/dist
+PyMath/build
+PyMath/dist
+PyMed/build
+PyMed/dist
