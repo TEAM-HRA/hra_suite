@@ -1,9 +1,26 @@
 <project name="PyConsole" default="build.PyConsole">
-	<property name="application.name" value="PyConsole"/>
+
+	<property name="application.root" value="../PyConsole"/>
 	<import file="../PyUtils/build_common.xml"/>
 	
-	<target name="build.PyConsole" description="build PyConsole application">
+	<property name="console.type" value="True"/>
+	<property name="build.type" value="D"/>	
+	
+	<target name="build.PyConsole" depends="libs" description="build PyConsole application">
+		<property name="application.name" value="PyConsole"/>		
+		<antcall target="build.application">
+			<param name="start.script" value="src/pyconsole/programs/test_poincare.py"/>
+		</antcall>
+	</target>
+	
+	<target name="build.PyCursesMed" depends="libs" description="build PyCursesMed application">
+		<property name="application.name" value="PyCursesMed"/>		
+		<antcall target="build.application">
+			<param name="start.script" value="src/pyconsole/programs/main_curses_med.py"/>
+		</antcall>
+	</target>	
 
+	<target name="libs">
 		<property name="egg.1" location="../PyCore/dist/PyCore-0.1-py2.7.egg"/>
 		<antcall target="check.egg">
 			<param name="egg" value="${egg.1}"/>
@@ -15,12 +32,20 @@
 			<param name="egg" value="${egg.2}"/>
 			<param name="egg.project" value="../PyMath"/>			
 		</antcall>
-		
+	</target>	
 
-		<antcall target="build.application">
-			<param name="start.script" value="src/pyconsole/programs/test_poincare.py"/>
-			<param name="console.type" value="True"/>
-			<param name="build.type" value="D"/>
-		</antcall>
+	<target name="run.PyCurses" description="Run PyCurses" depends="libs">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		<exec executable="cmd" dir="." os="Windows Vista">
+			<env key="PYTHONPATH" path="${env.PYTHONPATH};${egg.1};${egg.2}"/>			
+			<arg value="/C" />
+			<arg value="start" />
+			<arg value="${python-path}/python"/>
+			<arg value="src/pyconsole/programs/main_curses_med.py"/>
+		</exec>
 	</target>
+	
 </project>

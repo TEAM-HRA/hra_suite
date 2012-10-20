@@ -8,8 +8,9 @@
 	<!-- development version
 	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>	
 	-->
-
+	<!--
 	<property name="application.root" location="../${application.name}"/>
+	-->
 	
 	<property name="python-path" location="../../../../python/python_64/Python27"/>	
 
@@ -112,16 +113,23 @@
 	</target>	
 	
 	<target name="clean.egg">
-		<delete>
+		<delete failonerror="no">
 			<fileset dir="${application.root}/dist" includes="${application.name}*.egg"/>
 		</delete>
 	</target>		
 	
 	<target name="clean" depends="clean.dist, clean.egg" description="clean application">
-		<delete includeEmptyDirs="true">
+		<delete includeEmptyDirs="true" failonerror="no">
 			<fileset dir="${application.root}/build" includes="**/*"/>
 		</delete>		
 	</target>
+	
+	<target name="clean.all" description="clean all applications">
+		<delete includeEmptyDirs="true" failonerror="no">
+			<fileset dir="${application.root}/build" includes="**/*"/>
+			<fileset dir="${application.root}/dist" includes="**/*"/>			
+		</delete>		
+	</target>	
 
 	<target name="py_installer.help" description="PyInstaller help">
 		<exec executable="/bin/bash" os="Linux">

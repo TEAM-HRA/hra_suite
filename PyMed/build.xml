@@ -1,7 +1,7 @@
 <project name="PyMed" default="build.PyMed">
 
 	<property name="application.name" value="PyMed"/>
-	
+	<property name="application.root" value="../PyMed"/>	
 	<import file="../PyUtils/build_common.xml"/>
 
 	<target name="build.PyMed" description="Build PyMed application">

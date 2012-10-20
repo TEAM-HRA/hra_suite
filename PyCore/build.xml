@@ -1,6 +1,7 @@
 <project name="PyCore" default="build.egg">
 
 	<property name="application.name" value="PyCore"/>
+	<property name="application.root" value="../PyCore"/>	
     <property name="application.description" value="Core functionality"/>	
 	<import file="../PyUtils/build_common.xml"/>
 	
