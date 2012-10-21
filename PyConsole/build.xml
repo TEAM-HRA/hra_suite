@@ -4,7 +4,7 @@
 	<import file="../PyUtils/build_common.xml"/>
 	
 	<property name="console.type" value="True"/>
-	<property name="build.type" value="D"/>	
+	<property name="build.type" value="F"/>	
 	
 	<target name="build.PyConsole" depends="libs" description="build PyConsole application">
 		<property name="application.name" value="PyConsole"/>		
