@@ -7,6 +7,7 @@ Created on 20-10-2012
 import sys
 from os.path import join
 from os.path import exists
+from os.path import pathsep
 from os import walk
 from pycore.globals import PROGRAM_DIR
 
@@ -28,7 +29,7 @@ def get_filenames(path, depth=1):
         return filenames
 
 
-def expand_files(path, extension=None):
+def expand_files(path, extension=None, as_string=False):
     full_filenames = []
     if extension:
         if extension.startswith("*."):
@@ -38,7 +39,7 @@ def expand_files(path, extension=None):
 
     if (exists(path)):
         for paths, dirnames, files in walk(path):
-            full_filenames[len(full_filenames):] = [join(path, file)
+            full_filenames[len(full_filenames):] = [join(path, file) #@IgnorePep8
                 for file in files if (extension == None or file.endswith(extension))] #@IgnorePep8
 
-    return full_filenames
+    return pathsep.join(full_filenames) if as_string else full_filenames
