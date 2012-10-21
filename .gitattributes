@@ -51,6 +51,7 @@ PyMed/src/pymed/programs/__init__.py -text
 PyMed/src/pymed/programs/gui/QtOpenGL_test.py -text
 PyMed/src/pymed/programs/gui/__init__.py -text
 PyMed/src/pymed/programs/gui/animation_examples.py -text
+PyMed/src/pymed/programs/gui/med_main_QT.pyw -text
 PyMed/src/pymed/programs/gui/test_QT.pyw -text
 PyUtils/.project -text
 PyUtils/.pydevproject -text

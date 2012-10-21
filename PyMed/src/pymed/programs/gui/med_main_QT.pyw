@@ -53,5 +53,5 @@ def update_plot(i, data, scat):
     scat.set_array(data[i])
     return scat,
 
-#matplotlib_test()
-QT_test()
+matplotlib_test()
+#QT_test()
