@@ -3,6 +3,7 @@
 	<name>PyConsole</name>
 	<comment></comment>
 	<projects>
+		<project>PyCommon</project>
 		<project>PyCore</project>
 		<project>PyMath</project>
 	</projects>
