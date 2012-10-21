@@ -256,5 +256,26 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 				<ant dir="${egg.project}" inheritall="false"/>				
 			</else>
 		</if>		
-	</target>		
+	</target>
+
+	<target name="application.contents" description="Application contents listing">
+		<if>
+			<available file="${application.root}/dist/${application.name}.exe"/>
+		    <then>
+				<exec executable="cmd" os="Windows Vista" >
+					<arg value="/c" />
+					<arg value="${python-path}/python.exe" />
+					<arg value="${win-pyinstaller-path}/utils/ArchiveViewer.py" />
+					<arg value="-r" />
+					<arg value="-b" />					
+					<arg value="${application.root}/dist/${application.name}.exe"/>
+				</exec>
+			</then>
+			<else>
+		    	<echo>
+		    		Application ${application.root}/dist/${application.name}.exe doesn't exist !
+				</echo>				
+			</else>
+		</if>
+	</target>
 </project>
