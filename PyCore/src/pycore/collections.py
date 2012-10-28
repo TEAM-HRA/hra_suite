@@ -28,3 +28,8 @@ class __VoidValue(object):
     pass
 
 __VOID_VALUE = __VoidValue()
+
+
+def get_other_keys(_dict, keys):
+    keys = [key for key in _dict if key not in keys]
+    return keys[0] if len(keys) == 1 else keys
