@@ -26,6 +26,7 @@ PyCore/build.xml -text
 PyCore/src/pycore/__init__.py -text
 PyCore/src/pycore/collections.py -text
 PyCore/src/pycore/globals.py -text
+PyCore/src/pycore/introspection.py -text
 PyCore/src/pycore/io_utils.py -text
 PyMath/.project -text
 PyMath/.pydevproject -text
