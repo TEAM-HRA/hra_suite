@@ -12,6 +12,12 @@ OdJarka/src/HRV/resample.py -text
 OdJarka/src/ongoing/HRV.py -text
 OdJarka/src/rea2HRV.py -text
 OdJarka/src/rea2HRVnoFourier.py -text
+PyCommon/.project -text
+PyCommon/.pydevproject -text
+PyCommon/build.xml -text
+PyCommon/src/pycommon/__init__.py -text
+PyCommon/src/pycommon/menu_utils.py -text
+PyCommon/src/pycommon/system_settings.py -text
 PyConsole/.project -text
 PyConsole/.pydevproject -text
 PyConsole/build.xml -text

@@ -1,5 +1,8 @@
 OdJarka/src/HRV/RAERAF.EXE
 OdJarka/src/HRV/prvxbrs.exe
+PyCommon/build
+PyCommon/dist
+PyCommon/etc
 PyConsole/build
 PyConsole/dist
 PyConsole/doc
