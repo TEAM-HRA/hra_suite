@@ -137,7 +137,7 @@ class MenuItem(_Item):
 
 class Action(object):
     def __init__(self):
-        self.__icondId = None
+        self.__iconId = None
         self.__tipId = None
         self.__type = None
         self.__signal = None
@@ -145,11 +145,11 @@ class Action(object):
 
     @property
     def iconId(self):
-        return self.__icondId
+        return self.__iconId
 
     @iconId.setter
     def iconId(self, _iconId):
-        self.__icondId = _iconId
+        self.__iconId = _iconId
 
     @property
     def tipId(self):
