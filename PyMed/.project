@@ -3,6 +3,7 @@
 	<name>PyMed</name>
 	<comment></comment>
 	<projects>
+		<project>PyCommon</project>
 		<project>PyCore</project>
 		<project>PyMed</project>
 	</projects>
