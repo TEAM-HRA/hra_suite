@@ -17,7 +17,6 @@ PyCommon/.pydevproject -text
 PyCommon/build.xml -text
 PyCommon/src/pycommon/__init__.py -text
 PyCommon/src/pycommon/menu_utils.py -text
-PyCommon/src/pycommon/system_settings.py -text
 PyConsole/.project -text
 PyConsole/.pydevproject -text
 PyConsole/build.xml -text

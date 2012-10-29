@@ -8,12 +8,13 @@ import sys
 from os.path import join
 from os.path import exists
 from os.path import pathsep
+from os.path import dirname
 from os import walk
-from pycore.globals import PROGRAM_DIR
+from pycore.globals import GLOBALS
 
 
 def get_program_path():
-    return PROGRAM_DIR if PROGRAM_DIR else sys.path[0]
+    return GLOBALS.PROGRAM_DIR if GLOBALS.PROGRAM_DIR else sys.path[0]
 
 
 def get_filenames(path, depth=1):
@@ -43,3 +44,7 @@ def expand_files(path, extension=None, as_string=False):
                 for file in files if (extension == None or file.endswith(extension))] #@IgnorePep8
 
     return pathsep.join(full_filenames) if as_string else full_filenames
+
+
+def get_dirname(_file):
+    return dirname(_file)

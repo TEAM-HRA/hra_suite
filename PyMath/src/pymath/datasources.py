@@ -8,7 +8,7 @@ import os
 from re import findall
 from numpy import array
 from numpy import loadtxt
-from pycore.globals import NUMPY_USAGE
+from pycore.globals import GLOBALS
 
 
 class DataSource(object):
@@ -122,7 +122,7 @@ class FilesDataSources(object):
         if self.__filenames__ and len(self.__filenames__) > self.__idx__:
             self.__idx__ += 1
             filename = self.__filenames__[self.__idx__ - 1]
-            if NUMPY_USAGE:
+            if GLOBALS.NUMPY_USAGE:
                 return self.__getNumPyDataSource__(filename)
             else:
                 return self.__getDataSource__(filename)

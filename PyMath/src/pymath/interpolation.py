@@ -11,7 +11,7 @@ from pylab import append
 from itertools import count
 
 from datasources import DataSource
-from pycore.globals import NUMPY_USAGE
+from pycore.globals import GLOBALS
 
 
 class Interpolation(DataSource):
@@ -28,7 +28,7 @@ class Interpolation(DataSource):
 
 class LinearInterpolation(Interpolation):
     def __interpolate__(self, _signal, _annotation):
-        if NUMPY_USAGE:
+        if GLOBALS.NUMPY_USAGE:
             return self.__numpy_interpolate__(_signal, _annotation)
 
         #removing nonsinus beats from the beginning

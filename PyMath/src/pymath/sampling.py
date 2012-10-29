@@ -7,7 +7,7 @@ from pylab import cumsum
 from pylab import arange
 from pylab import where
 from pylab import take
-from pycore.globals import NUMPY_USAGE
+from pycore.globals import GLOBALS
 
 
 class Sampling(object):
@@ -44,7 +44,7 @@ class LinearInterpolatedSampling(Sampling):
     '''
     def __sampling__(self, signal, step=250):
 
-        if NUMPY_USAGE:
+        if GLOBALS.NUMPY_USAGE:
             """ use more pythonic version of the method """
             return self.__numpy_sampling__(signal, step)
 

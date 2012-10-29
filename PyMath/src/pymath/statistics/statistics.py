@@ -13,7 +13,7 @@ from pylab import equal
 from numpy import var
 
 from pymath.datasources import DataSource
-from pycore.globals import *  # @UnusedWildImport
+from pycore.globals import GLOBALS
 
 
 ## Base class for all specific statitistics,
@@ -86,7 +86,7 @@ class TotTimeStatistic(Statistic):
 
 class SDStatistic(Statistic):
     def __calculate__(self):
-        if NUMPY_USAGE:
+        if GLOBALS.NUMPY_USAGE:
             # ddof=1 means divide by size-1
             return sqrt(var(self.signal, ddof=1))
         else:

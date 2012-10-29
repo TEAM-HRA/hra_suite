@@ -5,18 +5,16 @@ Created on 21-10-2012
 '''
 
 import os
-from pycommon.system_settings import MENUS_FILE
-from pycommon.system_settings import PLUGINS_DIR
-from pycommon.system_settings import PROGRAM_PATH
+from pycore.globals import GLOBALS
 from pycore.io_utils import expand_files
 import subprocess
 
 
-print('PROGRAM_PATH: ' + PROGRAM_PATH)
-print('MENUS_FILE: ' + MENUS_FILE)
-print('PLUGINS_DIR: ' + PLUGINS_DIR)
+print('PROGRAM_PATH: ' + GLOBALS.PROGRAM_DIR)
+print('MENUS_FILE: ' + GLOBALS.MENUS_FILE)
+print('PLUGINS_DIR: ' + GLOBALS.PLUGINS_DIR)
 
-print(expand_files(PLUGINS_DIR, "egg", as_string=True))
+print(expand_files(GLOBALS.PLUGINS_DIR, "egg", as_string=True))
 
 add_paths = [
             "H:\\workspaces\\all\\doctorate\\PyConsole\\src\\",
@@ -31,7 +29,7 @@ add_paths = [
 
 PATH = os.environ['PATH']
 _env = {}
-_env['PYTHONPATH'] = expand_files(PLUGINS_DIR, "egg", as_string=True) + ";" + ";".join(add_paths) #@IgnorePep8
+_env['PYTHONPATH'] = expand_files(GLOBALS.PLUGINS_DIR, "egg", as_string=True) + ";" + ";".join(add_paths) #@IgnorePep8
 print('PYTHONPATH: ' + str(_env['PYTHONPATH']))
 _env['PATH'] = PATH + ";h:\\python\\python_64\\Python27;H:\\python\\python_64\\Python27\\Scripts" #@IgnorePep8
 args = ['cmd', '/K', 'start', 'python',

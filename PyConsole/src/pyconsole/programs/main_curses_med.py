@@ -11,7 +11,7 @@ import curses
 from numpy import array
 from pylab import find
 
-from pycore.globals import DIR_DATA, EXT_MASK
+from pycore.globals import GLOBALS
 from pymath.datasources import FilesDataSources, DataSource
 from pymath.datasources import SignalColumnSpec
 from pymath.datasources import AnnotationColumnSpec

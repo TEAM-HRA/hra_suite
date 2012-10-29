@@ -7,7 +7,7 @@ Created on 20-08-2012
 from numpy import array
 from pylab import find
 
-from pycore.globals import DIR_DATA, EXT_MASK
+from pycore.globals import GLOBALS
 from pymath.datasources import FilesDataSources, DataSource
 from pymath.datasources import SignalColumnSpec
 from pymath.datasources import AnnotationColumnSpec
@@ -114,8 +114,9 @@ def test_data_source():
 
 
 def test_poincare():
-    print('DIR_DATA=' + str(DIR_DATA) + ' EXT_MASK=' + str(EXT_MASK))
-    fd = FilesDataSources(path=DIR_DATA, ext=EXT_MASK)
+    print('DIR_DATA=' + str(GLOBALS.DATA_DIR) + ' EXT_MASK=' + \
+                    str(GLOBALS.EXT_MASK))
+    fd = FilesDataSources(path=GLOBALS.DATA_DIR, ext=GLOBALS.EXT_MASK)
     fd.setColumnsSpecs(SignalColumnSpec('rri[ms]'),
                        AnnotationColumnSpec('rr-flags[]'))
     print(fd.headers)

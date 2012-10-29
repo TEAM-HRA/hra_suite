@@ -15,7 +15,7 @@ from pymath.statistics.statistics import MeanStatistic
 from pymath.statistics.statistics import SDRRStatistic
 from pymath.statistics.statistics import NtotStatistic
 from pymath.statistics.statistics import TotTimeStatistic
-from pycore.globals import NUMPY_USAGE
+from pycore.globals import GLOBALS
 
 
 class Filter(DataSource):
@@ -87,7 +87,7 @@ class RemoveAnnotatedSignalFilter(Filter):
                               NtotStatistic, TotTimeStatistic)
 
     def __filter__(self, _signal, _annotation):
-        if NUMPY_USAGE:
+        if GLOBALS.NUMPY_USAGE:
             return DataSource(_signal[_annotation == 0])
 
         indexy = find(_annotation == 0)
@@ -127,7 +127,7 @@ class ZeroAnnotationFilter(Filter):
         self.__leave_annotations__ = leave_annotations
 
     def __filter__(self, _signal, _annotation):
-        if NUMPY_USAGE:
+        if GLOBALS.NUMPY_USAGE:
             return self.__numpy_filter__(_signal, _annotation)
 
         for pobudzenie in self.__leave_annotations__:
