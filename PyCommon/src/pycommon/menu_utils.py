@@ -16,7 +16,7 @@ class MenuBuilder(object):
 
     def parse(self, filename):
         try:
-            self.__handler__ = __MenuBuilderHandler()
+            self.__handler__ = _MenuBuilderHandler()
             parser = make_parser()
             parser.setContentHandler(self.__handler__)
             parser.parse(filename)
@@ -29,19 +29,23 @@ class MenuBuilder(object):
         return self.__handler__.getMainMenus()
 
 
-class __MenuBuilderHandler(ContentHandler):
+class _MenuBuilderHandler(ContentHandler):
 
-    __MENU_ID__ = "menu"
-    __MENU_ITEM_ID__ = "menuItem"
+    __MENU_ID = "menu"
+    __MENU_ITEM_ID = "menuItem"
+    __ACTIONS_ID = "actions"
+    __ACTION_ID = "action"
 
     def __init__(self):
         ContentHandler.__init__(self)
         self.__level = -1
         self.__main_menus = []
         self.__parent_menus = []
+        self.__actions = []
+        self.__menuItem = None
 
     def startElement(self, name, attributes):
-        if name == __MenuBuilderHandler.__MENU_ID__:
+        if name == _MenuBuilderHandler.__MENU_ID:
             menu = Menu()
             self.__parent_menus.append(menu)
             self.__level += 1
@@ -52,30 +56,38 @@ class __MenuBuilderHandler(ContentHandler):
             for key, value in attributes.items():
                 menu.__setattr__(key, value)
 
-        elif name == __MenuBuilderHandler.__MENU_ITEM_ID__:
-            menuItem = MenuItem()
+        elif name == _MenuBuilderHandler.__MENU_ITEM_ID:
+            self.__menuItem = MenuItem()
             for key, value in attributes.items():
-                menuItem.__setattr__(key, value)
-            self.__parent_menus[self.__level].addSubItem(menuItem)
+                self.__menuItem.__setattr__(key, value)
+            self.__parent_menus[self.__level].addSubItem(self.__menuItem)
+
+        elif name == _MenuBuilderHandler.__ACTION_ID:
+            action = Action()
+            for key, value in attributes.items():
+                action.__setattr__(key, value)
 
     def endElement(self, name):
-        if name == __MenuBuilderHandler.__MENU_ID__:
+        if name == _MenuBuilderHandler.__MENU_ID:
             self.__parent_menus.pop()
             self.__level -= 1
+
+        elif name == _MenuBuilderHandler.__MENU_ITEM_ID:
+            if self.__menuItem:
+                self.__menuItem.actions = self.__actions
+            self.__actions = []
+            self.__menuItem = None
 
     def getMainMenus(self):
         return self.__main_menus
 
 
-class __Item(object):
+class _Item(object):
     def __init__(self, is_menu_item):
         self.__ident = None
         self.__title = None
-        self.__is_menu_item = is_menu_item
+        self.__is_menu = is_menu_item
         self.__sub_items = []  # includes sub menus and menu items
-        self.__action = None
-        self.__action_before = None
-        self.__action_after = None
 
     @property
     def ident(self):
@@ -93,8 +105,8 @@ class __Item(object):
     def title(self, title):
         self.__title = title
 
-    def isMenuItem(self):
-        return self.__is_menu_item
+    def isMenu(self):
+        return self.__is_menu
 
     def addSubItem(self, sub_item):
         self.__sub_items.append(sub_item)
@@ -103,39 +115,73 @@ class __Item(object):
     def subItems(self):
         return self.__sub_items
 
-    @property
-    def action(self):
-        return self.__action
 
-    @action.setter
-    def action(self, action):
-        self.__action = action
-
-    @property
-    def actionBefore(self):
-        return self.__action_before
-
-    @actionBefore.setter
-    def actionBefore(self, actionBefore):
-        self.__action_before = actionBefore
-
-    @property
-    def actionAfter(self):
-        return self.__action_after
-
-    @actionAfter.setter
-    def actionAfter(self, actionAfter):
-        self.__action_after = actionAfter
-
-
-class Menu(__Item):
+class Menu(_Item):
     def __init__(self):
-        __Item.__init__(self, False)
+        _Item.__init__(self, True)
 
 
-class MenuItem(__Item):
+class MenuItem(_Item):
     def __init__(self):
-        __Item.__init__(self, True)
+        _Item.__init__(self, False)
+        self.__actions = []
+
+    @property
+    def actions(self):
+        return self.__actions
+
+    @actions.setter
+    def actions(self, _actions):
+        self.__actions = _actions
+
+
+class Action(object):
+    def __init__(self):
+        self.__icondId = None
+        self.__tipId = None
+        self.__type = None
+        self.__signal = None
+        self.__slot = None
+
+    @property
+    def iconId(self):
+        return self.__icondId
+
+    @iconId.setter
+    def iconId(self, _iconId):
+        self.__icondId = _iconId
+
+    @property
+    def tipId(self):
+        return self.__tipId
+
+    @tipId.setter
+    def tipId(self, _tipId):
+        self.__tipId = _tipId
+
+    @property
+    def type(self):
+        return self.__type
+
+    @type.setter
+    def type(self, _type):
+        self.__type = _type
+
+    @property
+    def signal(self):
+        return self.__signal
+
+    @signal.setter
+    def signal(self, _signal):
+        self.__signal = _signal
+
+    @property
+    def slot(self):
+        return self.__stot
+
+    @slot.setter
+    def slot(self, _slot):
+        self.__slot = _slot
 
 if __name__ == '__main__':
     mb = MenuBuilder()
