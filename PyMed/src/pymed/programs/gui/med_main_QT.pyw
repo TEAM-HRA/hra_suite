@@ -13,6 +13,7 @@ from PyQt4.QtGui import *
 
 from pymed.qt.utils.settings import SettingsFactory
 from pymed.qt.utils.settings import Setter
+from pymed.qt.menu.menus import QTMenuBuilder
 
 __version__ = "1.0.0"
 
@@ -43,6 +44,9 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, logDockWidget)
 
         self.printer = None
+
+        menuBuilder = QTMenuBuilder(self)
+        menuBuilder.createMenus()
 
         self.sizeLabel = QLabel()
         self.sizeLabel.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)
