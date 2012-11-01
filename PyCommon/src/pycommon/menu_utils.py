@@ -62,10 +62,14 @@ class _MenuBuilderHandler(ContentHandler):
                 self.__menuItem.__setattr__(key, value)
             self.__parent_menus[self.__level].addSubItem(self.__menuItem)
 
+        elif name == _MenuBuilderHandler.__ACTIONS_ID:
+            self.__actions = []
+
         elif name == _MenuBuilderHandler.__ACTION_ID:
             action = Action()
             for key, value in attributes.items():
                 action.__setattr__(key, value)
+            self.__actions.append(action)
 
     def endElement(self, name):
         if name == _MenuBuilderHandler.__MENU_ID:
@@ -76,7 +80,6 @@ class _MenuBuilderHandler(ContentHandler):
             if self.__menuItem:
                 self.__menuItem.actions = self.__actions
             self.__actions = []
-            self.__menuItem = None
 
     def getMainMenus(self):
         return self.__main_menus
@@ -136,6 +139,8 @@ class MenuItem(_Item):
 
 
 class Action(object):
+    CHECKABLE = "checkable"
+
     def __init__(self):
         self.__iconId = None
         self.__tipId = None
@@ -177,21 +182,34 @@ class Action(object):
 
     @property
     def slot(self):
-        return self.__stot
+        return self.__slot
 
     @slot.setter
     def slot(self, _slot):
         self.__slot = _slot
 
-if __name__ == '__main__':
-    mb = MenuBuilder()
-    if mb.parse("H:\\workspaces\\all\\doctorate\\PyCommon\\etc\\menus.xml"):
-        menus = mb.getMainMenus()
-        for menu in menus:
-            print('ident: ' + menu.ident + ' title: ' + menu.title)
-            for submenu in menu.subItems:
-                print('   ident: ' + submenu.ident + ' title: ' + submenu.title) #@IgnorePep8
-                for submenu2 in submenu.subItems:
-                    print('       ident: ' + submenu2.ident + ' title: ' + submenu2.title) #@IgnorePep8
-                    for submenu3 in submenu2.subItems:
-                        print('           ident: ' + submenu3.ident + ' title: ' + submenu3.title) #@IgnorePep8
+    @property
+    def slot_action(self):
+        if self.slot:
+            _module = __import__(self.__package, fromlist=[self.__class])
+            return eval(".".join(['_module', self.__class, self.__method]))
+
+    @property
+    def __method(self):
+        return self.__part(-1)
+
+    @property
+    def __class(self):
+        return self.__part(-2)
+
+    @property
+    def __module(self):
+        return self.__part(-3)
+
+    @property
+    def __package(self):
+        return self.__part(0, -2)
+
+    def __part(self, start, end=None):
+        splits = self.slot.split(".")
+        return splits[start] if end == None else ".".join(splits[start:end])

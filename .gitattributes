@@ -33,6 +33,7 @@ PyCore/src/pycore/collections.py -text
 PyCore/src/pycore/globals.py -text
 PyCore/src/pycore/introspection.py -text
 PyCore/src/pycore/io_utils.py -text
+PyCore/src/pycore/properties.py -text
 PyMath/.project -text
 PyMath/.pydevproject -text
 PyMath/build.xml -text
@@ -61,6 +62,8 @@ PyMed/src/pymed/programs/gui/animation_examples.py -text
 PyMed/src/pymed/programs/gui/med_main_QT.pyw -text
 PyMed/src/pymed/programs/gui/test_QT.pyw -text
 PyMed/src/pymed/qt/__init__.py -text
+PyMed/src/pymed/qt/actions/__init__.py -text
+PyMed/src/pymed/qt/actions/actions.py -text
 PyMed/src/pymed/qt/menu/__init__.py -text
 PyMed/src/pymed/qt/menu/menus.py -text
 PyMed/src/pymed/qt/utils/__init__.py -text

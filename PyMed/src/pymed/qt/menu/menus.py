@@ -5,11 +5,13 @@ Created on 28-10-2012
 '''
 from pycommon.menu_utils import MenuBuilder
 from pycore.globals import GLOBALS
+from pymed.qt.actions.actions import QTActionBuilder
 
 
 class QTMenuBuilder(object):
     def __init__(self, _parent):
         self.__parent = _parent
+        self.__action_builder = QTActionBuilder(self.__parent)
 
     def createMenus(self):
         builder = MenuBuilder()
@@ -27,4 +29,5 @@ class QTMenuBuilder(object):
                 self.__createMenuItem(parent, subItem)
 
     def __createMenuItem(self, _menu, _menuItem):
-        pass
+        for action in _menuItem.actions:
+            _menu.addAction(self.__action_builder.createAction(action))
