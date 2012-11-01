@@ -33,3 +33,10 @@ __VOID_VALUE = __VoidValue()
 def get_other_keys(_dict, keys):
     keys = [key for key in _dict if key not in keys]
     return keys[0] if len(keys) == 1 else keys
+
+
+def get_any_key(**_dict):
+    """ a method to get all keys as a list or
+        if there is only one key returns that key  """
+    keys = [key for key in _dict]
+    return keys[0] if len(keys) == 1 else keys
