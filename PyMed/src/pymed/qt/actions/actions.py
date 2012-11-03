@@ -8,6 +8,7 @@ from PyQt4.QtGui import *  # @UnusedWildImport
 from pycommon.menu_utils import Action
 from pycore.globals import GLOBALS
 from pycore.properties import Properties
+from pymed.qt.utils.context import Context
 
 
 class QTActionBuilder(object):
@@ -32,7 +33,7 @@ class QTActionBuilder(object):
                 qt_action.setStatusTip(tooltip)
         if action.signal and action.slot:
             _slot = action.slot_action
-            setattr(_slot, '_parent', self.__parent)
+            Context(_slot).save(parent=self.__parent)
             self.__parent.connect(qt_action, SIGNAL(action.signal), _slot)
         if action.type == Action.CHECKABLE:
             qt_action.setCheckable(True)
