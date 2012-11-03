@@ -67,6 +67,8 @@ PyMed/src/pymed/qt/actions/__init__.py -text
 PyMed/src/pymed/qt/actions/actions.py -text
 PyMed/src/pymed/qt/menu/__init__.py -text
 PyMed/src/pymed/qt/menu/menus.py -text
+PyMed/src/pymed/qt/test01/__init__.py -text
+PyMed/src/pymed/qt/test01/small.py -text
 PyMed/src/pymed/qt/utils/__init__.py -text
 PyMed/src/pymed/qt/utils/context.py -text
 PyMed/src/pymed/qt/utils/settings.py -text
