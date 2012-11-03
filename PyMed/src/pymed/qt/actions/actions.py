@@ -41,8 +41,5 @@ class QTActionBuilder(object):
 
 
 _ICONS_PROPERTIES = Properties(GLOBALS.get(ICONS_FILE=GLOBALS.ITEM),
-                               # the sign ':' at the beginning marks relative
-                               # path which starts with GLOBALS.SETTINGS_DIR
-                               _file_marker=":",
                                _file_prefix=GLOBALS.SETTINGS_DIR)
 _TOOLTIPS_PROPERTIES = Properties(GLOBALS.get(TOOLTIPS_FILE=GLOBALS.ITEM))

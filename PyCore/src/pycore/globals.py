@@ -47,21 +47,7 @@ class Globals(object):
                         if len(params) == 1 else None
 
 GLOBALS = Globals()
-
-
-def __load_settings_file():
-    for key, value in Properties(GLOBALS.SETTINGS_FILE).items:
-        if value.lower() in ("false", "true"):
-            value = bool("true" == value.lower())
-        absolute = False
-        if key.endswith("_ABSOLUTE"):
-            key = key[:-len("_ABSOLUTE")]
-            absolute = True
-
-        setattr(GLOBALS, key,
-                join(GLOBALS.SETTINGS_DIR, value)
-                if absolute == False
-                    and (key.endswith("_DIR") or key.endswith("_FILE"))
-                else value)
-
-__load_settings_file()
+for key, value in Properties(GLOBALS.SETTINGS_FILE,
+                             _file_prefix=GLOBALS.SETTINGS_DIR,
+                             _check_booleans=True).items:
+    setattr(GLOBALS, key, value)
