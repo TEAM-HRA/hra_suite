@@ -3,6 +3,7 @@ Created on 25-08-2012
 
 @author: jurek
 '''
+import re
 
 
 def get_values_as_map(_object, with_none=False, excluded_names=[]):
@@ -40,3 +41,43 @@ def get_any_key(**_dict):
         if there is only one key returns that key  """
     keys = [key for key in _dict]
     return keys[0] if len(keys) == 1 else keys
+
+
+def get_keys_for_value(_dict, _value, _regexpr=False, _one_key_only=False):
+
+    ## Method returns all keys of a dictionary which have values as passed
+    #  value or as regular expression value
+    #  @param _dict: a dictionary
+    #  @param _value: a value for comparison
+    #  @param _regexpr: if is True value parameter is treated as
+    #          a regular expression
+    #  @param _one_key_only: if is True only one key is returned
+    value_re = re.compile(_value) if _regexpr else None
+    _keys = [key for key, value in _dict.items()
+             if value == _value or (value_re and value_re.search(value))]
+    if len(_keys) > 0:
+        return _keys[0] if _one_key_only else _keys
+
+
+def get_for_regexpr(_iterable, _regexpr):
+
+    ## Method which returns all items of iterable which correspond
+    #  to regular expression
+    #  @param _iterable: an iterable
+    #  @param _regexpr: a regular expression
+    if _iterable and _regexpr:
+        compiled_re = re.compile(_regexpr) if _regexpr else None
+        return [value for value in _iterable if compiled_re.search(value)]
+
+
+def replace_all_by_dict(_string, _dict):
+
+    ## Method which replaces all occurrences of dictionary keys
+    #  which are presented in a string in a form of '{dictionary key}'
+    #  by corresponding dictionary values
+    #  @param _string: a string to be replaced
+    #  @param _dict: a dictionary of identifiers and values
+    if _string and _dict and len(_dict) > 0:
+        for key, value in _dict.items():
+            _string = _string.replace("{" + key + "}", value)
+    return _string

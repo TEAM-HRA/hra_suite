@@ -7,18 +7,21 @@ import optparse
 import sys
 from os.path import join
 from os.path import dirname
-from pycore.collections import get_any_key
+from pycore.collections import get_keys_for_value
+from pycore.collections import get_for_regexpr
 from pycore.properties import Properties
 
 
 class Globals(object):
     __parser = optparse.OptionParser()
     __parser.add_option("-s", "--settings_file", type="string")
+    __parser.add_option("-l", "--lang", type="string", default="en")
     __opts, __args = __parser.parse_args()
     PROGRAM_DIR = sys.path[0]
     SETTINGS_FILE = __opts.settings_file \
         if __opts.settings_file else join(PROGRAM_DIR, "settings.properties")
     SETTINGS_DIR = dirname(SETTINGS_FILE)
+    LANG = __opts.lang
 
     DATA_DIR = None
     EXT_MASK = None
@@ -41,10 +44,15 @@ class Globals(object):
     ITEM = True
 
     def get(self, **params):
-        #to acquire a value of a field dynamically
-        #warning ! the assumption that only one parameter is passed
-        return getattr(self, get_any_key(**params)) \
-                        if len(params) == 1 else None
+        value = getattr(self, get_keys_for_value(params, GLOBALS.ITEM,
+                                                 _one_key_only=True))
+        if len(params) > 1:
+            param_keys = get_for_regexpr(params.keys(), '^PARAM[0-9]*$')
+            if param_keys:
+                for key in param_keys:
+                    value = value.replace("{" + key[5:] + "}", params[key])
+
+        return value
 
 GLOBALS = Globals()
 for key, value in Properties(GLOBALS.SETTINGS_FILE,
