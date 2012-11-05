@@ -17,6 +17,7 @@ PyCommon/.pydevproject -text
 PyCommon/build.xml -text
 PyCommon/settings.properties -text
 PyCommon/src/pycommon/__init__.py -text
+PyCommon/src/pycommon/i18n.py -text
 PyCommon/src/pycommon/menu_utils.py -text
 PyConsole/.project -text
 PyConsole/.pydevproject -text
@@ -73,6 +74,8 @@ PyMed/src/pymed/qt/test01/small.py -text
 PyMed/src/pymed/qt/utils/__init__.py -text
 PyMed/src/pymed/qt/utils/context.py -text
 PyMed/src/pymed/qt/utils/settings.py -text
+PyMed/src/pymed/qt/wizards/__init__.py -text
+PyMed/src/pymed/qt/wizards/datasource_wizards.py -text
 PyUtils/.project -text
 PyUtils/.pydevproject -text
 PyUtils/application.spec.py -text
