@@ -1,0 +1,9 @@
+<project name="PySettings" default="build.egg">
+
+	<property name="application.name" value="PySettings"/>
+	<property name="application.root" value="../PySettings"/>
+	<property name="additional.files" value="*.xml,*.properties,*/*.xml,*/*.properties,*/*.ico"/>
+    <property name="application.description" value="Project for application settings (no python code)"/>	
+	<import file="../PyUtils/build_common.xml"/>
+	
+</project>

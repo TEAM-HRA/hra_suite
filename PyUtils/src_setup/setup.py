@@ -8,14 +8,21 @@ from setuptools import setup
 from setuptools import find_packages
 #from distutils.core import setup
 
+
+def _split_parameter_value(name, alias):
+    parameter = os.environ.get(name, None)
+    if (not (parameter == None or len(parameter) == 0
+              or parameter == alias)):
+        return parameter.split(',')
+
+
 application_name = os.environ["APPLICATION_NAME"]
 application_description = os.environ["APPLICATION_DESCRIPTION"]
-required_packages = os.environ["REQUIRED_PACKAGES"]
-if (not (required_packages == None or len(required_packages) == 0
-    or required_packages == '${required.packages}')):
-    required_packages = required_packages.split(',')
-else:
-    required_packages = None
+required_packages = _split_parameter_value("REQUIRED_PACKAGES",
+                                           "${required.packages}")
+additional_files = _split_parameter_value("ADDITIONAL_FILES",
+                                          "${additional.files}")
+package_data = {'': additional_files, } if additional_files else {}
 
 setup(
     name=application_name,
@@ -37,4 +44,5 @@ setup(
     keywords='med',
     license='GPL',
     install_requires=required_packages,
+    package_data=package_data,
 )

@@ -58,6 +58,7 @@
 			<env key="APPLICATION_DESCRIPTION" value="${application.description}"/>
 			<env key="APPLICATION_NAME" value="${application.name}"/>
 			<env key="REQUIRED_PACKAGES" value="${required.packages}"/>
+			<env key="ADDITIONAL_FILES" value="${additional.files}"/>			
 			<arg value="/c" />
 			<arg value="${python-path}/python.exe" />
 			<arg value="${py_setup_egg}" />
