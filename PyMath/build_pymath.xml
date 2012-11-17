@@ -3,6 +3,6 @@
 	<property name="application.name" value="PyMath"/>
 	<property name="application.root" value="../PyMath"/>	
     <property name="application.description" value="Math functionality"/>	
-	<import file="../PyUtils/build_common.xml"/>
+	<import file="../PyUtils/build_pyutils.xml"/>
 	
 </project>

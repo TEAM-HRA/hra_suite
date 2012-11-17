@@ -3,7 +3,7 @@
 	<property name="application.name" value="PyCommon"/>
 	<property name="application.root" value="../PyCommon"/>	
     <property name="application.description" value="Common functionality"/>	
-	<import file="../PyUtils/build_common.xml"/>
+	<import file="../PyUtils/build_pyutils.xml"/>
 	
 	<target name="build.egg.PyCommon" description="Build PyCommon egg">
 
@@ -11,6 +11,7 @@
 		<antcall target="check.egg">
 			<param name="egg" value="${egg.1}"/>
 			<param name="egg.project" value="../PyCore"/>
+			<param name="ant.file" value="build_pycore"/>
 		</antcall>
 		
 		<antcall target="build.egg"/>		

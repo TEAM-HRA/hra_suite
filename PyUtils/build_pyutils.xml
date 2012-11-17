@@ -261,7 +261,7 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		    <then>
 			</then>
 			<else>
-				<ant dir="${egg.project}" inheritall="false"/>				
+				<ant dir="${egg.project}" antfile="${ant.file}" inheritall="false"/>				
 			</else>
 		</if>		
 	</target>

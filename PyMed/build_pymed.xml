@@ -2,15 +2,15 @@
 
 	<property name="application.name" value="PyMed"/>
 	<property name="application.root" value="../PyMed"/>	
-	<import file="../PyUtils/build_common.xml"/>
+	<import file="../PyUtils/build_pyutils.xml"/>
 
 	<property name="console.type" value="True"/>
 
 	<target name="projects">
-		<ant dir="../PyCore" inheritall="false"/>
-		<ant dir="../PyCommon" inheritall="false"/>
-		<ant dir="../PyMath" inheritall="false"/>
-		<ant dir="../PySettings" inheritall="false"/>
+		<ant dir="../PyCore" antfile="build_pycore.xml" inheritall="false"/>
+		<ant dir="../PyCommon" antfile="build_pycommon.xml" inheritall="false"/>
+		<ant dir="../PyMath" antfile="build_pymath.xml" inheritall="false"/>
+		<ant dir="../PySettings" antfile="build_pysettings.xml" inheritall="false"/>
 	</target>
 
 	<target name="build.PyMed" description="Build PyMed application" depends="projects">
