@@ -9,7 +9,7 @@ from pymed.qt.utils.context import Context
 
 
 class WindowTest(object):
-    
+
     @staticmethod
     def show():
         parent = Context(WindowTest.show).load().parent
