@@ -12,3 +12,5 @@ PyMath/build
 PyMath/dist
 PyMed/build
 PyMed/dist
+PySettings/build
+PySettings/dist
