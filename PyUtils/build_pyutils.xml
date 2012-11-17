@@ -32,8 +32,6 @@
 	
 	<property environment="env"/>
 
-	<property name="python.path" value="."/>
-
 	<target name="properties.environment">
 		<!--
 		<property environment="env"/>
@@ -81,7 +79,44 @@
 		</if>			
 	</target>
 	
+	
 	<target name="build.application">
+		
+		<!-- 
+		if any of the following 'egg.<number>.name' properties are not set by parent process
+		then they are set to empty string to facilitate checking of the condition 
+		in order to set up 'egg.<number>' property
+		-->
+		<property name="egg.1.name" value=""/>
+		<if>
+			<not><equals arg1="${egg.1.name}" arg2=""/></not>
+			<then><property name="egg.1" location="${egg.1.name}" /></then>
+		</if>
+		
+		<property name="egg.2.name" value=""/>		
+		<if>
+			<not><equals arg1="${egg.2.name}" arg2=""/></not>
+			<then><property name="egg.2" location="${egg.2.name}" /></then>
+		</if>
+		
+		<property name="egg.3.name" value=""/>
+		<if>
+			<not><equals arg1="${egg.3.name}" arg2=""/></not>
+			<then><property name="egg.3" location="${egg.3.name}" /></then>
+		</if>
+		
+		<property name="egg.4.name" value=""/>		
+		<if>
+			<not><equals arg1="${egg.4.name}" arg2=""/></not>
+			<then><property name="egg.4" location="${egg.4.name}" /></then>
+		</if>
+
+		<property name="egg.5.name" value=""/>
+		<if>
+			<not><equals arg1="${egg.5.name}" arg2=""/></not>
+			<then><property name="egg.5" location="${egg.5.name}" /></then>
+		</if>		
+		
 		<exec executable="/bin/bash" os="Linux">
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
@@ -96,14 +131,16 @@
 			<env key="BUILD_TYPE" value="${build.type}"/>
 			<!-- True - with debug -->			
 			<env key="DEBUG_INFO" value="${debug.info}"/>
-			<!--
+
 			<env key="EGG_1" value="${egg.1}"/>
 			<env key="EGG_2" value="${egg.2}"/>
-			<env key="EGG_3" value="${egg.3}"/>			
-			-->
+			<env key="EGG_3" value="${egg.3}"/>
+			<env key="EGG_4" value="${egg.4}"/>
+			<env key="EGG_5" value="${egg.5}"/>
+
 			<env key="APPLICATION_ROOT" value="${application.root}"/>
 
-			<env key="PYTHONPATH" value="${env.PYTHONPATH};${python.path}"/>
+			<env key="PYTHONPATH" value="${env.PYTHONPATH};${egg.1.name};${egg.2.name};${egg.3.name};${egg.4.name};${egg.5.name}"/>
 
 			<arg value="/c" />
 			<arg value="${python-path}/python.exe" />
