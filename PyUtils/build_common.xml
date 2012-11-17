@@ -29,6 +29,10 @@
 	<property name="doc_html_dir" location="doc/html"/>
 	
 	<property name="py_setup_egg" location="../PyUtils/src_setup/setup.py"/>
+	
+	<property environment="env"/>
+
+	<property name="python.path" value="."/>
 
 	<target name="properties.environment">
 		<!--
@@ -45,7 +49,7 @@
 	
 	
 	<target name="_help.py_med.egg">
-		<exec executable="cmd" os="Windows Vista">
+		<exec executable="cmd" os="Windows 7">
 			<arg value="/c" />
 			<arg value="${python-path}/python.exe" />			
 			<arg value="${py_setup_egg}" />
@@ -54,7 +58,7 @@
 	</target>	
 	
 	<target name="build.egg">
-		<exec executable="cmd" os="Windows Vista">
+		<exec executable="cmd" os="Windows 7">
 			<env key="APPLICATION_DESCRIPTION" value="${application.description}"/>
 			<env key="APPLICATION_NAME" value="${application.name}"/>
 			<env key="REQUIRED_PACKAGES" value="${required.packages}"/>
@@ -82,7 +86,7 @@
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
 		</exec>
-		<exec executable="cmd" os="Windows Vista" >
+		<exec executable="cmd" os="Windows 7" >
 			<env key="PATH" path="${env.PATH};${additional.paths}"/>
 			<env key="APPLICATION_NAME" value="${application.name}"/>
 			<env key="START_SCRIPT" value="${start.script}"/>
@@ -92,11 +96,14 @@
 			<env key="BUILD_TYPE" value="${build.type}"/>
 			<!-- True - with debug -->			
 			<env key="DEBUG_INFO" value="${debug.info}"/>
+			<!--
 			<env key="EGG_1" value="${egg.1}"/>
 			<env key="EGG_2" value="${egg.2}"/>
 			<env key="EGG_3" value="${egg.3}"/>			
+			-->
 			<env key="APPLICATION_ROOT" value="${application.root}"/>
 
+			<env key="PYTHONPATH" value="${env.PYTHONPATH};${python.path}"/>
 
 			<arg value="/c" />
 			<arg value="${python-path}/python.exe" />
@@ -137,7 +144,7 @@
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
 		</exec>
-		<exec executable="cmd" os="Windows Vista">
+		<exec executable="cmd" os="Windows 7">
 			<arg value="/c" />
 			<arg value="${python-path}/python.exe" />			
 			<arg value="${win-pyinstaller-path}/pyinstaller.py" />
@@ -152,7 +159,7 @@
 			<arg value="assembly:directory" />
 		</exec>
 		
-		<exec executable="cmd" os="Windows Vista">
+		<exec executable="cmd" os="Windows 7">
 			<env key="APPLICATION_NAME" value="${application.name}"/>			
 			<arg value="/c" />
 			<arg value="${doxygen}" />			
@@ -169,27 +176,27 @@
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
 		</exec>
-		<exec executable="cmd" os="Windows Vista">
+		<exec executable="cmd" os="Windows 7">
 			<env key="APPLICATION_NAME" value="${application.name}"/>			
 			<arg value="/c" />
 			<arg value="${doxygen}" />			
 			<arg value="../PyUtils/doc_pdf.doxygen" />
 		</exec>
 
-		<exec executable="cmd" os="Windows Vista" dir="${doc_temp_latex}">
+		<exec executable="cmd" os="Windows 7" dir="${doc_temp_latex}">
 			<arg value="/c" />
 			<arg value="${miktext}/pdflatex.exe" />
 			<arg value="refman.tex" />
 			<arg value="-job-name=${application.name}" />
 		</exec>
 
-		<exec executable="cmd" os="Windows Vista" dir="${doc_temp_latex}">
+		<exec executable="cmd" os="Windows 7" dir="${doc_temp_latex}">
 			<arg value="/c" />
 			<arg value="${miktext}/makeindex.exe" />
 			<arg value="${application.name}.idx" />
 		</exec>
 		
-		<exec executable="cmd" os="Windows Vista" dir="${doc_temp_latex}">
+		<exec executable="cmd" os="Windows 7" dir="${doc_temp_latex}">
 			<arg value="/c" />
 			<arg value="${miktext}/pdflatex.exe" />
 			<arg value="refman.tex" />
@@ -207,7 +214,7 @@
 		
 		<delete dir="${spec.path}"/>
 		<if>
-			<equals arg1="${os.name}" arg2="Windows Vista"/>
+			<equals arg1="${os.name}" arg2="Windows 7"/>
 		    <then>
 		    	<echo>
 		    		Creating build.bat
@@ -216,7 +223,7 @@
 				<echo file="build.bat">
 ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${src.path} -o ../PyMed -n ${application.name} ${application.type} -y --noupx --buildpath build\${application.name} 
 				</echo>
-				<exec executable="cmd" os="Windows Vista">
+				<exec executable="cmd" os="Windows 7">
 					<arg value="/c" />
 					<arg value="build.bat" />			
 				</exec>
@@ -263,7 +270,7 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		<if>
 			<available file="${application.root}/dist/${application.name}.exe"/>
 		    <then>
-				<exec executable="cmd" os="Windows Vista" >
+				<exec executable="cmd" os="Windows 7">
 					<arg value="/c" />
 					<arg value="${python-path}/python.exe" />
 					<arg value="${win-pyinstaller-path}/utils/ArchiveViewer.py" />

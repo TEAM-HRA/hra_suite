@@ -4,20 +4,21 @@
 	<property name="application.root" value="../PyMed"/>	
 	<import file="../PyUtils/build_common.xml"/>
 
-	<target name="build.PyMed" description="Build PyMed application">
+	<property name="console.type" value="True"/>
 
+	<target name="projects">
 		<ant dir="../PyCore" inheritall="false"/>
-		<property name="egg.1" location="../PyCore/dist/PyCore-0.1-py2.7.egg"/>
-
 		<ant dir="../PyCommon" inheritall="false"/>
-		<property name="egg.2" location="../PyCommon/dist/PyCommon-0.1-py2.7.egg"/>
-		
 		<ant dir="../PyMath" inheritall="false"/>
-		<property name="egg.3" location="../PyMath/dist/PyMath-0.1-py2.7.egg"/>		
-		
+		<ant dir="../PySettings" inheritall="false"/>
+	</target>
+
+	<target name="build.PyMed" description="Build PyMed application" depends="projects">
 		<antcall target="build.application">
+			<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>
 			<param name="start.script" value="src/pymed/programs/gui/med_main_QT.pyw"/>
 		    <param name="build.type" value="F"/>
+			<param name="python.path" value="../PyCore/dist/PyCore-0.1-py2.7.egg;../PyCommon/dist/PyCommon-0.1-py2.7.egg;../PyMath/dist/PyMath-0.1-py2.7.egg;../PySettings/dist/PySettings-0.1-py2.7.egg"/>
 		</antcall>
 	</target>
 

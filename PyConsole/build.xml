@@ -5,39 +5,38 @@
 	
 	<property name="console.type" value="True"/>
 	<property name="build.type" value="F"/>	
+	<property name="libs" value="../PyCore/dist/PyCore-0.1-py2.7.egg;../PyCommon/dist/PyCommon-0.1-py2.7.egg;../PyMath/dist/PyMath-0.1-py2.7.egg;../PySettings/dist/PySettings-0.1-py2.7.egg"/>
 	
-	<target name="build.PyConsole" depends="libs" description="build PyConsole application">
+	<target name="build.PyConsole" depends="projects" description="build PyConsole application">
 		<property name="application.name" value="PyConsole"/>		
 		<antcall target="build.application">
+			<param name="python.path" value="${libs}"/>
 			<param name="start.script" value="src/pyconsole/programs/test_poincare.py"/>
 		</antcall>
 	</target>
 	
-	<target name="build.PyCursesMed" depends="libs" description="build PyCursesMed application">
+	<target name="build.PyCursesMed" depends="projects" description="build PyCursesMed application">
 		<property name="application.name" value="PyCursesMed"/>		
 		<antcall target="build.application">
+			<param name="python.path" value="${libs}"/>
 			<param name="start.script" value="src/pyconsole/programs/main_curses_med.py"/>
 		</antcall>
 	</target>	
 
-	<target name="libs">
+	<target name="projects">
 		<ant dir="../PyCore" inheritall="false"/>
-		<property name="egg.1" location="../PyCore/dist/PyCore-0.1-py2.7.egg"/>
-
 		<ant dir="../PyCommon" inheritall="false"/>
-		<property name="egg.2" location="../PyCommon/dist/PyCommon-0.1-py2.7.egg"/>
-		
 		<ant dir="../PyMath" inheritall="false"/>
-		<property name="egg.3" location="../PyMath/dist/PyMath-0.1-py2.7.egg"/>		
+		<ant dir="../PySettings" inheritall="false"/>
 	</target>	
 
-	<target name="run.PyCurses" description="Run PyCurses" depends="libs">
+	<target name="run.PyCurses" depends="projects" description="Run PyCurses">
 		<exec executable="/bin/bash" os="Linux">
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
 		</exec>
 		<exec executable="cmd" dir="." os="Windows Vista">
-			<env key="PYTHONPATH" path="${env.PYTHONPATH};${egg.1};${egg.2}"/>			
+			<env key="PYTHONPATH" path="${PYTHONPATH};${libs}"/>			
 			<arg value="/C" />
 			<arg value="start" />
 			<arg value="${python-path}/python"/>
