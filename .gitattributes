@@ -88,7 +88,7 @@ PySettings/src/etc/settings.properties -text
 PyUtils/.project -text
 PyUtils/.pydevproject -text
 PyUtils/application.spec.py -text
-PyUtils/build_pyutils.xml -text
+PyUtils/commons.xml -text
 PyUtils/doc_chm.doxygen -text
 PyUtils/doc_common.doxygen -text
 PyUtils/doc_pdf.doxygen -text

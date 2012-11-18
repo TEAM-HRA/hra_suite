@@ -2,7 +2,7 @@
 
 	<property name="application.name" value="PyMed"/>
 	<property name="application.root" value="../PyMed"/>	
-	<import file="../PyUtils/build_pyutils.xml"/>
+	<import file="../PyUtils/commons.xml"/>
 
 	<property name="console.type" value="True"/>
 

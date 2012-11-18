@@ -3,6 +3,6 @@
 	<property name="application.name" value="PyCore"/>
 	<property name="application.root" value="../PyCore"/>	
     <property name="application.description" value="Core functionality"/>	
-	<import file="../PyUtils/build_pyutils.xml"/>
+	<import file="../PyUtils/commons.xml"/>
 	
 </project>

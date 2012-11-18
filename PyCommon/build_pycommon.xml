@@ -3,7 +3,7 @@
 	<property name="application.name" value="PyCommon"/>
 	<property name="application.root" value="../PyCommon"/>	
     <property name="application.description" value="Common functionality"/>	
-	<import file="../PyUtils/build_pyutils.xml"/>
+	<import file="../PyUtils/commons.xml"/>
 	
 	<target name="build.egg.PyCommon" description="Build PyCommon egg">
 

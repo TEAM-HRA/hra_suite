@@ -4,6 +4,6 @@
 	<property name="application.root" value="../PySettings"/>
 	<property name="additional.files" value="*.xml,*.properties,*/*.xml,*/*.properties,*/*.ico"/>
     <property name="application.description" value="Project for application settings (no python code)"/>	
-	<import file="../PyUtils/build_pyutils.xml"/>
+	<import file="../PyUtils/commons.xml"/>
 	
 </project>

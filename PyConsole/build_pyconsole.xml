@@ -1,7 +1,7 @@
 <project name="PyConsole" default="build.PyConsole">
 
 	<property name="application.root" value="../PyConsole"/>
-	<import file="../PyUtils/build_pyutils.xml"/>
+	<import file="../PyUtils/commons.xml"/>
 	
 	<property name="console.type" value="True"/>
 	<property name="build.type" value="F"/>
