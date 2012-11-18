@@ -29,13 +29,13 @@ a = Analysis([start_script],
              hiddenimports=[],
              hookspath=None)
 
-#add external eggs
-for env_key in os.environ:
-	if (env_key.startswith('EGG_')):
-		value = os.environ.get(env_key)
-		if ( not (value == None or len(value) == 0 or value.startswith('${egg.')) ):
-			name = value.split("\\")[-1]
-			a.zipfiles += [('eggs/' + name, value, 'ZIPFILE',)]
+#set up additional eggs into eggs directory
+eggs = os.environ.get("EGGS")
+if not ( eggs == None or len(eggs)==0 or eggs == '${eggs}'):
+	for egg_name in eggs.split(";"): # eggs are separated by ';' sign
+		if ( len(egg_name) > 0 ):
+			name = egg_name.split("\\")[-1]
+			a.zipfiles += [('eggs/' + name, egg_name, 'ZIPFILE',)]		
 
 pyz = PYZ(a.pure)
 
