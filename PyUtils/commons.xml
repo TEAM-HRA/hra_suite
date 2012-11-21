@@ -6,7 +6,7 @@
 	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-2.0"/>
 	
 	<!-- development version
-	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>	
+	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-c08055a"/>
 	-->
 	<!--
 	<property name="application.root" location="../${application.name}"/>
@@ -47,7 +47,7 @@
 	
 	
 	<target name="_help.py_med.egg">
-		<exec executable="cmd" os="Windows 7">
+		<exec executable="cmd" osfamily="winnt">
 			<arg value="/c" />
 			<arg value="${python-path}/python.exe" />			
 			<arg value="${py_setup_egg}" />
@@ -56,7 +56,7 @@
 	</target>	
 	
 	<target name="build.egg">
-		<exec executable="cmd" os="Windows 7">
+		<exec executable="cmd" osfamily="winnt">
 			<env key="APPLICATION_DESCRIPTION" value="${application.description}"/>
 			<env key="APPLICATION_NAME" value="${application.name}"/>
 			<env key="REQUIRED_PACKAGES" value="${required.packages}"/>
@@ -69,6 +69,7 @@
 		<delete dir="${application.root}/src/${application.name}.egg-info"/>
 	</target>	
 	
+	<target name="rebuild.egg" depends="clean.all, build.egg"/>
 
 	<target name="check.application.dist">
 		<if>
@@ -110,11 +111,33 @@
 			</sequential>
 		</for>
 		
+		<!-- 
+		because there is a code which is not explicitly invoked so one have to pass
+		packages where the code is located by hidden.package.<number> properties,
+		hidden_packages - includes all hidden packages passed by hidden.package.[number] properties
+		-->
+		<var name="hidden.packages" value=""/>		
+		<for list="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15" param="counter"> <!-- up to 15 hidden packages could by examined -->
+			<sequential>
+				<!-- if hidden.package.[counter] property is not set by parent (invoking) target 
+					then the following instruction set it to the empty string -->				
+				<property name="hidden.package.@{counter}" value=""/>				
+				<if>
+					<!-- if hidden.package.[counter] property exists which means is not empty -->
+					<not><equals arg1="${hidden.package.@{counter}}" arg2=""/></not>
+					<then>
+						<echo>Using hidden package: ${hidden.package.@{counter}}</echo>
+						<var name="hidden.packages" value="${hidden.packages};${hidden.package.@{counter}}"></var>						
+					</then>
+				</if>				
+			</sequential>
+		</for>
+
 		<exec executable="/bin/bash" os="Linux">
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
 		</exec>
-		<exec executable="cmd" os="Windows 7" >
+		<exec executable="cmd" osfamily="winnt" >
 			<env key="PATH" path="${env.PATH};${additional.paths}"/>
 			<env key="APPLICATION_NAME" value="${application.name}"/>
 			<env key="START_SCRIPT" value="${start.script}"/>
@@ -127,10 +150,14 @@
 
 			<env key="APPLICATION_ROOT" value="${application.root}"/>
 			<env key="EGGS" value="${eggs}"/>			
-			<env key="PYTHONPATH" value="${env.PYTHONPATH};${eggs_names}"/>
+			<env key="PYTHONPATH" value="${env.PYTHONPATH};${eggs_names};src"/>
+			<env key="HIDDEN_PACKAGES" value="${hidden.packages}"/>
 
 			<arg value="/c" />
 			<arg value="${python-path}/python.exe" />
+			<!--
+			<arg value="-v" />
+			-->			
 			<arg value="${win-pyinstaller-path}/utils/Build.py" />
 			<arg value="../PyUtils/application.spec.py" />
 			<arg value="-y" />
@@ -168,7 +195,7 @@
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
 		</exec>
-		<exec executable="cmd" os="Windows 7">
+		<exec executable="cmd" osfamily="winnt">
 			<arg value="/c" />
 			<arg value="${python-path}/python.exe" />			
 			<arg value="${win-pyinstaller-path}/pyinstaller.py" />
@@ -183,7 +210,7 @@
 			<arg value="assembly:directory" />
 		</exec>
 		
-		<exec executable="cmd" os="Windows 7">
+		<exec executable="cmd" osfamily="winnt">
 			<env key="APPLICATION_NAME" value="${application.name}"/>			
 			<arg value="/c" />
 			<arg value="${doxygen}" />			
@@ -200,27 +227,27 @@
 			<arg value="mvn" />
 			<arg value="assembly:directory" />
 		</exec>
-		<exec executable="cmd" os="Windows 7">
+		<exec executable="cmd" osfamily="winnt">
 			<env key="APPLICATION_NAME" value="${application.name}"/>			
 			<arg value="/c" />
 			<arg value="${doxygen}" />			
 			<arg value="../PyUtils/doc_pdf.doxygen" />
 		</exec>
 
-		<exec executable="cmd" os="Windows 7" dir="${doc_temp_latex}">
+		<exec executable="cmd" osfamily="winnt" dir="${doc_temp_latex}">
 			<arg value="/c" />
 			<arg value="${miktext}/pdflatex.exe" />
 			<arg value="refman.tex" />
 			<arg value="-job-name=${application.name}" />
 		</exec>
 
-		<exec executable="cmd" os="Windows 7" dir="${doc_temp_latex}">
+		<exec executable="cmd" osfamily="winnt" dir="${doc_temp_latex}">
 			<arg value="/c" />
 			<arg value="${miktext}/makeindex.exe" />
 			<arg value="${application.name}.idx" />
 		</exec>
 		
-		<exec executable="cmd" os="Windows 7" dir="${doc_temp_latex}">
+		<exec executable="cmd" osfamily="winnt" dir="${doc_temp_latex}">
 			<arg value="/c" />
 			<arg value="${miktext}/pdflatex.exe" />
 			<arg value="refman.tex" />
@@ -247,7 +274,7 @@
 				<echo file="build.bat">
 ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${src.path} -o ../PyMed -n ${application.name} ${application.type} -y --noupx --buildpath build\${application.name} 
 				</echo>
-				<exec executable="cmd" os="Windows 7">
+				<exec executable="cmd" osfamily="winnt">
 					<arg value="/c" />
 					<arg value="build.bat" />			
 				</exec>
@@ -294,7 +321,7 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		<if>
 			<available file="${application.root}/dist/${application.name}.exe"/>
 		    <then>
-				<exec executable="cmd" os="Windows 7">
+				<exec executable="cmd" osfamily="winnt">
 					<arg value="/c" />
 					<arg value="${python-path}/python.exe" />
 					<arg value="${win-pyinstaller-path}/utils/ArchiveViewer.py" />
