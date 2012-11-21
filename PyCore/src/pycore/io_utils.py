@@ -4,17 +4,11 @@ Created on 20-10-2012
 @author: jurek
 '''
 
-import sys
 from os.path import join
 from os.path import exists
 from os.path import pathsep
 from os.path import dirname
 from os import walk
-from pycore.globals import GLOBALS
-
-
-def get_program_path():
-    return GLOBALS.PROGRAM_DIR if GLOBALS.PROGRAM_DIR else sys.path[0]
 
 
 def get_filenames(path, depth=1):
