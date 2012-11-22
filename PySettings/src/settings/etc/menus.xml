@@ -11,7 +11,7 @@
 			<menuItem ident="item51" title="Item 121">
 				<actions>
 					<action title="Action 000" iconId="users" 
-						type="checkable" signal="triggered()" 
+						signal="triggered()" 
 						slot="pymed.qt.test01.small.WindowTest.show"/>
 				</actions>
 			</menuItem>
