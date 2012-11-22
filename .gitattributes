@@ -15,7 +15,6 @@ OdJarka/src/rea2HRVnoFourier.py -text
 PyCommon/.project -text
 PyCommon/.pydevproject -text
 PyCommon/build_pycommon.xml -text
-PyCommon/settings.properties -text
 PyCommon/src/pycommon/__init__.py -text
 PyCommon/src/pycommon/i18n.py -text
 PyCommon/src/pycommon/menu_utils.py -text
