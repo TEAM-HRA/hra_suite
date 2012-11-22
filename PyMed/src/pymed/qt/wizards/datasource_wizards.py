@@ -5,7 +5,7 @@ Created on 03-11-2012
 '''
 from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
-from pymed.qt.utils.context import Context
+from pygui.qt.utils.context import Context
 from pycommon.i18n import I18N
 
 

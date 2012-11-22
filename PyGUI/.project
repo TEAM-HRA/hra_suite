@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>PyMed</name>
+	<name>PyGUI</name>
 	<comment></comment>
 	<projects>
 		<project>PyCommon</project>
 		<project>PyCore</project>
-		<project>PyGUI</project>
-		<project>PyMed</project>
-		<project>PySettings</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

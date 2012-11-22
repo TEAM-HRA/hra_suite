@@ -18,6 +18,9 @@
 
 		<ant dir="../PySettings" antfile="build_pysettings.xml" inheritall="false" target="rebuild.egg"/>
 		<property name="egg.4" value="../PySettings/dist/PySettings-0.1-py2.7.egg"/>
+		
+		<ant dir="../PyGUI" antfile="build_pygui.xml" inheritall="false" target="rebuild.egg"/>
+		<property name="egg.5" value="../PyGUI/dist/PyGUI-0.1-py2.7.egg"/>
 	</target>
 
 	<target name="build.PyMed" description="Build PyMed application" depends="projects, clean.all">
@@ -33,7 +36,7 @@
 
 			<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>
 			<param name="start.script" value="src/pymed/programs/gui/med_main_QT.pyw"/>
-		    <param name="build.type" value="F"/>
+		    <param name="build.type" value="D"/>
 		</antcall>
 	</target>
 

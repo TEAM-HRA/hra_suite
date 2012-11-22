@@ -8,6 +8,8 @@ PyConsole/dist
 PyConsole/doc
 PyCore/build
 PyCore/dist
+PyGUI/build
+PyGUI/dist
 PyMath/build
 PyMath/dist
 PyMed/build

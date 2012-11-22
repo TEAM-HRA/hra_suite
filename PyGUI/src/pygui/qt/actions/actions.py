@@ -8,8 +8,8 @@ from PyQt4.QtGui import *  # @UnusedWildImport
 from pycommon.menu_utils import Action
 from pycore.globals import GLOBALS
 from pycore.properties import Properties
-from pymed.qt.utils.context import Context
-from pymed.qt.utils.graphics import get_resource_as_icon
+from pygui.qt.utils.context import Context
+from pygui.qt.utils.graphics import get_resource_as_icon
 
 
 class QTActionBuilder(object):

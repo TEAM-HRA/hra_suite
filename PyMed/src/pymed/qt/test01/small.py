@@ -5,7 +5,7 @@ Created on 31-10-2012
 '''
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
-from pymed.qt.utils.context import Context
+from pygui.qt.utils.context import Context
 
 
 class WindowTest(object):

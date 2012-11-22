@@ -1,0 +1,5 @@
+<project name="PyGUI" default="build.egg">
+	<property name="application.name" value="PyGUI"/>
+	<property name="application.root" value="../PyGUI"/>	
+	<import file="../PyUtils/commons.xml"/>
+</project>

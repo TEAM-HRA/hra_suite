@@ -5,7 +5,7 @@ Created on 28-10-2012
 '''
 from pycommon.menu_utils import MenuBuilder
 from pycore.globals import GLOBALS
-from pymed.qt.actions.actions import QTActionBuilder
+from pygui.qt.actions.actions import QTActionBuilder
 from pycore.resources import get_as_resource_handler_or_string
 from pycore.resources import close_resource
 

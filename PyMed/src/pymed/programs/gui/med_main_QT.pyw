@@ -11,9 +11,9 @@ from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
 
-from pymed.qt.utils.settings import SettingsFactory
-from pymed.qt.utils.settings import Setter
-from pymed.qt.menu.menus import QTMenuBuilder
+from pygui.qt.utils.settings import SettingsFactory
+from pygui.qt.utils.settings import Setter
+from pygui.qt.menu.menus import QTMenuBuilder
 
 __version__ = "1.0.0"
 
