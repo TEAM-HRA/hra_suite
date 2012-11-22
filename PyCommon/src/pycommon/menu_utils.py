@@ -14,12 +14,12 @@ class MenuBuilder(object):
     def __init__(self):
         self.__handler__ = None
 
-    def parse(self, filename):
+    def parse(self, filename_or_resource):
         try:
             self.__handler__ = _MenuBuilderHandler()
             parser = make_parser()
             parser.setContentHandler(self.__handler__)
-            parser.parse(filename)
+            parser.parse(filename_or_resource)
             return True
         except (EnvironmentError, ValueError, SAXParseException) as err:
             print(err)

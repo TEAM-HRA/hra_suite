@@ -9,7 +9,8 @@ from pycore.collections import replace_all_by_dict
 
 __I18N_PROPERTIES = Properties(GLOBALS.get(I18N_FILE=GLOBALS.ITEM,
                                            PARAM1=GLOBALS.LANG),
-                                    _file_prefix=GLOBALS.SETTINGS_DIR)
+                                _file_prefix=GLOBALS.SETTINGS_DIR,
+                                _use_as_resources=GLOBALS.USE_SETTINGS_EGG)
 
 
 def I18N(_id, _default=None, **params):

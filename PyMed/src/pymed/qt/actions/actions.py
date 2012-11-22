@@ -9,6 +9,7 @@ from pycommon.menu_utils import Action
 from pycore.globals import GLOBALS
 from pycore.properties import Properties
 from pymed.qt.utils.context import Context
+from pymed.qt.utils.graphics import get_resource_as_icon
 
 
 class QTActionBuilder(object):
@@ -22,7 +23,7 @@ class QTActionBuilder(object):
         if action.iconId:
             icon = _ICONS_PROPERTIES.getValue(action.iconId)
             if icon:
-                qt_action.setIcon(QIcon(icon))
+                qt_action.setIcon(get_resource_as_icon(icon))
             #qt_action.setIcon(QIcon(":/%s.png" % icon))
         #if shortcut is not None:
         #    qt_action.setShortcut(shortcut)
@@ -41,5 +42,6 @@ class QTActionBuilder(object):
 
 
 _ICONS_PROPERTIES = Properties(GLOBALS.get(ICONS_FILE=GLOBALS.ITEM),
-                               _file_prefix=GLOBALS.SETTINGS_DIR)
+                               _file_prefix=GLOBALS.SETTINGS_DIR,
+                               _use_as_resources=GLOBALS.USE_SETTINGS_EGG)
 _TOOLTIPS_PROPERTIES = Properties(GLOBALS.get(TOOLTIPS_FILE=GLOBALS.ITEM))
