@@ -72,6 +72,7 @@ PyMed/src/pymed/qt/test01/__init__.py -text
 PyMed/src/pymed/qt/test01/small.py -text
 PyMed/src/pymed/qt/utils/__init__.py -text
 PyMed/src/pymed/qt/utils/context.py -text
+PyMed/src/pymed/qt/utils/graphics.py -text
 PyMed/src/pymed/qt/utils/settings.py -text
 PyMed/src/pymed/qt/wizards/__init__.py -text
 PyMed/src/pymed/qt/wizards/datasource_wizards.py -text
