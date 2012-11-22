@@ -35,6 +35,7 @@ PyCore/src/pycore/globals.py -text
 PyCore/src/pycore/introspection.py -text
 PyCore/src/pycore/io_utils.py -text
 PyCore/src/pycore/properties.py -text
+PyCore/src/pycore/resources.py -text
 PyMath/.project -text
 PyMath/.pydevproject -text
 PyMath/build_pymath.xml -text
