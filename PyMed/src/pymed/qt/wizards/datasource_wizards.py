@@ -12,8 +12,8 @@ from pycommon.i18n import I18N
 class DatasourceWizard(QWizard):
 
     @staticmethod
-    def show_wizard():
-        parent = Context(DatasourceWizard.show_wizard).load().parent
+    def show_wizard(dargs):
+        parent = dargs.get('parent', None)
         return DatasourceWizard(parent).show()
 
     def __init__(self, _parent):

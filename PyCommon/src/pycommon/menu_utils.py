@@ -187,29 +187,3 @@ class Action(object):
     @slot.setter
     def slot(self, _slot):
         self.__slot = _slot
-
-    @property
-    def slot_action(self):
-        if self.slot:
-            _module = __import__(self.__package, fromlist=[self.__class])
-            return eval(".".join(['_module', self.__class, self.__method]))
-
-    @property
-    def __method(self):
-        return self.__part(-1)
-
-    @property
-    def __class(self):
-        return self.__part(-2)
-
-    @property
-    def __module(self):
-        return self.__part(-3)
-
-    @property
-    def __package(self):
-        return self.__part(0, -2)
-
-    def __part(self, start, end=None):
-        splits = self.slot.split(".")
-        return splits[start] if end == None else ".".join(splits[start:end])
