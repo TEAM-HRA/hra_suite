@@ -16,6 +16,7 @@
 			<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>
 			<param name="start.script" value="src/pymed/programs/gui/med_main_QT.pyw"/>
 		</antcall>
+		<antcall target="clean.dist.PyMed.egg"/>
 	</target>
 
 <!--
@@ -31,5 +32,9 @@
 		</antcall>
 	</target>	
 -->
-	
+	<target name="clean.dist.PyMed.egg">
+		<delete includeEmptyDirs="true" failonerror="no">
+			<fileset dir="${application.root}/dist" includes="*.egg"/>
+		</delete>
+	</target>
 </project>
