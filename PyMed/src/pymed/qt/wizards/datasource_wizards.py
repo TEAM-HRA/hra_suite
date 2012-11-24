@@ -5,8 +5,7 @@ Created on 03-11-2012
 '''
 from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
-from pygui.qt.utils.context import Context
-from pycommon.i18n import I18N
+from pygui.qt.utils.qt_i18n import QT_I18N
 
 
 class DatasourceWizard(QWizard):
@@ -18,8 +17,8 @@ class DatasourceWizard(QWizard):
 
     def __init__(self, _parent):
         QWizard.__init__(self, _parent)
-        self.setWindowTitle(QString(I18N("datasource.import.title",
-                                         _default="Datasource import")))
+        self.setWindowTitle(QT_I18N("datasource.import.title",
+                                         _default="Datasource import"))
 
     def show(self):
         self.addPage(ChooseDatasourcePage(self))

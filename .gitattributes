@@ -53,6 +53,7 @@ PyGUI/src/pygui/qt/menu/menus.py -text
 PyGUI/src/pygui/qt/utils/__init__.py -text
 PyGUI/src/pygui/qt/utils/context.py -text
 PyGUI/src/pygui/qt/utils/graphics.py -text
+PyGUI/src/pygui/qt/utils/qt_i18n.py -text
 PyGUI/src/pygui/qt/utils/settings.py -text
 PyMath/.project -text
 PyMath/.pydevproject -text
