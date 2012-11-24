@@ -3,7 +3,7 @@ Created on 28-10-2012
 
 @author: jurek
 '''
-from pycommon.menu_utils import MenuBuilder
+from pycommon.menu_parser import MenuBuilder
 from pycore.globals import GLOBALS
 from pygui.qt.actions.actions import QTActionBuilder
 from pycore.resources import get_as_resource_handler_or_string
