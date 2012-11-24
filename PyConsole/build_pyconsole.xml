@@ -1,10 +1,7 @@
 <project name="PyConsole" default="build.PyConsole">
 
-	<property name="application.root" value="../PyConsole"/>
+	<property file="../PyConsole/build_pyconsole.properties" />	
 	<import file="../PyUtils/commons.xml"/>
-	
-	<property name="console.type" value="True"/>
-	<property name="build.type" value="F"/>
 	
 	<target name="build.PyConsole" depends="projects" description="build PyConsole application">
 		<property name="application.name" value="PyConsole"/>		
@@ -21,17 +18,10 @@
 	</target>	
 
 	<target name="projects">
-		<ant dir="../PyCore" antfile="build_pycore.xml" inheritall="false"/>
-		<property name="egg.1" value="../PyCore/dist/PyCore-0.1-py2.7.egg"/>
-		
-		<ant dir="../PyCommon" antfile="build_pycommon.xml" inheritall="false"/>
-		<property name="egg.2" value="../PyCommon/dist/PyCommon-0.1-py2.7.egg"/>
-
-		<ant dir="../PyMath" antfile="build_pymath.xml" inheritall="false"/>
-		<property name="egg.3" value="../PyMath/dist/PyMath-0.1-py2.7.egg"/>
-
-		<ant dir="../PySettings" antfile="build_pysettings.xml" inheritall="false"/>
-		<property name="egg.4" value="../PySettings/dist/PySettings-0.1-py2.7.egg"/>
+		<ant dir="../PyCore" antfile="build_pycore.xml" inheritall="false" target="rebuild.egg"/>
+		<ant dir="../PyCommon" antfile="build_pycommon.xml" inheritall="false" target="rebuild.egg"/>
+		<ant dir="../PyMath" antfile="build_pymath.xml" inheritall="false" target="rebuild.egg"/>
+		<ant dir="../PySettings" antfile="build_pysettings.xml" inheritall="false" target="rebuild.egg"/>
 	</target>
 
 	<target name="run.PyCurses" depends="projects" description="Run PyCurses">

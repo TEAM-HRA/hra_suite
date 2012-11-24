@@ -1,8 +1,4 @@
 <project name="PyCommon" default="build.egg">
-
-	<property name="application.name" value="PyCommon"/>
-	<property name="application.root" value="../PyCommon"/>	
-    <property name="application.description" value="Common functionality"/>	
+	<property file="../PyCommon/build_pycommon.properties" />	
 	<import file="../PyUtils/commons.xml"/>
-	
 </project>

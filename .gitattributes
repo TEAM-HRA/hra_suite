@@ -14,6 +14,7 @@ OdJarka/src/rea2HRV.py -text
 OdJarka/src/rea2HRVnoFourier.py -text
 PyCommon/.project -text
 PyCommon/.pydevproject -text
+PyCommon/build_pycommon.properties -text
 PyCommon/build_pycommon.xml -text
 PyCommon/src/pycommon/__init__.py -text
 PyCommon/src/pycommon/i18n.py -text
@@ -21,6 +22,7 @@ PyCommon/src/pycommon/menu_action.py -text
 PyCommon/src/pycommon/menu_parser.py -text
 PyConsole/.project -text
 PyConsole/.pydevproject -text
+PyConsole/build_pyconsole.properties -text
 PyConsole/build_pyconsole.xml -text
 PyConsole/src/pyconsole/__init__.py -text
 PyConsole/src/pyconsole/programs/__init__.py -text
@@ -29,6 +31,7 @@ PyConsole/src/pyconsole/programs/test_curses.py -text
 PyConsole/src/pyconsole/programs/test_poincare.py -text
 PyCore/.project -text
 PyCore/.pydevproject -text
+PyCore/build_pycore.properties -text
 PyCore/build_pycore.xml -text
 PyCore/src/pycore/__init__.py -text
 PyCore/src/pycore/collections.py -text
@@ -39,6 +42,7 @@ PyCore/src/pycore/properties.py -text
 PyCore/src/pycore/resources.py -text
 PyGUI/.project -text
 PyGUI/.pydevproject -text
+PyGUI/build_pygui.properties -text
 PyGUI/build_pygui.xml -text
 PyGUI/src/pygui/__init__.py -text
 PyGUI/src/pygui/qt/__init__.py -text
@@ -52,6 +56,7 @@ PyGUI/src/pygui/qt/utils/graphics.py -text
 PyGUI/src/pygui/qt/utils/settings.py -text
 PyMath/.project -text
 PyMath/.pydevproject -text
+PyMath/build_pymath.properties -text
 PyMath/build_pymath.xml -text
 PyMath/src/pymath/__init__.py -text
 PyMath/src/pymath/datasources.py -text
@@ -69,6 +74,7 @@ PyMath/src/pymath/time_domain/poincare_plot/filters.py -text
 PyMath/src/pymath/time_domain/poincare_plot/poincare_plot.py -text
 PyMed/.project -text
 PyMed/.pydevproject -text
+PyMed/build_pymed.properties -text
 PyMed/build_pymed.xml -text
 PyMed/src/pymed/__init__.py -text
 PyMed/src/pymed/programs/__init__.py -text
@@ -85,6 +91,7 @@ PyMed/src/pymed/qt/wizards/__init__.py -text
 PyMed/src/pymed/qt/wizards/datasource_wizards.py -text
 PySettings/.project -text
 PySettings/.pydevproject -text
+PySettings/build_pysettings.properties -text
 PySettings/build_pysettings.xml -text
 PySettings/src/settings/__init__.py -text
 PySettings/src/settings/etc/__init__.py -text

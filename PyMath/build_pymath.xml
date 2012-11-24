@@ -1,8 +1,4 @@
 <project name="PyMath" default="build.egg">
-
-	<property name="application.name" value="PyMath"/>
-	<property name="application.root" value="../PyMath"/>	
-    <property name="application.description" value="Math functionality"/>	
+	<property file="../PyMath/build_pymath.properties" />	
 	<import file="../PyUtils/commons.xml"/>
-	
 </project>
