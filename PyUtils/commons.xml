@@ -6,7 +6,7 @@
 	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-2.0"/>
 	
 	<!-- development version
-	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-c08055a"/>
+	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>
 	-->
 	<!--
 	<property name="application.root" location="../${application.name}"/>
@@ -16,7 +16,7 @@
 
 	<property name="doxygen" location="../../../../Programs/doxygen/bin/doxygen.exe"/>
 	
-	<property name="miktext" location="../../../../MiKTeX2.9/miktex/bin"/>
+	<property name="miktext" location="F:/MiKTeX2.9/miktex/bin"/>
 
 	<property name="doc_temp" location="doc/temp"/>
 	
