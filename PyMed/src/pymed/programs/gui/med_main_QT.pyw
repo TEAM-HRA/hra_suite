@@ -14,6 +14,7 @@ from PyQt4.QtGui import *
 from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.settings import Setter
 from pygui.qt.menu.menus import QTMenuBuilder
+from pycore.globals import GLOBALS
 
 __version__ = "1.0.0"
 
@@ -22,6 +23,13 @@ class MainWindow(QMainWindow):
 
     def __init__(self, parent=None):
         super(MainWindow, self).__init__(parent)
+
+        menuBuilder = QTMenuBuilder(self)
+        menuBuilder.createMenus()
+
+        if GLOBALS.START_MENU_ID:
+            if menuBuilder.invokeMenuItem(GLOBALS.START_MENU_ID):
+                sys.exit(0)
 
         self.image = QImage()
         self.dirty = False
@@ -44,9 +52,6 @@ class MainWindow(QMainWindow):
         self.addDockWidget(Qt.RightDockWidgetArea, logDockWidget)
 
         self.printer = None
-
-        menuBuilder = QTMenuBuilder(self)
-        menuBuilder.createMenus()
 
         self.sizeLabel = QLabel()
         self.sizeLabel.setFrameStyle(QFrame.StyledPanel | QFrame.Sunken)

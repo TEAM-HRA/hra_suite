@@ -20,6 +20,7 @@ class Globals(object):
     __parser.add_option("-u", "--use_settings_egg", default=True)
     __parser.add_option("-s", "--settings_file", type="string", default="")
     __parser.add_option("-l", "--lang", type="string", default="en")
+    __parser.add_option("-m", "--start_menu_ident", type="string", default="")
     __opts, __args = __parser.parse_args()
 
     USE_SETTINGS_EGG = __opts.use_settings_egg
@@ -43,6 +44,8 @@ class Globals(object):
     NUMPY_USAGE = None
     MENUS_FILE = None
     PLUGINS_DIR = None
+    START_MENU_ID = __opts.start_menu_ident \
+                    if len(__opts.start_menu_ident) > 0 else None
 
     # a value of ITEM property doesn't matter,
     # this property is used as a marker in a situation
