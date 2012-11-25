@@ -14,5 +14,8 @@ __I18N_PROPERTIES = Properties(GLOBALS.get(I18N_FILE=GLOBALS.ITEM,
 
 
 def I18N(_id, _default=None, **params):
-    i18n = __I18N_PROPERTIES.getValue(_id)
-    return replace_all_by_dict(i18n, params) if i18n else _default
+    if _id:
+        i18n = __I18N_PROPERTIES.getValue(_id)
+        if i18n:
+            return replace_all_by_dict(i18n, params)
+    return _default
