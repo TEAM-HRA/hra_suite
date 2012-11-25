@@ -28,7 +28,7 @@
 		<menuItem ident="item44" title="Item 22"/>		
 	</menu>	
 	<menu ident="datasource" title="Datasources">
-		<menuItem ident="item51" title="Import datasource">
+		<menuItem ident="datasource_import" title="Import datasource">
 			<actions>
 				<action title="Import datasource" iconId="users" 
 					signal="triggered()"
