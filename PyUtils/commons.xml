@@ -183,12 +183,18 @@
 		</delete>		
 	</target>
 	
-	<target name="clean.all" description="clean all applications">
+	<target name="clean.all" description="clean all applications" depends="clean.doc">
 		<delete includeEmptyDirs="true" failonerror="no">
 			<fileset dir="${application.root}/build" includes="**/*"/>
 			<fileset dir="${application.root}/dist" includes="**/*"/>			
 		</delete>		
-	</target>	
+	</target>
+
+	<target name="clean.doc" description="clean all documentation">
+		<delete includeEmptyDirs="true" failonerror="no">
+			<fileset dir="${application.root}/doc" includes="**/*"/>
+		</delete>
+	</target>
 
 	<target name="py_installer.help" description="PyInstaller help">
 		<exec executable="/bin/bash" os="Linux">
