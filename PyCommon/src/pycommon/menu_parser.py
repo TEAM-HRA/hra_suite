@@ -29,6 +29,17 @@ class MenuBuilder(object):
     def getMainMenus(self):
         return self.__handler__.getMainMenus()
 
+    def getMenuItem(self, menu_ident, _menus=None):
+        menus = self.getMainMenus() if _menus == None else _menus.subItems
+        for menuItem in menus:
+            if menuItem.isMenu():
+                menuItem = self.getMenuItem(menu_ident, menuItem)
+                if menuItem:
+                    return menuItem
+            else:
+                if menu_ident == menuItem.ident:
+                    return menuItem
+
 
 class _MenuBuilderHandler(ContentHandler):
 
