@@ -60,13 +60,15 @@ def __item(parent=None, **params):
                 if not parent == None and not parent.layout() == 0 else None
     params = Params(**params)
     widget = params.widget
+    __set_widget_size(widget, params.size, params.width, params.height)
     if not params.sizePolicy == None:
         widget.setSizePolicy(params.sizePolicy)
     if not params.layout == None:
         widget.setLayout(params.layout)
     if not params.orientation == None:
         widget.setOrientation(params.orientation)
-
+    if params.maxLength:
+        widget.setMaxLength(params.maxLength)
     added = None
     if not params.alignment == None:
         added = __create_inner_alignment_layout(parent_layout, widget,
@@ -104,6 +106,18 @@ def __create_inner_alignment_layout(parent_layout, widget, alignment):
         if not parent_layout == None:
             parent_layout.addLayout(inner_layout)
     return not inner_layout == None
+
+
+def __set_widget_size(widget, size, width, height):
+    if not size == None or not width == None or not height == None:
+        if not width == None and height == None:
+            widget.setFixedWidth(width)
+        elif width == None and not height == None:
+            widget.setFixedHeight(height)
+        elif not width == None and not height == None:
+            widget.setFixedHeight(width, height)
+        else:
+            widget.setFixedSize(size)
 
 
 class Params(object):
