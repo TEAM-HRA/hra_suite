@@ -22,3 +22,10 @@ def get_resource_as_icon(iconfilename_or_resource):
         return QIcon(pixmap)
     else:
         return QIcon(iconfilename_or_resource)
+
+
+def get_size_of_text(text):
+    matrics = QFontMetrics(QApplication.font())
+    textWidthInPixels = matrics.width(text)
+    textHeightInPixels = matrics.height()
+    return (textWidthInPixels, textHeightInPixels)
