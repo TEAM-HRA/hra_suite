@@ -29,3 +29,7 @@ def get_size_of_text(text):
     textWidthInPixels = matrics.width(text)
     textHeightInPixels = matrics.height()
     return (textWidthInPixels, textHeightInPixels)
+
+
+def get_width_of_n_letters(n):
+    return get_size_of_text("W" * n)[0]
