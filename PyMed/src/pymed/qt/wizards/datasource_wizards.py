@@ -16,6 +16,7 @@ from pygui.qt.utils.widgets import createCheckBox
 from pygui.qt.utils.widgets import createLabel
 from pygui.qt.utils.widgets import createPushButton
 from pygui.qt.utils.widgets import createGroupBox
+from pygui.qt.utils.graphics import get_width_of_n_letters
 
 
 class DatasourceWizard(QWizard):
@@ -83,7 +84,10 @@ class ChooseDatasourcePage(QWizardPage):
 
         sizePolicy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.filesExtension = createLineEdit(filesConstraint,
-                                             sizePolicy=sizePolicy)
+                                             sizePolicy=sizePolicy,
+                                             maxLength=5,
+                                             width=get_width_of_n_letters(6)
+                                             )
 
         self.recursively = createCheckBox(filesConstraint,
                 i18n="datasource.search.files.recursively.label",
