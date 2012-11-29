@@ -61,6 +61,10 @@ def __item(parent=None, **params):
     params = Params(**params)
     widget = params.widget
     __set_widget_size(widget, params.size, params.width, params.height)
+    if params.enabled == False:
+        widget.setEnabled(params.enabled)
+    if not params.selectionBehavior == None:
+        widget.setSelectionBehavior(params.selectionBehavior)
     if not params.sizePolicy == None:
         widget.setSizePolicy(params.sizePolicy)
     if not params.layout == None:
