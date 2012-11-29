@@ -65,6 +65,8 @@ def __item(parent=None, **params):
         widget.setEnabled(params.enabled)
     if not params.selectionBehavior == None:
         widget.setSelectionBehavior(params.selectionBehavior)
+    if not params.selectionMode == None:
+        widget.setSelectionMode(params.selectionMode)
     if not params.sizePolicy == None:
         widget.setSizePolicy(params.sizePolicy)
     if not params.layout == None:
@@ -83,6 +85,9 @@ def __item(parent=None, **params):
     if not added and not parent_layout == None:
         parent_layout.addWidget(widget)
 
+    if not params.stretch_after_widget == None:
+        if not parent_layout == None:
+            parent_layout.addStretch(params.stretch_after_widget)
     if params.titleable and (params.i18n or params.i18n_def):
         title_I18N(widget, params.i18n, params.i18n_def)
     if params.textable and (params.i18n or params.i18n_def):
