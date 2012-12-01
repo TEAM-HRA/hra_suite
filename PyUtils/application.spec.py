@@ -1,25 +1,24 @@
 # -*- mode: python -*-
 
-import pkgutil
+from pkgutil import walk_packages
 import sys
 
-def get_hidden_import():
-	#set up additional packages
-	hidden_packages = os.environ.get("HIDDEN_PACKAGES")
-	hidden_imports = []
-	if not ( hidden_packages == None or 
-		len(hidden_packages)==0 or hidden_packages == '${hidden_packages}'):
-		packages = list(pkgutil.walk_packages())
-		#for importer, modname, ispkg in pkgutil.walk_packages():
-    	# 	print "Found submodule %s (is a package: %s)" % (modname, ispkg)
-		for _package in hidden_packages.split(";"): # packages are separated by ';' sign
-			if ( len(_package) > 0 ):
-            	# add only if name of a package starts as _package name and 
-             # the package is a module type
-				hidden_imports[len(hidden_imports):] = [package[1] 
-														for package in packages 
-														if package[1].startswith(_package) and package[2]==False]
-		return hidden_imports
+#set up additional packages
+hidden_packages = os.environ.get("HIDDEN_PACKAGES")
+hidden_imports = []
+if not ( hidden_packages == None or
+	len(hidden_packages)==0 or hidden_packages == '${hidden_packages}'):
+	packages = list(walk_packages())
+	#for importer, modname, ispkg in pkgutil.walk_packages():
+   	# 	print "Found submodule %s (is a package: %s)" % (modname, ispkg)
+	for _package in hidden_packages.split(";"): # packages are separated by ';' sign
+		if ( len(_package) > 0 ):
+           	# add only if name of a package starts as _package name and 
+            # the package is a module type
+			hidden_imports[len(hidden_imports):] = [package[1] 
+													for package in packages 
+													if package[1].startswith(_package)]
+
 
 application_name = os.environ["APPLICATION_NAME"]
 start_script = os.environ["START_SCRIPT"]
@@ -46,7 +45,7 @@ else:
 
 a = Analysis([start_script],
              #pathex=['src', '.'],
-             hiddenimports=get_hidden_import(),
+             hiddenimports=hidden_imports,
              hookspath=None)
 
 #set up additional eggs into eggs directory
