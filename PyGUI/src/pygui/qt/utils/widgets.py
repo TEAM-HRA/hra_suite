@@ -51,6 +51,10 @@ def createTextEdit(parent=None, **params):
     return __item(parent, widget=QTextEdit(parent), **params)
 
 
+def createPlainTextEdit(parent=None, **params):
+    return __item(parent, widget=QPlainTextEdit(parent), **params)
+
+
 def __item(parent=None, **params):
     """
     method to create a widget based o information contained in params
@@ -71,6 +75,8 @@ def __item(parent=None, **params):
         widget.setSizePolicy(params.sizePolicy)
     if not params.layout == None:
         widget.setLayout(params.layout)
+    if not params.readonly == None:
+        widget.setReadOnly(params.readonly)
     if not params.orientation == None:
         widget.setOrientation(params.orientation)
     if params.maxLength:
