@@ -89,6 +89,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.progressBarComposite.hide()
         self.changeEnablemend(True)
         self.chooseRootDirButton.setEnabled(True)
+        self.filePreviewButton.setEnabled(False)
         self.filesExtension.setFocus()
 
     def initializePage(self):
@@ -176,7 +177,8 @@ class ChooseDatasourcePage(QWizardPage):
         self.filePreviewButton = createPushButton(filesOperations,
                             i18n="datasource.file.preview.button",
                             i18n_def="File preview",
-                            stretch_after_widget=1)
+                            stretch_after_widget=1,
+                            enabled=False)
         self.connect(self.filePreviewButton, SIGNAL("clicked()"),
                      self.filePreviewAction)
 
@@ -251,7 +253,6 @@ class ChooseDatasourcePage(QWizardPage):
         self.filesExtension.setEnabled(enabled)
         self.recursively.setEnabled(enabled)
         self.filesTableView.setEnabled(enabled)
-        self.filePreviewButton.setEnabled(enabled)
         self.checkAllButton.setEnabled(enabled)
         self.uncheckAllButton.setEnabled(enabled)
         self.reloadButton.setEnabled(enabled)
@@ -336,7 +337,7 @@ class FilesTableViewModelThread(QThread):
                 break
             self.emit(SIGNAL('taskUpdated'))
             infoFile = dir_iterator.fileInfo()
-            if infoFile.isFile() == True:
+            if infoFile.isFile() == True and infoFile.size() > 0:
                 if self.__stop__ == True:
                     break
                 if self.__fileExtension__ in ("*", "*.*", "", None):
