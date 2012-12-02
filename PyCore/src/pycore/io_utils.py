@@ -46,22 +46,23 @@ def get_dirname(_file):
     return dirname(_file)
 
 
-def is_text_file(filepath):
+def is_text_file(filepath, only_known_types=False):
     filepath = str(filepath)
     filetype = guess_type(filepath)[0]
     if not filetype == None:
         if filetype.startswith('text'):
             return True
     else:
-        try:
-            _file = file(filepath)
-            headlines = head(_file, lines=3)
-            _file.close()
-            for line in headlines:
-                line.decode('ascii')
-            return True
-        except UnicodeError:
-            pass
-        except IOError:
-            pass
+        if only_known_types == False:
+            try:
+                _file = file(filepath)
+                headlines = head(_file, lines=3)
+                _file.close()
+                for line in headlines:
+                    line.decode('ascii')
+                return True
+            except UnicodeError:
+                pass
+            except IOError:
+                pass
     return False
