@@ -105,29 +105,43 @@ class ChooseDatasourcePage(QWizardPage):
                                     i18n_def="Files",
                                     layout=QVBoxLayout())
 
-        _dir = createComposite(self.filesGroupBox, layout=QHBoxLayout())
+        self.__createFileConstraintsComposite__(self.filesGroupBox)
 
-        self.chooseRootDirButton = createPushButton(_dir,
+        self.__createReloadButton__(self.filesGroupBox)
+
+        self.__createTableView__(self.filesGroupBox)
+
+        self.__createProgressBarComposite__(self.filesGroupBox)
+
+        self.__createFilesOperationsComposite__(self.filesGroupBox)
+
+        self.changeEnablemend(False)
+
+    def __createFileConstraintsComposite__(self, parent):
+        fileConstraintsComposite = createComposite(parent,
+                                                   layout=QHBoxLayout())
+
+        self.chooseRootDirButton = createPushButton(fileConstraintsComposite,
                         i18n="datasource.datasource.choose.root.dir.button",
                         i18n_def="Choose root dir")
         self.connect(self.chooseRootDirButton, SIGNAL("clicked()"),
                      self.chooseRootDirAction)
 
-        createLabel(_dir,
+        createLabel(fileConstraintsComposite,
                      i18n="datasource.root.dir.label",
                      i18n_def="Root dir:")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.rootDirLabel = createLabel(_dir,
+        self.rootDirLabel = createLabel(fileConstraintsComposite,
                                         i18n="datasource.root.dir.label",
                                         i18n_def="[Not set]",
                                         sizePolicy=sizePolicy,
                                         stretch_after_widget=1)
 
-        createLabel(_dir,
+        createLabel(fileConstraintsComposite,
                     i18n="datasource.file.name.filter.label",
                     i18n_def="Files name filter")
 
-        self.filesExtension = createLineEdit(_dir,
+        self.filesExtension = createLineEdit(fileConstraintsComposite,
                                              maxLength=15,
                                              width=get_width_of_n_letters(14),
                                              text="*")
@@ -135,19 +149,21 @@ class ChooseDatasourcePage(QWizardPage):
                      SIGNAL("textChanged(const QString&)"),
                      self.reloadAction)
 
-        self.recursively = createCheckBox(_dir,
+        self.recursively = createCheckBox(fileConstraintsComposite,
                 i18n="datasource.search.files.recursively.label",
                 i18n_def="Search files recursively")
         self.connect(self.recursively, SIGNAL("clicked()"),
                      self.reloadAction)
 
-        self.reloadButton = createPushButton(self.filesGroupBox,
-                i18n="datasource.reload.button",
-                i18n_def="Reload")
+    def __createReloadButton__(self, parent):
+        self.reloadButton = createPushButton(parent,
+                                            i18n="datasource.reload.button",
+                                            i18n_def="Reload")
         self.connect(self.reloadButton, SIGNAL("clicked()"),
                      self.reloadAction)
 
-        self.filesTableView = createTableView(self.filesGroupBox,
+    def __createTableView__(self, parent):
+        self.filesTableView = createTableView(parent,
                         selectionBehavior=QAbstractItemView.SelectRows,
                         selectionMode=QAbstractItemView.SingleSelection)
         self.filesTableView.setModel(self.model)
@@ -155,7 +171,8 @@ class ChooseDatasourcePage(QWizardPage):
         self.connect(self.filesTableView, SIGNAL('clicked(QModelIndex)'),
                      self.onClickedAction)
 
-        self.progressBarComposite = createComposite(self.filesGroupBox,
+    def __createProgressBarComposite__(self, parent):
+        self.progressBarComposite = createComposite(parent,
                                             layout=QHBoxLayout())
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.progressBar = createProgressBar(self.progressBarComposite,
@@ -171,7 +188,8 @@ class ChooseDatasourcePage(QWizardPage):
         self.connect(self.stopProgressBarButton, SIGNAL("clicked()"),
                      self.stopTableViewLoaderThread)
 
-        filesOperations = createComposite(self.filesGroupBox,
+    def __createFilesOperationsComposite__(self, parent):
+        filesOperations = createComposite(parent,
                                             layout=QHBoxLayout())
 
         self.filePreviewButton = createPushButton(filesOperations,
@@ -193,8 +211,6 @@ class ChooseDatasourcePage(QWizardPage):
                             i18n_def="Uncheck all")
         self.connect(self.uncheckAllButton, SIGNAL("clicked()"),
                      self.uncheckAllAction)
-
-        self.changeEnablemend(False)
 
     def chooseRootDirAction(self):
         rootDir = QFileDialog.getExistingDirectory(self,
