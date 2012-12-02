@@ -89,6 +89,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.progressBarComposite.hide()
         self.changeEnablemend(True)
         self.chooseRootDirButton.setEnabled(True)
+        self.filesExtension.setFocus()
 
     def initializePage(self):
         title_I18N(self, "datasource.page.title", "Datasource chooser")
@@ -126,18 +127,24 @@ class ChooseDatasourcePage(QWizardPage):
                     i18n_def="Files name filter")
 
         self.filesExtension = createLineEdit(_dir,
-                                             maxLength=9,
-                                             width=get_width_of_n_letters(8),
+                                             maxLength=15,
+                                             width=get_width_of_n_letters(14),
                                              text="*")
         self.connect(self.filesExtension,
                      SIGNAL("textChanged(const QString&)"),
-                     self.filesExtensionAction)
+                     self.reloadAction)
 
         self.recursively = createCheckBox(_dir,
                 i18n="datasource.search.files.recursively.label",
                 i18n_def="Search files recursively")
         self.connect(self.recursively, SIGNAL("clicked()"),
-                     self.recursivelyAction)
+                     self.reloadAction)
+
+        self.reloadButton = createPushButton(self.filesGroupBox,
+                i18n="datasource.reload.button",
+                i18n_def="Reload")
+        self.connect(self.reloadButton, SIGNAL("clicked()"),
+                     self.reloadAction)
 
         self.filesTableView = createTableView(self.filesGroupBox,
                         selectionBehavior=QAbstractItemView.SelectRows,
@@ -237,10 +244,7 @@ class ChooseDatasourcePage(QWizardPage):
         #cols = self.model.columnCount()
         self.filePreviewButton.setEnabled(True)
 
-    def recursivelyAction(self):
-        self.reload()
-
-    def filesExtensionAction(self, text):
+    def reloadAction(self):
         self.reload()
 
     def changeEnablemend(self, enabled):
@@ -250,6 +254,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.filePreviewButton.setEnabled(enabled)
         self.checkAllButton.setEnabled(enabled)
         self.uncheckAllButton.setEnabled(enabled)
+        self.reloadButton.setEnabled(enabled)
 
 
 class ChooseColumnsDataPage(QWizardPage):
