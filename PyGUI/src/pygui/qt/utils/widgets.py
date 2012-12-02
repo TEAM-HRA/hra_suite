@@ -85,6 +85,8 @@ def __item(parent=None, **params):
         widget.setOrientation(params.orientation)
     if params.maxLength:
         widget.setMaxLength(params.maxLength)
+    if not params.checked == None:
+        widget.setChecked(params.checked)
     added = None
     if not params.alignment == None:
         added = __create_inner_alignment_layout(parent_layout, widget,
