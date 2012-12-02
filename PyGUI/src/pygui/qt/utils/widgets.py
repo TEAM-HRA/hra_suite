@@ -55,6 +55,10 @@ def createPlainTextEdit(parent=None, **params):
     return __item(parent, widget=QPlainTextEdit(parent), **params)
 
 
+def createProgressBar(parent=None, **params):
+    return __item(parent, widget=QProgressBar(parent), **params)
+
+
 def __item(parent=None, **params):
     """
     method to create a widget based o information contained in params
