@@ -29,7 +29,6 @@ class DatasourceWizard(QWizard):
         return DatasourceWizard(parent).show()
 
     def __init__(self, _parent):
-
         QWizard.__init__(self, _parent)
         self.setGeometry(QRect(50, 50, 1000, 600))
         self.setWindowTitle(QT_I18N("datasource.import.title",
@@ -49,8 +48,11 @@ class DatasourceWizard(QWizard):
 class ChooseDatasourcePage(QWizardPage):
 
     def __init__(self, _parent):
-        self.maxProgressBarValue = 1000
         QWizardPage.__init__(self, parent=_parent)
+
+        #variable used in a method changeCompleteState()
+        #where is an explanation
+        self.__completed_count__ = 0
 
         self.model = QStandardItemModel()
         labels = [QT_I18N("datasource.files.column.filename", "Filename"),
@@ -231,10 +233,12 @@ class ChooseDatasourcePage(QWizardPage):
     def checkAllAction(self):
         for idx in range(self.model.rowCount()):
             self.model.item(idx).setCheckState(Qt.Checked)
+        self.changeCompleteState(self.model.rowCount())
 
     def uncheckAllAction(self):
         for idx in range(self.model.rowCount()):
             self.model.item(idx).setCheckState(Qt.Unchecked)
+        self.changeCompleteState(0)
 
     def filePreviewAction(self):
         if self.selectedRow == None:
@@ -251,6 +255,9 @@ class ChooseDatasourcePage(QWizardPage):
         if self.rootDir == None:
             return
         self.model.removeRows(0, self.model.rowCount())
+        self.changeCompleteState(0)
+        self.changeEnablemend(False)
+        self.chooseRootDirButton.setEnabled(False)
 
         self.progressBarComposite.show()
 
@@ -260,16 +267,37 @@ class ChooseDatasourcePage(QWizardPage):
                                                 self.recursively.checkState())
         self.tableViewModelThread.setOnlyKnownTypes(
                                             self.onlyKnownTypes.checkState())
-
-        self.changeEnablemend(False)
-        self.chooseRootDirButton.setEnabled(False)
         self.tableViewModelThread.start()
 
     def onClickedAction(self, idx):
         self.selectedRow = idx
-        #row = idx.row()
+        row = idx.row()
         #cols = self.model.columnCount()
         self.filePreviewButton.setEnabled(True)
+        checked = self.model.item(row).checkState() == Qt.Checked
+        self.changeCompleteState(1, 'add' if checked else 'sub')
+
+    def isComplete(self):
+        """
+        method used by QWizard to check if next/previous buttons have to
+        be disabled/enabled (when False/True is returned)
+        """
+        return self.__completed_count__ > 0
+
+    def changeCompleteState(self, value, operation='set'):
+        """
+        method used to emit a signal completeChanged() which is intercepted
+        by QWizard to enable/disable next, previous buttons based on value
+        returned by isComplete method of a wizard page object
+        """
+        if operation == 'set':
+            self.__completed_count__ = value
+        elif operation == 'add':
+            self.__completed_count__ = self.__completed_count__ + value
+        elif operation == 'sub':
+            if self.__completed_count__ - value >= 0:
+                self.__completed_count__ = self.__completed_count__ - value
+        self.emit(SIGNAL("completeChanged()"))
 
     def reloadAction(self):
         self.reload()
@@ -347,6 +375,15 @@ class FilesTableViewModelThread(QThread):
         self.__knownTypes__ = knownTypes
 
     def run(self):
+        #very important point, because start() invoke run method
+        #when it starts a thread then variables __stop__ and __close__
+        #must be set to false at the beginning of the process,
+        #to get a proper state of the thread, next in the following
+        #while loop values __stop__ or __close__ could be changed
+        #if methods stop() or close() are invoked
+        self.__stop__ = False
+        self.__close__ = False
+
         iteratorFlag = QDirIterator.Subdirectories \
                 if self.__state__ == Qt.Checked \
                 else QDirIterator.NoIteratorFlags
@@ -376,7 +413,7 @@ class FilesTableViewModelThread(QThread):
                                      self.__knownTypes__) == False:
                             continue
                 filename = QStandardItem(infoFile.fileName())
-                filename.setCheckState(Qt.Checked)
+                filename.setCheckState(Qt.UnChecked)
                 filename.setCheckable(True)
                 size = QStandardItem(str(infoFile.size()))
                 path = QStandardItem(infoFile.path())
