@@ -413,7 +413,6 @@ class FilesTableViewModelThread(QThread):
                                      self.__knownTypes__) == False:
                             continue
                 filename = QStandardItem(infoFile.fileName())
-                filename.setCheckState(Qt.UnChecked)
                 filename.setCheckable(True)
                 size = QStandardItem(str(infoFile.size()))
                 path = QStandardItem(infoFile.path())
