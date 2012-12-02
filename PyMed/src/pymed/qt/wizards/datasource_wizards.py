@@ -9,6 +9,7 @@ from PyQt4.QtGui import *  # @UnusedWildImport
 from pygui.qt.utils.qt_i18n import QT_I18N
 from pygui.qt.utils.qt_i18n import title_I18N
 from pygui.qt.utils.widgets import createComposite
+from pygui.qt.utils.widgets import createProgressBar
 from pygui.qt.utils.widgets import createPlainTextEdit
 from pygui.qt.utils.widgets import createTableView
 from pygui.qt.utils.widgets import createLineEdit
@@ -33,16 +34,22 @@ class DatasourceWizard(QWizard):
         self.setGeometry(QRect(50, 50, 1000, 600))
         self.setWindowTitle(QT_I18N("datasource.import.title",
                                     _default="Datasource import"))
+        self.datasourcePage = None
 
     def show(self):
-        self.addPage(ChooseDatasourcePage(self))
+        self.datasourcePage = ChooseDatasourcePage(self)
+        self.addPage(self.datasourcePage)
         self.addPage(ChooseColumnsDataPage(self))
         self.exec_()
+
+    def closeEvent(self, event):
+        self.datasourcePage.close()
 
 
 class ChooseDatasourcePage(QWizardPage):
 
     def __init__(self, _parent):
+        self.maxProgressBarValue = 1000
         QWizardPage.__init__(self, parent=_parent)
 
         self.model = QStandardItemModel()
@@ -53,6 +60,34 @@ class ChooseDatasourcePage(QWizardPage):
         self.model.setHorizontalHeaderLabels(labels)
         self.selectedRow = None
         self.rootDir = None
+        self.tableViewModelThread = FilesTableViewModelThread(self)
+        self.tableViewModelThread.setModel(self.model)
+        self.connect(self.tableViewModelThread, SIGNAL('taskUpdated'),
+                     self.progressBarAction)
+        self.connect(self.tableViewModelThread, SIGNAL('taskFinished'),
+                     self.progressBarFinishedAction)
+
+    def progressBarAction(self):
+        self.progressBar.setValue(0)
+
+    def closeEvent(self, event):
+        if not self.tableViewModelThread == None:
+            self.tableViewModelThread.close()
+
+    def hideEvent(self, event):
+        self.stopTableViewLoaderThread()
+
+    def stopTableViewLoaderThread(self):
+        if not self.tableViewModelThread == None:
+            self.tableViewModelThread.stop()
+
+    def progressBarFinishedAction(self):
+        if self.model.rowCount() > 0:
+            self.filesTableView.resizeColumnsToContents()
+            self.filesTableView.scrollToTop()
+        self.progressBar.reset()
+        self.progressBarComposite.hide()
+        self.changeEnablemend(True)
 
     def initializePage(self):
         title_I18N(self, "datasource.page.title", "Datasource chooser")
@@ -111,6 +146,22 @@ class ChooseDatasourcePage(QWizardPage):
         self.connect(self.filesTableView, SIGNAL('clicked(QModelIndex)'),
                      self.onClickedAction)
 
+        self.progressBarComposite = createComposite(self.filesGroupBox,
+                                            layout=QHBoxLayout())
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.progressBar = createProgressBar(self.progressBarComposite,
+                                             sizePolicy=sizePolicy)
+        self.progressBar.setRange(0, 0)
+        self.progressBar.setValue(0)
+        self.progressBarComposite.hide()
+
+        self.stopProgressBarButton = createPushButton(
+                                self.progressBarComposite,
+                                i18n="datasource.stop.progress.bar.button",
+                                i18n_def="Stop")
+        self.connect(self.stopProgressBarButton, SIGNAL("clicked()"),
+                     self.stopTableViewLoaderThread)
+
         filesOperations = createComposite(self.filesGroupBox,
                                             layout=QHBoxLayout())
 
@@ -166,39 +217,17 @@ class ChooseDatasourcePage(QWizardPage):
     def reload(self):
         if self.rootDir == None:
             return
-        self.filePreviewButton.setEnabled(False)
-
-        iteratorFlag = QDirIterator.Subdirectories \
-                if self.recursively.checkState() == Qt.Checked \
-                else QDirIterator.NoIteratorFlags
-
-        nameFilters = QStringList(self.filesExtension.text()) \
-                    if len(self.filesExtension.text()) > 0 \
-                        and not self.filesExtension.text() \
-                            in ("*", "*.*", "", None) \
-                    else QStringList()
-
-        dir_iterator = QDirIterator(self.rootDirLabel.text(),
-                                    nameFilters,
-                                    QDir.Filters(QDir.Files),
-                                    iteratorFlag)
         self.model.removeRows(0, self.model.rowCount())
-        while(dir_iterator.next()):
-            infoFile = dir_iterator.fileInfo()
-            if infoFile.isFile() == True:
-                if self.filesExtension.text() in ("*", "*.*", "", None):
-                    if infoFile.isExecutable() or \
-                        is_text_file(infoFile.filePath()) == False:
-                            continue
-                filename = QStandardItem(infoFile.fileName())
-                filename.setCheckState(Qt.Checked)
-                filename.setCheckable(True)
-                size = QStandardItem(str(infoFile.size()))
-                path = QStandardItem(infoFile.path())
-                self.model.appendRow((filename, size, path))
-        if self.model.rowCount() > 0:
-            self.filesTableView.resizeColumnsToContents()
-            self.filesTableView.scrollToTop()
+
+        self.progressBarComposite.show()
+
+        self.tableViewModelThread.setFileExtension(self.filesExtension.text())
+        self.tableViewModelThread.setRootDir(self.rootDirLabel.text())
+        self.tableViewModelThread.setRecursivelyState(
+                                                self.recursively.checkState())
+
+        self.changeEnablemend(False)
+        self.tableViewModelThread.start()
 
     def onClickedAction(self, idx):
         self.selectedRow = idx
@@ -257,3 +286,73 @@ class FilePreviewDialog(QDialog):
             self.lineNumberLabel.setText('Lines # '
                         + str(self.preview.document().lineCount()))
             file_.close()
+
+
+class FilesTableViewModelThread(QThread):
+    def __init__(self, parent):
+        QThread.__init__(self, parent)
+        self.__stop__ = False
+        # used when the thread have o be destroyed without
+        # any actions about GUI
+        self.__close__ = False
+
+    def setFileExtension(self, fileExtension):
+        self.__fileExtension__ = fileExtension
+
+    def setRecursivelyState(self, state):
+        self.__state__ = state
+
+    def setRootDir(self, rootDir):
+        self.__rootDir__ = rootDir
+
+    def setModel(self, model):
+        self.__model__ = model
+
+    def run(self):
+        iteratorFlag = QDirIterator.Subdirectories \
+                if self.__state__ == Qt.Checked \
+                else QDirIterator.NoIteratorFlags
+
+        nameFilters = QStringList(self.__fileExtension__) \
+                    if len(self.__fileExtension__) > 0 \
+                        and not self.__fileExtension__ \
+                            in ("*", "*.*", "", None) \
+                    else QStringList()
+
+        dir_iterator = QDirIterator(self.__rootDir__,
+                                    nameFilters,
+                                    QDir.Filters(QDir.Files),
+                                    iteratorFlag)
+
+        while(dir_iterator.next()):
+            if self.__stop__ == True:
+                break
+            self.emit(SIGNAL('taskUpdated'))
+            infoFile = dir_iterator.fileInfo()
+            if infoFile.isFile() == True:
+                if self.__stop__ == True:
+                    break
+                if self.__fileExtension__ in ("*", "*.*", "", None):
+                    if infoFile.isExecutable() or \
+                        is_text_file(infoFile.filePath()) == False:
+                            continue
+                filename = QStandardItem(infoFile.fileName())
+                filename.setCheckState(Qt.Checked)
+                filename.setCheckable(True)
+                size = QStandardItem(str(infoFile.size()))
+                path = QStandardItem(infoFile.path())
+                if self.__stop__ == True:
+                    break
+                self.__model__.appendRow((filename, size, path))
+
+        if self.__close__ == False:
+            self.emit(SIGNAL('taskFinished'))
+        self.__stop__ = False
+        self.__close__ = False
+
+    def stop(self):
+        self.__stop__ = True
+
+    def close(self):
+        self.__stop__ = True
+        self.__close__ = True
