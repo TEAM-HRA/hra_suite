@@ -88,6 +88,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.progressBar.reset()
         self.progressBarComposite.hide()
         self.changeEnablemend(True)
+        self.chooseRootDirButton.setEnabled(True)
 
     def initializePage(self):
         title_I18N(self, "datasource.page.title", "Datasource chooser")
@@ -227,6 +228,7 @@ class ChooseDatasourcePage(QWizardPage):
                                                 self.recursively.checkState())
 
         self.changeEnablemend(False)
+        self.chooseRootDirButton.setEnabled(False)
         self.tableViewModelThread.start()
 
     def onClickedAction(self, idx):
