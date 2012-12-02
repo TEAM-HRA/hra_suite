@@ -155,6 +155,13 @@ class ChooseDatasourcePage(QWizardPage):
         self.connect(self.recursively, SIGNAL("clicked()"),
                      self.reloadAction)
 
+        self.onlyKnownTypes = createCheckBox(fileConstraintsComposite,
+                i18n="datasource.only.known.types.checkbox",
+                i18n_def="Only known types",
+                checked=True)
+        self.connect(self.onlyKnownTypes, SIGNAL("clicked()"),
+                     self.reloadAction)
+
     def __createReloadButton__(self, parent):
         self.reloadButton = createPushButton(parent,
                                             i18n="datasource.reload.button",
@@ -251,6 +258,8 @@ class ChooseDatasourcePage(QWizardPage):
         self.tableViewModelThread.setRootDir(self.rootDirLabel.text())
         self.tableViewModelThread.setRecursivelyState(
                                                 self.recursively.checkState())
+        self.tableViewModelThread.setOnlyKnownTypes(
+                                            self.onlyKnownTypes.checkState())
 
         self.changeEnablemend(False)
         self.chooseRootDirButton.setEnabled(False)
@@ -272,6 +281,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.checkAllButton.setEnabled(enabled)
         self.uncheckAllButton.setEnabled(enabled)
         self.reloadButton.setEnabled(enabled)
+        self.onlyKnownTypes.setEnabled(enabled)
 
 
 class ChooseColumnsDataPage(QWizardPage):
@@ -319,6 +329,7 @@ class FilesTableViewModelThread(QThread):
         # used when the thread have o be destroyed without
         # any actions about GUI
         self.__close__ = False
+        self.__knownTypes__ = True
 
     def setFileExtension(self, fileExtension):
         self.__fileExtension__ = fileExtension
@@ -331,6 +342,9 @@ class FilesTableViewModelThread(QThread):
 
     def setModel(self, model):
         self.__model__ = model
+
+    def setOnlyKnownTypes(self, knownTypes):
+        self.__knownTypes__ = knownTypes
 
     def run(self):
         iteratorFlag = QDirIterator.Subdirectories \
@@ -357,8 +371,9 @@ class FilesTableViewModelThread(QThread):
                 if self.__stop__ == True:
                     break
                 if self.__fileExtension__ in ("*", "*.*", "", None):
-                    if infoFile.isExecutable() or \
-                        is_text_file(infoFile.filePath()) == False:
+                    if infoFile.isExecutable() == True or \
+                        is_text_file(infoFile.filePath(),
+                                     self.__knownTypes__) == False:
                             continue
                 filename = QStandardItem(infoFile.fileName())
                 filename.setCheckState(Qt.Checked)
