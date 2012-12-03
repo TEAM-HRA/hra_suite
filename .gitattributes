@@ -38,6 +38,7 @@ PyCore/src/pycore/collections.py -text
 PyCore/src/pycore/globals.py -text
 PyCore/src/pycore/introspection.py -text
 PyCore/src/pycore/io_utils.py -text
+PyCore/src/pycore/misc.py -text
 PyCore/src/pycore/properties.py -text
 PyCore/src/pycore/resources.py -text
 PyGUI/.project -text

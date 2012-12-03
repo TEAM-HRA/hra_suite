@@ -7,6 +7,7 @@ from PyQt4.QtGui import *  # @UnusedWildImport
 from PyQt4.QtCore import *  # @UnusedWildImport
 from pygui.qt.utils.qt_i18n import text_I18N
 from pygui.qt.utils.qt_i18n import title_I18N
+from pycore.misc import Params
 
 
 def createComposite(parent=None, **params):
@@ -139,18 +140,3 @@ def __set_widget_size(widget, size, width, height):
             widget.setFixedHeight(width, height)
         else:
             widget.setFixedSize(size)
-
-
-class Params(object):
-    """
-    class which represents dictionary parameters
-    by object where elements are accessible with dot notation
-    if client tries to access not existing element then None value is returned
-    """
-    def __init__(self, **params):
-        for param in params:
-            setattr(self, param, params[param])
-
-    # if parameter is not set in the __init__() method then returns None
-    def __getattr__(self, name):
-        return None
