@@ -19,6 +19,7 @@ from pygui.qt.utils.widgets import createPushButton
 from pygui.qt.utils.widgets import createGroupBox
 from pygui.qt.utils.graphics import get_width_of_n_letters
 from pycore.io_utils import is_text_file
+from pygui.qt.utils.threads import ThreadTask
 
 
 class DatasourceWizard(QWizard):
@@ -69,6 +70,9 @@ class ChooseDatasourcePage(QWizardPage):
         self.connect(self.tableViewModelThread, SIGNAL('taskFinished'),
                      self.progressBarFinishedAction)
 
+        self.checkAllFilesThread = ChangeStateFilesThread(self, Qt.Checked)
+        self.uncheckAllFilesThread = ChangeStateFilesThread(self, Qt.Unchecked)
+
     def progressBarAction(self):
         self.progressBar.setValue(0)
 
@@ -87,12 +91,7 @@ class ChooseDatasourcePage(QWizardPage):
         if self.model.rowCount() > 0:
             self.filesTableView.resizeColumnsToContents()
             self.filesTableView.scrollToTop()
-        self.progressBar.reset()
-        self.progressBarComposite.hide()
-        self.changeEnablemend(True)
-        self.chooseRootDirButton.setEnabled(True)
-        self.filePreviewButton.setEnabled(False)
-        self.filesExtension.setFocus()
+        self.finishProgressBarAction()
 
     def initializePage(self):
         title_I18N(self, "datasource.page.title", "Datasource chooser")
@@ -231,13 +230,13 @@ class ChooseDatasourcePage(QWizardPage):
             self.reload()
 
     def checkAllAction(self):
-        for idx in range(self.model.rowCount()):
-            self.model.item(idx).setCheckState(Qt.Checked)
+        self.initProgressBar()
+        self.checkAllFilesThread.start()
         self.changeCompleteState(self.model.rowCount())
 
     def uncheckAllAction(self):
-        for idx in range(self.model.rowCount()):
-            self.model.item(idx).setCheckState(Qt.Unchecked)
+        self.initProgressBar()
+        self.uncheckAllFilesThread.start()
         self.changeCompleteState(0)
 
     def filePreviewAction(self):
@@ -255,11 +254,7 @@ class ChooseDatasourcePage(QWizardPage):
         if self.rootDir == None:
             return
         self.model.removeRows(0, self.model.rowCount())
-        self.changeCompleteState(0)
-        self.changeEnablemend(False)
-        self.chooseRootDirButton.setEnabled(False)
-
-        self.progressBarComposite.show()
+        self.initProgressBar()
 
         self.tableViewModelThread.setFileExtension(self.filesExtension.text())
         self.tableViewModelThread.setRootDir(self.rootDirLabel.text())
@@ -268,6 +263,26 @@ class ChooseDatasourcePage(QWizardPage):
         self.tableViewModelThread.setOnlyKnownTypes(
                                             self.onlyKnownTypes.checkState())
         self.tableViewModelThread.start()
+
+    def initProgressBar(self):
+        self.beforeProgressBar()
+        self.progressBarComposite.show()
+
+    def beforeProgressBar(self):
+        self.changeCompleteState(0)
+        self.changeEnablemend(False)
+        self.chooseRootDirButton.setEnabled(False)
+
+    def finishProgressBarAction(self):
+        self.progressBar.reset()
+        self.progressBarComposite.hide()
+        self.afterProgressBar()
+
+    def afterProgressBar(self):
+        self.changeEnablemend(True)
+        self.chooseRootDirButton.setEnabled(True)
+        self.filePreviewButton.setEnabled(False)
+        self.filesExtension.setFocus()
 
     def onClickedAction(self, idx):
         self.selectedRow = idx
@@ -431,3 +446,24 @@ class FilesTableViewModelThread(QThread):
     def close(self):
         self.__stop__ = True
         self.__close__ = True
+
+
+class ChangeStateFilesThread(ThreadTask):
+    def __init__(self, parent, state):
+        ThreadTask.__init__(self, parent,
+                            updateTaskName='taskUpdated',
+                            updateAction=parent.progressBarAction,
+                            finishTaskName='taskFinished',
+                            finishAction=parent.finishProgressBarAction,
+                            emit_update_sleep=1,
+                            emit_update_sleep_step=50
+                            )
+        self.__model__ = parent.model
+        self.__state__ = state
+
+    def run_task(self):
+        for idx in range(self.__model__.rowCount()):
+            self.emitUpdateTask()
+            if self.isStopped() == True:
+                break
+            self.__model__.item(idx).setCheckState(self.__state__)
