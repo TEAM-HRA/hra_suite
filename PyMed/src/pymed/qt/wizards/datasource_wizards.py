@@ -9,7 +9,7 @@ from PyQt4.QtGui import *  # @UnusedWildImport
 from pygui.qt.utils.qt_i18n import QT_I18N
 from pygui.qt.utils.qt_i18n import title_I18N
 from pygui.qt.utils.widgets import createComposite
-from pygui.qt.utils.widgets import createProgressBar
+from pygui.qt.utils.widgets import ProgressBarManager
 from pygui.qt.utils.widgets import createPlainTextEdit
 from pygui.qt.utils.widgets import createTableView
 from pygui.qt.utils.widgets import createLineEdit
@@ -70,7 +70,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.uncheckAllFilesThread = ChangeStateFilesThread(self, Qt.Unchecked)
 
     def progressBarAction(self):
-        self.progressBar.setValue(0)
+        self.progressBarManager.tick()
 
     def closeEvent(self, event):
         if not self.tableViewModelThread == None:
@@ -176,21 +176,8 @@ class ChooseDatasourcePage(QWizardPage):
                      self.onClickedAction)
 
     def __createProgressBarComposite__(self, parent):
-        self.progressBarComposite = createComposite(parent,
-                                            layout=QHBoxLayout())
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.progressBar = createProgressBar(self.progressBarComposite,
-                                             sizePolicy=sizePolicy)
-        self.progressBar.setRange(0, 0)
-        self.progressBar.setValue(0)
-        self.progressBarComposite.hide()
-
-        self.stopProgressBarButton = createPushButton(
-                                self.progressBarComposite,
-                                i18n="datasource.stop.progress.bar.button",
-                                i18n_def="Stop")
-        self.connect(self.stopProgressBarButton, SIGNAL("clicked()"),
-                     self.stopTableViewLoaderThread)
+        self.progressBarManager = ProgressBarManager(parent,
+                                stopSlot=self.stopTableViewLoaderThread)
 
     def __createFilesOperationsComposite__(self, parent):
         filesOperations = createComposite(parent,
@@ -261,7 +248,7 @@ class ChooseDatasourcePage(QWizardPage):
 
     def initProgressBar(self):
         self.beforeProgressBar()
-        self.progressBarComposite.show()
+        self.progressBarManager.show()
 
     def beforeProgressBar(self):
         self.changeCompleteState(0)
@@ -269,8 +256,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.chooseRootDirButton.setEnabled(False)
 
     def finishProgressBarAction(self):
-        self.progressBar.reset()
-        self.progressBarComposite.hide()
+        self.progressBarManager.hide()
         self.afterProgressBar()
 
     def afterProgressBar(self):
