@@ -20,6 +20,7 @@ from pygui.qt.utils.widgets import createGroupBox
 from pygui.qt.utils.graphics import get_width_of_n_letters
 from pycore.io_utils import is_text_file
 from pygui.qt.utils.threads import ThreadTask
+from pycore.misc import Params
 
 
 class DatasourceWizard(QWizard):
@@ -63,13 +64,8 @@ class ChooseDatasourcePage(QWizardPage):
         self.model.setHorizontalHeaderLabels(labels)
         self.selectedRow = None
         self.rootDir = None
-        self.tableViewModelThread = FilesTableViewModelThread(self)
-        self.tableViewModelThread.setModel(self.model)
-        self.connect(self.tableViewModelThread, SIGNAL('taskUpdated'),
-                     self.progressBarAction)
-        self.connect(self.tableViewModelThread, SIGNAL('taskFinished'),
-                     self.progressBarFinishedAction)
 
+        self.tableViewModelThread = FilesTableViewModelThread(self)
         self.checkAllFilesThread = ChangeStateFilesThread(self, Qt.Checked)
         self.uncheckAllFilesThread = ChangeStateFilesThread(self, Qt.Unchecked)
 
@@ -256,12 +252,11 @@ class ChooseDatasourcePage(QWizardPage):
         self.model.removeRows(0, self.model.rowCount())
         self.initProgressBar()
 
-        self.tableViewModelThread.setFileExtension(self.filesExtension.text())
-        self.tableViewModelThread.setRootDir(self.rootDirLabel.text())
-        self.tableViewModelThread.setRecursivelyState(
-                                                self.recursively.checkState())
-        self.tableViewModelThread.setOnlyKnownTypes(
-                                            self.onlyKnownTypes.checkState())
+        self.tableViewModelThread.setLocalParams(
+                            fileExtension=self.filesExtension.text(),
+                            rootDir=self.rootDirLabel.text(),
+                            recursivelyState=self.recursively.checkState(),
+                            onlyKnownTypes=self.onlyKnownTypes.checkState())
         self.tableViewModelThread.start()
 
     def initProgressBar(self):
@@ -365,87 +360,54 @@ class FilePreviewDialog(QDialog):
             file_.close()
 
 
-class FilesTableViewModelThread(QThread):
+class FilesTableViewModelThread(ThreadTask):
     def __init__(self, parent):
-        QThread.__init__(self, parent)
-        self.__stop__ = False
-        # used when the thread have o be destroyed without
-        # any actions about GUI
-        self.__close__ = False
-        self.__knownTypes__ = True
+        ThreadTask.__init__(self, parent,
+                            updateTaskName='taskUpdated',
+                            updateAction=parent.progressBarAction,
+                            finishTaskName='taskFinished',
+                            finishAction=parent.progressBarFinishedAction)
+        self.__model__ = parent.model
 
-    def setFileExtension(self, fileExtension):
-        self.__fileExtension__ = fileExtension
+    def setLocalParams(self, **local_params):
+        self.local_params = Params(**local_params)
 
-    def setRecursivelyState(self, state):
-        self.__state__ = state
-
-    def setRootDir(self, rootDir):
-        self.__rootDir__ = rootDir
-
-    def setModel(self, model):
-        self.__model__ = model
-
-    def setOnlyKnownTypes(self, knownTypes):
-        self.__knownTypes__ = knownTypes
-
-    def run(self):
-        #very important point, because start() invoke run method
-        #when it starts a thread then variables __stop__ and __close__
-        #must be set to false at the beginning of the process,
-        #to get a proper state of the thread, next in the following
-        #while loop values __stop__ or __close__ could be changed
-        #if methods stop() or close() are invoked
-        self.__stop__ = False
-        self.__close__ = False
-
+    def run_task(self):
         iteratorFlag = QDirIterator.Subdirectories \
-                if self.__state__ == Qt.Checked \
+                if self.local_params.recursivelyState == Qt.Checked \
                 else QDirIterator.NoIteratorFlags
 
-        nameFilters = QStringList(self.__fileExtension__) \
-                    if len(self.__fileExtension__) > 0 \
-                        and not self.__fileExtension__ \
+        nameFilters = QStringList(self.local_params.fileExtension) \
+                    if len(self.local_params.fileExtension) > 0 \
+                        and not self.local_params.fileExtension \
                             in ("*", "*.*", "", None) \
                     else QStringList()
 
-        dir_iterator = QDirIterator(self.__rootDir__,
+        dir_iterator = QDirIterator(self.local_params.rootDir,
                                     nameFilters,
                                     QDir.Filters(QDir.Files),
                                     iteratorFlag)
 
         while(dir_iterator.next()):
-            if self.__stop__ == True:
+            if self.isStopped() == True:
                 break
-            self.emit(SIGNAL('taskUpdated'))
+            self.emitUpdateTask()
             infoFile = dir_iterator.fileInfo()
             if infoFile.isFile() == True and infoFile.size() > 0:
-                if self.__stop__ == True:
+                if self.isStopped() == True:
                     break
-                if self.__fileExtension__ in ("*", "*.*", "", None):
+                if self.local_params.fileExtension in ("*", "*.*", "", None):
                     if infoFile.isExecutable() == True or \
                         is_text_file(infoFile.filePath(),
-                                     self.__knownTypes__) == False:
+                                    self.local_params.onlyKnownTypes) == False:
                             continue
                 filename = QStandardItem(infoFile.fileName())
                 filename.setCheckable(True)
                 size = QStandardItem(str(infoFile.size()))
                 path = QStandardItem(infoFile.path())
-                if self.__stop__ == True:
+                if self.isStopped() == True:
                     break
                 self.__model__.appendRow((filename, size, path))
-
-        if self.__close__ == False:
-            self.emit(SIGNAL('taskFinished'))
-        self.__stop__ = False
-        self.__close__ = False
-
-    def stop(self):
-        self.__stop__ = True
-
-    def close(self):
-        self.__stop__ = True
-        self.__close__ = True
 
 
 class ChangeStateFilesThread(ThreadTask):
