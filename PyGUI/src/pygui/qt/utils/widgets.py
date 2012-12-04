@@ -140,3 +140,43 @@ def __set_widget_size(widget, size, width, height):
             widget.setFixedHeight(width, height)
         else:
             widget.setFixedSize(size)
+
+
+class ProgressBarManager(object):
+
+    def __init__(self, parent, **params):
+        self.params = Params(**params)
+        self.progressBarComposite = createComposite(parent,
+                                            layout=QHBoxLayout())
+        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        self.progressBar = createProgressBar(self.progressBarComposite,
+                                             sizePolicy=sizePolicy)
+        self.progressBar.setRange(0, 0)
+        self.progressBar.setValue(0)
+        self.progressBarComposite.hide()
+
+        self.stopButton = createPushButton(
+                                self.progressBarComposite,
+                                i18n="datasource.stop.progress.bar.button",
+                                i18n_def="Stop")
+        if not self.params.stopSlot == None:
+            self.progressBarComposite.connect(self.stopButton,
+                                              SIGNAL("clicked()"),
+                                              self.params.stopSlot)
+
+    def show(self):
+        self.progressBarComposite.show()
+
+    def hide(self, reset=True):
+        self.progressBarComposite.hide()
+        if reset:
+            self.reset()
+
+    def reset(self):
+        self.progressBar.reset()
+
+    def setValue(self, value):
+        self.progressBar.setValue(0)
+
+    def tick(self):
+        self.setValue(0)
