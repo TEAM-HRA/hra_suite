@@ -51,11 +51,6 @@ class ThreadTask(QThread):
         if self.__close__ == False and self.params.finishTaskName:
             self.emit(SIGNAL(self.params.finishTaskName))
 
-        self.__stop__ = False
-        self.__close__ = False
-
-        self.__emit_update_counter__ = 0
-
     def stop(self):
         self.__stop__ = True
 
