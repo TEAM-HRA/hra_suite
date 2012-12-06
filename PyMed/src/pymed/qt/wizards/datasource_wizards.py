@@ -19,8 +19,6 @@ from pygui.qt.utils.widgets import createPushButton
 from pygui.qt.utils.widgets import createGroupBox
 from pygui.qt.utils.graphics import get_width_of_n_letters
 from pycore.io_utils import is_text_file
-from pygui.qt.utils.threads import ThreadTask
-from pycore.misc import Params
 
 
 class DatasourceWizard(QWizard):
@@ -65,29 +63,13 @@ class ChooseDatasourcePage(QWizardPage):
         self.selectedRow = None
         self.rootDir = None
 
-        self.tableViewModelThread = FilesTableViewModelThread(self)
-        self.checkAllFilesThread = ChangeStateFilesThread(self, Qt.Checked)
-        self.uncheckAllFilesThread = ChangeStateFilesThread(self, Qt.Unchecked)
-
-    def progressBarAction(self):
-        self.progressBarManager.tick()
-
     def closeEvent(self, event):
-        if not self.tableViewModelThread == None:
-            self.tableViewModelThread.close()
+        if self.progressBarManager:
+            self.progressBarManager.close()
 
     def hideEvent(self, event):
-        self.stopTableViewLoaderThread()
-
-    def stopTableViewLoaderThread(self):
-        if not self.tableViewModelThread == None:
-            self.tableViewModelThread.stop()
-
-    def progressBarFinishedAction(self):
-        if self.model.rowCount() > 0:
-            self.filesTableView.resizeColumnsToContents()
-            self.filesTableView.scrollToTop()
-        self.finishProgressBarAction()
+        if self.progressBarManager:
+            self.progressBarManager.stop()
 
     def initializePage(self):
         title_I18N(self, "datasource.page.title", "Datasource chooser")
@@ -176,8 +158,7 @@ class ChooseDatasourcePage(QWizardPage):
                      self.onClickedAction)
 
     def __createProgressBarComposite__(self, parent):
-        self.progressBarManager = ProgressBarManager(parent,
-                                stopSlot=self.stopTableViewLoaderThread)
+        self.progressBarManager = ProgressBarManager(parent, hidden=True)
 
     def __createFilesOperationsComposite__(self, parent):
         filesOperations = createComposite(parent,
@@ -213,14 +194,15 @@ class ChooseDatasourcePage(QWizardPage):
             self.reload()
 
     def checkAllAction(self):
-        self.initProgressBar()
-        self.checkAllFilesThread.start()
-        self.changeCompleteState(self.model.rowCount())
+        self.progressBarManager.start(before=self.beforeCheckProgressBarAction,
+                                      progressJob=self.checkProgressBarAction,
+                                      after=self.afterCheckProgressBarAction)
 
     def uncheckAllAction(self):
-        self.initProgressBar()
-        self.uncheckAllFilesThread.start()
-        self.changeCompleteState(0)
+        self.progressBarManager.start(
+                                    before=self.beforeUncheckProgressBarAction,
+                                    progressJob=self.uncheckProgressBarAction,
+                                    after=self.afterUncheckProgressBarAction)
 
     def filePreviewAction(self):
         if self.selectedRow == None:
@@ -234,32 +216,58 @@ class ChooseDatasourcePage(QWizardPage):
             dialog.exec_()
 
     def reload(self):
-        if self.rootDir == None:
-            return
+        if not self.rootDir == None:
+            self.progressBarManager.start(
+                    before=self.beforeTableViewProgressAction,
+                    progressJob=self.tableViewProgressBarAction,
+                    after=self.afterFinishProgressBar)
+
+    def beforeTableViewProgressAction(self):
         self.model.removeRows(0, self.model.rowCount())
-        self.initProgressBar()
-
-        self.tableViewModelThread.setLocalParams(
-                            fileExtension=self.filesExtension.text(),
-                            rootDir=self.rootDirLabel.text(),
-                            recursivelyState=self.recursively.checkState(),
-                            onlyKnownTypes=self.onlyKnownTypes.checkState())
-        self.tableViewModelThread.start()
-
-    def initProgressBar(self):
-        self.beforeProgressBar()
-        self.progressBarManager.show()
-
-    def beforeProgressBar(self):
         self.changeCompleteState(0)
         self.changeEnablemend(False)
         self.chooseRootDirButton.setEnabled(False)
 
-    def finishProgressBarAction(self):
-        self.progressBarManager.hide()
-        self.afterProgressBar()
+    def tableViewProgressBarAction(self):
+        iteratorFlag = QDirIterator.Subdirectories \
+                if self.recursively.checkState() == Qt.Checked \
+                else QDirIterator.NoIteratorFlags
 
-    def afterProgressBar(self):
+        nameFilters = QStringList(self.filesExtension.text()) \
+                    if len(self.filesExtension.text()) > 0 \
+                        and not self.filesExtension.text() \
+                            in ("*", "*.*", "", None) \
+                    else QStringList()
+
+        self.dir_iterator = QDirIterator(self.rootDirLabel.text(),
+                                    nameFilters,
+                                    QDir.Filters(QDir.Files),
+                                    iteratorFlag)
+        while(self.dir_iterator.next()):
+            if self.progressBarManager.isStopped() == True:
+                break
+            self.progressBarManager.update()
+            infoFile = self.dir_iterator.fileInfo()
+            if infoFile.isFile() == True and infoFile.size() > 0:
+                if self.progressBarManager.isStopped() == True:
+                    break
+                if self.filesExtension.text() in ("*", "*.*", "", None):
+                    if infoFile.isExecutable() == True or \
+                        is_text_file(infoFile.filePath(),
+                                    self.onlyKnownTypes.checkState()) == False:
+                            continue
+                filename = QStandardItem(infoFile.fileName())
+                filename.setCheckable(True)
+                size = QStandardItem(str(infoFile.size()))
+                path = QStandardItem(infoFile.path())
+                if self.progressBarManager.isStopped() == True:
+                    break
+                self.model.appendRow((filename, size, path))
+
+    def afterFinishProgressBar(self):
+        if self.model.rowCount() > 0:
+            self.filesTableView.resizeColumnsToContents()
+            self.filesTableView.scrollToTop()
         self.changeEnablemend(True)
         self.chooseRootDirButton.setEnabled(True)
         self.filePreviewButton.setEnabled(False)
@@ -307,6 +315,33 @@ class ChooseDatasourcePage(QWizardPage):
         self.reloadButton.setEnabled(enabled)
         self.onlyKnownTypes.setEnabled(enabled)
 
+    def beforeCheckProgressBarAction(self):
+        self.changeEnablemend(False)
+
+    def checkProgressBarAction(self):
+        self.__stateProgressBarAction__(Qt.Checked)
+
+    def afterCheckProgressBarAction(self):
+        self.changeCompleteState(self.model.rowCount())
+        self.changeEnablemend(True)
+
+    def beforeUncheckProgressBarAction(self):
+        self.changeEnablemend(False)
+
+    def uncheckProgressBarAction(self):
+        self.__stateProgressBarAction__(Qt.Unchecked)
+
+    def afterUncheckProgressBarAction(self):
+        self.changeCompleteState(0)
+        self.changeEnablemend(True)
+
+    def __stateProgressBarAction__(self, state):
+        for idx in range(self.model.rowCount()):
+            self.progressBarManager.update()
+            if self.progressBarManager.isStopped() == True:
+                break
+            self.model.item(idx).setCheckState(state)
+
 
 class ChooseColumnsDataPage(QWizardPage):
 
@@ -344,74 +379,3 @@ class FilePreviewDialog(QDialog):
             self.lineNumberLabel.setText('Lines # '
                         + str(self.preview.document().lineCount()))
             file_.close()
-
-
-class FilesTableViewModelThread(ThreadTask):
-    def __init__(self, parent):
-        ThreadTask.__init__(self, parent,
-                            updateTaskName='taskUpdated',
-                            updateAction=parent.progressBarAction,
-                            finishTaskName='taskFinished',
-                            finishAction=parent.progressBarFinishedAction)
-        self.__model__ = parent.model
-
-    def setLocalParams(self, **local_params):
-        self.local_params = Params(**local_params)
-
-    def run_task(self):
-        iteratorFlag = QDirIterator.Subdirectories \
-                if self.local_params.recursivelyState == Qt.Checked \
-                else QDirIterator.NoIteratorFlags
-
-        nameFilters = QStringList(self.local_params.fileExtension) \
-                    if len(self.local_params.fileExtension) > 0 \
-                        and not self.local_params.fileExtension \
-                            in ("*", "*.*", "", None) \
-                    else QStringList()
-
-        dir_iterator = QDirIterator(self.local_params.rootDir,
-                                    nameFilters,
-                                    QDir.Filters(QDir.Files),
-                                    iteratorFlag)
-
-        while(dir_iterator.next()):
-            if self.isStopped() == True:
-                break
-            self.emitUpdateTask()
-            infoFile = dir_iterator.fileInfo()
-            if infoFile.isFile() == True and infoFile.size() > 0:
-                if self.isStopped() == True:
-                    break
-                if self.local_params.fileExtension in ("*", "*.*", "", None):
-                    if infoFile.isExecutable() == True or \
-                        is_text_file(infoFile.filePath(),
-                                    self.local_params.onlyKnownTypes) == False:
-                            continue
-                filename = QStandardItem(infoFile.fileName())
-                filename.setCheckable(True)
-                size = QStandardItem(str(infoFile.size()))
-                path = QStandardItem(infoFile.path())
-                if self.isStopped() == True:
-                    break
-                self.__model__.appendRow((filename, size, path))
-
-
-class ChangeStateFilesThread(ThreadTask):
-    def __init__(self, parent, state):
-        ThreadTask.__init__(self, parent,
-                            updateTaskName='taskUpdated',
-                            updateAction=parent.progressBarAction,
-                            finishTaskName='taskFinished',
-                            finishAction=parent.finishProgressBarAction,
-                            emit_update_sleep=1,
-                            emit_update_sleep_step=50
-                            )
-        self.__model__ = parent.model
-        self.__state__ = state
-
-    def run_task(self):
-        for idx in range(self.__model__.rowCount()):
-            self.emitUpdateTask()
-            if self.isStopped() == True:
-                break
-            self.__model__.item(idx).setCheckState(self.__state__)

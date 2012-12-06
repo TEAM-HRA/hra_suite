@@ -8,6 +8,7 @@ from PyQt4.QtCore import *  # @UnusedWildImport
 from pygui.qt.utils.qt_i18n import text_I18N
 from pygui.qt.utils.qt_i18n import title_I18N
 from pycore.misc import Params
+from pygui.qt.utils.threads import ThreadTask
 
 
 def createComposite(parent=None, **params):
@@ -145,6 +146,7 @@ def __set_widget_size(widget, size, width, height):
 class ProgressBarManager(object):
 
     def __init__(self, parent, **params):
+        self.parent = parent
         self.params = Params(**params)
         self.progressBarComposite = createComposite(parent,
                                             layout=QHBoxLayout())
@@ -153,24 +155,24 @@ class ProgressBarManager(object):
                                              sizePolicy=sizePolicy)
         self.progressBar.setRange(0, 0)
         self.progressBar.setValue(0)
-        self.progressBarComposite.hide()
+        if self.params.hidden == True:
+            self.progressBarComposite.hide()
 
         self.stopButton = createPushButton(
                                 self.progressBarComposite,
                                 i18n="datasource.stop.progress.bar.button",
                                 i18n_def="Stop")
-        if not self.params.stopSlot == None:
-            self.progressBarComposite.connect(self.stopButton,
-                                              SIGNAL("clicked()"),
-                                              self.params.stopSlot)
+        self.progressBarComposite.connect(self.stopButton,
+                                          SIGNAL("clicked()"),
+                                          self.stop)
+        self.threadTask = None
+        self.local_params = None
 
     def show(self):
         self.progressBarComposite.show()
 
     def hide(self, reset=True):
         self.progressBarComposite.hide()
-        if reset:
-            self.reset()
 
     def reset(self):
         self.progressBar.reset()
@@ -180,3 +182,57 @@ class ProgressBarManager(object):
 
     def tick(self):
         self.setValue(0)
+
+    def start(self, **params):
+        self.local_params = Params(**params)
+        if self.local_params.before:
+            self.local_params.before()
+
+        if self.threadTask:
+            self.threadTask.stop()
+            self.threadTask.setTask(self.local_params.progressJob)
+            self.threadTask.setUpdateTask(updateTaskName='taskUpdated',
+                                          updateAction=self.tick)
+            self.threadTask.setFinishTask(finishTaskName='taskFinished',
+                                          finishAction=self.stop)
+        else:
+
+            self.threadTask = ThreadTask(self.parent,
+                                        updateTaskName='taskUpdated',
+                                        updateAction=self.tick,
+                                        task=self.local_params.progressJob,
+                                        finishTaskName='taskFinished',
+                                        finishAction=self.stop)
+        if self.threadTask:
+            if self.params.hidden == True:
+                self.show()
+            self.reset()
+            if not self.params.progressJob == None:
+                self.threadTask.setTask(self.params.progressJob)
+            if not self.local_params.progressJob == None:
+                self.threadTask.setTask(self.local_params.progressJob)
+            self.threadTask.start()
+
+    def stop(self):
+        if self.threadTask and self.threadTask.isStopped() == False:
+            self.threadTask.stop()
+        if not self.local_params == None:
+            if not self.local_params.after == None:
+                self.local_params.after()
+        if self.params.hidden == True:
+            self.hide()
+        self.reset()
+
+    def close(self):
+        self.stop()
+        if self.threadTask:
+            self.threadTask.close()
+
+    def isStopped(self):
+        if not self.threadTask == None:
+            return self.threadTask.isStopped()
+        return True
+
+    def update(self):
+        if not self.threadTask == None:
+            self.threadTask.emitUpdateTask()

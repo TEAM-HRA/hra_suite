@@ -24,15 +24,16 @@ class ThreadTask(QThread):
         # connected the thread with corresponding signal and action
         # for 3 stages: at the start, during loop,
         # at the end (after loop is ended or breaked)
-        if self.params.startAction:
+        if not self.params.startAction == None:
             self.connect(self, SIGNAL(self.params.startTaskName),
                          self.params.startAction)
-        if self.params.updateAction:
+        if not self.params.updateAction == None:
             self.connect(self, SIGNAL(self.params.updateTaskName),
                          self.params.updateAction)
-        if self.params.finishAction:
+        if not self.params.finishAction == None:
             self.connect(self, SIGNAL(self.params.finishTaskName),
                          self.params.finishAction)
+        self.task = self.params.task
 
     def run(self):
         #counts how many emit update tasks are invoked
@@ -45,7 +46,8 @@ class ThreadTask(QThread):
         if self.params.startTaskName:
             self.emit(SIGNAL(self.params.startTaskName))
 
-        self.run_task()
+        if not self.task == None:
+            self.task()
 
         #emit signal after main loop
         if self.__close__ == False and self.params.finishTaskName:
@@ -78,9 +80,32 @@ class ThreadTask(QThread):
                  & self.params.emit_update_step) == 0:
                 self.emit(SIGNAL(self.params.updateTaskName))
 
-    def run_task(self):
-        """
-        main thread task (loopy part of a thread),
-        have to be implemented in a subclass
-        """
-        raise NotImplementedError()
+    def setTask(self, task):
+        self.task = task
+
+    def getTask(self):
+        return self.task
+
+    def setUpdateTask(self, updateTaskName, updateAction):
+        if not self.params.updateAction == None and self.params.updateTaskName:
+            if self.params.updateAction == updateAction and \
+                self.params.updateTaskName == updateTaskName:
+                return
+            self.disconnect(self, SIGNAL(self.params.updateTaskName),
+                            self.params.updateAction)
+        self.params.updateTaskName = updateTaskName
+        self.params.updateAction = updateAction
+        self.connect(self, SIGNAL(self.params.updateTaskName),
+                         self.params.updateAction)
+
+    def setFinishTask(self, finishTaskName, finishAction):
+        if not self.params.finishAction == None and self.params.finishTaskName:
+            if self.params.finishAction == finishAction and \
+                self.params.finishTaskName == finishTaskName:
+                return
+            self.disconnect(self, SIGNAL(self.params.finishTaskName),
+                            self.params.finishAction)
+        self.params.finshTaskName = finishTaskName
+        self.params.finishAction = finishAction
+        self.connect(self, SIGNAL(self.params.finishTaskName),
+                         self.params.finishAction)
