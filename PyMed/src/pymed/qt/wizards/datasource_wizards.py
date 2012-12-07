@@ -94,7 +94,7 @@ class ChooseDatasourcePage(QWizardPage):
 
         self.__createFilesOperationsComposite__(self.filesGroupBox)
 
-        self.changeEnablemend(False)
+        self.changeEnablemend(False, withRootDir=False)
 
     def __createFileConstraintsComposite__(self, parent):
         fileConstraintsComposite = createComposite(parent,
@@ -188,7 +188,6 @@ class ChooseDatasourcePage(QWizardPage):
         rootDir = QFileDialog.getExistingDirectory(self,
                                     caption=self.chooseRootDirButton.text())
         if rootDir:
-            self.changeEnablemend(True)
             self.rootDir = rootDir
             self.rootDirLabel.setText(rootDir)
             self.reload()
@@ -226,7 +225,6 @@ class ChooseDatasourcePage(QWizardPage):
         self.model.removeRows(0, self.model.rowCount())
         self.changeCompleteState(0)
         self.changeEnablemend(False)
-        self.chooseRootDirButton.setEnabled(False)
 
     def tableViewProgressBarAction(self):
         iteratorFlag = QDirIterator.Subdirectories \
@@ -269,7 +267,6 @@ class ChooseDatasourcePage(QWizardPage):
             self.filesTableView.resizeColumnsToContents()
             self.filesTableView.scrollToTop()
         self.changeEnablemend(True)
-        self.chooseRootDirButton.setEnabled(True)
         self.filePreviewButton.setEnabled(False)
         self.filesExtension.setFocus()
 
@@ -293,6 +290,10 @@ class ChooseDatasourcePage(QWizardPage):
         method used to emit a signal completeChanged() which is intercepted
         by QWizard to enable/disable next, previous buttons based on value
         returned by isComplete method of a wizard page object
+        correction:
+        it's better do not send a completeChange signal, because
+        program jump to the beginning of a table view instead of stick
+        to the position where it is
         """
         if operation == 'set':
             self.__completed_count__ = value
@@ -301,9 +302,12 @@ class ChooseDatasourcePage(QWizardPage):
         elif operation == 'sub':
             if self.__completed_count__ - value >= 0:
                 self.__completed_count__ = self.__completed_count__ - value
-        self.emit(SIGNAL("completeChanged()"))
 
-    def changeEnablemend(self, enabled):
+        #self.emit(SIGNAL("completeChanged()"))
+        self.wizard().button(QWizard.NextButton).setEnabled(
+                                                self.__completed_count__ > 0)
+
+    def changeEnablemend(self, enabled, withRootDir=True):
         self.filesExtension.setEnabled(enabled)
         self.recursively.setEnabled(enabled)
         self.filesTableView.setEnabled(enabled)
@@ -311,6 +315,8 @@ class ChooseDatasourcePage(QWizardPage):
         self.uncheckAllButton.setEnabled(enabled)
         self.reloadButton.setEnabled(enabled)
         self.onlyKnownTypes.setEnabled(enabled)
+        if withRootDir == True:
+            self.chooseRootDirButton.setEnabled(enabled)
 
     def beforeCheckProgressBarAction(self):
         self.changeEnablemend(False)
