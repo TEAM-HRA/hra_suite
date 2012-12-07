@@ -126,27 +126,27 @@ class ChooseDatasourcePage(QWizardPage):
                                              text="*")
         self.connect(self.filesExtension,
                      SIGNAL("textChanged(const QString&)"),
-                     self.reloadAction)
+                     self.reload)
 
         self.recursively = createCheckBox(fileConstraintsComposite,
                 i18n="datasource.search.files.recursively.label",
                 i18n_def="Search files recursively")
         self.connect(self.recursively, SIGNAL("clicked()"),
-                     self.reloadAction)
+                     self.reload)
 
         self.onlyKnownTypes = createCheckBox(fileConstraintsComposite,
                 i18n="datasource.only.known.types.checkbox",
                 i18n_def="Only known types",
                 checked=True)
         self.connect(self.onlyKnownTypes, SIGNAL("clicked()"),
-                     self.reloadAction)
+                     self.reload)
 
     def __createReloadButton__(self, parent):
         self.reloadButton = createPushButton(parent,
                                             i18n="datasource.reload.button",
                                             i18n_def="Reload")
         self.connect(self.reloadButton, SIGNAL("clicked()"),
-                     self.reloadAction)
+                     self.reload)
 
     def __createTableView__(self, parent):
         self.filesTableView = createTableView(parent,
@@ -302,9 +302,6 @@ class ChooseDatasourcePage(QWizardPage):
             if self.__completed_count__ - value >= 0:
                 self.__completed_count__ = self.__completed_count__ - value
         self.emit(SIGNAL("completeChanged()"))
-
-    def reloadAction(self):
-        self.reload()
 
     def changeEnablemend(self, enabled):
         self.filesExtension.setEnabled(enabled)
