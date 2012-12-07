@@ -78,6 +78,10 @@ class ChooseDatasourcePage(QWizardPage):
         self.setLayout(pageLayout)
         self.__createFilesGroupBox(pageLayout)
 
+        #to force call of isComplete(self) method by the Wizard framework
+        #which causes state next button to be updated
+        self.emit(SIGNAL("completeChanged()"))
+
     def __createFilesGroupBox(self, pageLayout):
         self.filesGroupBox = createGroupBox(self,
                                     i18n="datasource.files.group.title",
@@ -292,8 +296,8 @@ class ChooseDatasourcePage(QWizardPage):
         returned by isComplete method of a wizard page object
         correction:
         it's better do not send a completeChange signal, because
-        program jump to the beginning of a table view instead of stick
-        to the position where it is
+        program jump to the beginning of a table view instead of sticking
+        to the position where it is already
         """
         if operation == 'set':
             self.__completed_count__ = value
@@ -315,6 +319,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.uncheckAllButton.setEnabled(enabled)
         self.reloadButton.setEnabled(enabled)
         self.onlyKnownTypes.setEnabled(enabled)
+        self.filePreviewButton.setEnabled(enabled)
         if withRootDir == True:
             self.chooseRootDirButton.setEnabled(enabled)
 
