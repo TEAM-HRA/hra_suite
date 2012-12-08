@@ -19,6 +19,7 @@ from pygui.qt.utils.widgets import createPushButton
 from pygui.qt.utils.widgets import createGroupBox
 from pygui.qt.utils.graphics import get_width_of_n_letters
 from pycore.io_utils import is_text_file
+from pycore.misc import Params
 
 
 class DatasourceWizard(QWizard):
@@ -37,8 +38,8 @@ class DatasourceWizard(QWizard):
 
     def show(self):
         self.datasourcePage = ChooseDatasourcePage(self)
-        self.addPage(self.datasourcePage)
-        self.addPage(ChooseColumnsDataPage(self))
+        id_ = self.addPage(self.datasourcePage)
+        self.addPage(ChooseColumnsDataPage(self, id_))
         self.exec_()
 
     def closeEvent(self, event):
@@ -49,27 +50,13 @@ class ChooseDatasourcePage(QWizardPage):
 
     def __init__(self, _parent):
         QWizardPage.__init__(self, parent=_parent)
-
-        #variable used in a method changeCompleteState()
-        #where is an explanation
-        self.__completed_count__ = 0
-
-        self.model = QStandardItemModel()
-        labels = [QT_I18N("datasource.files.column.filename", "Filename"),
-                  QT_I18N("datasource.files.column.size", "Size"),
-                  QT_I18N("datasource.files.column.path", "File path")]
-        labels = QStringList(labels)
-        self.model.setHorizontalHeaderLabels(labels)
-        self.selectedRow = None
-        self.rootDir = None
+        self.progressBarManager = ProgressBarManager()
 
     def closeEvent(self, event):
-        if self.progressBarManager:
-            self.progressBarManager.close()
+        self.progressBarManager.close()
 
     def hideEvent(self, event):
-        if self.progressBarManager:
-            self.progressBarManager.stop()
+        self.progressBarManager.stop()
 
     def initializePage(self):
         title_I18N(self, "datasource.page.title", "Datasource chooser")
@@ -153,16 +140,13 @@ class ChooseDatasourcePage(QWizardPage):
                      self.reload)
 
     def __createTableView__(self, parent):
-        self.filesTableView = createTableView(parent,
-                        selectionBehavior=QAbstractItemView.SelectRows,
-                        selectionMode=QAbstractItemView.SingleSelection)
-        self.filesTableView.setModel(self.model)
-        self.filesTableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.connect(self.filesTableView, SIGNAL('clicked(QModelIndex)'),
-                     self.onClickedAction)
+        self.filesTableView = FilesTableView(parent, self,
+                                    onClickedAction=self.onClickedAction,
+                                    wizardButtons=(QWizard.NextButton,),
+                                    wizard=self.wizard())
 
     def __createProgressBarComposite__(self, parent):
-        self.progressBarManager = ProgressBarManager(parent, hidden=True)
+        self.progressBarManager.setParams(parent, hidden=True)
 
     def __createFilesOperationsComposite__(self, parent):
         filesOperations = createComposite(parent,
@@ -192,7 +176,7 @@ class ChooseDatasourcePage(QWizardPage):
         rootDir = QFileDialog.getExistingDirectory(self,
                                     caption=self.chooseRootDirButton.text())
         if rootDir:
-            self.rootDir = rootDir
+            #self.rootDir = rootDir
             self.rootDirLabel.setText(rootDir)
             self.reload()
 
@@ -208,26 +192,24 @@ class ChooseDatasourcePage(QWizardPage):
                                     after=self.afterUncheckProgressBarAction)
 
     def filePreviewAction(self):
-        if self.selectedRow == None:
+        pathFile = self.filesTableView.getSelectecPathAndFilename()
+        if pathFile == None:
             QMessageBox.information(self, "Information",
-                      "No files selected !")
+                  "No files selected !")
         else:
-            model = self.selectedRow.model()
-            path = model.item(self.selectedRow.row(), 2)
-            filename = model.item(self.selectedRow.row(), 0)
-            dialog = FilePreviewDialog(path.text(), filename.text(), self)
+            dialog = FilePreviewDialog(pathFile[0].text(),
+                                       pathFile[1].text(), self)
             dialog.exec_()
 
     def reload(self):
-        if not self.rootDir == None:
+        if self.rootDirLabel.text():
             self.progressBarManager.start(
                     before=self.beforeTableViewProgressAction,
                     progressJob=self.tableViewProgressBarAction,
                     after=self.afterFinishProgressBar)
 
     def beforeTableViewProgressAction(self):
-        self.model.removeRows(0, self.model.rowCount())
-        self.changeCompleteState(0)
+        self.filesTableView.clear()
         self.changeEnablemend(False)
 
     def tableViewProgressBarAction(self):
@@ -246,9 +228,8 @@ class ChooseDatasourcePage(QWizardPage):
                                     QDir.Filters(QDir.Files),
                                     iteratorFlag)
         while(self.dir_iterator.next()):
-            if self.progressBarManager.isStopped() == True:
+            if self.progressBarManager.update() == False:
                 break
-            self.progressBarManager.update()
             infoFile = self.dir_iterator.fileInfo()
             if infoFile.isFile() == True and infoFile.size() > 0:
                 if self.progressBarManager.isStopped() == True:
@@ -264,52 +245,24 @@ class ChooseDatasourcePage(QWizardPage):
                 path = QStandardItem(infoFile.path())
                 if self.progressBarManager.isStopped() == True:
                     break
-                self.model.appendRow((filename, size, path))
+                self.filesTableView.addRow((filename, size, path))
 
     def afterFinishProgressBar(self):
-        if self.model.rowCount() > 0:
-            self.filesTableView.resizeColumnsToContents()
-            self.filesTableView.scrollToTop()
+        self.filesTableView.resizeColumnsToContents()
         self.changeEnablemend(True)
         self.filePreviewButton.setEnabled(False)
         self.filesExtension.setFocus()
 
     def onClickedAction(self, idx):
-        self.selectedRow = idx
-        row = idx.row()
-        #cols = self.model.columnCount()
         self.filePreviewButton.setEnabled(True)
-        checked = self.model.item(row).checkState() == Qt.Checked
-        self.changeCompleteState(1, 'add' if checked else 'sub')
+        self.filesTableView.onClickedAction(idx)
 
     def isComplete(self):
         """
         method used by QWizard to check if next/previous buttons have to
         be disabled/enabled (when False/True is returned)
         """
-        return self.__completed_count__ > 0
-
-    def changeCompleteState(self, value, operation='set'):
-        """
-        method used to emit a signal completeChanged() which is intercepted
-        by QWizard to enable/disable next, previous buttons based on value
-        returned by isComplete method of a wizard page object
-        correction:
-        it's better do not send a completeChange signal, because
-        program jump to the beginning of a table view instead of sticking
-        to the position where it is already
-        """
-        if operation == 'set':
-            self.__completed_count__ = value
-        elif operation == 'add':
-            self.__completed_count__ = self.__completed_count__ + value
-        elif operation == 'sub':
-            if self.__completed_count__ - value >= 0:
-                self.__completed_count__ = self.__completed_count__ - value
-
-        #self.emit(SIGNAL("completeChanged()"))
-        self.wizard().button(QWizard.NextButton).setEnabled(
-                                                self.__completed_count__ > 0)
+        return self.filesTableView.getCompletedCount()
 
     def changeEnablemend(self, enabled, withRootDir=True):
         self.filesExtension.setEnabled(enabled)
@@ -330,7 +283,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.__stateProgressBarAction__(Qt.Checked)
 
     def afterCheckProgressBarAction(self):
-        self.changeCompleteState(self.model.rowCount())
+        self.filesTableView.maxCompleteState()
         self.changeEnablemend(True)
 
     def beforeUncheckProgressBarAction(self):
@@ -340,21 +293,21 @@ class ChooseDatasourcePage(QWizardPage):
         self.__stateProgressBarAction__(Qt.Unchecked)
 
     def afterUncheckProgressBarAction(self):
-        self.changeCompleteState(0)
+        self.filesTableView.minCompleteState()
         self.changeEnablemend(True)
 
     def __stateProgressBarAction__(self, state):
-        for idx in range(self.model.rowCount()):
-            self.progressBarManager.update()
-            if self.progressBarManager.isStopped() == True:
+        for idx in range(self.filesTableView.getRowCount()):
+            if self.progressBarManager.update() == False:
                 break
-            self.model.item(idx).setCheckState(state)
+            self.filesTableView.setCheckedRowState(idx, state)
 
 
 class ChooseColumnsDataPage(QWizardPage):
 
-    def __init__(self, _parent):
+    def __init__(self, _parent, datasource_page_id):
         QWizardPage.__init__(self, parent=_parent)
+        self.datasource_page_id = datasource_page_id
 
     def initializePage(self):
         self.setTitle('Choose column data')
@@ -387,3 +340,103 @@ class FilePreviewDialog(QDialog):
             self.lineNumberLabel.setText('Lines # '
                         + str(self.preview.document().lineCount()))
             file_.close()
+
+
+class FilesTableView(object):
+    def __init__(self, parent, parent_model, **params):
+        self.parent = parent
+        self.__completed_count__ = 0
+        self.selectedRow = None
+        self.params = Params(**params)
+        self.model = QStandardItemModel(parent_model)
+        labels = [QT_I18N("datasource.files.column.filename", "Filename"),
+                  QT_I18N("datasource.files.column.size", "Size"),
+                  QT_I18N("datasource.files.column.path", "File path")]
+        labels = QStringList(labels)
+        self.model.setHorizontalHeaderLabels(labels)
+        self.filesTableView = createTableView(parent,
+                        selectionBehavior=QAbstractItemView.SelectRows,
+                        selectionMode=QAbstractItemView.SingleSelection)
+        self.filesTableView.setModel(self.model)
+        self.filesTableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        if self.params.onClickedAction:
+            self.filesTableView.connect(self.filesTableView,
+                                        SIGNAL('clicked(QModelIndex)'),
+                                        self.params.onClickedAction)
+
+    def reload(self):
+        if self.model.rowCount() > 0:
+            self.filesTableView.resizeColumnsToContents()
+            self.filesTableView.scrollToTop()
+
+    def addRow(self, row):
+        self.model.appendRow(row)
+
+    def clear(self):
+        self.model.removeRows(0, self.model.rowCount())
+        self.minCompleteState()
+
+    def rowChecked(self, selectedRow):
+        return self.model.item(selectedRow.row()).checkState() == Qt.Checked
+
+    def getSelectecPathAndFilename(self):
+        if not self.selectedRow == None:
+            model = self.selectedRow.model()
+            path = model.item(self.selectedRow.row(), 2)
+            filename = model.item(self.selectedRow.row(), 0)
+            return (path, filename)
+
+    def onClickedAction(self, selectedRow):
+        self.selectedRow = selectedRow
+        checked = self.rowChecked(selectedRow)
+        self.changeCompleteState(1, 'add' if checked else 'sub')
+
+    def getSelectedItems(self):
+        return [self.model.item(row)
+                for row in range(0, self.model.rowCount())
+                    if self.model.item(row).checkState() == Qt.Checked]
+
+    def setCheckedRowState(self, idx, state):
+        self.model.item(idx).setCheckState(state)
+
+    def getRowCount(self):
+        return self.model.rowCount()
+
+    def setEnabled(self, enabled):
+        self.filesTableView.setEnabled(enabled)
+
+    def resizeColumnsToContents(self):
+        self.filesTableView.resizeColumnsToContents()
+
+    def changeCompleteState(self, value, operation='set'):
+        """
+        method used to emit a signal completeChanged() which is intercepted
+        by QWizard to enable/disable next, previous buttons based on value
+        returned by isComplete method of a wizard page object
+        correction:
+        it's better do not send a completeChange signal, because
+        program jump to the beginning of a table view instead of sticking
+        to the position where it is already
+        """
+        if operation == 'set':
+            self.__completed_count__ = value
+        elif operation == 'add':
+            self.__completed_count__ = self.__completed_count__ + value
+        elif operation == 'sub':
+            if self.__completed_count__ - value >= 0:
+                self.__completed_count__ = self.__completed_count__ - value
+
+        #self.emit(SIGNAL("completeChanged()"))
+        if self.params.wizardButtons:
+            for button in self.params.wizardButtons:
+                self.params.wizard.button(button).setEnabled(
+                                                self.__completed_count__ > 0)
+
+    def getCompletedCount(self):
+        return self.__completed_count__ > 0
+
+    def maxCompleteState(self):
+        self.changeCompleteState(self.getRowCount())
+
+    def minCompleteState(self):
+        self.changeCompleteState(0)
