@@ -177,7 +177,6 @@ class ChooseDatasourcePage(QWizardPage):
         rootDir = QFileDialog.getExistingDirectory(self,
                                     caption=self.chooseRootDirButton.text())
         if rootDir:
-            #self.rootDir = rootDir
             self.rootDirLabel.setText(rootDir)
             self.reload()
 
@@ -303,20 +302,38 @@ class ChooseDatasourcePage(QWizardPage):
                 break
             self.filesTableView.setCheckedRowState(idx, state)
 
+    def getDatasourceModel(self):
+        return self.filesTableView.getModel()
+
 
 class ChooseColumnsDataPage(QWizardPage):
 
     def __init__(self, _parent, datasource_page_id):
         QWizardPage.__init__(self, parent=_parent)
         self.datasource_page_id = datasource_page_id
+        self.pageLayout = None
 
     def initializePage(self):
         self.setTitle('Choose column data')
         #self.setSubTitle('Choose column specific data')
-        chooseFileLabel = QLabel("Specific data")
-        layout = QGridLayout()
-        layout.addWidget(chooseFileLabel, 0, 0)
-        self.setLayout(layout)
+
+        if self.pageLayout == None:
+            self.pageLayout = QVBoxLayout()
+            self.setLayout(self.pageLayout)
+            self.__createTableView__(self.pageLayout)
+
+    def __createTableView__(self, pageLayout):
+        composite = createComposite(self, layout=QVBoxLayout())
+        proxyModel = CheckStateProxySortFilterModel(self)
+        datasource_page = self.wizard().page(self.datasource_page_id)
+        model = datasource_page.getDatasourceModel()
+        self.filesTableView = FilesTableView(composite, self,
+                                    #onClickedAction=self.onClickedAction,
+                            wizardButtons=(QWizard.NextButton,),
+                            wizard=self.wizard(),
+                            model=model,
+                            proxyModel=proxyModel,
+                            sorting=True)
 
 
 class FilePreviewDialog(QDialog):
@@ -349,7 +366,15 @@ class FilesTableView(object):
         self.__completed_count__ = 0
         self.selectedRow = None
         self.params = Params(**params)
-        self.model = QStandardItemModel(parent_model)
+        if self.params.model:
+            self.model = self.params.model
+        else:
+            self.model = QStandardItemModel(parent_model)
+        self.proxyModel = self.params.proxyModel if self.params.proxyModel \
+                            else None
+        if self.proxyModel:
+            self.proxyModel.setSourceModel(self.model)
+            self.proxyModel.setDynamicSortFilter(True)
         labels = [QT_I18N("datasource.files.column.filename", "Filename"),
                   QT_I18N("datasource.files.column.size", "Size"),
                   QT_I18N("datasource.files.column.path", "File path")]
@@ -358,7 +383,10 @@ class FilesTableView(object):
         self.filesTableView = createTableView(parent,
                         selectionBehavior=QAbstractItemView.SelectRows,
                         selectionMode=QAbstractItemView.SingleSelection)
-        self.filesTableView.setModel(self.model)
+        if self.proxyModel:
+            self.filesTableView.setModel(self.proxyModel)
+        else:
+            self.filesTableView.setModel(self.model)
         self.filesTableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
         if self.params.onClickedAction:
             self.filesTableView.connect(self.filesTableView,
@@ -443,3 +471,14 @@ class FilesTableView(object):
 
     def minCompleteState(self):
         self.changeCompleteState(0)
+
+    def getModel(self):
+        return self.model
+
+
+class CheckStateProxySortFilterModel(QSortFilterProxyModel):
+    def __init__(self, parent=None):
+        super(CheckStateProxySortFilterModel, self).__init__(parent)
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        return self.sourceModel().item(source_row).checkState() == Qt.Checked # @IgnorePep8
