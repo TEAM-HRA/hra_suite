@@ -145,7 +145,13 @@ def __set_widget_size(widget, size, width, height):
 
 class ProgressBarManager(object):
 
-    def __init__(self, parent, **params):
+    def __init__(self, parent=None, **params):
+        self.progressBarComposite = None
+        self.threadTask = None
+        if parent:
+            self.setParams(parent, **params)
+
+    def setParams(self, parent, **params):
         self.parent = parent
         self.params = Params(**params)
         self.progressBarComposite = createComposite(parent,
@@ -169,16 +175,20 @@ class ProgressBarManager(object):
         self.local_params = None
 
     def show(self):
-        self.progressBarComposite.show()
+        if self.progressBarComposite:
+            self.progressBarComposite.show()
 
     def hide(self, reset=True):
-        self.progressBarComposite.hide()
+        if self.progressBarComposite:
+            self.progressBarComposite.hide()
 
     def reset(self):
-        self.progressBar.reset()
+        if self.progressBarComposite:
+            self.progressBar.reset()
 
     def setValue(self, value):
-        self.progressBar.setValue(0)
+        if self.progressBarComposite:
+            self.progressBar.setValue(0)
 
     def tick(self):
         self.setValue(0)
@@ -214,6 +224,10 @@ class ProgressBarManager(object):
             self.threadTask.start()
 
     def stop(self):
+        if self.progressBarComposite == None:
+            return
+        if self.threadTask == None:
+            return
         if self.threadTask and self.threadTask.isStopped() == False:
             self.threadTask.stop()
         if not self.local_params == None:
@@ -229,10 +243,14 @@ class ProgressBarManager(object):
             self.threadTask.close()
 
     def isStopped(self):
+        if self.progressBarComposite == None:
+            return False
         if not self.threadTask == None:
             return self.threadTask.isStopped()
         return True
 
     def update(self):
-        if not self.threadTask == None:
-            self.threadTask.emitUpdateTask()
+        if self.threadTask:
+            if self.isStopped() == False:
+                self.threadTask.emitUpdateTask()
+        return not self.isStopped()
