@@ -143,7 +143,8 @@ class ChooseDatasourcePage(QWizardPage):
         self.filesTableView = FilesTableView(parent, self,
                                     onClickedAction=self.onClickedAction,
                                     wizardButtons=(QWizard.NextButton,),
-                                    wizard=self.wizard())
+                                    wizard=self.wizard(),
+                                    sorting=True)
 
     def __createProgressBarComposite__(self, parent):
         self.progressBarManager.setParams(parent, hidden=True)
@@ -363,6 +364,8 @@ class FilesTableView(object):
             self.filesTableView.connect(self.filesTableView,
                                         SIGNAL('clicked(QModelIndex)'),
                                         self.params.onClickedAction)
+        if self.params.sorting:
+            self.filesTableView.setSortingEnabled(True)
 
     def reload(self):
         if self.model.rowCount() > 0:
