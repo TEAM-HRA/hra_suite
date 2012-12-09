@@ -260,6 +260,7 @@ class WidgetsHorizontalHeader(QHeaderView):
     """
     class for table header line used to create a header
     filled with widgets instead of simple texts
+    widgets have to possess a layout
     """
     def __init__(self, parent, widgets):
         super(WidgetsHorizontalHeader, self).__init__(Qt.Horizontal, parent)
@@ -267,15 +268,18 @@ class WidgetsHorizontalHeader(QHeaderView):
         #get optimal size for header line based on sizes of header widgets
         height = 0
         width = 0
+        margin = 0
         for idx in range(len(widgets)):
             sizeHint = widgets[idx].sizeHint()
             if height < sizeHint.height():
                 height = sizeHint.height()
             if width < sizeHint.width():
                 width = sizeHint.width()
+            if margin < widgets[idx].layout().margin():
+                margin = widgets[idx].layout().margin()
 
         #very import property used in sizeHint method
-        self.sizeHint = QSize(width + 10, height + 10)
+        self.sizeHint = QSize(width + margin, height + margin)
 
         self.setResizeMode(QHeaderView.Interactive)
         parent.setHorizontalHeader(self)
