@@ -239,13 +239,14 @@ class ChooseDatasourcePage(QWizardPage):
                         is_text_file(infoFile.filePath(),
                                     self.onlyKnownTypes.checkState()) == False:
                             continue
+                checkable = QStandardItem("")
+                checkable.setCheckable(True)
                 filename = QStandardItem(infoFile.fileName())
-                filename.setCheckable(True)
                 size = QStandardItem(str(infoFile.size()))
                 path = QStandardItem(infoFile.path())
                 if self.progressBarManager.isStopped() == True:
                     break
-                self.filesTableView.addRow((filename, size, path))
+                self.filesTableView.addRow((checkable, filename, size, path))
 
     def afterFinishProgressBar(self):
         self.filesTableView.resizeColumnsToContents()
@@ -328,12 +329,16 @@ class ChooseColumnsDataPage(QWizardPage):
         datasource_page = self.wizard().page(self.datasource_page_id)
         model = datasource_page.getDatasourceModel()
         self.filesTableView = FilesTableView(composite, self,
-                                    #onClickedAction=self.onClickedAction,
+                            onClickedAction=self.onClickedAction,
                             wizardButtons=(QWizard.NextButton,),
                             wizard=self.wizard(),
                             model=model,
                             proxyModel=proxyModel,
                             sorting=True)
+        self.filesTableView.setColumnHidden(0, True)
+
+    def onClickedAction(self, idx):
+        pass
 
 
 class FilePreviewDialog(QDialog):
@@ -375,7 +380,8 @@ class FilesTableView(object):
         if self.proxyModel:
             self.proxyModel.setSourceModel(self.model)
             self.proxyModel.setDynamicSortFilter(True)
-        labels = [QT_I18N("datasource.files.column.filename", "Filename"),
+        labels = ["",  # first column is checkable column
+                  QT_I18N("datasource.files.column.filename", "Filename"),
                   QT_I18N("datasource.files.column.size", "Size"),
                   QT_I18N("datasource.files.column.path", "File path")]
         labels = QStringList(labels)
@@ -474,6 +480,9 @@ class FilesTableView(object):
 
     def getModel(self):
         return self.model
+
+    def setColumnHidden(self, column, hide=True):
+        self.filesTableView.setColumnHidden(column, hide)
 
 
 class CheckStateProxySortFilterModel(QSortFilterProxyModel):
