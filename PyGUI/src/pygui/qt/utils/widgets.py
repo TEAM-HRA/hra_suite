@@ -291,7 +291,6 @@ class WidgetsHorizontalHeader(QHeaderView):
             w = widgets[idx].sizeHint().width()  # self.sectionSize(idx)
             h = height
             widgets[idx].setGeometry(QRect(x, y, w, h))
-            widgets[idx].show()
 
         #if a header (or section) changes then widgets have to be moved
         self.connect(self,
