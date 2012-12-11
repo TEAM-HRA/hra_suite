@@ -192,14 +192,7 @@ class ChooseDatasourcePage(QWizardPage):
                                     after=self.afterUncheckProgressBarAction)
 
     def filePreviewAction(self):
-        pathFile = self.filesTableView.getSelectecPathAndFilename()
-        if pathFile == None:
-            QMessageBox.information(self, "Information",
-                  "No files selected !")
-        else:
-            dialog = FilePreviewDialog(pathFile[0].text(),
-                                       pathFile[1].text(), self)
-            dialog.exec_()
+        filePreview(self.filesTableView.getSelectecPathAndFilename())
 
     def reload(self):
         if self.rootDirLabel.text():
@@ -337,8 +330,18 @@ class ChooseColumnsDataPage(QWizardPage):
                             sorting=True)
         self.filesTableView.setColumnHidden(0, True)
 
+        self.filePreviewButton = createPushButton(composite,
+                            i18n="datasource.file.preview.button",
+                            i18n_def="File preview")
+        self.connect(self.filePreviewButton, SIGNAL("clicked()"),
+                     self.filePreviewAction)
+
     def onClickedAction(self, idx):
-        pass
+        self.filePreviewButton.setEnabled(True)
+        self.filesTableView.onClickedAction(idx)
+
+    def filePreviewAction(self):
+        filePreview(self.filesTableView.getSelectecPathAndFilename())
 
 
 class FilePreviewDialog(QDialog):
@@ -419,8 +422,8 @@ class FilesTableView(object):
     def getSelectecPathAndFilename(self):
         if not self.selectedRow == None:
             model = self.selectedRow.model()
-            path = model.item(self.selectedRow.row(), 2)
-            filename = model.item(self.selectedRow.row(), 0)
+            path = model.item(self.selectedRow.row(), 3)
+            filename = model.item(self.selectedRow.row(), 1)
             return (path, filename)
 
     def onClickedAction(self, selectedRow):
@@ -491,3 +494,16 @@ class CheckStateProxySortFilterModel(QSortFilterProxyModel):
 
     def filterAcceptsRow(self, source_row, source_parent):
         return self.sourceModel().item(source_row).checkState() == Qt.Checked # @IgnorePep8
+
+    def item(self, row, column=0):
+        return self.sourceModel().item(row, column)
+
+
+def filePreview(pathFile):
+    if pathFile == None:
+        QMessageBox.information(None, "Information",
+              "No files selected !")
+    else:
+        dialog = FilePreviewDialog(pathFile[0].text(),
+                                   pathFile[1].text(), None)
+        dialog.exec_()
