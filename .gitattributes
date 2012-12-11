@@ -91,6 +91,7 @@ PyMed/src/pymed/programs/gui/test_QT.pyw -text
 PyMed/src/pymed/qt/__init__.py -text
 PyMed/src/pymed/qt/test01/__init__.py -text
 PyMed/src/pymed/qt/test01/small.py -text
+PyMed/src/pymed/qt/test01/tests.py -text
 PyMed/src/pymed/qt/wizards/__init__.py -text
 PyMed/src/pymed/qt/wizards/datasource_wizards.py -text
 PySettings/.project -text
