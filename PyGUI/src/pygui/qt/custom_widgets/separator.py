@@ -6,33 +6,47 @@ Created on 13-12-2012
 from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
 from pygui.qt.utils.widgets import createGroupBox
+from pygui.qt.utils.widgets import createComposite
 from pygui.qt.utils.widgets import createCheckBox
 from pygui.qt.utils.widgets import createButtonGroup
 from pygui.qt.utils.widgets import createLineEdit
 from pygui.qt.utils.qt_i18n import QT_I18N
 from pygui.qt.utils.graphics import get_width_of_n_letters
+from pygui.qt.utils.windows import Information
+from pycore.misc import is_empty
 
 
 class SeparatorWidget(object):
-    def __init__(self, parent, default_separator=None):
+    def __init__(self, parent, default_separator=None, global_marker=True):
         self.groupSeparator = createGroupBox(parent,
                                     i18n="separator.widget.group.title",
                                     i18n_def="Separator",
-                                    layout=QHBoxLayout())
-        self.buttonGroup = createButtonGroup(self.groupSeparator)
+                                    layout=QVBoxLayout())
+
+        self.separators = createComposite(self.groupSeparator,
+                                          layout=QHBoxLayout())
+        self.buttonGroup = createButtonGroup(self.separators)
         self.separatorLabels = SeparatorSign.getSeparatorLabels()
         for (_, _, label) in self.separatorLabels:
-            signCheckBox = createCheckBox(self.groupSeparator)
+            signCheckBox = createCheckBox(self.separators)
             signCheckBox.setText(label)
             self.buttonGroup.addButton(signCheckBox)
             if label == SeparatorSign.CUSTOM.label:
-                self.customSeparator = createLineEdit(self.groupSeparator,
+                self.customSeparator = createLineEdit(self.separators,
                                              maxLength=15,
                                              width=get_width_of_n_letters(14),
                                              enabled=False)
-        self.buttonGroup.connect(self.buttonGroup,
+        self.groupSeparator.connect(self.buttonGroup,
                      SIGNAL("buttonClicked(QAbstractButton *)"),
                      self.buttonClicked)
+        self.globalSettings = None
+        if global_marker:
+            self.globalSettings = createCheckBox(self.groupSeparator,
+                                                i18n="separator.global.marker",
+                                                i18n_def="Global settings")
+            self.groupSeparator.connect(self.globalSettings,
+                                        SIGNAL("clicked()"),
+                                        self.checkGlobalSettings)
 
     def getSeparatorSign(self):
         return self.separator_sing
@@ -43,6 +57,17 @@ class SeparatorWidget(object):
             self.customSeparator.setFocus()
         else:
             self.customSeparator.setEnabled(False)
+
+    def checkGlobalSettings(self):
+        if self.globalSettings.checkState() == Qt.Checked:
+            if self.buttonGroup.checkedButton() == None \
+              and is_empty(self.customSeparator.text()):
+                Information(information='A separator have to be chosen !')
+                self.globalSettings.setCheckState(Qt.Unchecked)
+            else:
+                self.separators.setEnabled(False)
+        else:
+            self.separators.setEnabled(True)
 
 
 class SeparatorSign(object):
