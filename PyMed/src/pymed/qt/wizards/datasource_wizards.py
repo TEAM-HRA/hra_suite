@@ -17,7 +17,7 @@ from pygui.qt.utils.graphics import get_width_of_n_letters
 from pycore.io_utils import is_text_file
 from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.settings import Setter
-from pygui.qt.custom_widgets.separator import SeparatorWidget
+from pygui.qt.custom_widgets.separator import DataSeparatorWidget
 from pygui.qt.custom_widgets.progress_bar import ProgressBarManager
 from pygui.qt.utils.windows import showFilePreviewDialog
 from pygui.qt.custom_widgets.modelviews import FilesTableView
@@ -344,7 +344,7 @@ class ChooseColumnsDataPage(QWizardPage):
         self.connect(self.filePreviewButton, SIGNAL("clicked()"),
                      self.filePreviewAction)
 
-        self.separatorWidget = SeparatorWidget(composite)
+        self.separatorWidget = DataSeparatorWidget(composite)
 
     def onClickedAction(self, idx):
         self.filePreviewButton.setEnabled(True)

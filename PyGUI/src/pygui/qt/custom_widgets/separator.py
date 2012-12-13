@@ -16,7 +16,7 @@ from pygui.qt.utils.windows import Information
 from pycore.misc import is_empty
 
 
-class SeparatorWidget(object):
+class DataSeparatorWidget(object):
     def __init__(self, parent, default_separator=None, global_marker=True):
         self.groupSeparator = createGroupBox(parent,
                                     i18n="separator.widget.group.title",
