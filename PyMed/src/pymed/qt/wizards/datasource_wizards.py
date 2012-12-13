@@ -20,6 +20,9 @@ from pygui.qt.utils.widgets import createGroupBox
 from pygui.qt.utils.graphics import get_width_of_n_letters
 from pycore.io_utils import is_text_file
 from pycore.misc import Params
+from pygui.qt.utils.settings import SettingsFactory
+from pygui.qt.utils.settings import Setter
+from pygui.qt.custom_widgets.separator import SeparatorWidget
 
 
 class DatasourceWizard(QWizard):
@@ -68,6 +71,7 @@ class ChooseDatasourcePage(QWizardPage):
         #to force call of isComplete(self) method by the Wizard framework
         #which causes state next button to be updated
         self.emit(SIGNAL("completeChanged()"))
+        self.rootDir = None
 
     def __createFilesGroupBox(self, pageLayout):
         self.filesGroupBox = createGroupBox(self,
@@ -174,10 +178,15 @@ class ChooseDatasourcePage(QWizardPage):
                      self.uncheckAllAction)
 
     def chooseRootDirAction(self):
+        SettingsFactory.loadSettings(self, Setter(rootDir=None))
+
         rootDir = QFileDialog.getExistingDirectory(self,
-                                    caption=self.chooseRootDirButton.text())
+                                    caption=self.chooseRootDirButton.text(),
+                                    directory=self.rootDir)
         if rootDir:
-            self.rootDirLabel.setText(rootDir)
+            self.rootDir = rootDir
+            SettingsFactory.saveSettings(self, Setter(rootDir=self.rootDir))
+            self.rootDirLabel.setText(self.rootDir)
             self.reload()
 
     def checkAllAction(self):
@@ -192,7 +201,7 @@ class ChooseDatasourcePage(QWizardPage):
                                     after=self.afterUncheckProgressBarAction)
 
     def filePreviewAction(self):
-        filePreview(self.filesTableView.getSelectecPathAndFilename())
+        filePreview(self.filesTableView.getSelectedPathAndFilename())
 
     def reload(self):
         if self.rootDirLabel.text():
@@ -336,12 +345,14 @@ class ChooseColumnsDataPage(QWizardPage):
         self.connect(self.filePreviewButton, SIGNAL("clicked()"),
                      self.filePreviewAction)
 
+        self.separatorWidget = SeparatorWidget(composite)
+
     def onClickedAction(self, idx):
         self.filePreviewButton.setEnabled(True)
         self.filesTableView.onClickedAction(idx)
 
     def filePreviewAction(self):
-        filePreview(self.filesTableView.getSelectecPathAndFilename())
+        filePreview(self.filesTableView.getSelectedPathAndFilename())
 
 
 class FilePreviewDialog(QDialog):
@@ -419,7 +430,7 @@ class FilesTableView(object):
     def rowChecked(self, selectedRow):
         return self.model.item(selectedRow.row()).checkState() == Qt.Checked
 
-    def getSelectecPathAndFilename(self):
+    def getSelectedPathAndFilename(self):
         if not self.selectedRow == None:
             model = self.selectedRow.model()
             path = model.item(self.selectedRow.row(), 3)
