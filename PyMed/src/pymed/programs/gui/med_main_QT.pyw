@@ -15,6 +15,7 @@ from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.settings import Setter
 from pygui.qt.menu.menus import QTMenuBuilder
 from pycore.globals import GLOBALS
+from pygui.qt.utils.context import GlobalContext
 
 __version__ = "1.0.0"
 
@@ -475,6 +476,7 @@ class MainWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
+    GlobalContext.save(application=app)
     app.setOrganizationName("Qtrac Ltd.")
     app.setOrganizationDomain("qtrac.eu")
     app.setApplicationName("Image Changer")
