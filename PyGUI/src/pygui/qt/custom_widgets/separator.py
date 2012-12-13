@@ -49,7 +49,9 @@ class DataSeparatorWidget(object):
                                         self.checkGlobalSettings)
 
     def getSeparatorSign(self):
-        return self.separator_sing
+        button = self.buttonGroup.checkedButton()
+        return self.customSeparator.text() if button == SeparatorSign.CUSTOM \
+                                            else button.text()
 
     def buttonClicked(self, button):
         if button.text() == SeparatorSign.CUSTOM.label:
@@ -61,7 +63,7 @@ class DataSeparatorWidget(object):
     def checkGlobalSettings(self):
         if self.globalSettings.checkState() == Qt.Checked:
             if self.buttonGroup.checkedButton() == None \
-              and is_empty(self.customSeparator.text()):
+              or is_empty(self.customSeparator.text()):
                 Information(information='A separator have to be chosen !')
                 self.globalSettings.setCheckState(Qt.Unchecked)
             else:
@@ -89,7 +91,7 @@ class SeparatorSign(object):
             return QT_I18N(self.i18n, self.i18n_def)
 
     @staticmethod
-    def getSeparatorSign(self, sign):
+    def getSeparatorSign(sign):
         for member in dir(SeparatorSign):
             separator = getattr(SeparatorSign, member)
             if isinstance(separator, SeparatorSign) and separator.sign == sign:
