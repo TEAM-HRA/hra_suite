@@ -3,13 +3,11 @@ Created on 03-11-2012
 
 @author: jurek
 '''
-from os.path import join
 from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
 from pygui.qt.utils.qt_i18n import QT_I18N
 from pygui.qt.utils.qt_i18n import title_I18N
 from pygui.qt.utils.widgets import createComposite
-from pygui.qt.utils.widgets import createPlainTextEdit
 from pygui.qt.utils.widgets import createTableView
 from pygui.qt.utils.widgets import createLineEdit
 from pygui.qt.utils.widgets import createCheckBox
@@ -23,6 +21,7 @@ from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.settings import Setter
 from pygui.qt.custom_widgets.separator import SeparatorWidget
 from pygui.qt.custom_widgets.progress_bar import ProgressBarManager
+from pygui.qt.utils.windows import showFilePreviewDialog
 
 
 class DatasourceWizard(QWizard):
@@ -201,7 +200,7 @@ class ChooseDatasourcePage(QWizardPage):
                                     after=self.afterUncheckProgressBarAction)
 
     def filePreviewAction(self):
-        filePreview(self.filesTableView.getSelectedPathAndFilename())
+        showFilePreviewDialog(self.filesTableView.getSelectedPathAndFilename())
 
     def reload(self):
         if self.rootDirLabel.text():
@@ -352,31 +351,7 @@ class ChooseColumnsDataPage(QWizardPage):
         self.filesTableView.onClickedAction(idx)
 
     def filePreviewAction(self):
-        filePreview(self.filesTableView.getSelectedPathAndFilename())
-
-
-class FilePreviewDialog(QDialog):
-
-    def __init__(self, path, filename, parent=None):
-        super(FilePreviewDialog, self).__init__(parent)
-        filename = QString(join(str(path), str(filename)))
-        self.setWindowTitle('Preview of ' + filename)
-        self.setGeometry(QRect(50, 50, 1000, 600))
-        self.setLayout(QVBoxLayout())
-        self.lineNumberLabel = createLabel(self)
-        self.preview = createPlainTextEdit(self, readonly=True)
-
-        closeButton = createPushButton(self,
-                            i18n="close",
-                            i18n_def="Close")
-        self.connect(closeButton, SIGNAL("clicked()"), self, SLOT("reject()"))
-        file_ = QFile(QString(join(str(path), str(filename))))
-        if file_.open(QFile.ReadOnly):
-            self.preview.insertPlainText(QString(file_.readAll()))
-            self.preview.moveCursor(QTextCursor.Start)
-            self.lineNumberLabel.setText('Lines # '
-                        + str(self.preview.document().lineCount()))
-            file_.close()
+        showFilePreviewDialog(self.filesTableView.getSelectedPathAndFilename())
 
 
 class FilesTableView(object):
@@ -435,7 +410,7 @@ class FilesTableView(object):
             model = self.selectedRow.model()
             path = model.item(self.selectedRow.row(), 3)
             filename = model.item(self.selectedRow.row(), 1)
-            return (path, filename)
+            return (path.text(), filename.text())
 
     def onClickedAction(self, selectedRow):
         self.selectedRow = selectedRow
@@ -508,13 +483,3 @@ class CheckStateProxySortFilterModel(QSortFilterProxyModel):
 
     def item(self, row, column=0):
         return self.sourceModel().item(row, column)
-
-
-def filePreview(pathFile):
-    if pathFile == None:
-        QMessageBox.information(None, "Information",
-              "No files selected !")
-    else:
-        dialog = FilePreviewDialog(pathFile[0].text(),
-                                   pathFile[1].text(), None)
-        dialog.exec_()

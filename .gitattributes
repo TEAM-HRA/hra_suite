@@ -62,6 +62,7 @@ PyGUI/src/pygui/qt/utils/qt_i18n.py -text
 PyGUI/src/pygui/qt/utils/settings.py -text
 PyGUI/src/pygui/qt/utils/threads.py -text
 PyGUI/src/pygui/qt/utils/widgets.py -text
+PyGUI/src/pygui/qt/utils/windows.py -text
 PyMath/.project -text
 PyMath/.pydevproject -text
 PyMath/build_pymath.properties -text
