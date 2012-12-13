@@ -61,6 +61,10 @@ def createProgressBar(parent=None, **params):
     return __item(parent, widget=QProgressBar(parent), **params)
 
 
+def createButtonGroup(parent=None, **params):
+    return __item(parent, widget=QButtonGroup(parent), **params)
+
+
 def __item(parent=None, **params):
     """
     method to create a widget based o information contained in params
@@ -97,7 +101,8 @@ def __item(parent=None, **params):
             params.layout.setAlignment(params.alignment)
 
     if not added and not parent_layout == None:
-        parent_layout.addWidget(widget)
+        if isinstance(widget, QWidget):
+            parent_layout.addWidget(widget)
 
     if not params.stretch_after_widget == None:
         if not parent_layout == None:
