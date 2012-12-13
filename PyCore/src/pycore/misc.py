@@ -40,3 +40,7 @@ def get_separator_between_numbers(_string):
 
 def contains_letter(_string):
     return not search(r'[a-zA-Z]+', _string) == None
+
+
+def is_empty(_string):
+    return True if _string == None or len(_string) == 0 else False
