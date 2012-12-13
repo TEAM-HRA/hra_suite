@@ -11,6 +11,8 @@ from os.path import dirname
 from os import walk
 from mimetypes import guess_type
 from tailer import head  # @UnresolvedImport
+from pycore.misc import contains_letter
+from pycore.misc import get_separator_between_numbers
 
 
 def get_filenames(path, depth=1):
@@ -66,3 +68,34 @@ def is_text_file(filepath, only_known_types=False):
             except IOError:
                 pass
     return False
+
+
+def get_headers_for_datafile(file_path, _separator=None, lines_number=5):
+    try:
+        #file_path could be an iterable with separated path's parts
+        #or the whole file path
+        _file = file(join(*file_path)
+                     if hasattr(file_path, '__iter__') else file_path)
+        headlines = head(_file, lines_number)
+        _file.close()
+
+        #get lines with letters [a-z, A-Z]
+        header_lines = [line for line in headlines if contains_letter(line)]
+
+        #get lines without letters [a-z, A-Z], national signs could be a problem @IgnorePep8
+        data_lines = [] if _separator else \
+                    [line for line in headlines if not contains_letter(line)]
+
+        if len(data_lines) > 0 or _separator:
+            #if _separator not exists get a separator from
+            #the first non-letters line
+            separator = _separator if _separator \
+                            else get_separator_between_numbers(data_lines[0])
+            if separator:
+                #split all headers lines according to the passed/founded separator @IgnorePep8
+                headers = [header.split(separator) for header in header_lines]
+                return headers
+    except UnicodeError:
+        pass
+    except IOError:
+        pass
