@@ -28,14 +28,7 @@ class Context(object):
         for key in params.keys():
             setattr(self.__target, "__context__" + key, params.get(key, None))
 
-    def load(self):
-        """
-        retrieve attached parameters from self.__parent into specific
-        fields of a Context object
-        """
-        self.__parent = getattr(self.__target, "__context__parent", None)
-        return self
+    def __getattr__(self, name):
+        return getattr(self.__target, "__context__" + name, None)
 
-    @property
-    def parent(self):
-        return self.__parent
+GlobalContext = Context(Context)
