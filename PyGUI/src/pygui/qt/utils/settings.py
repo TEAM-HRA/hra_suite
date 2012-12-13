@@ -48,6 +48,8 @@ class Setter(object):
                     QVariant(value) if value else QVariant())
 
     def load(self, _target, _prefix, _settings):
+        if not self.__conv:
+            self.__conv = QVariant.toString
         value = self.get(_prefix, _settings)
         if self.__conv:  # invoke a conversion
             value = eval('value.' + self.__conv.__name__ + '()')
