@@ -9,7 +9,6 @@ from PyQt4.QtGui import *  # @UnusedWildImport
 from pygui.qt.utils.qt_i18n import QT_I18N
 from pygui.qt.utils.qt_i18n import title_I18N
 from pygui.qt.utils.widgets import createComposite
-from pygui.qt.utils.widgets import ProgressBarManager
 from pygui.qt.utils.widgets import createPlainTextEdit
 from pygui.qt.utils.widgets import createTableView
 from pygui.qt.utils.widgets import createLineEdit
@@ -23,6 +22,7 @@ from pycore.misc import Params
 from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.settings import Setter
 from pygui.qt.custom_widgets.separator import SeparatorWidget
+from pygui.qt.custom_widgets.progress_bar import ProgressBarManager
 
 
 class DatasourceWizard(QWizard):
