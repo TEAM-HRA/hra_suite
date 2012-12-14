@@ -33,7 +33,19 @@ def createGroupBox(parent=None, **params):
 
 
 def createLineEdit(parent=None, **params):
-    return __item(parent, widget=QLineEdit(parent), **params)
+    return __item(parent, widget=LineEditWidget(parent, **params), **params)
+
+
+class LineEditWidget(QLineEdit):
+    def __init__(self, parent, **params):
+        QLineEdit.__init__(self, parent)
+        params = Params(**params)
+        self.focusEventHandler = params.focusEventHandler
+
+    def focusInEvent(self, qfocusevent):
+        if not self.focusEventHandler == None:
+            self.focusEventHandler()
+        super(LineEditWidget, self).focusInEvent(qfocusevent)
 
 
 def createCheckBox(parent=None, **params):
@@ -112,6 +124,8 @@ def __item(parent=None, **params):
         text_I18N(widget, params.i18n, params.i18n_def)
     if not params.text == None:
         widget.setText(params.text)
+    if not params.hidden == None:
+        widget.setHidden(params.hidden)
     return widget
 
 
