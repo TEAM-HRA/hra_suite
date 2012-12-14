@@ -56,10 +56,10 @@ def is_text_file(filepath, only_known_types=False):
             return True
     else:
         if only_known_types == False:
+            _file = None
             try:
                 _file = file(filepath)
                 headlines = head(_file, lines=3)
-                _file.close()
                 for line in headlines:
                     line.decode('ascii')
                 return True
@@ -67,6 +67,9 @@ def is_text_file(filepath, only_known_types=False):
                 pass
             except IOError:
                 pass
+            finally:
+                if not _file == None:
+                    _file.close()
     return False
 
 
