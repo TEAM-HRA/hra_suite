@@ -28,17 +28,30 @@ class DataSeparatorWidget(object):
         self.buttonGroup = createButtonGroup(self.separators)
         self.separatorLabels = SeparatorSign.getSeparatorLabels()
         for (_, _, label) in self.separatorLabels:
-            signCheckBox = createCheckBox(self.separators)
-            signCheckBox.setText(label)
-            self.buttonGroup.addButton(signCheckBox)
-            if label == SeparatorSign.CUSTOM.label:
-                self.customSeparator = createLineEdit(self.separators,
-                                             maxLength=15,
-                                             width=get_width_of_n_letters(14),
-                                             enabled=False)
+            if not label == SeparatorSign.CUSTOM.label:
+                signCheckBox = createCheckBox(self.separators)
+                signCheckBox.setText(label)
+                self.buttonGroup.addButton(signCheckBox)
         self.groupSeparator.connect(self.buttonGroup,
-                     SIGNAL("buttonClicked(QAbstractButton *)"),
-                     self.buttonClicked)
+                                 SIGNAL("buttonClicked(QAbstractButton *)"),
+                                 self.buttonClicked)
+
+        self.customSeparator = createLineEdit(self.separators,
+                                maxLength=15,
+                                width=get_width_of_n_letters(14),
+                                focusEventHandler=self.customCheckBoxChanged)
+        self.groupSeparator.connect(self.customSeparator,
+                                 SIGNAL("textChanged(const QString&)"),
+                                 self.customSeparatorChanged)
+
+        self.customCheckBox = createCheckBox(self.separators,
+                                i18n="separator.custom.checkbox",
+                                i18n_def="Custom",
+                                enabled=False)
+        self.groupSeparator.connect(self.customCheckBox,
+                                    SIGNAL("clicked()"),
+                                    self.customCheckBoxChanged)
+
         self.globalSettings = None
         if global_marker:
             self.globalSettings = createCheckBox(self.groupSeparator,
@@ -54,22 +67,34 @@ class DataSeparatorWidget(object):
                                             else button.text()
 
     def buttonClicked(self, button):
-        if button.text() == SeparatorSign.CUSTOM.label:
-            self.customSeparator.setEnabled(True)
-            self.customSeparator.setFocus()
-        else:
-            self.customSeparator.setEnabled(False)
+        self.customCheckBox.setCheckState(Qt.Unchecked)
+        self.customCheckBox.setEnabled(False)
+        self.customSeparator.setText("")
+
+    def customSeparatorChanged(self, _text):
+        self.customCheckBoxChanged()
+        self.customCheckBox.setEnabled(_text.size() > 0)
 
     def checkGlobalSettings(self):
         if self.globalSettings.checkState() == Qt.Checked:
-            if self.buttonGroup.checkedButton() == None \
-              or is_empty(self.customSeparator.text()):
+            if not self.buttonGroup.checkedButton() == None \
+              or not is_empty(self.customSeparator.text()):
+                self.separators.setEnabled(False)
+            else:
                 Information(information='A separator have to be chosen !')
                 self.globalSettings.setCheckState(Qt.Unchecked)
-            else:
-                self.separators.setEnabled(False)
         else:
             self.separators.setEnabled(True)
+
+    def customCheckBoxChanged(self):
+        #to uncheck button included in a button group one have to use a trick:
+        #change to none exclusive state behaviour of the button group, then
+        #uncheck checked button and reverse to previous exclusive state of
+        #the button group
+        if self.buttonGroup.checkedButton():
+            self.buttonGroup.setExclusive(False)
+            self.buttonGroup.checkedButton().setChecked(False)
+            self.buttonGroup.setExclusive(True)
 
 
 class SeparatorSign(object):
@@ -117,4 +142,4 @@ SeparatorSign.SEMICOLON = SeparatorSign(';', 'separator.semicolon',
                                         'Semicolon')
 SeparatorSign.DASH = SeparatorSign('-', 'separator.dash', 'Dash')
 SeparatorSign.COMMA = SeparatorSign(',', 'separator.comma', 'Comma')
-SeparatorSign.CUSTOM = SeparatorSign(-1, 'separator.custom', 'Custom')
+SeparatorSign.CUSTOM = SeparatorSign(-1, 'separator.customCheckBox', 'Custom')
