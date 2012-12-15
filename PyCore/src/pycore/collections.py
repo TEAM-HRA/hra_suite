@@ -81,3 +81,7 @@ def replace_all_by_dict(_string, _dict):
         for key, value in _dict.items():
             _string = _string.replace("{" + key + "}", value)
     return _string
+
+
+def create_list(element, size):
+    return [element for _ in range(size)]
