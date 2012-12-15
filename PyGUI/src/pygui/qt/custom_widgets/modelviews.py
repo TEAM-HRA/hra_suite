@@ -42,7 +42,7 @@ class WidgetsHorizontalHeader(QHeaderView):
             widgets[idx].setParent(self)
             x = self.sectionPosition(idx)
             y = 0
-            w = widgets[idx].sizeHint().width()  # self.sectionSize(idx)
+            w = self.sectionSize(idx)  # widgets[idx].sizeHint().width()
             h = height
             widgets[idx].setGeometry(QRect(x, y, w, h))
 
@@ -130,12 +130,15 @@ class FilesTableView(object):
     def rowChecked(self, selectedRow):
         return self.model.item(selectedRow.row()).checkState() == Qt.Checked
 
-    def getSelectedPathAndFilename(self):
+    def getSelectedPathAndFilename(self, as_str=False):
         if not self.selectedRow == None:
             model = self.selectedRow.model()
             path = model.item(self.selectedRow.row(), 3)
             filename = model.item(self.selectedRow.row(), 1)
-            return (path.text(), filename.text())
+            if as_str == True:
+                return (str(path.text()), str(filename.text()))
+            else:
+                return (path.text(), filename.text())
 
     def onClickedAction(self, selectedRow):
         self.selectedRow = selectedRow
