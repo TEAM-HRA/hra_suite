@@ -12,7 +12,7 @@ from pygui.qt.utils.widgets import createButtonGroup
 from pygui.qt.utils.widgets import createLineEdit
 from pygui.qt.utils.qt_i18n import QT_I18N
 from pygui.qt.utils.graphics import get_width_of_n_letters
-from pygui.qt.utils.windows import Information
+from pygui.qt.utils.windows import InformationWindow
 from pycore.misc import is_empty
 from pycore.misc import Params
 
@@ -100,8 +100,9 @@ class DataSeparatorWidget(object):
               or not is_empty(self.customSeparatorEdit.text()):
                 self.predefinedSeparatorsComposite.setEnabled(False)
             else:
-                Information(information='A separator have to be chosen !')
                 self.globalSettingsCheckBox.setCheckState(Qt.Unchecked)
+                InformationWindow(
+                                information='A separator must be chosen !')
         else:
             self.predefinedSeparatorsComposite.setEnabled(True)
 

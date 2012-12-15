@@ -13,13 +13,13 @@ from pygui.qt.utils.widgets import createPlainTextEdit
 from pygui.qt.utils.widgets import createPushButton
 
 
-def Information(parent=None, **params):
+def InformationWindow(parent=None, **params):
     (title, information) = __message__(parent=None, **params)
     QMessageBox.information(parent, title, information)
 
 
-def Error(parent=None, **params):
-    (title, error) = __message__(parent=None, **params)
+def ErrorWindow(parent=None, **params):
+    (title, error) = __message__(parent=None, title_default='Error', **params)
     QMessageBox.information(parent, title, error, QMessageBox.Critical)
 
 
@@ -38,7 +38,7 @@ def __message__(parent=None, **params):
 
 def showFilePreviewDialog(filepath, parent=None):
     if filepath == None:
-        Information(information="No files selected !")
+        InformationWindow(information="No files selected !")
     else:
         dialog = FilePreviewDialog(filepath, parent)
         dialog.exec_()
