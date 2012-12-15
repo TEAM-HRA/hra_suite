@@ -73,32 +73,79 @@ def is_text_file(filepath, only_known_types=False):
     return False
 
 
-def get_headers_for_datafile(file_path, _separator=None, lines_number=5):
-    try:
-        #file_path could be an iterable with separated path's parts
-        #or the whole file path
-        _file = file(join(*file_path)
+class DataFileHeader(object):
+
+    def __init__(self, file_path, _separator=None, number_of_lines=5):
+        headlines = []
+        try:
+            _file = file(join(*file_path)
                      if hasattr(file_path, '__iter__') else file_path)
-        headlines = head(_file, lines_number)
-        _file.close()
+            headlines = head(_file, number_of_lines)
+            _file.close()
+        except UnicodeError:
+            pass
+        except IOError:
+            pass
 
         #get lines with letters [a-z, A-Z]
-        header_lines = [line for line in headlines if contains_letter(line)]
+        self.headers = [line for line in headlines \
+                        if len(line) > 0 and contains_letter(line)]
 
         #get lines without letters [a-z, A-Z], national signs could be a problem @IgnorePep8
-        data_lines = [] if _separator else \
-                    [line for line in headlines if not contains_letter(line)]
+        self.data = [line for line in headlines \
+                        if len(line) > 0 and not contains_letter(line)]
 
-        if len(data_lines) > 0 or _separator:
-            #if _separator not exists get a separator from
-            #the first non-letters line
-            separator = _separator if _separator \
-                            else get_separator_between_numbers(data_lines[0])
-            if separator:
-                #split all headers lines according to the passed/founded separator @IgnorePep8
-                headers = [header.split(separator) for header in header_lines]
-                return headers if len(headers) > 0 else None
-    except UnicodeError:
-        pass
-    except IOError:
-        pass
+        self.initialize()
+        self.separator = _separator
+
+    def getSeparator(self):
+        if self.separator == None:
+            if len(self.headers) > 0:
+                self.separator = get_separator_between_numbers(self.headers[0])
+            elif len(self.data) > 0:
+                self.separator = get_separator_between_numbers(self.data[0])
+        return self.separator
+
+    def initialize(self):
+        self.headers_count = None
+        self.headers_lines = None
+        self.data_lines = None
+
+    def setSeparator(self, separator):
+        if not separator == self.getSeparator():
+            self.initialize()
+            self.separator = separator
+
+    def getHeadersCount(self):
+        if self.headers_count == None:
+            separator = self.getSeparator()
+            if len(self.headers) > 0 and not separator == None:
+                self.headers_count = len(self.headers[0].split(separator))
+            elif len(self.data) > 0 and not separator == None:
+                self.headers_count = len(self.data[0].split(separator))
+            elif len(self.headers) > 0 and separator == None:
+                self.headers_count = 1
+            elif len(self.data) > 0 and separator == None:
+                self.headers_count = 1
+            else:
+                self.headers_count = 0
+        return self.headers_count
+
+    def getHeadersLines(self, number_of_lines=1):
+        if self.headers_lines == None:
+            self.headers_lines = self.__get_splited_lines__(self.headers)
+        return self.headers_lines[:number_of_lines]
+
+    def getDataLines(self):
+        if self.data_lines == None:
+            self.data_lines = self.__get_splited_lines__(self.data)
+        return self.data_lines
+
+    def __get_splited_lines__(self, lines):
+        separator = self.getSeparator()
+        splited_lines = lines if separator == None else \
+                        [line.split(separator) for line in lines]
+        if splited_lines == None:
+            splited_lines = [str(num)
+                             for num in range(1, self.getHeadersCount())]
+        return splited_lines
