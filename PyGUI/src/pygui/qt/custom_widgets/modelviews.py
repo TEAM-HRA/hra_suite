@@ -198,6 +198,9 @@ class FilesTableView(object):
     def setColumnHidden(self, column, hide=True):
         self.filesTableView.setColumnHidden(column, hide)
 
+    def getSelectedRow(self):
+        return self.selectedRow
+
 
 class CheckStateProxySortFilterModel(QSortFilterProxyModel):
     def __init__(self, parent=None):
