@@ -14,16 +14,26 @@ from pygui.qt.utils.widgets import createPushButton
 
 
 def Information(parent=None, **params):
+    (title, information) = __message__(parent=None, **params)
+    QMessageBox.information(parent, title, information)
+
+
+def Error(parent=None, **params):
+    (title, error) = __message__(parent=None, **params)
+    QMessageBox.information(parent, title, error, QMessageBox.Critical)
+
+
+def __message__(parent=None, **params):
     local_params = Params(**params)
     if local_params.title_id == None and local_params.title_default == None:
         title = "Information"
     else:
         title = QT_I18N(local_params.title_id, _default=local_params.title,
                         **params)
-    information = QT_I18N(local_params.information_id,
+    message = QT_I18N(local_params.information_id,
                           _default=local_params.information,
                           **params)
-    QMessageBox.information(parent, title, information)
+    return (title, message)
 
 
 def showFilePreviewDialog(filepath, parent=None):
