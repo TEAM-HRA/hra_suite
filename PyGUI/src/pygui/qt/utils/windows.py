@@ -30,15 +30,15 @@ def __message__(parent=None, **params):
     else:
         title = QT_I18N(local_params.title_id, _default=local_params.title,
                         **params)
-    message = QT_I18N(local_params.information_id,
-                          _default=local_params.information,
+    message = QT_I18N(local_params.message_id,
+                          _default=local_params.message,
                           **params)
     return (title, message)
 
 
 def showFilePreviewDialog(filepath, parent=None):
     if filepath == None:
-        InformationWindow(information="No files selected !")
+        InformationWindow(message="No files selected !")
     else:
         dialog = FilePreviewDialog(filepath, parent)
         dialog.exec_()

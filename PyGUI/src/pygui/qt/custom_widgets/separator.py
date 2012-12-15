@@ -101,8 +101,7 @@ class DataSeparatorWidget(object):
                 self.predefinedSeparatorsComposite.setEnabled(False)
             else:
                 self.globalSettingsCheckBox.setCheckState(Qt.Unchecked)
-                InformationWindow(
-                                information='A separator must be chosen !')
+                InformationWindow(message='A separator must be chosen !')
         else:
             self.predefinedSeparatorsComposite.setEnabled(True)
 
