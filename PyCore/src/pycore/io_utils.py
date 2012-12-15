@@ -97,7 +97,7 @@ def get_headers_for_datafile(file_path, _separator=None, lines_number=5):
             if separator:
                 #split all headers lines according to the passed/founded separator @IgnorePep8
                 headers = [header.split(separator) for header in header_lines]
-                return headers
+                return headers if len(headers) > 0 else None
     except UnicodeError:
         pass
     except IOError:
