@@ -8,6 +8,7 @@ from PyQt4.QtGui import *  # @UnusedWildImport
 from pygui.qt.utils.qt_i18n import QT_I18N
 from pygui.qt.utils.qt_i18n import title_I18N
 from pygui.qt.utils.widgets import createComposite
+from pygui.qt.utils.widgets import createTableView
 from pygui.qt.utils.widgets import createLineEdit
 from pygui.qt.utils.widgets import createCheckBox
 from pygui.qt.utils.widgets import createLabel
@@ -15,13 +16,17 @@ from pygui.qt.utils.widgets import createPushButton
 from pygui.qt.utils.widgets import createGroupBox
 from pygui.qt.utils.graphics import get_width_of_n_letters
 from pycore.io_utils import is_text_file
+from pycore.io_utils import DataFileHeader
 from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.settings import Setter
 from pygui.qt.custom_widgets.separator import DataSeparatorWidget
 from pygui.qt.custom_widgets.progress_bar import ProgressBarManager
 from pygui.qt.utils.windows import showFilePreviewDialog
+from pygui.qt.utils.windows import ErrorWindow
 from pygui.qt.custom_widgets.modelviews import FilesTableView
+from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
 from pygui.qt.custom_widgets.modelviews import CheckStateProxySortFilterModel
+from pycore.collections import create_list
 
 
 class DatasourceWizard(QWizard):
@@ -143,7 +148,8 @@ class ChooseDatasourcePage(QWizardPage):
                      self.reload)
 
     def __createTableView__(self, parent):
-        self.filesTableView = FilesTableView(parent, self,
+        self.filesTableView = FilesTableView(parent,
+                                    model=QStandardItemModel(self),
                                     onClickedAction=self.onClickedAction,
                                     wizardButtons=(QWizard.NextButton,),
                                     wizard=self.wizard(),
@@ -314,6 +320,8 @@ class ChooseColumnsDataPage(QWizardPage):
         QWizardPage.__init__(self, parent=_parent)
         self.datasource_page_id = datasource_page_id
         self.pageLayout = None
+        self.headersTablePreview = None
+        self.dataFilesHeaders = {}
 
     def initializePage(self):
         self.setTitle('Choose column data')
@@ -325,30 +333,131 @@ class ChooseColumnsDataPage(QWizardPage):
             self.__createTableView__(self.pageLayout)
 
     def __createTableView__(self, pageLayout):
-        composite = createComposite(self, layout=QVBoxLayout())
+        self.tableViewComposite = createComposite(self, layout=QVBoxLayout())
+
         proxyModel = CheckStateProxySortFilterModel(self)
         datasource_page = self.wizard().page(self.datasource_page_id)
         model = datasource_page.getDatasourceModel()
-        self.filesTableView = FilesTableView(composite, self,
-                            onClickedAction=self.onClickedAction,
-                            wizardButtons=(QWizard.NextButton,),
-                            wizard=self.wizard(),
-                            model=model,
-                            proxyModel=proxyModel,
-                            sorting=True)
+        self.filesTableView = FilesTableView(self.tableViewComposite,
+                                        model=model,
+                                        onClickedAction=self.onClickedAction,
+                                        wizardButtons=(QWizard.NextButton,),
+                                        wizard=self.wizard(),
+                                        proxyModel=proxyModel,
+                                        sorting=True)
         self.filesTableView.setColumnHidden(0, True)
 
-        self.filePreviewButton = createPushButton(composite,
+        self.filePreviewButton = createPushButton(self.tableViewComposite,
                             i18n="datasource.file.preview.button",
-                            i18n_def="File preview")
+                            i18n_def="File preview",
+                            enabled=False)
         self.connect(self.filePreviewButton, SIGNAL("clicked()"),
                      self.filePreviewAction)
 
-        self.separatorWidget = DataSeparatorWidget(composite)
+        self.separatorWidget = DataSeparatorWidget(self.tableViewComposite,
+                                        separatorHandler=self.separatorHandler,
+                                        global_marker=True,
+                                        enabled=False)
+
+        self.fileHeaderPreviewGroup = createGroupBox(self.tableViewComposite,
+                                    i18n="datasource.file.header.preview",
+                                    i18n_def="Header preview",
+                                    layout=QHBoxLayout(),
+                                    hidden=True,
+                                    enabled=False)
 
     def onClickedAction(self, idx):
         self.filePreviewButton.setEnabled(True)
         self.filesTableView.onClickedAction(idx)
+        self.separatorWidget.setEnabled(True)
 
     def filePreviewAction(self):
         showFilePreviewDialog(self.filesTableView.getSelectedPathAndFilename())
+
+    def separatorHandler(self, separator):
+        self.__createFileHeadersPreview__(self.fileHeaderPreviewGroup,
+                                          separator)
+
+    def __createFileHeadersPreview__(self, parent, separator):
+
+        pathFile = self.filesTableView.getSelectedPathAndFilename(as_str=True)
+        if pathFile == None:
+            ErrorWindow(message="No file is selected !")
+            return
+
+        if not self.headersTablePreview == None:
+            self.fileHeaderPreviewGroup.layout().removeWidget(
+                                                    self.headersTablePreview)
+            self.headersTablePreview.destroy()
+
+        self.fileHeaderPreviewGroup.setEnabled(True)
+        self.headersTablePreview = createTableView(parent,
+                            selectionBehavior=QAbstractItemView.SelectRows,
+                            selectionMode=QAbstractItemView.SingleSelection)
+        model = QStandardItemModel(parent)
+
+        dataHeader = self.dataFilesHeaders.get(pathFile,
+                                               DataFileHeader(pathFile))
+        dataHeader.setSeparator(separator)
+
+        labels = QStringList(create_list("", dataHeader.getHeadersCount()))
+        model.setHorizontalHeaderLabels(labels)
+        self.headersTablePreview.setModel(model)
+
+        self.headerWidgets = []
+        for headerLine in dataHeader.getHeadersLines(1):
+            for col_number, header in enumerate(headerLine):
+                headerWidget = ChooseColumnsDataPage.HeaderWidget(
+                                                    self.headersTablePreview,
+                                                    header,
+                                                    col_number,
+                                                    self.headerWidgets)
+                self.headerWidgets.append(headerWidget)
+        WidgetsHorizontalHeader(self.headersTablePreview, self.headerWidgets)
+
+        for rowData in dataHeader.getDataLines():
+            modelData = list()
+            rowSize = labels.count()
+            for idx in range(rowSize):
+                modelData.append(QStandardItem(rowData[idx]
+                                        if rowSize <= len(rowData) else ""))
+            model.appendRow(modelData)
+
+        self.fileHeaderPreviewGroup.show()
+
+    class HeaderWidget(QWidget):
+        def __init__(self, _parent, _header, _colNum, _widgets):
+            QWidget.__init__(self, parent=_parent)
+            layout = QVBoxLayout()
+            layout.addWidget(QLabel(_header, self))
+            self.dataButton = QCheckBox("data", self)
+            layout.addWidget(self.dataButton)
+            self.annotationButton = QCheckBox("annotation", self)
+            layout.addWidget(self.annotationButton)
+            self.setLayout(layout)
+            self.connect(self.dataButton, SIGNAL("clicked()"),
+                         self.dataClicked)
+            self.connect(self.annotationButton, SIGNAL("clicked()"),
+                         self.annotationClicked)
+            self.colNum = _colNum
+            self.widgets = _widgets
+
+        def annotationClicked(self):
+            if self.annotationButton.checkState() == Qt.Checked:
+                self.uncheckData()
+                for num, widget in enumerate(self.widgets):
+                    if not num == self.colNum:
+                        widget.uncheckAnnotation()
+
+        def dataClicked(self):
+            if self.dataButton.checkState() == Qt.Checked:
+                self.uncheckAnnotation()
+                for num, widget in enumerate(self.widgets):
+                    if not num == self.colNum:
+                        widget.uncheckData()
+
+        def uncheckData(self):
+            self.dataButton.setCheckState(Qt.Unchecked)
+
+        def uncheckAnnotation(self):
+            self.annotationButton.setCheckState(Qt.Unchecked)

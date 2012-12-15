@@ -80,15 +80,13 @@ class WidgetsHorizontalHeader(QHeaderView):
 
 
 class FilesTableView(object):
-    def __init__(self, parent, parent_model, **params):
+    def __init__(self, parent, **params):
         self.parent = parent
         self.__completed_count__ = 0
         self.selectedRow = None
         self.params = Params(**params)
         if self.params.model:
             self.model = self.params.model
-        else:
-            self.model = QStandardItemModel(parent_model)
         self.proxyModel = self.params.proxyModel if self.params.proxyModel \
                             else None
         if self.proxyModel:
