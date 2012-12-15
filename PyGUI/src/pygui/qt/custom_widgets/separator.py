@@ -73,6 +73,8 @@ class DataSeparatorWidget(object):
                                         SIGNAL("clicked()"),
                                         self.globalSettingsButtonClicked)
 
+        self.setEnabled(self.params.enabled)
+
     def getSeparatorSign(self):
         sign = self.__getPredefinedSeparatorSign__()
         if sign:
@@ -128,6 +130,10 @@ class DataSeparatorWidget(object):
     def __getCustomSeparatorSign__(self):
         if self.customSeparatorCheckBox.checkState() == Qt.Checked:
             return self.customSeparatorEdit.text()
+
+    def setEnabled(self, enabled):
+        if not enabled == None:
+            self.separatorsGroupBox.setEnabled(enabled)
 
 
 class SeparatorSign(object):
