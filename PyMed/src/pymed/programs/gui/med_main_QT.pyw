@@ -476,7 +476,6 @@ class MainWindow(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    GlobalContext.save(application=app)
     app.setOrganizationName("Qtrac Ltd.")
     app.setOrganizationDomain("qtrac.eu")
     app.setApplicationName("Image Changer")
