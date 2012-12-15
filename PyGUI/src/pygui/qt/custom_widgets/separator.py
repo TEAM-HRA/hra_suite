@@ -74,14 +74,18 @@ class DataSeparatorWidget(object):
                                         self.globalSettingsButtonClicked)
 
     def getSeparatorSign(self):
-        button = self.predefinedSeparatorsButtonsGroup.checkedButton()
-        return self.customSeparatorEdit.text() \
-                if button == SeparatorSign.CUSTOM else button.text()
+        sign = self.__getPredefinedSeparatorSign__()
+        if sign:
+            return sign
+        return self.__getCustomSeparatorSign__()
 
     def predefinedSeparatorButtonClicked(self, button):
         self.customSeparatorCheckBox.setCheckState(Qt.Unchecked)
         self.customSeparatorCheckBox.setEnabled(False)
         self.customSeparatorEdit.setText("")
+        if self.params.separatorHandler and \
+            not self.predefinedSeparatorsButtonsGroup.checkedButton() == None:
+            self.params.separatorHandler(self.__getPredefinedSeparatorSign__())
 
     def customSeparatorEditChanged(self, _text):
         self.customSeparatorButtonClicked()
@@ -109,6 +113,21 @@ class DataSeparatorWidget(object):
             self.predefinedSeparatorsButtonsGroup.checkedButton().setChecked(
                                                                         False)
             self.predefinedSeparatorsButtonsGroup.setExclusive(True)
+
+        if self.customSeparatorCheckBox.checkState() == Qt.Checked and \
+            self.params.separatorHandler:
+            self.params.separatorHandler(self.__getCustomSeparatorSign__())
+
+    def __getPredefinedSeparatorSign__(self):
+        button = self.predefinedSeparatorsButtonsGroup.checkedButton()
+        if not button == None:
+            for (_, sign, label) in self.predefinedSeparatorsLabels:
+                if button.text() == label:
+                    return sign
+
+    def __getCustomSeparatorSign__(self):
+        if self.customSeparatorCheckBox.checkState() == Qt.Checked:
+            return self.customSeparatorEdit.text()
 
 
 class SeparatorSign(object):
