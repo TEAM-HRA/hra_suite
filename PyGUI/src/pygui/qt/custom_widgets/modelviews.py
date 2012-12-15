@@ -85,26 +85,18 @@ class FilesTableView(object):
         self.__completed_count__ = 0
         self.selectedRow = None
         self.params = Params(**params)
-        if self.params.model:
-            self.model = self.params.model
-        self.proxyModel = self.params.proxyModel if self.params.proxyModel \
-                            else None
-        if self.proxyModel:
-            self.proxyModel.setSourceModel(self.model)
-            self.proxyModel.setDynamicSortFilter(True)
         labels = ["",  # first column is checkable column
                   QT_I18N("datasource.files.column.filename", "Filename"),
                   QT_I18N("datasource.files.column.size", "Size"),
                   QT_I18N("datasource.files.column.path", "File path")]
         labels = QStringList(labels)
-        self.model.setHorizontalHeaderLabels(labels)
+
         self.filesTableView = createTableView(parent,
                         selectionBehavior=QAbstractItemView.SelectRows,
                         selectionMode=QAbstractItemView.SingleSelection)
-        if self.proxyModel:
-            self.filesTableView.setModel(self.proxyModel)
-        else:
-            self.filesTableView.setModel(self.model)
+        if self.params.model:
+            self.filesTableView.setModel(self.params.model)
+        self.filesTableView.model().setHorizontalHeaderLabels(labels)
         self.filesTableView.setEditTriggers(QAbstractItemView.NoEditTriggers)
         if self.params.onClickedAction:
             self.filesTableView.connect(self.filesTableView,
@@ -114,19 +106,21 @@ class FilesTableView(object):
             self.filesTableView.setSortingEnabled(True)
 
     def reload(self):
-        if self.model.rowCount() > 0:
+        if self.filesTableView.model().rowCount() > 0:
             self.filesTableView.resizeColumnsToContents()
             self.filesTableView.scrollToTop()
 
     def addRow(self, row):
-        self.model.appendRow(row)
+        self.filesTableView.model().appendRow(row)
 
     def clear(self):
-        self.model.removeRows(0, self.model.rowCount())
+        self.filesTableView.model().removeRows(0,
+                                    self.filesTableView.model().rowCount())
         self.minCompleteState()
 
     def rowChecked(self, selectedRow):
-        return self.model.item(selectedRow.row()).checkState() == Qt.Checked
+        return self.filesTableView.model().item(
+                                selectedRow.row()).checkState() == Qt.Checked
 
     def getSelectedPathAndFilename(self, as_str=False):
         if not self.selectedRow == None:
@@ -144,15 +138,15 @@ class FilesTableView(object):
         self.changeCompleteState(1, 'add' if checked else 'sub')
 
     def getSelectedItems(self):
-        return [self.model.item(row)
-                for row in range(0, self.model.rowCount())
-                    if self.model.item(row).checkState() == Qt.Checked]
+        return [self.filesTableView.model().item(row)
+                for row in range(0, self.filesTableView.model().rowCount())
+        if self.filesTableView.model().item(row).checkState() == Qt.Checked]
 
     def setCheckedRowState(self, idx, state):
-        self.model.item(idx).setCheckState(state)
+        self.filesTableView.model().item(idx).setCheckState(state)
 
     def getRowCount(self):
-        return self.model.rowCount()
+        return self.filesTableView.model().rowCount()
 
     def setEnabled(self, enabled):
         self.filesTableView.setEnabled(enabled)
@@ -194,13 +188,16 @@ class FilesTableView(object):
         self.changeCompleteState(0)
 
     def getModel(self):
-        return self.model
+        return self.filesTableView.model()
 
     def setColumnHidden(self, column, hide=True):
         self.filesTableView.setColumnHidden(column, hide)
 
     def getSelectedRow(self):
         return self.selectedRow
+
+    def model(self):
+        return self.filesTableView.model()
 
 
 class CheckStateProxySortFilterModel(QSortFilterProxyModel):
@@ -212,3 +209,6 @@ class CheckStateProxySortFilterModel(QSortFilterProxyModel):
 
     def item(self, row, column=0):
         return self.sourceModel().item(row, column)
+
+    def setHorizontalHeaderLabels(self, labels):
+        self.sourceModel().setHorizontalHeaderLabels(labels)

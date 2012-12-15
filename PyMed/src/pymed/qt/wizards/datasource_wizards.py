@@ -335,15 +335,16 @@ class ChooseColumnsDataPage(QWizardPage):
     def __createTableView__(self, pageLayout):
         self.tableViewComposite = createComposite(self, layout=QVBoxLayout())
 
-        proxyModel = CheckStateProxySortFilterModel(self)
         datasource_page = self.wizard().page(self.datasource_page_id)
-        model = datasource_page.getDatasourceModel()
+        model = CheckStateProxySortFilterModel(self)
+        model.setSourceModel(datasource_page.getDatasourceModel())
+        model.setDynamicSortFilter(True)
+
         self.filesTableView = FilesTableView(self.tableViewComposite,
                                         model=model,
                                         onClickedAction=self.onClickedAction,
                                         wizardButtons=(QWizard.NextButton,),
                                         wizard=self.wizard(),
-                                        proxyModel=proxyModel,
                                         sorting=True)
         self.filesTableView.setColumnHidden(0, True)
 
@@ -368,7 +369,8 @@ class ChooseColumnsDataPage(QWizardPage):
 
     def onClickedAction(self, idx):
         self.filePreviewButton.setEnabled(True)
-        self.filesTableView.onClickedAction(idx)
+        self.filesTableView.onClickedAction(
+                                self.filesTableView.model().mapToSource(idx))
         self.separatorWidget.setEnabled(True)
 
     def filePreviewAction(self):
