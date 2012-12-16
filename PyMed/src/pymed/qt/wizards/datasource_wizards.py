@@ -371,17 +371,20 @@ class ChooseColumnsDataPage(QWizardPage):
         self.filePreviewButton.setEnabled(True)
         self.filesTableView.onClickedAction(
                                 self.filesTableView.model().mapToSource(idx))
+        self.__createFileHeadersPreview__()
+        self.separatorWidget.setSeparator(self.separator)
         self.separatorWidget.setEnabled(True)
 
     def filePreviewAction(self):
         showFilePreviewDialog(self.filesTableView.getSelectedPathAndFilename())
 
-    def separatorHandler(self, separator):
-        self.__createFileHeadersPreview__(separator)
+    def separatorHandler(self, _separator):
+        self.__createFileHeadersPreview__(_separator)
 
-    def __createFileHeadersPreview__(self, separator):
+    def __createFileHeadersPreview__(self, _separator=None):
+        self.separator = _separator
 
-        dataFileHeader = self.__getDataFileHeader__(separator)
+        dataFileHeader = self.__getDataFileHeader__()
         if dataFileHeader == None:
             return
 
@@ -391,13 +394,13 @@ class ChooseColumnsDataPage(QWizardPage):
 
         model = self.__createHeadersTablePreviewModel__(colCount)
 
-        # create header
+        # create header line
         for headerLine in dataFileHeader.getHeadersLines(1):
             for colNum, header in enumerate(headerLine):
                 self.__createHeaderWidget__(header, colNum)
         WidgetsHorizontalHeader(self.headersTablePreview, self.headerWidgets)
 
-        # load data
+        # create data lines
         for rowData in dataFileHeader.getDataLines():
             modelData = list()
             for idx in range(colCount):
@@ -408,7 +411,7 @@ class ChooseColumnsDataPage(QWizardPage):
         self.fileHeaderPreviewGroup.setEnabled(True)
         self.fileHeaderPreviewGroup.show()
 
-    def __getDataFileHeader__(self, separator):
+    def __getDataFileHeader__(self):
         pathFile = self.filesTableView.getSelectedPathAndFilename(as_str=True)
         if pathFile == None:
             ErrorWindow(message="No file is selected !")
@@ -418,7 +421,14 @@ class ChooseColumnsDataPage(QWizardPage):
                 dataFileHeader = DataFileHeader(pathFile)
                 self.dataFilesHeaders[pathFile] = dataFileHeader
 
-            dataFileHeader.setSeparator(separator)
+            if self.separator == None:
+                self.separator = dataFileHeader.getSeparator()
+
+            if self.separator == None:
+                #try to discover a separator based on file data
+                self.separator = dataFileHeader.getSeparator(generate=True)
+
+            dataFileHeader.setSeparator(self.separator)
             return dataFileHeader
 
     def __createHeadersTablePreviewModel__(self, colNumber):
