@@ -377,59 +377,83 @@ class ChooseColumnsDataPage(QWizardPage):
         showFilePreviewDialog(self.filesTableView.getSelectedPathAndFilename())
 
     def separatorHandler(self, separator):
-        self.__createFileHeadersPreview__(self.fileHeaderPreviewGroup,
-                                          separator)
+        self.__createFileHeadersPreview__(separator)
 
-    def __createFileHeadersPreview__(self, parent, separator):
+    def __createFileHeadersPreview__(self, separator):
 
+        dataFileHeader = self.__getDataFileHeader__(separator)
+        if dataFileHeader == None:
+            return
+
+        self.__createHeadersTablePreview__()
+
+        colCount = dataFileHeader.getHeadersCount()
+
+        model = self.__createHeadersTablePreviewModel__(colCount)
+
+        # create header
+        for headerLine in dataFileHeader.getHeadersLines(1):
+            for colNum, header in enumerate(headerLine):
+                self.__createHeaderWidget__(header, colNum)
+        WidgetsHorizontalHeader(self.headersTablePreview, self.headerWidgets)
+
+        # load data
+        for rowData in dataFileHeader.getDataLines():
+            modelData = list()
+            for idx in range(colCount):
+                modelData.append(QStandardItem(rowData[idx]
+                                        if colCount <= len(rowData) else ""))
+            model.appendRow(modelData)
+
+        self.fileHeaderPreviewGroup.setEnabled(True)
+        self.fileHeaderPreviewGroup.show()
+
+    def __getDataFileHeader__(self, separator):
         pathFile = self.filesTableView.getSelectedPathAndFilename(as_str=True)
         if pathFile == None:
             ErrorWindow(message="No file is selected !")
-            return
+        else:
+            dataFileHeader = self.dataFilesHeaders.get(pathFile, None)
+            if dataFileHeader == None:
+                dataFileHeader = DataFileHeader(pathFile)
+                self.dataFilesHeaders[pathFile] = dataFileHeader
 
+            dataFileHeader.setSeparator(separator)
+            return dataFileHeader
+
+    def __createHeadersTablePreviewModel__(self, colNumber):
+        model = QStandardItemModel(self.headersTablePreview)
+        labels = QStringList(create_list("", colNumber))
+        model.setHorizontalHeaderLabels(labels)
+        self.headersTablePreview.setModel(model)
+        return model
+
+    def __createHeaderWidget__(self, header, colNum):
+        if colNum == 0:
+            self.headerWidgets = []
+        ChooseColumnsDataPage.HeaderWidget(self.headersTablePreview,
+                                           header,
+                                           colNum,
+                                           self.headerWidgets)
+
+    def __createHeadersTablePreview__(self):
+
+        # remove previous instance of self.headersTablePreview
         if not self.headersTablePreview == None:
             self.fileHeaderPreviewGroup.layout().removeWidget(
                                                     self.headersTablePreview)
             self.headersTablePreview.destroy()
 
-        self.fileHeaderPreviewGroup.setEnabled(True)
-        self.headersTablePreview = createTableView(parent,
+        self.headersTablePreview = createTableView(self.fileHeaderPreviewGroup,
                             selectionBehavior=QAbstractItemView.SelectRows,
                             selectionMode=QAbstractItemView.SingleSelection)
-        model = QStandardItemModel(parent)
-
-        dataHeader = self.dataFilesHeaders.get(pathFile,
-                                               DataFileHeader(pathFile))
-        dataHeader.setSeparator(separator)
-
-        labels = QStringList(create_list("", dataHeader.getHeadersCount()))
-        model.setHorizontalHeaderLabels(labels)
-        self.headersTablePreview.setModel(model)
-
-        self.headerWidgets = []
-        for headerLine in dataHeader.getHeadersLines(1):
-            for col_number, header in enumerate(headerLine):
-                headerWidget = ChooseColumnsDataPage.HeaderWidget(
-                                                    self.headersTablePreview,
-                                                    header,
-                                                    col_number,
-                                                    self.headerWidgets)
-                self.headerWidgets.append(headerWidget)
-        WidgetsHorizontalHeader(self.headersTablePreview, self.headerWidgets)
-
-        for rowData in dataHeader.getDataLines():
-            modelData = list()
-            rowSize = labels.count()
-            for idx in range(rowSize):
-                modelData.append(QStandardItem(rowData[idx]
-                                        if rowSize <= len(rowData) else ""))
-            model.appendRow(modelData)
-
-        self.fileHeaderPreviewGroup.show()
 
     class HeaderWidget(QWidget):
         def __init__(self, _parent, _header, _colNum, _widgets):
             QWidget.__init__(self, parent=_parent)
+            _widgets.append(self)
+            self.widgets = _widgets
+            self.colNum = _colNum
             layout = QVBoxLayout()
             layout.addWidget(QLabel(_header, self))
             self.dataButton = QCheckBox("data", self)
@@ -441,8 +465,6 @@ class ChooseColumnsDataPage(QWizardPage):
                          self.dataClicked)
             self.connect(self.annotationButton, SIGNAL("clicked()"),
                          self.annotationClicked)
-            self.colNum = _colNum
-            self.widgets = _widgets
 
         def annotationClicked(self):
             if self.annotationButton.checkState() == Qt.Checked:
