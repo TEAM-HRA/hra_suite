@@ -100,12 +100,12 @@ class DataFileHeader(object):
         self.initialize()
         self.separator = _separator
 
-    def getSeparator(self):
-        if self.separator == None:
-            if len(self.headers) > 0:
-                self.separator = get_separator_between_numbers(self.headers[0])
-            elif len(self.data) > 0:
+    def getSeparator(self, generate=False):
+        if self.separator == None and generate:
+            if len(self.data) > 0:
                 self.separator = get_separator_between_numbers(self.data[0])
+            elif len(self.headers) > 0:
+                self.separator = get_separator_between_numbers(self.headers[0])
         return self.separator
 
     def initialize(self):
