@@ -82,9 +82,7 @@ class DataSeparatorWidget(object):
         return self.__getCustomSeparatorSign__()
 
     def predefinedSeparatorButtonClicked(self, button):
-        self.customSeparatorCheckBox.setCheckState(Qt.Unchecked)
-        self.customSeparatorCheckBox.setEnabled(False)
-        self.customSeparatorEdit.setText("")
+        self.__customSeparatorClear__()
         if self.params.separatorHandler and \
             not self.predefinedSeparatorsButtonsGroup.checkedButton() == None:
             self.params.separatorHandler(self.__getPredefinedSeparatorSign__())
@@ -106,16 +104,7 @@ class DataSeparatorWidget(object):
             self.predefinedSeparatorsComposite.setEnabled(True)
 
     def customSeparatorButtonClicked(self):
-        #to uncheck button included in a button group one have to use a trick:
-        #change to none exclusive state behaviour of the button group, then
-        #uncheck checked button and reverse to previous exclusive state of
-        #the button group
-        if self.predefinedSeparatorsButtonsGroup.checkedButton():
-            self.predefinedSeparatorsButtonsGroup.setExclusive(False)
-            self.predefinedSeparatorsButtonsGroup.checkedButton().setChecked(
-                                                                        False)
-            self.predefinedSeparatorsButtonsGroup.setExclusive(True)
-
+        self.__uncheckPredefinedButtons__()
         separator = self.__getCustomSeparatorSign__()
         if self.customSeparatorCheckBox.checkState() == Qt.Checked and \
             self.params.separatorHandler and separator:
@@ -135,6 +124,35 @@ class DataSeparatorWidget(object):
     def setEnabled(self, enabled):
         if not enabled == None:
             self.separatorsGroupBox.setEnabled(enabled)
+
+    def setSeparator(self, _separator):
+        if _separator:
+            separatorSign = SeparatorSign.getSeparatorSign(_separator)
+            if separatorSign == SeparatorSign.CUSTOM:
+                self.customSeparatorEdit.setText(_separator)
+                self.__uncheckPredefinedButtons__()
+            elif not separatorSign == SeparatorSign.NONE:
+                for button in self.predefinedSeparatorsButtonsGroup.buttons():
+                    if button.text() == separatorSign.label:
+                        self.__customSeparatorClear__()
+                        button.setCheckState(Qt.Checked)
+                        return
+
+    def __customSeparatorClear__(self):
+        self.customSeparatorCheckBox.setCheckState(Qt.Unchecked)
+        self.customSeparatorCheckBox.setEnabled(False)
+        self.customSeparatorEdit.setText("")
+
+    def __uncheckPredefinedButtons__(self):
+        #to uncheck button included in a button group one have to use a trick:
+        #change to none exclusive state behaviour of the button group, then
+        #uncheck checked button and reverse to previous exclusive state of
+        #the button group
+        if self.predefinedSeparatorsButtonsGroup.checkedButton():
+            self.predefinedSeparatorsButtonsGroup.setExclusive(False)
+            self.predefinedSeparatorsButtonsGroup.checkedButton().setChecked(
+                                                                        False)
+            self.predefinedSeparatorsButtonsGroup.setExclusive(True)
 
 
 class SeparatorSign(object):
