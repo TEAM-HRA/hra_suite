@@ -81,6 +81,8 @@ class DataFileHeader(object):
             _file = file(join(*file_path)
                      if hasattr(file_path, '__iter__') else file_path)
             headlines = head(_file, number_of_lines)
+            if len(headlines) > number_of_lines:
+                headlines = headlines[:number_of_lines]
             _file.close()
         except UnicodeError:
             pass
