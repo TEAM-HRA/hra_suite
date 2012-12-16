@@ -116,9 +116,10 @@ class DataSeparatorWidget(object):
                                                                         False)
             self.predefinedSeparatorsButtonsGroup.setExclusive(True)
 
+        separator = self.__getCustomSeparatorSign__()
         if self.customSeparatorCheckBox.checkState() == Qt.Checked and \
-            self.params.separatorHandler:
-            self.params.separatorHandler(self.__getCustomSeparatorSign__())
+            self.params.separatorHandler and separator:
+            self.params.separatorHandler(separator)
 
     def __getPredefinedSeparatorSign__(self):
         button = self.predefinedSeparatorsButtonsGroup.checkedButton()
