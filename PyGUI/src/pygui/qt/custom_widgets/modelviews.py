@@ -123,10 +123,13 @@ class FilesTableView(object):
                                 selectedRow.row()).checkState() == Qt.Checked
 
     def getSelectedPathAndFilename(self, as_str=False):
-        if not self.selectedRow == None:
-            model = self.selectedRow.model()
-            path = model.item(self.selectedRow.row(), 3)
-            filename = model.item(self.selectedRow.row(), 1)
+        return self.getPathAndFilename(self.selectedRow, as_str)
+
+    def getPathAndFilename(self, modelIdx, as_str=False):
+        if not modelIdx == None:
+            model = modelIdx.model()
+            path = model.item(modelIdx.row(), 3)
+            filename = model.item(modelIdx.row(), 1)
             if as_str == True:
                 return (str(path.text()), str(filename.text()))
             else:
