@@ -322,6 +322,7 @@ class ChooseColumnsDataPage(QWizardPage):
         self.pageLayout = None
         self.headersTablePreview = None
         self.dataFilesHeaders = {}
+        self.__globalSeparator__ = None
 
     def initializePage(self):
         self.setTitle('Choose column data')
@@ -356,9 +357,9 @@ class ChooseColumnsDataPage(QWizardPage):
                      self.filePreviewAction)
 
         self.separatorWidget = DataSeparatorWidget(self.tableViewComposite,
-                                        separatorHandler=self.separatorHandler,
-                                        global_marker=True,
-                                        enabled=False)
+                                    separatorHandler=self.__separatorHandler__,
+                                    globalHandler=self.__globalHandler__,
+                                    enabled=False)
 
         self.fileHeaderPreviewGroup = createGroupBox(self.tableViewComposite,
                                     i18n="datasource.file.header.preview",
@@ -371,20 +372,26 @@ class ChooseColumnsDataPage(QWizardPage):
         self.filePreviewButton.setEnabled(True)
         self.filesTableView.onClickedAction(
                                 self.filesTableView.model().mapToSource(idx))
-        self.__createFileHeadersPreview__()
-        self.separatorWidget.setSeparator(self.separator)
+        #global separator could be None
+        self.__createFileHeadersPreview__(self.__globalSeparator__)
+        if self.__globalSeparator__:
+            self.separatorWidget.setSeparator(self.__globalSeparator__)
+        else:
+            self.separatorWidget.setSeparator(self.__getSelectedSeparator__())
         self.separatorWidget.setEnabled(True)
 
     def filePreviewAction(self):
         showFilePreviewDialog(self.filesTableView.getSelectedPathAndFilename())
 
-    def separatorHandler(self, _separator):
+    def __separatorHandler__(self, _separator):
         self.__createFileHeadersPreview__(_separator)
 
-    def __createFileHeadersPreview__(self, _separator=None):
-        self.separator = _separator
+    def __globalHandler__(self, _checked, _separator=None):
+        self.__globalSeparator__ = _separator
 
-        dataFileHeader = self.__getDataFileHeader__()
+    def __createFileHeadersPreview__(self, _separator=None):
+
+        dataFileHeader = self.__getDataFileHeader__(_separator)
         if dataFileHeader == None:
             return
 
@@ -411,25 +418,12 @@ class ChooseColumnsDataPage(QWizardPage):
         self.fileHeaderPreviewGroup.setEnabled(True)
         self.fileHeaderPreviewGroup.show()
 
-    def __getDataFileHeader__(self):
-        pathFile = self.filesTableView.getSelectedPathAndFilename(as_str=True)
+    def __getDataFileHeader__(self, _separator=None):
+        pathFile = self.filesTableView.getSelectedPathAndFilename(True)
         if pathFile == None:
             ErrorWindow(message="No file is selected !")
         else:
-            dataFileHeader = self.dataFilesHeaders.get(pathFile, None)
-            if dataFileHeader == None:
-                dataFileHeader = DataFileHeader(pathFile)
-                self.dataFilesHeaders[pathFile] = dataFileHeader
-
-            if self.separator == None:
-                self.separator = dataFileHeader.getSeparator()
-
-            if self.separator == None:
-                #try to discover a separator based on file data
-                self.separator = dataFileHeader.getSeparator(generate=True)
-
-            dataFileHeader.setSeparator(self.separator)
-            return dataFileHeader
+            return self.__createDataFileHeader__(pathFile, _separator)
 
     def __createHeadersTablePreviewModel__(self, colNumber):
         model = QStandardItemModel(self.headersTablePreview)
@@ -457,6 +451,41 @@ class ChooseColumnsDataPage(QWizardPage):
         self.headersTablePreview = createTableView(self.fileHeaderPreviewGroup,
                             selectionBehavior=QAbstractItemView.SelectRows,
                             selectionMode=QAbstractItemView.SingleSelection)
+
+    def __createDataFileHeader__(self, pathFile, _separator):
+        dataFileHeader = self.dataFilesHeaders.get(pathFile, None)
+        if dataFileHeader == None:
+            dataFileHeader = DataFileHeader(pathFile)
+            self.dataFilesHeaders[pathFile] = dataFileHeader
+
+        if _separator == None:
+            _separator = dataFileHeader.getSeparator()
+
+        if _separator == None:
+            #try to discover a separator based on file data
+            _separator = dataFileHeader.getSeparator(generate=True)
+
+        dataFileHeader.setSeparator(_separator)
+        return dataFileHeader
+
+    def __getSelectedSeparator__(self):
+        pathFile = self.filesTableView.getSelectedPathAndFilename(as_str=True)
+        if pathFile:
+            dataFileHeader = self.dataFilesHeaders.get(pathFile)
+            if dataFileHeader:
+                return dataFileHeader.getSeparator()
+
+    # for future use
+    def __setSeparatorForAll__(self, _separator=None):
+        model = self.filesTableView.model()
+        for row in range(model.rowCount()):
+            #it's necessity to alter model index of QSortFilterProxyModel type
+            #into source model index of QStandardItemModel type
+            idx = model.mapToSource(model.index(row, 0))
+            pathFile = self.filesTableView.getPathAndFilename(idx,
+                                                         as_str=True)
+            if pathFile:
+                self.__createDataFileHeader__(pathFile, _separator)
 
     class HeaderWidget(QWidget):
         def __init__(self, _parent, _header, _colNum, _widgets):

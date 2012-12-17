@@ -64,7 +64,7 @@ class DataSeparatorWidget(object):
                                         self.customSeparatorButtonClicked)
 
         self.globalSettingsCheckBox = None
-        if self.params.global_marker:
+        if self.params.globalHandler:
             self.globalSettingsCheckBox = createCheckBox(
                                                 self.separatorsGroupBox,
                                                 i18n="separator.global.marker",
@@ -97,11 +97,13 @@ class DataSeparatorWidget(object):
                 == None \
               or not is_empty(self.customSeparatorEdit.text()):
                 self.predefinedSeparatorsComposite.setEnabled(False)
+                self.params.globalHandler(True, self.getSeparatorSign())
             else:
                 self.globalSettingsCheckBox.setCheckState(Qt.Unchecked)
                 InformationWindow(message='A separator must be chosen !')
         else:
             self.predefinedSeparatorsComposite.setEnabled(True)
+            self.params.globalHandler(False)
 
     def customSeparatorButtonClicked(self):
         self.__uncheckPredefinedButtons__()
