@@ -323,6 +323,8 @@ class ChooseColumnsDataPage(QWizardPage):
         self.headersTablePreview = None
         self.dataFilesHeaders = {}
         self.__globalSeparator__ = None
+        self.__dataColumnIndexes__ = {}  # includes selected data column indexes @IgnorePep8
+        self.__annotationColumnIndexes__ = {}  # includes selected annotation column indexes @IgnorePep8
 
     def initializePage(self):
         self.setTitle('Choose column data')
@@ -435,10 +437,10 @@ class ChooseColumnsDataPage(QWizardPage):
     def __createHeaderWidget__(self, header, colNum):
         if colNum == 0:
             self.headerWidgets = []
-        ChooseColumnsDataPage.HeaderWidget(self.headersTablePreview,
-                                           header,
-                                           colNum,
-                                           self.headerWidgets)
+        ChooseColumnsDataPage.HeaderWidget(
+                self.headersTablePreview, header, colNum, self.headerWidgets,
+                _dataHandler=self.__dataColumnIndexHandler__,
+                _annotationHandler=self.__annotationColumnIndexHandler__)
 
     def __createHeadersTablePreview__(self):
 
@@ -487,8 +489,29 @@ class ChooseColumnsDataPage(QWizardPage):
             if pathFile:
                 self.__createDataFileHeader__(pathFile, _separator)
 
+    def __dataColumnIndexHandler__(self, columnIndex=None, checkButton=None):
+        self.__columnIndexHandler__(self.__dataColumnIndexes__,
+                                    columnIndex,
+                                    checkButton)
+
+    def __annotationColumnIndexHandler__(self, columnIndex=None,
+                                         checkButton=None):
+        self.__columnIndexHandler__(self.__annotationColumnIndexes__,
+                                    columnIndex,
+                                    checkButton)
+
+    def __columnIndexHandler__(self, indexes, columnIndex, checkButton=None):
+        pathFile = self.filesTableView.getSelectedPathAndFilename(as_str=True)
+        if checkButton:
+            if indexes.get(pathFile) == columnIndex:
+                checkButton.setCheckState(Qt.Checked)
+        else:
+            indexes[pathFile] = columnIndex
+
     class HeaderWidget(QWidget):
-        def __init__(self, _parent, _header, _colNum, _widgets):
+        def __init__(self, _parent, _header, _colNum, _widgets,
+                     _dataHandler=None,
+                     _annotationHandler=None):
             QWidget.__init__(self, parent=_parent)
             _widgets.append(self)
             self.widgets = _widgets
@@ -504,23 +527,36 @@ class ChooseColumnsDataPage(QWizardPage):
                          self.dataClicked)
             self.connect(self.annotationButton, SIGNAL("clicked()"),
                          self.annotationClicked)
+            self.__dataHandler__ = _dataHandler
+            #to test if button have to be in check state
+            if self.__dataHandler__:
+                self.__dataHandler__(self.colNum, self.dataButton)
+            self.__annotationHandler__ = _annotationHandler
+            # to test if button have to be in check state
+            if self.__annotationHandler__:
+                self.__annotationHandler__(self.colNum, self.annotationButton)
 
         def annotationClicked(self):
-            if self.annotationButton.checkState() == Qt.Checked:
-                self.uncheckData()
-                for num, widget in enumerate(self.widgets):
-                    if not num == self.colNum:
-                        widget.uncheckAnnotation()
+            self.__clicked__(self.annotationButton, self.__uncheckData__,
+                        '__uncheckAnnotation__', self.__annotationHandler__)
 
         def dataClicked(self):
-            if self.dataButton.checkState() == Qt.Checked:
-                self.uncheckAnnotation()
+            self.__clicked__(self.dataButton, self.__uncheckAnnotation__,
+                             '__uncheckData__', self.__dataHandler__)
+
+        def __clicked__(self, button, unchecker, sub_unchecker_name, handler):
+            checked = (button.checkState() == Qt.Checked)
+            if checked:
+                unchecker()
                 for num, widget in enumerate(self.widgets):
                     if not num == self.colNum:
-                        widget.uncheckData()
+                        method = getattr(widget, sub_unchecker_name)
+                        method()
+            if handler:
+                handler(self.colNum if checked else None)
 
-        def uncheckData(self):
+        def __uncheckData__(self):
             self.dataButton.setCheckState(Qt.Unchecked)
 
-        def uncheckAnnotation(self):
+        def __uncheckAnnotation__(self):
             self.annotationButton.setCheckState(Qt.Unchecked)
