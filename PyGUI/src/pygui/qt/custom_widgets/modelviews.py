@@ -16,13 +16,16 @@ class WidgetsHorizontalHeader(QHeaderView):
     filled with widgets instead of simple texts
     widgets have to possess a layout
     """
-    def __init__(self, parent, widgets):
+    def __init__(self, parent):
         super(WidgetsHorizontalHeader, self).__init__(Qt.Horizontal, parent)
+        self.parent = parent
 
+    def setWidgets(self, widgets):
         #get optimal size for header line based on sizes of header widgets
         height = 0
         width = 0
         margin = 0
+        parent = self.parent
         for idx in range(len(widgets)):
             sizeHint = widgets[idx].sizeHint()
             if height < sizeHint.height():
@@ -122,7 +125,7 @@ class FilesTableView(object):
         return self.filesTableView.model().item(
                                 selectedRow.row()).checkState() == Qt.Checked
 
-    def getSelectedPathAndFilename(self, as_str=False):
+    def getSelectedPathAndFilename(self, as_str=True):
         return self.getPathAndFilename(self.selectedRow, as_str)
 
     def getPathAndFilename(self, modelIdx, as_str=False):
