@@ -205,6 +205,9 @@ class FilesTableView(object):
     def model(self):
         return self.filesTableView.model()
 
+    def count(self):
+        return self.filesTableView.model().rowCount()
+
 
 class CheckStateProxySortFilterModel(QSortFilterProxyModel):
     def __init__(self, parent=None):
