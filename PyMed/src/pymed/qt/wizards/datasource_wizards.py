@@ -368,9 +368,9 @@ class ChooseColumnsDataPage(QWizardPage):
                      self.filePreviewAction)
 
         self.separatorWidget = DataSeparatorWidget(self.tableViewComposite,
-                                    separatorHandler=self.__separatorHandler__,
-                                    globalHandler=self.__globalHandler__,
-                                    enabled=False)
+                                separatorHandler=self.__separatorHandler__,
+                                globalHandler=self.__globalSeparatorHandler__,
+                                enabled=False)
 
         self.__createHeaderPreviewGroup__()
 
@@ -393,7 +393,7 @@ class ChooseColumnsDataPage(QWizardPage):
     def __separatorHandler__(self, _separator):
         self.__createFileHeadersPreview__(_separator)
 
-    def __globalHandler__(self, _checked, _separator=None):
+    def __globalSeparatorHandler__(self, _checked, _separator=None):
         self.__globalSeparator__ = _separator
 
     def __createFileHeadersPreview__(self, _separator=None):
