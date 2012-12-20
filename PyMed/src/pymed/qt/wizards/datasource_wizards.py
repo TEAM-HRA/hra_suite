@@ -454,7 +454,7 @@ class ChooseColumnsDataPage(QWizardPage):
             return self.__createDataFileHeader__(pathFile, _separator)
 
     def __createHeadersTablePreviewModel__(self, colNumber):
-        model = QStandardItemModel(self.headersTablePreview)
+        model = PreviewDataViewModel(self.headersTablePreview)
         labels = QStringList(create_list("", colNumber))
         model.setHorizontalHeaderLabels(labels)
         self.headersTablePreview.setModel(model)
@@ -630,3 +630,14 @@ class HeaderWidget(QWidget):
     def __getButton__(self, _type):
         return self.dataButton if _type == HeaderWidget.DATA_TYPE \
                 else self.annotationButton
+
+
+class PreviewDataViewModel(QStandardItemModel):
+    def __init__(self, parent):
+        QStandardItemModel.__init__(self, parent=parent)
+
+    def data(self, _modelIndex, _role):
+        if _modelIndex.column() >= 0 and _role == Qt.TextAlignmentRole:
+            return Qt.AlignRight
+        else:
+            return super(PreviewDataViewModel, self).data(_modelIndex, _role)
