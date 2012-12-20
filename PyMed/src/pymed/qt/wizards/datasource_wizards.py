@@ -614,29 +614,21 @@ class HeaderWidget(QWidget):
             self.__dataHandler__(self)
 
     def check(self, _type):
-        if _type == HeaderWidget.DATA_TYPE:
-            self.dataButton.setCheckState(Qt.Checked)
-        else:
-            self.annotationButton.setCheckState(Qt.Checked)
+        self.__getButton__(_type).setCheckState(Qt.Checked)
 
     def uncheck(self, _type):
-        if _type == HeaderWidget.DATA_TYPE:
-            self.dataButton.setCheckState(Qt.Unchecked)
-        else:
-            self.annotationButton.setCheckState(Qt.Unchecked)
+        self.__getButton__(_type).setCheckState(Qt.Unchecked)
 
     def isChecked(self, _type):
-        if _type == HeaderWidget.DATA_TYPE:
-            return self.dataButton.checkState() == Qt.Checked
-        else:
-            return self.annotationButton.checkState() == Qt.Checked
+        return self.__getButton__(_type).checkState() == Qt.Checked
 
     def enabled(self, _type, _enabled):
-        if _type == HeaderWidget.DATA_TYPE:
-            self.dataButton.setEnabled(_enabled)
-        else:
-            self.annotationButton.setEnabled(_enabled)
+        self.__getButton__(_type).setEnabled(_enabled)
 
     def enabledAll(self, _enabled):
         self.dataButton.setEnabled(_enabled)
         self.annotationButton.setEnabled(_enabled)
+
+    def __getButton__(self, _type):
+        return self.dataButton if _type == HeaderWidget.DATA_TYPE \
+                else self.annotationButton
