@@ -293,7 +293,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.changeEnablemend(False)
 
     def checkProgressBarAction(self):
-        self.__stateProgressBarAction__(Qt.Checked)
+        self.__checkingProgressBarAction__(Qt.Checked)
 
     def afterCheckProgressBarAction(self):
         self.filesTableView.maxCompleteState()
@@ -303,17 +303,17 @@ class ChooseDatasourcePage(QWizardPage):
         self.changeEnablemend(False)
 
     def uncheckProgressBarAction(self):
-        self.__stateProgressBarAction__(Qt.Unchecked)
+        self.__checkingProgressBarAction__(Qt.Unchecked)
 
     def afterUncheckProgressBarAction(self):
         self.filesTableView.minCompleteState()
         self.changeEnablemend(True)
 
-    def __stateProgressBarAction__(self, state):
+    def __checkingProgressBarAction__(self, checked):
         for idx in range(self.filesTableView.getRowCount()):
             if self.progressBarManager.update() == False:
                 break
-            self.filesTableView.setCheckedRowState(idx, state)
+            self.filesTableView.setCheckedRowState(idx, checked)
 
     def getDatasourceModel(self):
         return self.filesTableView.getModel()
