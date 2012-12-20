@@ -449,7 +449,7 @@ class ChooseColumnsDataPage(QWizardPage):
     def __getDataFileHeader__(self, _separator=None):
         pathFile = self.filesTableView.getSelectedPathAndFilename()
         if pathFile == None:
-            ErrorWindow(message="No file is selected !")
+            ErrorWindow(message="The file must be selected !")
         else:
             return self.__createDataFileHeader__(pathFile, _separator)
 
