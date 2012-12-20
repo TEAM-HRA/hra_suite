@@ -173,13 +173,15 @@ class ChooseDatasourcePage(QWizardPage):
 
         self.checkAllButton = createPushButton(filesOperations,
                             i18n="datasource.accept.check.all.button",
-                            i18n_def="Check all")
+                            i18n_def="Check all",
+                            enabled=False)
         self.connect(self.checkAllButton, SIGNAL("clicked()"),
                      self.checkAllAction)
 
         self.uncheckAllButton = createPushButton(filesOperations,
                             i18n="datasource.accept.uncheck.all.button",
-                            i18n_def="Uncheck all")
+                            i18n_def="Uncheck all",
+                            enabled=False)
         self.connect(self.uncheckAllButton, SIGNAL("clicked()"),
                      self.uncheckAllAction)
 
@@ -275,11 +277,12 @@ class ChooseDatasourcePage(QWizardPage):
         return self.filesTableView.getCompletedCount()
 
     def changeEnablemend(self, enabled, withRootDir=True):
+        count = self.filesTableView.count()
         self.filesExtension.setEnabled(enabled)
         self.recursively.setEnabled(enabled)
         self.filesTableView.setEnabled(enabled)
-        self.checkAllButton.setEnabled(enabled)
-        self.uncheckAllButton.setEnabled(enabled)
+        self.checkAllButton.setEnabled(count > 0)
+        self.uncheckAllButton.setEnabled(count > 0)
         self.reloadButton.setEnabled(enabled)
         self.onlyKnownTypes.setEnabled(enabled)
         self.filePreviewButton.setEnabled(enabled)
