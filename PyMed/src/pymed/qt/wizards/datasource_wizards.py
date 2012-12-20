@@ -606,12 +606,10 @@ class HeaderWidget(QWidget):
         self.__annotationHandler__ = _annotationHandler
 
     def annotationClicked(self):
-        if self.__annotationHandler__:
-            self.__annotationHandler__(self)
+        self.__annotationHandler__(self)
 
     def dataClicked(self):
-        if self.__dataHandler__:
-            self.__dataHandler__(self)
+        self.__dataHandler__(self)
 
     def check(self, _type):
         self.__getButton__(_type).setCheckState(Qt.Checked)
@@ -626,8 +624,8 @@ class HeaderWidget(QWidget):
         self.__getButton__(_type).setEnabled(_enabled)
 
     def enabledAll(self, _enabled):
-        self.dataButton.setEnabled(_enabled)
-        self.annotationButton.setEnabled(_enabled)
+        self.enabled(HeaderWidget.DATA_TYPE, _enabled)
+        self.enabled(HeaderWidget.ANNOTATION_TYPE, _enabled)
 
     def __getButton__(self, _type):
         return self.dataButton if _type == HeaderWidget.DATA_TYPE \
