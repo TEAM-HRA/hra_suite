@@ -21,9 +21,14 @@ class Globals(object):
     __parser.add_option("-s", "--settings_file", type="string", default="")
     __parser.add_option("-l", "--lang", type="string", default="en")
     __parser.add_option("-m", "--start_menu_ident", type="string", default="")
+    __parser.add_option("-d", "--debug", default=False)
+
     __opts, __args = __parser.parse_args()
 
     USE_SETTINGS_EGG = __opts.use_settings_egg
+    #if a parameter starts with a phrase 'use' it's value has bool type,
+    #otherwise string, 'very intuitive bahaviour'
+    DEBUG = (__opts.debug == str(True))
     if len(__opts.settings_egg) > 0:
         sys.path.insert(0, __opts.settings_egg)
         USE_SETTINGS_EGG = True

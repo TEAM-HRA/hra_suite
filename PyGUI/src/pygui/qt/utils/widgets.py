@@ -8,6 +8,8 @@ from PyQt4.QtCore import *  # @UnusedWildImport
 from pygui.qt.utils.qt_i18n import text_I18N
 from pygui.qt.utils.qt_i18n import title_I18N
 from pycore.misc import Params
+from pygui.qt.utils.logging import LoggingEventEater
+from pycore.globals import Globals
 
 
 def createComposite(parent=None, **params):
@@ -126,6 +128,8 @@ def __item(parent=None, **params):
         widget.setText(params.text)
     if not params.hidden == None:
         widget.setHidden(params.hidden)
+    if Globals.DEBUG == True:
+        widget.installEventFilter(LoggingEventEater(parent))
     return widget
 
 
