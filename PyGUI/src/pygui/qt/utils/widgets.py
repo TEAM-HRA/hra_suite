@@ -10,6 +10,7 @@ from pygui.qt.utils.qt_i18n import title_I18N
 from pycore.misc import Params
 from pygui.qt.utils.logging import LoggingEventEater
 from pycore.globals import Globals
+import inspect
 
 
 def createComposite(parent=None, **params):
@@ -129,7 +130,9 @@ def __item(parent=None, **params):
     if not params.hidden == None:
         widget.setHidden(params.hidden)
     if Globals.DEBUG == True:
-        widget.installEventFilter(LoggingEventEater(parent))
+        #very important the second parameter inspect.stack is added
+        #which set up properly caller's stack of a created widget
+        widget.installEventFilter(LoggingEventEater(parent, inspect.stack()))
     return widget
 
 

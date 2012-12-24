@@ -3,11 +3,15 @@ Created on 22-12-2012
 
 @author: jurek
 '''
-import sys
-import inspect
-from Queue import LifoQueue
-from PyQt4.QtGui import *  # @UnusedWildImport
-from PyQt4.QtCore import *  # @UnusedWildImport
+from pycore.special import ImportErrorMessage
+try:
+    import sys
+    import inspect
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.globals import Globals
+except ImportError as error:
+    ImportErrorMessage(error)
 
 
 class LoggingWindow(QDialog):
@@ -34,14 +38,15 @@ class LoggingWindow(QDialog):
         self.connect(clearButton, SIGNAL("clicked()"), self.clearClicked)
         operationalButtons.layout().addWidget(clearButton)
 
+        self.detailsButton = QCheckBox("Details",
+                                          operationalButtons)
+        operationalButtons.layout().addWidget(self.detailsButton)
+
         self.includeMethodsButton = QCheckBox("Includes __<name>__ methods",
                                           operationalButtons)
-        self.connect(clearButton, SIGNAL("clicked()"),
-                     self.includeMethodsClicked)
         operationalButtons.layout().addWidget(self.includeMethodsButton)
 
         self.closeHandler = None
-        self.includeMethods = False
 
         sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)
 
@@ -62,9 +67,11 @@ class LoggingWindow(QDialog):
     def setCloseHandler(self, handler):
         self.closeHandler = handler
 
-    def includeMethodsClicked(self):
-        self.includeMethods = (self.includeMethodsButton.checkState()
-                               == Qt.Checked)
+    def includeMethods(self):
+        return (self.includeMethodsButton.checkState() == Qt.Checked)
+
+    def details(self):
+        return (self.detailsButton.checkState() == Qt.Checked)
 
 
 class EmittingStream(QObject):
@@ -80,33 +87,26 @@ class LoggingEventEater(QObject):
     LOGGING_WINDOW = None
     LOGGING_STARTED = False
 
-    def __init__(self, _parent):
+    def __init__(self, _parent, _stack=inspect.stack()):
         super(LoggingEventEater, self).__init__(_parent)
         self.loggingWindowOpened = False
         self.loggingWindow = None
         self.logger = None
+        self.stack = _stack
 
     def eventFilter(self, obj, event):
         #it seems to be strange but Qt.Key_Shift key code means right CTRL key
         if event.type() == QEvent.KeyPress \
             and event.nativeModifiers() == Qt.Key_Shift:
 
-            if LoggingEventEater.LOGGING_WINDOW == None or \
-                LoggingEventEater.LOGGING_WINDOW.isClosed == True:
-                LoggingEventEater.LOGGING_STARTED = True
-                LoggingEventEater.LOGGING_WINDOW = LoggingWindow(
-                                    QApplication.instance().activeWindow())
-                LoggingEventEater.LOGGING_WINDOW.setCloseHandler(
-                                                self.closeLoggingHandler)
-                LoggingEventEater.LOGGING_WINDOW.show()
+            return self.createLoggingWindow()
 
-                return True
         elif event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.RightButton:
                 if LoggingEventEater.LOGGING_STARTED == True:
                     #print('Type: ' + str(type(event)))
                     #print('Dict: ' + str(dir(event)))
-                    self.__formatOutput__(obj)
+                    self.__formatOutput__(obj, event)
                     return True
 
         return super(LoggingEventEater, self).eventFilter(obj, event)
@@ -114,28 +114,61 @@ class LoggingEventEater(QObject):
     def closeLoggingHandler(self):
         LoggingEventEater.LOGGING_STARTED = False
 
-    def __formatOutput__(self, obj):
-        print('%s' % '*' * 40)
+    def __formatOutput__(self, obj, event):
+        print('%s' % '*' * 160)
         print('Object id: %s class: %s' % (id(obj), obj.__class__))
 
-        if hasattr(obj, 'parentWidget') or hasattr(obj, 'nativeParentWidget'):
-            parents = LifoQueue()
-            print('Parents tree:')
-            parent = obj.parentWidget()
-            while not (parent == 0 or parent == None):
-                parents.put(parent)
-                parent = parent.parentWidget()
+        indent_num = 0
+        for _stack in self.stack:
+            frame = _stack[0]
+            module_ = inspect.getmodule(frame)
+            locals_ = frame.f_locals
+            lineno_ = frame.f_lineno
+            class_ = locals_.get('self')
+            if class_:
+                class_name = class_.__class__.__name__
+            else:
+                class_name = "<module>"
+            indent_num = indent_num + 1
+            print('%smodule: %s class: %s lineno: %i'
+                      % ("  " * indent_num, module_, class_name, lineno_))
 
-            indent_num = 0
-            while not parents.empty():
-                parent = parents.get()
-                print('%sparent id: %s class: %s module: %s'
-                      % ("  " * indent_num, id(parent),
-                         parent.__class__, inspect.getmodule(parent)))
-                indent_num = indent_num + 1
+        if LoggingEventEater.LOGGING_WINDOW.details():
+            print('')
+            print('Object details start:')
+            keys = dir(obj) \
+                    if \
+                        LoggingEventEater.LOGGING_WINDOW.includeMethods()\
+                    else [key for key in dir(obj)
+                          if not (key.startswith('__') and key.endswith('__'))]
+            for key in keys:
+                print('key: ' + key + ' value: ' + str(getattr(obj, key)))
+            print('Object details stop')
+            print('')
 
-        #(filename, lineno, function, code_context, index) = \
-        #    inspect.getframeinfo(inspect.currentframe())
-        #print('filename %s' % (filename))
+        print('%s' % '*' * 160)
 
-        #inspect.stack(inspect.currentframe())
+    def createLoggingWindow(self):
+        if LoggingEventEater.LOGGING_WINDOW == None or \
+            LoggingEventEater.LOGGING_WINDOW.isClosed == True:
+            LoggingEventEater.LOGGING_STARTED = True
+            LoggingEventEater.LOGGING_WINDOW = LoggingWindow(
+                                QApplication.instance().activeWindow())
+            LoggingEventEater.LOGGING_WINDOW.setCloseHandler(
+                                            self.closeLoggingHandler)
+            LoggingEventEater.LOGGING_WINDOW.show()
+
+            return True
+        return False
+
+
+LOGGING_EVENT_EATER = None
+
+
+def log(parent, text):
+    if Globals.DEBUG == True:
+        if not LoggingEventEater.LOGGING_WINDOW:
+            LoggingEventEater(parent).createLoggingWindow()
+        LoggingEventEater.LOGGING_WINDOW.normalOutputWritten(text)
+    else:
+        print(text)
