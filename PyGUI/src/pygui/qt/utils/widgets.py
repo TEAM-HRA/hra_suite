@@ -130,9 +130,9 @@ def __item(parent=None, **params):
     if not params.hidden == None:
         widget.setHidden(params.hidden)
     if Globals.DEBUG == True:
-        #very important the second parameter inspect.stack is added
+        #very important parameter inspect.stack()
         #which set up properly caller's stack of a created widget
-        widget.installEventFilter(LoggingEventFilter(parent, inspect.stack()))
+        widget.installEventFilter(LoggingEventFilter(inspect.stack()))
     return widget
 
 

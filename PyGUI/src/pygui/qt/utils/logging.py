@@ -10,6 +10,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.globals import Globals
+    from pygui.qt.utils.specials import getWidgetFromStack
 except ImportError as error:
     ImportErrorMessage(error)
 
@@ -52,6 +53,10 @@ class LoggingWindow(QDialog):
 
     def normalOutputWritten(self, text):
         self.textCursor.movePosition(QTextCursor.End)
+        if not hasattr(text, '__len__'):
+            text = str(text)
+        if hasattr(text, 'endswith') and not text.endswith('\n'):
+            text = text + '\n'
         self.textCursor.insertText(text)
         self.loggingWidget.moveCursor(QTextCursor.End)
 
@@ -87,8 +92,8 @@ class LoggingEventFilter(QObject):
     LOGGING_WINDOW = None
     LOGGING_STARTED = False
 
-    def __init__(self, _parent, _stack=inspect.stack()):
-        super(LoggingEventFilter, self).__init__(_parent)
+    def __init__(self, _stack=inspect.stack()):
+        super(LoggingEventFilter, self).__init__(getWidgetFromStack(_stack))
         self.loggingWindowOpened = False
         self.loggingWindow = None
         self.logger = None
@@ -165,10 +170,10 @@ class LoggingEventFilter(QObject):
 LOGGING_EVENT_EATER = None
 
 
-def log(parent, text):
+def log(text):
     if Globals.DEBUG == True:
         if not LoggingEventFilter.LOGGING_WINDOW:
-            LoggingEventFilter(parent).createLoggingWindow()
+            LoggingEventFilter().createLoggingWindow()
         LoggingEventFilter.LOGGING_WINDOW.normalOutputWritten(text)
     else:
         print(text)
