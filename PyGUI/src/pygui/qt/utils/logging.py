@@ -82,13 +82,13 @@ class EmittingStream(QObject):
         self.textWritten.emit(QString(text))
 
 
-class LoggingEventEater(QObject):
+class LoggingEventFilter(QObject):
 
     LOGGING_WINDOW = None
     LOGGING_STARTED = False
 
     def __init__(self, _parent, _stack=inspect.stack()):
-        super(LoggingEventEater, self).__init__(_parent)
+        super(LoggingEventFilter, self).__init__(_parent)
         self.loggingWindowOpened = False
         self.loggingWindow = None
         self.logger = None
@@ -103,16 +103,16 @@ class LoggingEventEater(QObject):
 
         elif event.type() == QEvent.MouseButtonPress:
             if event.button() == Qt.RightButton:
-                if LoggingEventEater.LOGGING_STARTED == True:
+                if LoggingEventFilter.LOGGING_STARTED == True:
                     #print('Type: ' + str(type(event)))
                     #print('Dict: ' + str(dir(event)))
                     self.__formatOutput__(obj, event)
                     return True
 
-        return super(LoggingEventEater, self).eventFilter(obj, event)
+        return super(LoggingEventFilter, self).eventFilter(obj, event)
 
     def closeLoggingHandler(self):
-        LoggingEventEater.LOGGING_STARTED = False
+        LoggingEventFilter.LOGGING_STARTED = False
 
     def __formatOutput__(self, obj, event):
         print('%s' % '*' * 160)
@@ -133,12 +133,12 @@ class LoggingEventEater(QObject):
             print('%smodule: %s class: %s lineno: %i'
                       % ("  " * indent_num, module_, class_name, lineno_))
 
-        if LoggingEventEater.LOGGING_WINDOW.details():
+        if LoggingEventFilter.LOGGING_WINDOW.details():
             print('')
             print('Object details start:')
             keys = dir(obj) \
                     if \
-                        LoggingEventEater.LOGGING_WINDOW.includeMethods()\
+                        LoggingEventFilter.LOGGING_WINDOW.includeMethods()\
                     else [key for key in dir(obj)
                           if not (key.startswith('__') and key.endswith('__'))]
             for key in keys:
@@ -149,14 +149,14 @@ class LoggingEventEater(QObject):
         print('%s' % '*' * 160)
 
     def createLoggingWindow(self):
-        if LoggingEventEater.LOGGING_WINDOW == None or \
-            LoggingEventEater.LOGGING_WINDOW.isClosed == True:
-            LoggingEventEater.LOGGING_STARTED = True
-            LoggingEventEater.LOGGING_WINDOW = LoggingWindow(
+        if LoggingEventFilter.LOGGING_WINDOW == None or \
+            LoggingEventFilter.LOGGING_WINDOW.isClosed == True:
+            LoggingEventFilter.LOGGING_STARTED = True
+            LoggingEventFilter.LOGGING_WINDOW = LoggingWindow(
                                 QApplication.instance().activeWindow())
-            LoggingEventEater.LOGGING_WINDOW.setCloseHandler(
+            LoggingEventFilter.LOGGING_WINDOW.setCloseHandler(
                                             self.closeLoggingHandler)
-            LoggingEventEater.LOGGING_WINDOW.show()
+            LoggingEventFilter.LOGGING_WINDOW.show()
 
             return True
         return False
@@ -167,8 +167,8 @@ LOGGING_EVENT_EATER = None
 
 def log(parent, text):
     if Globals.DEBUG == True:
-        if not LoggingEventEater.LOGGING_WINDOW:
-            LoggingEventEater(parent).createLoggingWindow()
-        LoggingEventEater.LOGGING_WINDOW.normalOutputWritten(text)
+        if not LoggingEventFilter.LOGGING_WINDOW:
+            LoggingEventFilter(parent).createLoggingWindow()
+        LoggingEventFilter.LOGGING_WINDOW.normalOutputWritten(text)
     else:
         print(text)
