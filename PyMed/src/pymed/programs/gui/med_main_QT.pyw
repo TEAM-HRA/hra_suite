@@ -16,6 +16,7 @@ from pygui.qt.utils.settings import Setter
 from pygui.qt.menu.menus import QTMenuBuilder
 from pycore.globals import GLOBALS
 from pygui.qt.utils.context import GlobalContext
+from pygui.qt.utils.graphics import get_screen_size
 
 __version__ = "1.0.0"
 
@@ -34,17 +35,18 @@ class MainWindow(QMainWindow):
             if menuBuilder.invokeMenuItem(GLOBALS.START_MENU_ID):
                 sys.exit(0)
 
-        self.image = QImage()
-        self.dirty = False
-        self.filename = None
-        self.mirroredvertically = False
-        self.mirroredhorizontally = False
+        #self.image = QImage()
+        #self.dirty = False
+        #self.filename = None
+        #self.mirroredvertically = False
+        #self.mirroredhorizontally = False
+        self.setGeometry(get_screen_size())
 
         self.tabWidget = QTabWidget(self)
         self.tabWidget.setObjectName(GLOBALS.WORKSPACE_NAME)
         self.imageLabel = QWidget(self.tabWidget)
         self.tabWidget.addTab(self.imageLabel, "Main")
-        self.imageLabel.setMinimumSize(200, 200)
+        #self.imageLabel.setMinimumSize(200, 200)
         #self.imageLabel.setAlignment(Qt.AlignCenter)
         #self.imageLabel.setContextMenuPolicy(Qt.ActionsContextMenu)
         self.setCentralWidget(self.tabWidget)
