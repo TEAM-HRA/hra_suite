@@ -65,6 +65,7 @@ class Globals(object):
     # GLOBALS.ICONS_FILE
     # but without explicit definition of the ICONS_FILE property
     ITEM = True
+    WORKSPACE_NAME = "MedWorkspace"
 
     def get(self, **params):
         attr = get_keys_for_value(params, GLOBALS.ITEM, _one_key_only=True)

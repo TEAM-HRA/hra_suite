@@ -11,29 +11,31 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.globals import Globals
     from pygui.qt.utils.specials import getWidgetFromStack
+    from pycore.globals import GLOBALS
 except ImportError as error:
     ImportErrorMessage(error)
 
 
-class LoggingWindow(QDialog):
-    def __init__(self, parent=None):
-        super(LoggingWindow, self).__init__(parent)
-        self.isClosed = False
-        self.setModal(False)
-        self.setWindowTitle('Logging')
-        self.setGeometry(QRect(50, 50, 1000, 600))
-        self.setLayout(QVBoxLayout())
+__LOGGING_TAB_LABEL__ = "Logging"
 
-        self.loggingWidget = QPlainTextEdit(self)
+
+class LoggingCommonWidget():
+    """
+    common functionality
+    """
+    def Init(self, parent):
+
+        self.isClosed = False
+        self.loggingWidget = QPlainTextEdit(parent)
         self.textCursor = QTextCursor(self.loggingWidget.textCursor())
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setSizePolicy(sizePolicy)
         self.loggingWidget.setReadOnly(True)
-        self.layout().addWidget(self.loggingWidget)
+        parent.layout().addWidget(self.loggingWidget)
 
-        operationalButtons = QWidget(self)
+        operationalButtons = QWidget(parent)
         operationalButtons.setLayout(QHBoxLayout())
-        self.layout().addWidget(operationalButtons)
+        parent.layout().addWidget(operationalButtons)
 
         clearButton = QPushButton("Clear", operationalButtons)
         self.connect(clearButton, SIGNAL("clicked()"), self.clearClicked)
@@ -77,6 +79,28 @@ class LoggingWindow(QDialog):
 
     def details(self):
         return (self.detailsButton.checkState() == Qt.Checked)
+
+
+class LoggingWindowWidget(LoggingCommonWidget, QWidget):
+    """
+    logging window as a part of another parent widget
+    """
+    def __init__(self, parent=None):
+        super(LoggingWindowWidget, self).__init__(parent)
+        self.Init(parent)
+
+
+class LoggingWindowDialog(LoggingCommonWidget, QDialog):
+    """
+    logging window as a separate dialog window
+    """
+    def __init__(self, parent=None):
+        super(LoggingWindowDialog, self).__init__(parent)
+        self.setModal(False)
+        self.setWindowTitle('Logging')
+        self.setGeometry(QRect(50, 50, 1000, 600))
+        self.setLayout(QVBoxLayout())
+        self.Init(self)
 
 
 class EmittingStream(QObject):
@@ -157,17 +181,19 @@ class LoggingEventFilter(QObject):
         if LoggingEventFilter.LOGGING_WINDOW == None or \
             LoggingEventFilter.LOGGING_WINDOW.isClosed == True:
             LoggingEventFilter.LOGGING_STARTED = True
-            LoggingEventFilter.LOGGING_WINDOW = LoggingWindow(
-                                QApplication.instance().activeWindow())
+            (status, parent) = __get_parent_widget__(self.stack)
+            if status == 1:
+                LoggingEventFilter.LOGGING_WINDOW = LoggingWindowWidget(
+                                                            parent=parent)
+            elif status == 2:
+                LoggingEventFilter.LOGGING_WINDOW = LoggingWindowDialog(
+                                                            parent=parent)
             LoggingEventFilter.LOGGING_WINDOW.setCloseHandler(
                                             self.closeLoggingHandler)
             LoggingEventFilter.LOGGING_WINDOW.show()
 
             return True
         return False
-
-
-LOGGING_EVENT_EATER = None
 
 
 def log(text):
@@ -177,3 +203,18 @@ def log(text):
         LoggingEventFilter.LOGGING_WINDOW.normalOutputWritten(text)
     else:
         print(text)
+
+
+def __get_parent_widget__(_stack):
+    tabWidget = getWidgetFromStack(_stack, widget_name=GLOBALS.WORKSPACE_NAME)
+    if not tabWidget == None:
+        for idx in range(tabWidget.count()):
+            if tabWidget.tabText(idx) == __LOGGING_TAB_LABEL__:
+                return (1, tabWidget.widget(idx))
+        tabLogging = QWidget(tabWidget)
+        tabLogging.setLayout(QVBoxLayout())
+        tabWidget.addTab(tabLogging, __LOGGING_TAB_LABEL__)
+        return (1, tabLogging)
+    else:
+        parent = getWidgetFromStack(_stack)
+        return (0, parent) if parent == None else (2, parent)
