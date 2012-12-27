@@ -33,3 +33,7 @@ def get_size_of_text(text):
 
 def get_width_of_n_letters(n):
     return get_size_of_text("W" * n)[0]
+
+
+def get_screen_size():
+    return QApplication.desktop().screenGeometry()
