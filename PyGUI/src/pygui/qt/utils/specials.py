@@ -9,9 +9,24 @@ modules because occurrence of, for example, cycling imports
 from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
 import inspect
+from pycore.globals import GLOBALS
 
 #global cache for objects founded by __getObjectFromStack__(...) method
 __STACK_OBJECTS__ = {}
+
+
+class StackObject(object):
+    NONE = 0
+    NEW = 1
+    EXISTS = 2
+    ANY = 3
+
+    def __init__(self, obj, status=NONE):
+        if isinstance(obj, StackObject):
+            self._object = obj._object
+        else:
+            self._object = obj
+        self.status = status
 
 
 def getWidgetFromStack(stack=inspect.stack(), widget_name=None):
@@ -21,6 +36,23 @@ def getWidgetFromStack(stack=inspect.stack(), widget_name=None):
 
 def getMainWindowFromStack(stack=inspect.stack()):
     return __getObjectFromStack__(stack, QMainWindow)
+
+
+def getOrCreateTabFromMainTabWidgetStack(tabName, stack=inspect.stack(),
+                                         layout=None):
+    tabWidget = getWidgetFromStack(stack, GLOBALS.WORKSPACE_NAME)
+    if not tabWidget == None:
+        for idx in range(tabWidget.count()):
+            if tabWidget.tabText(idx) == tabName:
+                return StackObject(tabWidget.widget(idx), StackObject.EXISTS)
+        tab = QWidget(tabWidget)
+        if not layout == None:
+            tab.setLayout(layout)
+        tabWidget.addTab(tab, tabName)
+        return StackObject(tab, StackObject.NEW)
+    else:
+        tab = getWidgetFromStack(stack)
+        return StackObject(tab, StackObject.ANY)
 
 
 def __getObjectFromStack__(stack, class_or_object_name):

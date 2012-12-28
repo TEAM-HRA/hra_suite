@@ -4,6 +4,7 @@ Created on 22-12-2012
 @author: jurek
 '''
 from pycore.special import ImportErrorMessage
+from pygui.qt.utils.specials import StackObject
 try:
     import sys
     import inspect
@@ -11,9 +12,9 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.globals import Globals
     from pygui.qt.utils.specials import getWidgetFromStack
-    from pycore.globals import GLOBALS
+    from pygui.qt.utils.specials import getOrCreateTabFromMainTabWidgetStack
 except ImportError as error:
-    ImportErrorMessage(error)
+    ImportErrorMessage(error, __name__)
 
 
 __LOGGING_TAB_LABEL__ = "Logging"
@@ -181,13 +182,17 @@ class LoggingEventFilter(QObject):
         if LoggingEventFilter.LOGGING_WINDOW == None or \
             LoggingEventFilter.LOGGING_WINDOW.isClosed == True:
             LoggingEventFilter.LOGGING_STARTED = True
-            (status, parent) = __get_parent_widget__(self.stack)
-            if status == 1:
-                LoggingEventFilter.LOGGING_WINDOW = LoggingWindowWidget(
-                                                            parent=parent)
-            elif status == 2:
+
+            stackObject = getOrCreateTabFromMainTabWidgetStack(
+                                                    __LOGGING_TAB_LABEL__,
+                                                    self.stack,
+                                                    layout=QVBoxLayout())
+            if stackObject.status == StackObject.ANY:
                 LoggingEventFilter.LOGGING_WINDOW = LoggingWindowDialog(
-                                                            parent=parent)
+                                                    stackObject._object)
+            else:
+                LoggingEventFilter.LOGGING_WINDOW = LoggingWindowWidget(
+                                                    stackObject._object)
             LoggingEventFilter.LOGGING_WINDOW.setCloseHandler(
                                             self.closeLoggingHandler)
             LoggingEventFilter.LOGGING_WINDOW.show()
@@ -203,18 +208,3 @@ def log(text):
         LoggingEventFilter.LOGGING_WINDOW.normalOutputWritten(text)
     else:
         print(text)
-
-
-def __get_parent_widget__(_stack):
-    tabWidget = getWidgetFromStack(_stack, widget_name=GLOBALS.WORKSPACE_NAME)
-    if not tabWidget == None:
-        for idx in range(tabWidget.count()):
-            if tabWidget.tabText(idx) == __LOGGING_TAB_LABEL__:
-                return (1, tabWidget.widget(idx))
-        tabLogging = QWidget(tabWidget)
-        tabLogging.setLayout(QVBoxLayout())
-        tabWidget.addTab(tabLogging, __LOGGING_TAB_LABEL__)
-        return (1, tabLogging)
-    else:
-        parent = getWidgetFromStack(_stack)
-        return (0, parent) if parent == None else (2, parent)
