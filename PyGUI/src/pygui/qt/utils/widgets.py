@@ -144,6 +144,8 @@ def __item(parent=None, **params):
         widget.installEventFilter(LoggingEventFilter(inspect.stack()))
     if not params.object_name == None:
         widget.setObjectName(params.object_name)
+    if not params.clicked_handler == None:
+        widget.connect(widget, SIGNAL("clicked()"), params.clicked_handler)
     return widget
 
 
