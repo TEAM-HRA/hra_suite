@@ -50,6 +50,10 @@ class LoggingCommonWidget():
                                           operationalButtons)
         operationalButtons.layout().addWidget(self.includeMethodsButton)
 
+        self.stopLoggingButton = QCheckBox("Stop logging",
+                                          operationalButtons)
+        operationalButtons.layout().addWidget(self.stopLoggingButton)
+
         self.closeHandler = None
 
         sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)
@@ -80,6 +84,9 @@ class LoggingCommonWidget():
 
     def details(self):
         return (self.detailsButton.checkState() == Qt.Checked)
+
+    def stopLogging(self):
+        return (self.stopLoggingButton.checkState() == Qt.Checked)
 
 
 class LoggingWindowWidget(LoggingCommonWidget, QWidget):
@@ -145,6 +152,9 @@ class LoggingEventFilter(QObject):
         LoggingEventFilter.LOGGING_STARTED = False
 
     def __formatOutput__(self, obj, event):
+        if LoggingEventFilter.LOGGING_WINDOW.stopLogging():
+            return
+
         print('%s' % '*' * 160)
         print('Object id: %s class: %s' % (id(obj), obj.__class__))
 
