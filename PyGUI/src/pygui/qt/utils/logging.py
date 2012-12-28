@@ -4,7 +4,6 @@ Created on 22-12-2012
 @author: jurek
 '''
 from pycore.special import ImportErrorMessage
-from pygui.qt.utils.specials import StackObject
 try:
     import sys
     import inspect
@@ -13,6 +12,7 @@ try:
     from pycore.globals import Globals
     from pygui.qt.utils.specials import getWidgetFromStack
     from pygui.qt.utils.specials import getOrCreateTabFromMainTabWidgetStack
+    from pygui.qt.utils.specials import StackObject
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -28,6 +28,8 @@ class LoggingCommonWidget():
 
         self.isClosed = False
         self.loggingWidget = QPlainTextEdit(parent)
+        self.loggingWidget.installEventFilter(
+                                        LoggingEventFilter(inspect.stack()))
         self.textCursor = QTextCursor(self.loggingWidget.textCursor())
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.setSizePolicy(sizePolicy)
@@ -36,27 +38,37 @@ class LoggingCommonWidget():
 
         operationalButtons = QWidget(parent)
         operationalButtons.setLayout(QHBoxLayout())
+        operationalButtons.installEventFilter(
+                                        LoggingEventFilter(inspect.stack()))
         parent.layout().addWidget(operationalButtons)
 
         clearButton = QPushButton("Clear", operationalButtons)
+        clearButton.installEventFilter(
+                                        LoggingEventFilter(inspect.stack()))
         self.connect(clearButton, SIGNAL("clicked()"), self.clearClicked)
         operationalButtons.layout().addWidget(clearButton)
 
         self.detailsButton = QCheckBox("Details",
                                           operationalButtons)
+        self.detailsButton.installEventFilter(
+                                        LoggingEventFilter(inspect.stack()))
         operationalButtons.layout().addWidget(self.detailsButton)
 
         self.includeMethodsButton = QCheckBox("Includes __<name>__ methods",
                                           operationalButtons)
+        self.includeMethodsButton.installEventFilter(
+                                        LoggingEventFilter(inspect.stack()))
         operationalButtons.layout().addWidget(self.includeMethodsButton)
 
         self.stopLoggingButton = QCheckBox("Stop logging",
                                           operationalButtons)
+        self.stopLoggingButton.installEventFilter(
+                                        LoggingEventFilter(inspect.stack()))
         operationalButtons.layout().addWidget(self.stopLoggingButton)
 
         self.closeHandler = None
 
-        sys.stdout = EmittingStream(textWritten=self.normalOutputWritten)
+        sys.stdout = __EmittingStream__(textWritten=self.normalOutputWritten)
 
     def normalOutputWritten(self, text):
         self.textCursor.movePosition(QTextCursor.End)
@@ -111,7 +123,7 @@ class LoggingWindowDialog(LoggingCommonWidget, QDialog):
         self.Init(self)
 
 
-class EmittingStream(QObject):
+class __EmittingStream__(QObject):
     textWritten = pyqtSignal(str)
 
     def write(self, text):
