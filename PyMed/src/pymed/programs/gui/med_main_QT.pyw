@@ -16,7 +16,8 @@ from pygui.qt.utils.settings import Setter
 from pygui.qt.menu.menus import QTMenuBuilder
 from pycore.globals import GLOBALS
 from pygui.qt.utils.context import GlobalContext
-from pygui.qt.utils.graphics import get_screen_size
+from pygui.qt.utils.widgets import createTabWidget
+from pygui.qt.utils.widgets import createWidget
 
 __version__ = "1.0.0"
 
@@ -40,15 +41,16 @@ class MainWindow(QMainWindow):
         #self.filename = None
         #self.mirroredvertically = False
         #self.mirroredhorizontally = False
-        self.setGeometry(get_screen_size())
+        #self.setGeometry(get_screen_size())
 
-        self.tabWidget = QTabWidget(self)
-        self.tabWidget.setObjectName(GLOBALS.WORKSPACE_NAME)
-        self.imageLabel = QWidget(self.tabWidget)
-        self.tabWidget.addTab(self.imageLabel, "Main")
-        #self.imageLabel.setMinimumSize(200, 200)
-        #self.imageLabel.setAlignment(Qt.AlignCenter)
-        #self.imageLabel.setContextMenuPolicy(Qt.ActionsContextMenu)
+        self.tabWidget = createTabWidget(self,
+                                         object_name=GLOBALS.WORKSPACE_NAME,
+                                         not_add_widget_to_parent_layout=True)
+        self.mainWidget = createWidget(self.tabWidget)
+        self.tabWidget.addTab(self.mainWidget, "Main")
+        #self.mainWidget.setMinimumSize(200, 200)
+        #self.mainWidget.setAlignment(Qt.AlignCenter)
+        #self.mainWidget.setContextMenuPolicy(Qt.ActionsContextMenu)
         self.setCentralWidget(self.tabWidget)
 
 #        logDockWidget = QDockWidget("Log", self)
@@ -150,7 +152,7 @@ class MainWindow(QMainWindow):
 #                     SIGNAL("valueChanged(int)"), self.showImage)
 #        editToolbar.addWidget(self.zoomSpinBox)
 #
-#        self.addActions(self.imageLabel, (editInvertAction,
+#        self.addActions(self.mainWidget, (editInvertAction,
 #                editSwapRedAndBlueAction, editUnMirrorAction,
 #                editMirrorVerticalAction, editMirrorHorizontalAction))
 #
@@ -461,7 +463,7 @@ class MainWindow(QMainWindow):
 #        width = self.image.width() * factor
 #        height = self.image.height() * factor
 #        image = self.image.scaled(width, height, Qt.KeepAspectRatio)
-#        self.imageLabel.setPixmap(QPixmap.fromImage(image))
+#        self.mainWidget.setPixmap(QPixmap.fromImage(image))
 
 #    def helpAbout(self):
 #        QMessageBox.about(self, "About Image Changer",
@@ -488,7 +490,7 @@ def main():
     app.setWindowIcon(QIcon(":/icon.png"))
     form = MainWindow()
     #print('id main window ' + str(id(form)))
-    form.show()
+    form.showMaximized()
     app.exec_()
 
 main()

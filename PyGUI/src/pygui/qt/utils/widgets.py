@@ -79,6 +79,14 @@ def createButtonGroup(parent=None, **params):
     return __item(parent, widget=QButtonGroup(parent), **params)
 
 
+def createTabWidget(parent=None, **params):
+    return __item(parent, widget=QTabWidget(parent), **params)
+
+
+def createWidget(parent=None, **params):
+    return __item(parent, widget=QWidget(parent), **params)
+
+
 def __item(parent=None, **params):
     """
     method to create a widget based o information contained in params
@@ -115,7 +123,8 @@ def __item(parent=None, **params):
             params.layout.setAlignment(params.alignment)
 
     if not added and not parent_layout == None:
-        if isinstance(widget, QWidget):
+        if not params.not_add_widget_to_parent_layout == True and \
+            isinstance(widget, QWidget):
             parent_layout.addWidget(widget)
 
     if not params.stretch_after_widget == None:
@@ -133,6 +142,8 @@ def __item(parent=None, **params):
         #very important parameter inspect.stack()
         #which set up properly caller's stack of a created widget
         widget.installEventFilter(LoggingEventFilter(inspect.stack()))
+    if not params.object_name == None:
+        widget.setObjectName(params.object_name)
     return widget
 
 
