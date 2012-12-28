@@ -102,9 +102,8 @@ class ChooseDatasourcePage(QWizardPage):
 
         self.chooseRootDirButton = createPushButton(fileConstraintsComposite,
                         i18n="datasource.datasource.choose.root.dir.button",
-                        i18n_def="Choose root dir")
-        self.connect(self.chooseRootDirButton, SIGNAL("clicked()"),
-                     self.chooseRootDirAction)
+                        i18n_def="Choose root dir",
+                        clicked_handler=self.chooseRootDirAction)
 
         createLabel(fileConstraintsComposite,
                      i18n="datasource.root.dir.label",
@@ -130,23 +129,20 @@ class ChooseDatasourcePage(QWizardPage):
 
         self.recursively = createCheckBox(fileConstraintsComposite,
                 i18n="datasource.search.files.recursively.label",
-                i18n_def="Search files recursively")
-        self.connect(self.recursively, SIGNAL("clicked()"),
-                     self.reload)
+                i18n_def="Search files recursively",
+                clicked_handler=self.reload)
 
         self.onlyKnownTypes = createCheckBox(fileConstraintsComposite,
                 i18n="datasource.only.known.types.checkbox",
                 i18n_def="Only known types",
-                checked=True)
-        self.connect(self.onlyKnownTypes, SIGNAL("clicked()"),
-                     self.reload)
+                checked=True,
+                clicked_handler=self.reload)
 
     def __createReloadButton__(self, parent):
         self.reloadButton = createPushButton(parent,
                                             i18n="datasource.reload.button",
-                                            i18n_def="Reload")
-        self.connect(self.reloadButton, SIGNAL("clicked()"),
-                     self.reload)
+                                            i18n_def="Reload",
+                                            clicked_handler=self.reload)
 
     def __createTableView__(self, parent):
         self.filesTableView = FilesTableView(parent,
@@ -167,23 +163,20 @@ class ChooseDatasourcePage(QWizardPage):
                             i18n="datasource.file.preview.button",
                             i18n_def="File preview",
                             stretch_after_widget=1,
-                            enabled=False)
-        self.connect(self.filePreviewButton, SIGNAL("clicked()"),
-                     self.filePreviewAction)
+                            enabled=False,
+                            clicked_handler=self.filePreviewAction)
 
         self.checkAllButton = createPushButton(filesOperations,
                             i18n="datasource.accept.check.all.button",
                             i18n_def="Check all",
-                            enabled=False)
-        self.connect(self.checkAllButton, SIGNAL("clicked()"),
-                     self.checkAllAction)
+                            enabled=False,
+                            clicked_handler=self.checkAllAction)
 
         self.uncheckAllButton = createPushButton(filesOperations,
                             i18n="datasource.accept.uncheck.all.button",
                             i18n_def="Uncheck all",
-                            enabled=False)
-        self.connect(self.uncheckAllButton, SIGNAL("clicked()"),
-                     self.uncheckAllAction)
+                            enabled=False,
+                            clicked_handler=self.uncheckAllAction)
 
     def chooseRootDirAction(self):
         SettingsFactory.loadSettings(self, Setter(rootDir=None))
@@ -366,9 +359,8 @@ class ChooseColumnsDataPage(QWizardPage):
         self.filePreviewButton = createPushButton(self.tableViewComposite,
                             i18n="datasource.file.preview.button",
                             i18n_def="File preview",
-                            enabled=False)
-        self.connect(self.filePreviewButton, SIGNAL("clicked()"),
-                     self.filePreviewAction)
+                            enabled=False,
+                            clicked_handler=self.filePreviewAction)
 
         self.separatorWidget = DataSeparatorWidget(self.tableViewComposite,
                                 separatorHandler=self.__separatorHandler__,
@@ -471,11 +463,10 @@ class ChooseColumnsDataPage(QWizardPage):
         self.__globalCheckBox__ = createCheckBox(
                                     self.fileHeaderPreviewGroup,
                                     i18n="global.data.column.index",
-                                    i18n_def="Global columns indexes")
+                                    i18n_def="Global columns indexes",
+                                    clicked_handler=self.__globalClicked__)
         if self.__globalIndex__:
             self.__globalCheckBox__.setCheckState(Qt.Checked)
-        self.connect(self.__globalCheckBox__, SIGNAL("clicked()"),
-                     self.__globalClicked__)
 
     def __createDataFileHeader__(self, pathFile, _separator):
         dataFileHeader = self.__dataFilesHeaders__.get(pathFile, None)
@@ -592,16 +583,14 @@ class HeaderWidget(QWidget):
     def __init__(self, _parent, _header, _dataHandler, _annotationHandler):
         QWidget.__init__(self, parent=_parent)
         layout = QVBoxLayout(self)
-        layout.addWidget(QLabel(_header, self))
-        self.dataButton = QCheckBox("data", self)
-        layout.addWidget(self.dataButton)
-        self.annotationButton = QCheckBox("annotation", self)
-        layout.addWidget(self.annotationButton)
         self.setLayout(layout)
-        self.connect(self.dataButton, SIGNAL("clicked()"),
-                     self.dataClicked)
-        self.connect(self.annotationButton, SIGNAL("clicked()"),
-                     self.annotationClicked)
+
+        createLabel(self, i18n_def=_header)
+        self.dataButton = createCheckBox(self, i18n_def="data",
+                                         clicked_handler=self.dataClicked)
+        self.annotationButton = createCheckBox(self, i18n_def="annotation",
+                                        clicked_handler=self.annotationClicked)
+
         self.__dataHandler__ = _dataHandler
         self.__annotationHandler__ = _annotationHandler
 
