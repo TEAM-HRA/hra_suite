@@ -37,3 +37,14 @@ def addInstanceMethod(_new_method, _class, _method_name, _object=None):
 #        posargs = args.pop(posname, [])
 #        args.update(args.pop(kwname, []))
 #        return args, posargs
+
+class ProxyType(object):
+    """
+    class which could be use to create a proxy objects
+    """
+    def __init__(self, host_object):
+        for attr in dir(host_object):
+            name = str(attr)
+            if name == '__weakref__':
+                continue
+            setattr(self, name, getattr(host_object, name))
