@@ -87,7 +87,8 @@ class ChooseDatasourcePage(QWizardPage):
 
         self.__createFilesOperationsComposite__(self.filesGroupBox)
 
-        self.changeEnablemend(False, withRootDir=False)
+        self.changeEnablemend(False)
+        self.chooseRootDirButton.setEnabled(True)
 
     def __createFileConstraintsComposite__(self, parent):
         fileConstraintsComposite = createComposite(parent,
@@ -161,7 +162,6 @@ class ChooseDatasourcePage(QWizardPage):
                         i18n="datasource.file.preview.button",
                         i18n_def="File preview",
                         stretch_after_widget=1,
-                        enabled=False,
                         clicked_handler=self.filePreviewAction,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
@@ -192,15 +192,15 @@ class ChooseDatasourcePage(QWizardPage):
             self.reload()
 
     def checkAllAction(self):
-        self.progressBarManager.start(before=self.beforeCheckProgressBarAction,
+        self.progressBarManager.start(before=self.beforeProgressBarAction,
                                       progressJob=self.checkProgressBarAction,
-                                      after=self.afterCheckProgressBarAction)
+                                      after=self.afterProgressBarAction)
 
     def uncheckAllAction(self):
         self.progressBarManager.start(
-                                    before=self.beforeUncheckProgressBarAction,
+                                    before=self.beforeProgressBarAction,
                                     progressJob=self.uncheckProgressBarAction,
-                                    after=self.afterUncheckProgressBarAction)
+                                    after=self.afterProgressBarAction)
 
     def filePreviewAction(self):
         showFilePreviewDialog(
@@ -211,7 +211,7 @@ class ChooseDatasourcePage(QWizardPage):
             self.progressBarManager.start(
                     before=self.beforeTableViewProgressAction,
                     progressJob=self.tableViewProgressBarAction,
-                    after=self.afterFinishProgressBar)
+                    after=self.afterTableViewProgressAction)
 
     def beforeTableViewProgressAction(self):
         self.filesTableView.clear()
@@ -253,14 +253,13 @@ class ChooseDatasourcePage(QWizardPage):
                     break
                 self.filesTableView.addRow((checkable, filename, size, path))
 
-    def afterFinishProgressBar(self):
+    def afterTableViewProgressAction(self):
         self.filesTableView.resizeColumnsToContents()
-        self.changeEnablemend(True)
-        self.filePreviewButton.setEnabled(False)
         self.filesExtension.setFocus()
+        self.changeEnablemend(True)
 
     def onClickedAction(self, idx):
-        self.filePreviewButton.setEnabled(False)
+        self.filePreviewButton.setEnabled(True)
         self.filesTableView.onClickedAction(idx)
 
     def isComplete(self):
@@ -270,10 +269,9 @@ class ChooseDatasourcePage(QWizardPage):
         """
         return self.filesTableView.getCompletedCount()
 
-    def changeEnablemend(self, enabled, withRootDir=True):
+    def changeEnablemend(self, enabled):
         self.emit(SIGNAL(ENABLED_SIGNAL_NAME), enabled)
-        if withRootDir == True:
-            self.chooseRootDirButton.setEnabled(enabled)
+        self.chooseRootDirButton.setEnabled(enabled)
 
     def enabledPrecheckHandler(self, widget):
         """
@@ -281,26 +279,21 @@ class ChooseDatasourcePage(QWizardPage):
         """
         if widget in (self.checkAllButton, self.uncheckAllButton):
             return self.filesTableView.count() > 0
+        elif widget == self.filePreviewButton:
+            return self.filesTableView.getSelectedRowCount() > 0
 
-    def beforeCheckProgressBarAction(self):
+    def beforeProgressBarAction(self):
         self.changeEnablemend(False)
 
     def checkProgressBarAction(self):
         self.__checkingProgressBarAction__(Qt.Checked)
 
-    def afterCheckProgressBarAction(self):
+    def afterProgressBarAction(self):
         self.filesTableView.maxCompleteState()
         self.changeEnablemend(True)
 
-    def beforeUncheckProgressBarAction(self):
-        self.changeEnablemend(False)
-
     def uncheckProgressBarAction(self):
         self.__checkingProgressBarAction__(Qt.Unchecked)
-
-    def afterUncheckProgressBarAction(self):
-        self.filesTableView.minCompleteState()
-        self.changeEnablemend(True)
 
     def __checkingProgressBarAction__(self, checked):
         for idx in range(self.filesTableView.getRowCount()):
