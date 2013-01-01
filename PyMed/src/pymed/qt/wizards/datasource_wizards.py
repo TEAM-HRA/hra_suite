@@ -267,7 +267,7 @@ class ChooseDatasourcePage(QWizardPage):
         method used by QWizard to check if next/previous buttons have to
         be disabled/enabled (when False/True is returned)
         """
-        return self.filesTableView.getCompletedCount()
+        return self.filesTableView.isCompletedCount()
 
     def changeEnablemend(self, enabled):
         self.emit(SIGNAL(ENABLED_SIGNAL_NAME), enabled)
@@ -289,7 +289,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.__checkingProgressBarAction__(Qt.Checked)
 
     def afterProgressBarAction(self):
-        self.filesTableView.maxCompleteState()
+        self.filesTableView.changeCompleteState()
         self.changeEnablemend(True)
 
     def uncheckProgressBarAction(self):

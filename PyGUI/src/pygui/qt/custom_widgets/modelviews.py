@@ -106,6 +106,11 @@ class FilesTableView(object):
             self.filesTableView.connect(self.filesTableView,
                                         SIGNAL('clicked(QModelIndex)'),
                                         self.params.onClickedAction)
+            if not self.filesTableView.model() == None:
+                #a signal used when selected row state is changed
+                self.filesTableView.connect(self.filesTableView.model(),
+                                        SIGNAL('itemChanged(QStandardItem *)'),
+                                        self.__itemChanged__)
         if self.params.sorting:
             self.filesTableView.setSortingEnabled(True)
 
@@ -114,6 +119,10 @@ class FilesTableView(object):
             self.filesTableView.resizeColumnsToContents()
             self.filesTableView.scrollToTop()
 
+    def __itemChanged__(self, item):
+        self.changeCompleteState(1, 'add'
+                if item.checkState() == Qt.Checked else 'sub')
+
     def addRow(self, row):
         self.filesTableView.model().appendRow(row)
 
@@ -121,10 +130,6 @@ class FilesTableView(object):
         self.filesTableView.model().removeRows(0,
                                     self.filesTableView.model().rowCount())
         self.minCompleteState()
-
-    def rowChecked(self, selectedRow):
-        return self.filesTableView.model().item(
-                                selectedRow.row()).checkState() == Qt.Checked
 
     def getSelectedPathAndFilename(self, as_str=True):
         return self.getPathAndFilename(self.selectedRow, as_str)
@@ -141,8 +146,8 @@ class FilesTableView(object):
 
     def onClickedAction(self, selectedRow):
         self.selectedRow = selectedRow
-        checked = self.rowChecked(selectedRow)
-        self.changeCompleteState(1, 'add' if checked else 'sub')
+        #do not remove leave as an useful example
+        #checked = self.__rowChecked__(selectedRow)
 
     def getSelectedItems(self):
         return [self.filesTableView.model().item(row)
@@ -161,17 +166,18 @@ class FilesTableView(object):
     def resizeColumnsToContents(self):
         self.filesTableView.resizeColumnsToContents()
 
-    def changeCompleteState(self, value, operation='set'):
+    def changeCompleteState(self, value=0, operation='set'):
         """
-        method used to emit a signal completeChanged() which is intercepted
-        by QWizard to enable/disable next, previous buttons based on value
-        returned by isComplete method of a wizard page object
-        correction:
-        it's better do not send a completeChange signal, because
-        program jump to the beginning of a table view instead of sticking
-        to the position where it is already
+        a method instead of emitting a signal completeChanged() which
+        is intercepted by QWizard to enable/disable next, previous buttons
+        based on value returned by isComplete method of a wizard page
+
+        set up wizard operational's buttons enable states, because use of
+        the completeChange signal causes jump to the beginning of
+        a table view instead of sticking to the position where it was already
+        and also dim of a selected row is observed
         """
-        if operation == 'set':
+        if operation == 'set' and value != 0:
             self.__completed_count__ = value
         elif operation == 'add':
             self.__completed_count__ = self.__completed_count__ + value
@@ -183,10 +189,13 @@ class FilesTableView(object):
         if self.params.wizardButtons:
             for button in self.params.wizardButtons:
                 self.params.wizard.button(button).setEnabled(
-                                                self.__completed_count__ > 0)
+                                                    self.isCompletedCount())
+
+    def isCompletedCount(self):
+        return self.getCompletedCount() > 0
 
     def getCompletedCount(self):
-        return self.__completed_count__ > 0
+        return self.__completed_count__
 
     def maxCompleteState(self):
         self.changeCompleteState(self.getRowCount())
@@ -211,6 +220,13 @@ class FilesTableView(object):
 
     def getSelectedRowCount(self):
         return len(self.filesTableView.selectedIndexes()) / len(self.labels)
+
+#    def __rowChecked__(self, selectedRow):
+#        """
+#        method not used but stayed as an useful example
+#        """
+#        return self.filesTableView.model().item(
+#                                selectedRow.row()).checkState() == Qt.Checked
 
 
 class CheckStateProxySortFilterModel(QSortFilterProxyModel):
