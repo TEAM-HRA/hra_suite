@@ -92,7 +92,7 @@ class FilesTableView(object):
                   QT_I18N("datasource.files.column.filename", "Filename"),
                   QT_I18N("datasource.files.column.size", "Size"),
                   QT_I18N("datasource.files.column.path", "File path")]
-        labels = QStringList(labels)
+        self.labels = QStringList(labels)
 
         self.filesTableView = createTableView(parent,
                 selectionBehavior=QAbstractItemView.SelectRows,
@@ -208,6 +208,9 @@ class FilesTableView(object):
 
     def count(self):
         return self.filesTableView.model().rowCount()
+
+    def getSelectedRowCount(self):
+        return len(self.filesTableView.selectedIndexes()) / len(self.labels)
 
 
 class CheckStateProxySortFilterModel(QSortFilterProxyModel):
