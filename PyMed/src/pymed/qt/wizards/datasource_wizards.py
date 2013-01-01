@@ -6,14 +6,7 @@ Created on 03-11-2012
 from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
 from pygui.qt.utils.qt_i18n import QT_I18N
-from pygui.qt.utils.qt_i18n import title_I18N
-from pygui.qt.utils.widgets import createComposite
-from pygui.qt.utils.widgets import createTableView
-from pygui.qt.utils.widgets import createLineEdit
-from pygui.qt.utils.widgets import createCheckBox
-from pygui.qt.utils.widgets import createLabel
-from pygui.qt.utils.widgets import createPushButton
-from pygui.qt.utils.widgets import createGroupBox
+from pygui.qt.utils.widgets import *  # @UnusedWildImport
 from pygui.qt.utils.graphics import get_width_of_n_letters
 from pycore.io_utils import is_text_file
 from pycore.io_utils import DataFileHeader
@@ -120,37 +113,42 @@ class ChooseDatasourcePage(QWizardPage):
                     i18n_def="Files name filter")
 
         self.filesExtension = createLineEdit(fileConstraintsComposite,
-                                             maxLength=15,
-                                             width=get_width_of_n_letters(14),
-                                             text="*")
+                        maxLength=15,
+                        width=get_width_of_n_letters(14),
+                        text="*",
+                        enabled_precheck_handler=self.enabledPrecheckHandler)
         self.connect(self.filesExtension,
                      SIGNAL("textChanged(const QString&)"),
                      self.reload)
 
         self.recursively = createCheckBox(fileConstraintsComposite,
-                i18n="datasource.search.files.recursively.label",
-                i18n_def="Search files recursively",
-                clicked_handler=self.reload)
+                        i18n="datasource.search.files.recursively.label",
+                        i18n_def="Search files recursively",
+                        clicked_handler=self.reload,
+                        enabled_precheck_handler=self.enabledPrecheckHandler)
 
         self.onlyKnownTypes = createCheckBox(fileConstraintsComposite,
-                i18n="datasource.only.known.types.checkbox",
-                i18n_def="Only known types",
-                checked=True,
-                clicked_handler=self.reload)
+                        i18n="datasource.only.known.types.checkbox",
+                        i18n_def="Only known types",
+                        checked=True,
+                        clicked_handler=self.reload,
+                        enabled_precheck_handler=self.enabledPrecheckHandler)
 
     def __createReloadButton__(self, parent):
         self.reloadButton = createPushButton(parent,
-                                            i18n="datasource.reload.button",
-                                            i18n_def="Reload",
-                                            clicked_handler=self.reload)
+                        i18n="datasource.reload.button",
+                        i18n_def="Reload",
+                        clicked_handler=self.reload,
+                        enabled_precheck_handler=self.enabledPrecheckHandler)
 
     def __createTableView__(self, parent):
         self.filesTableView = FilesTableView(parent,
-                                    model=QStandardItemModel(self),
-                                    onClickedAction=self.onClickedAction,
-                                    wizardButtons=(QWizard.NextButton,),
-                                    wizard=self.wizard(),
-                                    sorting=True)
+                        model=QStandardItemModel(self),
+                        onClickedAction=self.onClickedAction,
+                        wizardButtons=(QWizard.NextButton,),
+                        wizard=self.wizard(),
+                        sorting=True,
+                        enabled_precheck_handler=self.enabledPrecheckHandler)
 
     def __createProgressBarComposite__(self, parent):
         self.progressBarManager.setParams(parent, hidden=True)
@@ -160,23 +158,26 @@ class ChooseDatasourcePage(QWizardPage):
                                             layout=QHBoxLayout())
 
         self.filePreviewButton = createPushButton(filesOperations,
-                            i18n="datasource.file.preview.button",
-                            i18n_def="File preview",
-                            stretch_after_widget=1,
-                            enabled=False,
-                            clicked_handler=self.filePreviewAction)
+                        i18n="datasource.file.preview.button",
+                        i18n_def="File preview",
+                        stretch_after_widget=1,
+                        enabled=False,
+                        clicked_handler=self.filePreviewAction,
+                        enabled_precheck_handler=self.enabledPrecheckHandler)
 
         self.checkAllButton = createPushButton(filesOperations,
-                            i18n="datasource.accept.check.all.button",
-                            i18n_def="Check all",
-                            enabled=False,
-                            clicked_handler=self.checkAllAction)
+                        i18n="datasource.accept.check.all.button",
+                        i18n_def="Check all",
+                        enabled=False,
+                        clicked_handler=self.checkAllAction,
+                        enabled_precheck_handler=self.enabledPrecheckHandler)
 
         self.uncheckAllButton = createPushButton(filesOperations,
-                            i18n="datasource.accept.uncheck.all.button",
-                            i18n_def="Uncheck all",
-                            enabled=False,
-                            clicked_handler=self.uncheckAllAction)
+                        i18n="datasource.accept.uncheck.all.button",
+                        i18n_def="Uncheck all",
+                        enabled=False,
+                        clicked_handler=self.uncheckAllAction,
+                        enabled_precheck_handler=self.enabledPrecheckHandler)
 
     def chooseRootDirAction(self):
         SettingsFactory.loadSettings(self, Setter(rootDir=None))
@@ -259,7 +260,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.filesExtension.setFocus()
 
     def onClickedAction(self, idx):
-        self.filePreviewButton.setEnabled(True)
+        self.filePreviewButton.setEnabled(False)
         self.filesTableView.onClickedAction(idx)
 
     def isComplete(self):
@@ -270,17 +271,16 @@ class ChooseDatasourcePage(QWizardPage):
         return self.filesTableView.getCompletedCount()
 
     def changeEnablemend(self, enabled, withRootDir=True):
-        count = self.filesTableView.count()
-        self.filesExtension.setEnabled(enabled)
-        self.recursively.setEnabled(enabled)
-        self.filesTableView.setEnabled(enabled)
-        self.checkAllButton.setEnabled(count > 0)
-        self.uncheckAllButton.setEnabled(count > 0)
-        self.reloadButton.setEnabled(enabled)
-        self.onlyKnownTypes.setEnabled(enabled)
-        self.filePreviewButton.setEnabled(enabled)
+        self.emit(SIGNAL(ENABLED_SIGNAL_NAME), enabled)
         if withRootDir == True:
             self.chooseRootDirButton.setEnabled(enabled)
+
+    def enabledPrecheckHandler(self, widget):
+        """
+        only interested widgets return bool value others none value
+        """
+        if widget in (self.checkAllButton, self.uncheckAllButton):
+            return self.filesTableView.count() > 0
 
     def beforeCheckProgressBarAction(self):
         self.changeEnablemend(False)

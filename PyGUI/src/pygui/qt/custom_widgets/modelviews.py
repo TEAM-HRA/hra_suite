@@ -95,8 +95,9 @@ class FilesTableView(object):
         labels = QStringList(labels)
 
         self.filesTableView = createTableView(parent,
-                        selectionBehavior=QAbstractItemView.SelectRows,
-                        selectionMode=QAbstractItemView.SingleSelection)
+                selectionBehavior=QAbstractItemView.SelectRows,
+                selectionMode=QAbstractItemView.SingleSelection,
+                enabled_precheck_handler=self.params.enabled_precheck_handler)
         if self.params.model:
             self.filesTableView.setModel(self.params.model)
         self.filesTableView.model().setHorizontalHeaderLabels(labels)

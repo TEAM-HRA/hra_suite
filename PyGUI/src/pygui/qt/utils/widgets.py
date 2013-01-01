@@ -28,7 +28,7 @@ def createPushButton(parent=None, **params):
     if params.get('sizePolicy', None) == None:
         params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed)
-    return __item(parent, widget=QPushButton(parent), textable=True, **params)
+    return __item(parent, widget=__PushButton(parent), textable=True, **params)
 
 
 def createGroupBox(parent=None, **params):
@@ -36,7 +36,7 @@ def createGroupBox(parent=None, **params):
 
 
 def createLineEdit(parent=None, **params):
-    return __item(parent, widget=LineEditWidget(parent, **params), **params)
+    return __item(parent, widget=__LineEditWidget(parent, **params), **params)
 
 
 class LineEditWidget(QLineEdit):
@@ -52,11 +52,11 @@ class LineEditWidget(QLineEdit):
 
 
 def createCheckBox(parent=None, **params):
-    return __item(parent, widget=QCheckBox(parent), textable=True, **params)
+    return __item(parent, widget=__CheckBox(parent), textable=True, **params)
 
 
 def createTableView(parent=None, **params):
-    return __item(parent, widget=QTableView(parent), **params)
+    return __item(parent, widget=__TableView(parent), **params)
 
 
 def createSlider(parent=None, **params):
@@ -146,6 +146,8 @@ def __item(parent=None, **params):
         widget.setObjectName(params.object_name)
     if not params.clicked_handler == None:
         widget.connect(widget, SIGNAL("clicked()"), params.clicked_handler)
+    if not params.enabled_precheck_handler == None:
+        widget.setEnabledPrecheckHandler(params.enabled_precheck_handler)
     return widget
 
 
@@ -179,3 +181,51 @@ def __set_widget_size(widget, size, width, height):
             widget.setFixedHeight(width, height)
         else:
             widget.setFixedSize(size)
+
+ENABLED_SIGNAL_NAME = 'enabled_signal(bool)'
+
+
+class __Common(QObject):
+    """
+    the class __Common is the main functionality which set up
+    a connection between the signal and created widget, and also invokes
+    handler passed as enabled_precheck_handler parameter
+    """
+    def setEnabledPrecheckHandler(self, enabled_precheck_handler):
+        self.enabled_precheck_handler = enabled_precheck_handler
+        self.__connectHandler__(self.enabled_precheck_handler,
+                                ENABLED_SIGNAL_NAME,
+                                self.__enabled_handler__)
+
+    def __connectHandler__(self, _widget_or_handler, signal_name, slot_handler): # @IgnorePep8
+        obj_ = None
+        if hasattr(_widget_or_handler, '__self__'):
+            # this means that _widget_or_handler is a method we need a object
+            # associated with this method
+            obj_ = _widget_or_handler.__self__
+        else:
+            # this means that _widget_or_handler is an object not a method
+            obj_ = _widget_or_handler
+        self.connect(obj_, SIGNAL(signal_name), slot_handler)
+
+    @pyqtSlot(bool)
+    def __enabled_handler__(self, enabled):
+        precheck_enabled = self.enabled_precheck_handler(self)
+        self.setEnabled(enabled
+                    if precheck_enabled == None else precheck_enabled)
+
+
+class __CheckBox(QCheckBox, __Common):
+    pass
+
+
+class __PushButton(QPushButton, __Common):
+    pass
+
+
+class __LineEditWidget(LineEditWidget, __Common):
+    pass
+
+
+class __TableView(QTableView, __Common):
+    pass
