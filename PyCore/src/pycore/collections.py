@@ -85,3 +85,7 @@ def replace_all_by_dict(_string, _dict):
 
 def create_list(element, size):
     return [element for _ in range(size)]
+
+
+def empty_string(value):
+    return "" if value == None else str(value)
