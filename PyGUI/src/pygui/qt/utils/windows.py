@@ -28,7 +28,8 @@ def __message__(parent=None, **params):
     if local_params.title_id == None and local_params.title_default == None:
         title = "Information"
     else:
-        title = QT_I18N(local_params.title_id, _default=local_params.title,
+        title = QT_I18N(local_params.title_id,
+                        _default=local_params.title_default,
                         **params)
     message = QT_I18N(local_params.message_id,
                           _default=local_params.message,
