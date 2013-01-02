@@ -21,6 +21,7 @@ from pygui.qt.custom_widgets.modelviews import FilesTableView
 from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
 from pygui.qt.custom_widgets.modelviews import CheckStateProxySortFilterModel
 from pycore.collections import create_list
+from pycore.collections import empty_string
 
 
 class DatasourceWizard(QWizard):
@@ -32,10 +33,11 @@ class DatasourceWizard(QWizard):
 
     def __init__(self, _parent):
         QWizard.__init__(self, _parent)
+        self.setOptions(QWizard.NoBackButtonOnStartPage)
+        self.setWizardStyle(QWizard.ModernStyle)
         self.setGeometry(QRect(50, 50, 1000, 600))
         self.setWindowTitle(QT_I18N("datasource.import.title",
                                     _default="Datasource import"))
-        self.datasourcePage = None
 
     def show(self):
         self.datasourcePage = ChooseDatasourcePage(self)
@@ -568,6 +570,63 @@ class ChooseColumnsDataPage(QWizardPage):
                                     hidden=True,
                                     enabled=False)
 
+    def validatePage(self):
+        filesSpecificationModel = DatasourceFilesSpecificationModel()
+        for (_path, _filename, _dataIndex, __annotationIndex, _separator) in \
+            self.__getFilesSpec__(indexes=True, separators=True):
+                if _dataIndex == None:
+                    ErrorWindow(message=("No data column for the file %s !"
+                                         % (_filename)))
+                    return False
+                if _separator == None:
+                    ErrorWindow(message=("No separator for file %s !"
+                                         % (_filename)))
+                    return False
+                filesSpecificationModel.appendRow(_path, _filename, _dataIndex,
+                                                __annotationIndex, _separator)
+        return True
+
+    def __getFilesSpec__(self, _pathfile=True,
+                         indexes=False, use_global_index=True,
+                         separators=False, use_global_separator=True):
+        filesSpec = []
+        model = self.filesTableView.model()
+        for row in range(model.rowCount()):
+            #it's necessity to alter model index of QSortFilterProxyModel type
+            #into source model index of QStandardItemModel type
+            idx = model.mapToSource(model.index(row, 0))
+            pathFile = self.filesTableView.getPathAndFilename(idx,
+                                                         as_str=True)
+
+            if pathFile:
+                fileSpec = []
+                if _pathfile == True:
+                    fileSpec.extend(pathFile)
+
+                if indexes == True:
+                    dataIndex = self.__dataColumnIndexes__.get(pathFile)
+                    if dataIndex == None and use_global_index == True and \
+                        not self.__globalIndex__ == None:
+                        dataIndex = self.__globalIndex__[0]
+                    fileSpec.append(dataIndex)
+
+                    annotationIndex = self.__annotationColumnIndexes__.get(
+                                                                   pathFile)
+                    if annotationIndex == None and use_global_index == True \
+                        and not self.__globalIndex__ == None:
+                        annotationIndex = self.__globalIndex__[1]
+                    fileSpec.append(annotationIndex)
+                if separators == True:
+                    separator = None
+                    dataFileHeader = self.__dataFilesHeaders__.get(pathFile)
+                    if not dataFileHeader == None:
+                        separator = dataFileHeader.getSeparator()
+                    if separator == None and use_global_separator == True:
+                        separator = self.__globalSeparator__
+                    fileSpec.append(separator)
+                filesSpec.append(tuple(fileSpec))
+        return filesSpec
+
 
 class HeaderWidget(QWidget):
     ANNOTATION_TYPE = 'a'
@@ -623,3 +682,19 @@ class PreviewDataViewModel(QStandardItemModel):
             return Qt.AlignRight
         else:
             return super(PreviewDataViewModel, self).data(_modelIndex, _role)
+
+
+class DatasourceFilesSpecificationModel(QStandardItemModel):
+    def __init__(self):
+        QStandardItemModel.__init__(self)
+        labels = ["path", "filename", "data_index",
+                  "annotation_index", "separator"]
+        self.setHorizontalHeaderLabels(labels)
+
+    def appendRow(self, _path, _filename, _dataIndex, _annotationIndex,
+                  _separator):
+
+        row = [QStandardItem(QString(empty_string(item)))
+                for item in [_path, _filename, _separator, _dataIndex,
+                             _annotationIndex]]
+        super(DatasourceFilesSpecificationModel, self).appendRow(row)
