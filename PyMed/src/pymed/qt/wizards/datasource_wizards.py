@@ -22,6 +22,7 @@ from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
 from pygui.qt.custom_widgets.modelviews import CheckStateProxySortFilterModel
 from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
 from pycore.collections import create_list
+from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
 
 
 class DatasourceWizard(QWizard):
@@ -70,7 +71,7 @@ class ChooseDatasourcePage(QWizardPage):
 
         #to force call of isComplete(self) method by the Wizard framework
         #which causes state next button to be updated
-        self.emit(SIGNAL("completeChanged()"))
+        self.emit(SIGNAL(WIZARD_COMPLETE_CHANGED_SIGNAL))
         self.rootDir = None
 
     def __createFilesGroupBox(self, pageLayout):
