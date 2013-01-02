@@ -56,6 +56,8 @@ PyGUI/src/pygui/qt/custom_widgets/progress_bar.py -text
 PyGUI/src/pygui/qt/custom_widgets/separator.py -text
 PyGUI/src/pygui/qt/menu/__init__.py -text
 PyGUI/src/pygui/qt/menu/menus.py -text
+PyGUI/src/pygui/qt/models/__init__.py -text
+PyGUI/src/pygui/qt/models/datasources.py -text
 PyGUI/src/pygui/qt/utils/__init__.py -text
 PyGUI/src/pygui/qt/utils/context.py -text
 PyGUI/src/pygui/qt/utils/graphics.py -text

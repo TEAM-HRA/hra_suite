@@ -20,8 +20,8 @@ from pygui.qt.utils.windows import ErrorWindow
 from pygui.qt.custom_widgets.modelviews import FilesTableView
 from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
 from pygui.qt.custom_widgets.modelviews import CheckStateProxySortFilterModel
+from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
 from pycore.collections import create_list
-from pycore.collections import empty_string
 
 
 class DatasourceWizard(QWizard):
@@ -682,19 +682,3 @@ class PreviewDataViewModel(QStandardItemModel):
             return Qt.AlignRight
         else:
             return super(PreviewDataViewModel, self).data(_modelIndex, _role)
-
-
-class DatasourceFilesSpecificationModel(QStandardItemModel):
-    def __init__(self):
-        QStandardItemModel.__init__(self)
-        labels = ["path", "filename", "data_index",
-                  "annotation_index", "separator"]
-        self.setHorizontalHeaderLabels(labels)
-
-    def appendRow(self, _path, _filename, _dataIndex, _annotationIndex,
-                  _separator):
-
-        row = [QStandardItem(QString(empty_string(item)))
-                for item in [_path, _filename, _separator, _dataIndex,
-                             _annotationIndex]]
-        super(DatasourceFilesSpecificationModel, self).appendRow(row)
