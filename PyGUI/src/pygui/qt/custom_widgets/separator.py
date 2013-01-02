@@ -66,9 +66,9 @@ class DataSeparatorWidget(object):
         self.globalSettingsCheckBox = None
         if self.params.globalHandler:
             self.globalSettingsCheckBox = createCheckBox(
-                                                self.separatorsGroupBox,
-                                                i18n="separator.global.marker",
-                                                i18n_def="Global settings")
+                                        self.separatorsGroupBox,
+                                        i18n="separator.global.separator",
+                                        i18n_def="Global separator")
             self.separatorsGroupBox.connect(self.globalSettingsCheckBox,
                                         SIGNAL("clicked()"),
                                         self.globalSettingsButtonClicked)
