@@ -18,40 +18,54 @@ from pycore.globals import GLOBALS
 from pygui.qt.utils.context import GlobalContext
 from pygui.qt.utils.widgets import createTabWidget
 from pygui.qt.utils.widgets import createWidget
+from pygui.qt.utils.windows import MainWindow
 
 __version__ = "1.0.0"
 
 
-class MainWindow(QMainWindow):
+def main():
+    app = QApplication(sys.argv)
+    app.setOrganizationName("Qtrac Ltd.")
+    app.setOrganizationDomain("qtrac.eu")
+    app.setApplicationName("Image Changer")
+    app.setWindowIcon(QIcon(":/icon.png"))
+    form = MainWindow(window_title="Medical Workspace")
+    #print('id main window ' + str(id(form)))
+    form.showMaximized()
+    app.exec_()
 
-    def __init__(self, parent=None):
-        super(MainWindow, self).__init__(parent)
+main()
 
-        self.setWindowTitle("Medical Workspace")
-
-        menuBuilder = QTMenuBuilder(self)
-        menuBuilder.createMenus()
-
-        if GLOBALS.START_MENU_ID:
-            if menuBuilder.invokeMenuItem(GLOBALS.START_MENU_ID):
-                sys.exit(0)
-
-        #self.image = QImage()
-        #self.dirty = False
-        #self.filename = None
-        #self.mirroredvertically = False
-        #self.mirroredhorizontally = False
-        #self.setGeometry(get_screen_size())
-
-        self.tabWidget = createTabWidget(self,
-                                         object_name=GLOBALS.WORKSPACE_NAME,
-                                         not_add_widget_to_parent_layout=True)
-        self.mainWidget = createWidget(self.tabWidget)
-        self.tabWidget.addTab(self.mainWidget, "Main")
-        #self.mainWidget.setMinimumSize(200, 200)
-        #self.mainWidget.setAlignment(Qt.AlignCenter)
-        #self.mainWidget.setContextMenuPolicy(Qt.ActionsContextMenu)
-        self.setCentralWidget(self.tabWidget)
+#class MainWindow(QMainWindow):
+#
+#    def __init__(self, parent=None):
+#        super(MainWindow, self).__init__(parent)
+#
+#        self.setWindowTitle("Medical Workspace")
+#
+#        menuBuilder = QTMenuBuilder(self)
+#        menuBuilder.createMenus()
+#
+#        if GLOBALS.START_MENU_ID:
+#            if menuBuilder.invokeMenuItem(GLOBALS.START_MENU_ID):
+#                sys.exit(0)
+#
+#        #self.image = QImage()
+#        #self.dirty = False
+#        #self.filename = None
+#        #self.mirroredvertically = False
+#        #self.mirroredhorizontally = False
+#        #self.setGeometry(get_screen_size())
+#
+#        self.mainTabWidget = createTabWidget(self,
+#                                         object_name=GLOBALS.WORKSPACE_NAME,
+#                                         not_add_widget_to_parent_layout=True)
+#        self.mainWidget = createWidget(self.mainTabWidget)
+#        self.mainTabWidget.addTab(self.mainWidget, "Main")
+#        #self.mainWidget.setMinimumSize(200, 200)
+#        #self.mainWidget.setAlignment(Qt.AlignCenter)
+#        #self.mainWidget.setContextMenuPolicy(Qt.ActionsContextMenu)
+#        self.setCentralWidget(self.mainTabWidget)
 
 #        logDockWidget = QDockWidget("Log", self)
 #        logDockWidget.setObjectName("LogDockWidget")
@@ -480,20 +494,6 @@ class MainWindow(QMainWindow):
 #        #form = helpform.HelpForm("index.html", self)
 #        #form.show()
 #        pass
-
-
-def main():
-    app = QApplication(sys.argv)
-    app.setOrganizationName("Qtrac Ltd.")
-    app.setOrganizationDomain("qtrac.eu")
-    app.setApplicationName("Image Changer")
-    app.setWindowIcon(QIcon(":/icon.png"))
-    form = MainWindow()
-    #print('id main window ' + str(id(form)))
-    form.showMaximized()
-    app.exec_()
-
-main()
 
 
 #import sys

@@ -9,8 +9,43 @@ from PyQt4.QtCore import *  # @UnusedWildImport
 from pycore.misc import Params
 from pygui.qt.utils.qt_i18n import QT_I18N
 from pygui.qt.utils.widgets import createLabel
+from pygui.qt.utils.widgets import createTabWidget
+from pygui.qt.utils.widgets import createWidget
 from pygui.qt.utils.widgets import createPlainTextEdit
 from pygui.qt.utils.widgets import createPushButton
+from pygui.qt.menu.menus import QTMenuBuilder
+from pycore.globals import GLOBALS
+import sys
+
+
+class MainWindow(QMainWindow):
+
+    def __init__(self, parent=None,
+                 create_menus=True,
+                 main_workspace_name=GLOBALS.WORKSPACE_NAME,
+                 main_widget_name=GLOBALS.TAB_MAIN_NAME,
+                 **params):
+        super(MainWindow, self).__init__(parent)
+        self.params = Params(**params)
+
+        self.setWindowTitle(self.params.window_title)
+
+        if create_menus == True:
+            menuBuilder = QTMenuBuilder(self)
+            menuBuilder.createMenus()
+
+            if GLOBALS.START_MENU_ID:
+                if menuBuilder.invokeMenuItem(GLOBALS.START_MENU_ID):
+                    sys.exit(0)
+
+        if main_workspace_name:
+            self.mainTabWidget = createTabWidget(self,
+                            object_name=main_workspace_name,
+                            not_add_widget_to_parent_layout=True)
+            if main_widget_name:
+                self.mainWidget = createWidget(self.mainTabWidget)
+                self.mainTabWidget.addTab(self.mainWidget, main_widget_name)
+                self.setCentralWidget(self.mainTabWidget)
 
 
 def InformationWindow(parent=None, **params):
