@@ -16,6 +16,8 @@ from pygui.qt.utils.widgets import createPushButton
 from pygui.qt.menu.menus import QTMenuBuilder
 from pycore.globals import GLOBALS
 import sys
+from pycore.introspection import get_class_object
+from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
 
 
 class MainWindow(QMainWindow):
@@ -38,6 +40,7 @@ class MainWindow(QMainWindow):
                 if menuBuilder.invokeMenuItem(GLOBALS.START_MENU_ID):
                     sys.exit(0)
 
+        self.mainTabWidget = None
         if main_workspace_name:
             self.mainTabWidget = createTabWidget(self,
                             object_name=main_workspace_name,
@@ -46,6 +49,17 @@ class MainWindow(QMainWindow):
                 self.mainWidget = createWidget(self.mainTabWidget)
                 self.mainTabWidget.addTab(self.mainWidget, main_widget_name)
                 self.setCentralWidget(self.mainTabWidget)
+
+        self.connect(self, ADD_TAB_WIDGET_SIGNAL, self.addTabWidget)
+
+    def addTabWidget(self, _tab_widget_name, _tab_widget_classname, _model):
+        if self.mainTabWidget == None:
+            InformationWindow(message='Main tab widget not created!')
+            return
+
+        _class_object = get_class_object(_tab_widget_classname)
+        tabWidget = _class_object(parent=self.mainTabWidget, model=_model)
+        self.mainTabWidget.addTab(tabWidget, _tab_widget_name)
 
 
 def InformationWindow(parent=None, **params):

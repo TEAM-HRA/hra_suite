@@ -23,6 +23,8 @@ from pygui.qt.custom_widgets.modelviews import CheckStateProxySortFilterModel
 from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
 from pycore.collections import create_list
 from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
+from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
+from pygui.qt.utils.specials import getMainWindowFromStack
 
 
 class DatasourceWizard(QWizard):
@@ -71,7 +73,7 @@ class ChooseDatasourcePage(QWizardPage):
 
         #to force call of isComplete(self) method by the Wizard framework
         #which causes state next button to be updated
-        self.emit(SIGNAL(WIZARD_COMPLETE_CHANGED_SIGNAL))
+        self.emit(WIZARD_COMPLETE_CHANGED_SIGNAL)
         self.rootDir = None
 
     def __createFilesGroupBox(self, pageLayout):
@@ -585,6 +587,13 @@ class ChooseColumnsDataPage(QWizardPage):
                     return False
                 filesSpecificationModel.appendRow(_path, _filename, _dataIndex,
                                                 __annotationIndex, _separator)
+
+        mainWindow = getMainWindowFromStack(inspect.stack())
+        mainWindow.emit(ADD_TAB_WIDGET_SIGNAL,
+                'PoincareTab',
+                'pymed.qt.wizards.datasource_wizards.TestPoincareTabWidget',
+                filesSpecificationModel)
+
         return True
 
     def __getFilesSpec__(self, _pathfile=True,
@@ -683,3 +692,18 @@ class PreviewDataViewModel(QStandardItemModel):
             return Qt.AlignRight
         else:
             return super(PreviewDataViewModel, self).data(_modelIndex, _role)
+
+
+class TestPoincareTabWidget(QWidget):
+    """
+    only for test purpose
+    """
+    def __init__(self, **params):
+        self.params = Params()
+        QWidget.__init__(self, parent=self.params.parent)
+        #self.setParent(_parent)
+        self.setLayout(QHBoxLayout())
+        #_parent.layout().addWidget(composite)
+
+        clearButton = QPushButton("Clear", self)
+        self.layout().addWidget(clearButton)
