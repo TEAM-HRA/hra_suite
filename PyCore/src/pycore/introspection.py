@@ -48,3 +48,55 @@ class ProxyType(object):
             if name == '__weakref__':
                 continue
             setattr(self, name, getattr(host_object, name))
+
+
+def get_class_object(_class_dotted_name):
+    return ObjectGenerator(_class_dotted_name).getClass()
+
+
+def get_method_member_object(_method_dotted_name):
+    return ObjectGenerator(_method_dotted_name).getMethod()
+
+
+class ObjectGenerator(object):
+
+    def __init__(self, _object_dotted_name):
+        """
+        object name in a dotted (package) form:
+        '<name1>.<name2>...<name_n>.<class_name>[.<method_name>]'
+        """
+        self.__object_dotted_name__ = _object_dotted_name
+
+    def getModule(self, shift=2):
+        self.__shift__ = shift
+        return __import__(self.__package, fromlist=[self.__class])
+
+    def getClass(self, shift=1):
+        _module_ = self.getModule(shift)
+        if _module_:
+            return getattr(_module_, self.__class, None)
+
+    def getMethod(self, shift=0):
+        _class_object = self.getClass(shift)
+        if _class_object:
+            return getattr(_class_object, self.__method, None)
+
+    @property
+    def __method(self):
+        return self.__part(-1 + self.__shift__)
+
+    @property
+    def __class(self):
+        return self.__part(-2 + self.__shift__)
+
+    @property
+    def __module(self):
+        return self.__part(-3 + self.__shift__)
+
+    @property
+    def __package(self):
+        return self.__part(0, -2 + self.__shift__)
+
+    def __part(self, start, end=None):
+        splits = self.__object_dotted_name__.split(".")
+        return splits[start] if end == None else ".".join(splits[start:end])
