@@ -50,53 +50,51 @@ class ProxyType(object):
             setattr(self, name, getattr(host_object, name))
 
 
-def get_class_object(_class_dotted_name):
-    return ObjectGenerator(_class_dotted_name).getClass()
+def get_class_object(_class_dotted_name, default=None):
+    return get_object(_class_dotted_name, default=default)
 
 
-def get_method_member_object(_method_dotted_name):
-    return ObjectGenerator(_method_dotted_name).getMethod()
+def get_method_member_object(_method_dotted_name, default=None):
+    return get_object(_method_dotted_name, default=default)
 
 
-class ObjectGenerator(object):
+def get_module_object(_module_dotted_name):
+    return get_object(_module_dotted_name)
 
-    def __init__(self, _object_dotted_name):
-        """
-        object name in a dotted (package) form:
-        '<name1>.<name2>...<name_n>.<class_name>[.<method_name>]'
-        """
-        self.__object_dotted_name__ = _object_dotted_name
 
-    def getModule(self, shift=2):
-        self.__shift__ = shift
-        return __import__(self.__package, fromlist=[self.__class])
+def get_object(name, default=None):
+    """
+    method which returns any member (class, method, function)
+    included in a module and specified by a parameter name in
+    a dot (package) format
+    '<name1>.<name2>.[...].<name_n>'
+    """
+    splits = name.split(".")
+    module_name = name
+    level = 0
+    #searching for a module
+    while True:
+        try:
+            __import__(module_name, globals(), locals(), [], -1)
+            break
+        except (ImportError):
+            level = level - 1
+            module_name = __s(splits[:level])
+            if len(module_name) == 0:
+                return default
+            else:
+                continue
 
-    def getClass(self, shift=1):
-        _module_ = self.getModule(shift)
-        if _module_:
-            return getattr(_module_, self.__class, None)
+    from_name = __s(splits[level:])
+    object_names = __import__(module_name, fromlist=[from_name])
+    for name in splits[level:]:
+        _object = getattr(object_names, name, None)
+        if _object == None:
+            break
+        object_names = _object
+    #print(str(_object))
+    return default if _object == None else _object
 
-    def getMethod(self, shift=0):
-        _class_object = self.getClass(shift)
-        if _class_object:
-            return getattr(_class_object, self.__method, None)
 
-    @property
-    def __method(self):
-        return self.__part(-1 + self.__shift__)
-
-    @property
-    def __class(self):
-        return self.__part(-2 + self.__shift__)
-
-    @property
-    def __module(self):
-        return self.__part(-3 + self.__shift__)
-
-    @property
-    def __package(self):
-        return self.__part(0, -2 + self.__shift__)
-
-    def __part(self, start, end=None):
-        splits = self.__object_dotted_name__.split(".")
-        return splits[start] if end == None else ".".join(splits[start:end])
+def __s(_list):
+    return ".".join(_list)
