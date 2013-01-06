@@ -44,3 +44,19 @@ def contains_letter(_string):
 
 def is_empty(_string):
     return True if _string == None or len(_string) == 0 else False
+
+
+def camel_format(_string):
+    """
+    a method which convert string in the form (an example):
+    abcde_fghij_klmn
+    into camel (format)
+    abcdeFghijKlmn
+    that means underline signs are removed and all first letter of words,
+    except the first, (a word means a sequence between underlines) are upper
+    case
+    """
+    if _string and len(_string.strip()) > 0:
+        _string = _string.replace('_', ' ').title().replace(' ', '')
+        return _string[0:1].lower() + _string[1:]
+    return _string
