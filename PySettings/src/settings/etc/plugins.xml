@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins>
+	<plugin ident="pygui.qt.utils.plugins.PluginsNames.POINCARE_PLOT_PLUGIN_NAME" 
+		host_object_name="pycore.globals.Globals.MAIN_WINDOW_NAME">
+		<signals>
+			<signal ident="pygui.qt.utils.signals.ADD_TAB_WIDGET_SIGNAL" reuse="true">
+				<params>
+					<param value="PoincareTab"/>
+					<param value="pymed.qt.plugins.poincare_plot.PoincareTabWidget"/>					
+					<param key="model"/>
+				</params>
+			</signal>
+		</signals>
+	</plugin>
+</plugins>

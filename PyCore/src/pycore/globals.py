@@ -48,6 +48,7 @@ class Globals(object):
     EXT_MASK = None
     NUMPY_USAGE = None
     MENUS_FILE = None
+    PLUGINS_FILE = None
     PLUGINS_DIR = None
     START_MENU_ID = __opts.start_menu_ident \
                     if len(__opts.start_menu_ident) > 0 else None
@@ -65,6 +66,7 @@ class Globals(object):
     # GLOBALS.ICONS_FILE
     # but without explicit definition of the ICONS_FILE property
     ITEM = True
+    MAIN_WINDOW_NAME = "MainWindow"
     WORKSPACE_NAME = "MedWorkspace"
     TAB_MAIN_NAME = "Main"
 

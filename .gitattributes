@@ -20,6 +20,7 @@ PyCommon/src/pycommon/__init__.py -text
 PyCommon/src/pycommon/i18n.py -text
 PyCommon/src/pycommon/menu_action.py -text
 PyCommon/src/pycommon/menu_parser.py -text
+PyCommon/src/pycommon/plugins_parser.py -text
 PyConsole/.project -text
 PyConsole/.pydevproject -text
 PyConsole/build_pyconsole.properties -text
@@ -62,6 +63,7 @@ PyGUI/src/pygui/qt/utils/__init__.py -text
 PyGUI/src/pygui/qt/utils/context.py -text
 PyGUI/src/pygui/qt/utils/graphics.py -text
 PyGUI/src/pygui/qt/utils/logging.py -text
+PyGUI/src/pygui/qt/utils/plugins.py -text
 PyGUI/src/pygui/qt/utils/qt_i18n.py -text
 PyGUI/src/pygui/qt/utils/settings.py -text
 PyGUI/src/pygui/qt/utils/signals.py -text
@@ -100,6 +102,8 @@ PyMed/src/pymed/programs/gui/med_main_QT.pyw -text
 PyMed/src/pymed/programs/gui/qwizard_example.py -text
 PyMed/src/pymed/programs/gui/test_QT.pyw -text
 PyMed/src/pymed/qt/__init__.py -text
+PyMed/src/pymed/qt/plugins/__init__.py -text
+PyMed/src/pymed/qt/plugins/poincare_plot.py -text
 PyMed/src/pymed/qt/test01/__init__.py -text
 PyMed/src/pymed/qt/test01/small.py -text
 PyMed/src/pymed/qt/test01/tests.py -text
@@ -113,6 +117,7 @@ PySettings/src/settings/__init__.py -text
 PySettings/src/settings/etc/__init__.py -text
 PySettings/src/settings/etc/icons.properties -text
 PySettings/src/settings/etc/menus.xml -text
+PySettings/src/settings/etc/plugins.xml -text
 PySettings/src/settings/etc/settings.properties -text
 PySettings/src/settings/i18n/__init__.py -text
 PySettings/src/settings/i18n/i18n_en.properties -text

@@ -29,6 +29,7 @@ class MainWindow(QMainWindow):
                  **params):
         super(MainWindow, self).__init__(parent)
         self.params = Params(**params)
+        self.setObjectName(GLOBALS.MAIN_WINDOW_NAME)
 
         self.setWindowTitle(self.params.window_title)
 
