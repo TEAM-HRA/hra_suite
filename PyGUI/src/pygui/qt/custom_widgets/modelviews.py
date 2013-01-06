@@ -221,6 +221,17 @@ class FilesTableView(object):
     def getSelectedRowCount(self):
         return len(self.filesTableView.selectedIndexes()) / len(self.labels)
 
+    def selectRow(self, row, emulate_click=True):
+        self.filesTableView.selectRow(row)
+        if emulate_click:
+            model = self.filesTableView.model()
+            for column in range(model.columnCount()):
+                if self.filesTableView.isColumnHidden(column) == False:
+                    #simulate a click on the first visible column
+                    self.filesTableView.emit(SIGNAL('clicked(QModelIndex)'),
+                                         model.index(row, column))
+                    break
+
 #    def __rowChecked__(self, selectedRow):
 #        """
 #        method not used but stayed as an useful example
@@ -236,8 +247,8 @@ class CheckStateProxySortFilterModel(QSortFilterProxyModel):
     def filterAcceptsRow(self, source_row, source_parent):
         return self.sourceModel().item(source_row).checkState() == Qt.Checked # @IgnorePep8
 
-    def item(self, row, column=0):
-        return self.sourceModel().item(row, column)
-
-    def setHorizontalHeaderLabels(self, labels):
-        self.sourceModel().setHorizontalHeaderLabels(labels)
+    def __getattr__(self, name):
+        """
+        delegate calls method to source model
+        """
+        return getattr(self.sourceModel(), name)

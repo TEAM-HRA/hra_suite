@@ -337,6 +337,8 @@ class ChooseColumnsDataPage(QWizardPage):
             self.pageLayout = QVBoxLayout()
             self.setLayout(self.pageLayout)
             self.__createTableView__(self.pageLayout)
+        #select the first row
+        self.filesTableView.selectRow(0)
 
     def __createTableView__(self, pageLayout):
         self.tableViewComposite = createComposite(self, layout=QVBoxLayout())
