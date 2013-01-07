@@ -62,38 +62,54 @@ def get_module_object(_module_dotted_name):
     return get_object(_module_dotted_name)
 
 
-def get_object(name, default=None):
+def get_object(name, default=None, level=0):
     """
-    method which returns any member (class, method, function)
+    method which returns any member (class, static method, function)
     included in a module and specified by a parameter name in
     a dot (package) format
     '<name1>.<name2>.[...].<name_n>'
+    the function works in recursive manner
     """
     splits = name.split(".")
-    module_name = name
-    level = 0
-    #searching for a module
-    while True:
-        try:
-            __import__(module_name, globals(), locals(), [], -1)
-            break
-        except (ImportError):
-            level = level - 1
-            module_name = __s(splits[:level])
-            if len(module_name) == 0:
-                return default
-            else:
-                continue
 
-    from_name = __s(splits[level:])
-    object_names = __import__(module_name, fromlist=[from_name])
-    for name in splits[level:]:
-        _object = getattr(object_names, name, None)
-        if _object == None:
-            break
-        object_names = _object
-    #print(str(_object))
-    return default if _object == None else _object
+    #if level == 0 that means we have to search a module as
+    #a name parameter, if level < 0 then one level downward
+    #for example if name = 'a.b.c.d.e' then for level == -1
+    #module_name = 'a.b.c.d', for level = -2 name_module = 'a.b.c' etc
+    module_name = name if level == 0 else __s(splits[:level])
+
+    #there is no module name so there is nothing to search
+    if len(module_name) == 0:
+        return default
+
+    #fromlist is a part of name parameter after module name
+    #for example:
+    #name = 'a.b.c.d.e', module_name = 'a.b.c' (level = -2)
+    #then fromlist = ['d.e']
+    fromlist = [] if level == 0 else [__s(splits[level:])]
+
+    #try to import module dynamically
+    _object = None
+    try:
+        _object = __import__(module_name, fromlist=fromlist)
+    except (ImportError):
+        pass
+
+    if not _object == None:
+        #walks through elements after module name, for example:
+        #if name = 'a.b.c.d.e' and module_name = 'a.b.c' (level = -2)
+        #then split_name gets values: d, e
+        #the below loop tries to get attributes of object _object
+        #goes from object represents a module into the last element
+        #of the name attribute downward
+        for split_name in splits[level:]:
+            _object = getattr(_object, split_name, None)
+            if _object == None:
+                break
+
+    #if _object is None we have to search for one level downward
+    return get_object(name, default, level=level - 1) \
+            if _object == None else _object
 
 
 def __s(_list):
