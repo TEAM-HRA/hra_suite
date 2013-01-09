@@ -4,9 +4,11 @@ Created on 13-12-2012
 @author: jurek
 '''
 from os.path import join
+import re
 from PyQt4.QtGui import *  # @UnusedWildImport
 from PyQt4.QtCore import *  # @UnusedWildImport
 from pycore.misc import Params
+from pycore.misc import get_max_number_between_signs
 from pygui.qt.utils.qt_i18n import QT_I18N
 from pygui.qt.utils.widgets import createLabel
 from pygui.qt.utils.widgets import createTabWidget
@@ -18,6 +20,7 @@ from pycore.globals import GLOBALS
 import sys
 from pycore.introspection import get_class_object
 from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
+from pycore.collections import any_indexes
 
 
 class MainWindow(QMainWindow):
@@ -53,13 +56,39 @@ class MainWindow(QMainWindow):
 
         self.connect(self, ADD_TAB_WIDGET_SIGNAL, self.addTabWidget)
 
-    def addTabWidget(self, _tab_widget_name, _tab_widget_classname, _model):
+    def addTabWidget(self, _tab_widget_name, _tab_widget_classname, _model,
+                     _reuse):
         if self.mainTabWidget == None:
-            InformationWindow(message='Main tab widget not created!')
+            InformationWindow(message="Main tab widget wasn't created!")
             return
 
         _class_object = get_class_object(_tab_widget_classname)
         tabWidget = _class_object(parent=self.mainTabWidget, model=_model)
+
+        #get all tab titles
+        titles = [str(self.mainTabWidget.tabText(idx))
+                   for idx in range(self.mainTabWidget.count())]
+
+        #get list of true/false of matching titles to _tab_widget_name
+        #with an optional number
+        pattern = _tab_widget_name + ' \[[0-9]*\]'
+        matches = [re.match(pattern, title) or title == _tab_widget_name
+                   for title in titles]
+
+        #reuse means we have to delete all matching tab widgets
+        if _reuse == True:
+            map(self.mainTabWidget.removeTab, any_indexes(matches))
+
+        #if have to be created a tab widget and there is
+        #at least one, with the same title, already
+        elif _reuse == False and any(matches) == True:
+            #get a maximum number of existing tabs, if there is no number
+            #attached to any tabs then the default is 1
+            max_num = get_max_number_between_signs(titles, from_end=True,
+                                                   default=1)
+            #add next number to the tab title
+            _tab_widget_name = '%s [%d]' % (_tab_widget_name, max_num + 1)
+
         self.mainTabWidget.addTab(tabWidget, _tab_widget_name)
 
 

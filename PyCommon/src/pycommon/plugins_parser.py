@@ -62,7 +62,6 @@ class Signal(object):
     def __init__(self):
         self.__ident__ = None
         self.__params__ = []
-        self.__reuse__ = None
 
     @property
     def ident(self):
@@ -75,14 +74,6 @@ class Signal(object):
     @ident.setter
     def ident(self, _ident):
         self.__ident__ = _ident
-
-    @property
-    def reuse(self):
-        return self.__reuse__
-
-    @reuse.setter
-    def reuse(self, _reuse):
-        self.__reuse__ = _reuse
 
     @property
     def params(self):

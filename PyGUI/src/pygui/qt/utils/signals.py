@@ -13,4 +13,5 @@ WIZARD_COMPLETE_CHANGED_SIGNAL = SIGNAL("completeChanged()")
 #the first parameter represents a name of a tab widget,
 #the second represents tab widget class name in dotted (package) form,
 #the third parameter is a model used in the widget
-ADD_TAB_WIDGET_SIGNAL = SIGNAL("add_tab_widget(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject)") # @IgnorePep8
+#the fourth parameter is reuse flag (true or false)
+ADD_TAB_WIDGET_SIGNAL = SIGNAL("add_tab_widget(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, bool)") # @IgnorePep8

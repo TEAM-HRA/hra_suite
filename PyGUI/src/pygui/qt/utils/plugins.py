@@ -43,10 +43,15 @@ class __Plugin__(object):
             for signal in self.__plugin__.signals:
                 _params = []
                 for param in signal.params:
-                    if param.key:
+                    if not param.key == None:
                         _params.append(getattr(local_params, param.key))
-                    elif param.value:
-                        _params.append(param.value)
+                    elif not param.value == None:
+                        if param.value.title() in ('True', 'False'):
+                            _params.append(param.value.title() == 'True')
+                        elif param.value == "None":
+                            _params.append(None)
+                        else:
+                            _params.append(param.value)
                 if len(params) > 0:
                     self.__host_stack_object__.emit(signal.resolveIdent,
                                                     *_params)
