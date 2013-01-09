@@ -60,3 +60,28 @@ def camel_format(_string):
         _string = _string.replace('_', ' ').title().replace(' ', '')
         return _string[0:1].lower() + _string[1:]
     return _string
+
+
+def get_max_number_between_signs(iterable, left_sign='[', right_sign=']',
+                                 from_end=False, default=None):
+    """
+    a method which return a maximum number (or None) between specified signs
+    in elements of an iterable
+    """
+    max_num = None
+    for item in iterable:
+        item = str(item)
+        if from_end == True:
+            s_num = item[item.rfind(left_sign) + 1:item.rfind(right_sign)]
+        else:
+            s_num = item[item.find(left_sign) + 1:item.find(right_sign)]
+        if len(s_num) > 0:
+            try:
+                num = int(s_num)
+            except ValueError:
+                continue
+            if max_num == None:
+                max_num = num
+            if num > max_num:
+                max_num = num
+    return default if max_num == None else max_num

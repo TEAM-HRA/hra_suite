@@ -84,8 +84,19 @@ def replace_all_by_dict(_string, _dict):
 
 
 def create_list(element, size):
+    """
+    create a list consists of one element and specified size
+    """
     return [element for _ in range(size)]
 
 
 def empty_string(value):
     return "" if value == None else str(value)
+
+
+def any_indexes(iterable):
+    """
+    returns all indexes for items in iterable for which items are true
+    """
+    if iterable:
+        return [idx for idx, item in enumerate(iterable) if item == True]
