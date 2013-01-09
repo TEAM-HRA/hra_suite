@@ -87,6 +87,10 @@ def createWidget(parent=None, **params):
     return __item(parent, widget=QWidget(parent), **params)
 
 
+def createSplitter(parent=None, **params):
+    return __item(parent, widget=__Splitter(parent), **params)
+
+
 def __item(parent=None, **params):
     """
     method to create a widget based o information contained in params
@@ -228,4 +232,8 @@ class __LineEditWidget(LineEditWidget, __Common):
 
 
 class __TableView(QTableView, __Common):
+    pass
+
+
+class __Splitter(QSplitter, __Common):
     pass
