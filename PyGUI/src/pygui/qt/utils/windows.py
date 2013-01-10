@@ -90,6 +90,7 @@ class MainWindow(QMainWindow):
             _tab_widget_name = '%s [%d]' % (_tab_widget_name, max_num + 1)
 
         self.mainTabWidget.addTab(tabWidget, _tab_widget_name)
+        self.mainTabWidget.setCurrentWidget(tabWidget)
 
 
 def InformationWindow(parent=None, **params):
