@@ -91,6 +91,10 @@ def createSplitter(parent=None, **params):
     return __item(parent, widget=__Splitter(parent), **params)
 
 
+def createListWidget(parent=None, **params):
+    return __item(parent, widget=__ListWidget(parent), **params)
+
+
 def __item(parent=None, **params):
     """
     method to create a widget based o information contained in params
@@ -189,9 +193,9 @@ def __set_widget_size(widget, size, width, height):
 ENABLED_SIGNAL_NAME = 'enabled_signal(bool)'
 
 
-class __Common(QObject):
+class Common(QObject):
     """
-    the class __Common is the main functionality which set up
+    the class Common is the main functionality which set up
     a connection between the signal and created widget, and also invokes
     handler passed as enabled_precheck_handler parameter
     """
@@ -219,21 +223,25 @@ class __Common(QObject):
                     if precheck_enabled == None else precheck_enabled)
 
 
-class __CheckBox(QCheckBox, __Common):
+class __CheckBox(QCheckBox, Common):
     pass
 
 
-class __PushButton(QPushButton, __Common):
+class __PushButton(QPushButton, Common):
     pass
 
 
-class __LineEditWidget(LineEditWidget, __Common):
+class __LineEditWidget(LineEditWidget, Common):
     pass
 
 
-class __TableView(QTableView, __Common):
+class __TableView(QTableView, Common):
     pass
 
 
-class __Splitter(QSplitter, __Common):
+class __Splitter(QSplitter, Common):
+    pass
+
+
+class __ListWidget(QListWidget, Common):
     pass
