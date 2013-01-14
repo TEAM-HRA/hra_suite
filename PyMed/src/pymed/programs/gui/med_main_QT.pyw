@@ -25,9 +25,9 @@ __version__ = "1.0.0"
 
 def main():
     app = QApplication(sys.argv)
-    app.setOrganizationName("Qtrac Ltd.")
-    app.setOrganizationDomain("qtrac.eu")
-    app.setApplicationName("Image Changer")
+    app.setOrganizationName("Med")
+    app.setOrganizationDomain("med")
+    app.setApplicationName("Medical app")
     app.setWindowIcon(QIcon(":/icon.png"))
     form = MainWindow(window_title="Medical Workspace")
     #print('id main window ' + str(id(form)))
