@@ -5,6 +5,8 @@ Created on 26-11-2012
 '''
 from PyQt4.QtGui import *  # @UnusedWildImport
 from PyQt4.QtCore import *  # @UnusedWildImport
+from pygui.qt.utils.settings import Setter
+from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.qt_i18n import text_I18N
 from pygui.qt.utils.qt_i18n import title_I18N
 from pycore.misc import Params
@@ -88,7 +90,7 @@ def createWidget(parent=None, **params):
 
 
 def createSplitter(parent=None, **params):
-    return __item(parent, widget=__Splitter(parent), **params)
+    return __item(parent, widget=__Splitter(parent, **params), **params)
 
 
 def createListWidget(parent=None, **params):
@@ -156,6 +158,8 @@ def __item(parent=None, **params):
         widget.connect(widget, SIGNAL("clicked()"), params.clicked_handler)
     if not params.enabled_precheck_handler == None:
         widget.setEnabledPrecheckHandler(params.enabled_precheck_handler)
+    if not params.close_handler == None:
+        widget.connect(widget, SIGNAL("closeEvent()"), params.close_handler)
     return widget
 
 
@@ -239,7 +243,39 @@ class __TableView(QTableView, Common):
     pass
 
 
-class __Splitter(QSplitter, Common):
+class SplitterWidget(QSplitter):
+    def __init__(self, parent, **params):
+        QSplitter.__init__(self, parent)
+        self.setHandleWidth(self.handleWidth() * 2)
+        self.params = Params(**params)
+        if self.params.save_state:
+            SettingsFactory.loadSettings(self,
+                    Setter(sizes_list=None,
+                           _conv=QVariant.toPyObject,
+                           _conv_2level=self.conv2level,
+                           objectName=self.params.objectName
+                           ))
+
+    def destroySplitter(self):
+        if self.params.save_state:
+            SettingsFactory.saveSettings(self,
+                                         Setter(sizes_list=self.sizes(),
+                                            _no_conv=True,
+                                            objectName=self.params.objectName))
+
+    def conv2level(self, value):
+        return None if value == None else [variant.toInt()[0]
+                                           for variant in value]
+
+    def sizesLoaded(self):
+        return not self.sizes_list == None and len(self.sizes_list) > 0
+
+    def updateSizes(self):
+        if self.sizesLoaded():
+            self.setSizes(self.sizes_list)
+
+
+class __Splitter(SplitterWidget, Common):
     pass
 
 
