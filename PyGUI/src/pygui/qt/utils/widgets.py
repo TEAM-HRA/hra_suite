@@ -160,6 +160,8 @@ def __item(parent=None, **params):
         widget.setEnabledPrecheckHandler(params.enabled_precheck_handler)
     if not params.close_handler == None:
         widget.connect(widget, SIGNAL("closeEvent()"), params.close_handler)
+    if parent and params.add_widget_to_parent == True:
+        parent.addWidget(widget)
     return widget
 
 
