@@ -48,7 +48,8 @@ class MainWindow(QMainWindow):
         if main_workspace_name:
             self.mainTabWidget = createTabWidget(self,
                             object_name=main_workspace_name,
-                            not_add_widget_to_parent_layout=True)
+                            not_add_widget_to_parent_layout=True,
+                            close_handler=self.closeEventHandler)
             if main_widget_name:
                 self.mainWidget = createWidget(self.mainTabWidget)
                 self.mainTabWidget.addTab(self.mainWidget, main_widget_name)
@@ -91,6 +92,12 @@ class MainWindow(QMainWindow):
 
         self.mainTabWidget.addTab(tabWidget, _tab_widget_name)
         self.mainTabWidget.setCurrentWidget(tabWidget)
+
+    def closeEventHandler(self, event):
+        for idx in range(self.mainTabWidget.count()):
+            tabWidget = self.mainTabWidget.widget(idx)
+            if hasattr(tabWidget, 'closeTab'):
+                tabWidget.closeTab()
 
 
 def InformationWindow(parent=None, **params):
