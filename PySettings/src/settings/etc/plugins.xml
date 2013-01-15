@@ -6,7 +6,7 @@
 			<signal ident="pygui.qt.utils.signals.ADD_TAB_WIDGET_SIGNAL">
 				<params>
 					<param value="Poincare Plot" description="title of the tab"/>
-					<param value="pymed.qt.plugins.poincare_plot.PoincareTabWidget" description="implementation class"/>					
+					<param value="pymed.qt.plugins.poincare_plot.PoincarePlotTabWidget" description="implementation class"/>					
 					<param key="model" description="name of the key of model object used by implementattion class"/>
 					<param value="False" description="reuse flag"/>
 				</params>

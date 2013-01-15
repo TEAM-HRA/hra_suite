@@ -7,51 +7,43 @@ from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
 from pycore.misc import Params
 from pygui.qt.utils.widgets import createSplitter
+from pygui.qt.utils.widgets import createPushButton
+from pygui.qt.utils.widgets import ENABLED_SIGNAL_NAME
+from pygui.qt.utils.widgets import WidgetCommon
 from pygui.qt.utils.widgets import createListWidget
 from pygui.qt.utils.widgets import createWidget
 from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
 
 
-class PoincareTabWidget(QWidget):
+class PoincarePlotTabWidget(QWidget):
 
     def __init__(self, **params):
         self.params = Params(**params)
-        super(PoincareTabWidget, self).__init__(self.params.parent)
+        super(PoincarePlotTabWidget, self).__init__(self.params.parent)
         layout = QHBoxLayout()
         self.setLayout(layout)
         self.__splitter__ = createSplitter(self, objectName='poincarePlot',
                                            save_state=True)
-        self.__createDatasourceComposite__()
+        self.__createDatasourceListWidget__()
         self.__createPlotComposite__()
 
         #this method's call is very important, it sets up widgets sizes
         #which make up a splitter;
-        #it has to be the last operation in the PoincareTabWidget's
+        #it has to be the last operation in the PoincarePlotTabWidget's
         #creation process
         self.__splitter__.updateSizes()
 
     def closeTab(self):
         """
-        this method includes actions to be invoked when a PoincareTabWidget is closing @IgnorePep8
+        this method includes actions to be invoked when a PoincarePlotTabWidget is closing @IgnorePep8
         """
         self.__splitter__.destroySplitter()
 
-    def __createDatasourceComposite__(self):
-        self.__datasourceComposite__ = createWidget(self.__splitter__,
-                                                    add_widget_to_parent=True)
-        self.__datasourceList__ = createListWidget(
-                                                self.__datasourceComposite__)
-        model = self.params.model
-        if model and \
-            isinstance(model, DatasourceFilesSpecificationModel):
-            for row in range(model.rowCount()):
-                QListWidgetItem(model.fileSpecification(row).filename,
-                            self.__datasourceList__)
-        else:
-            QListWidgetItem('model not specified or incorrect type',
-                            self.__datasourceList__)
+    def __createDatasourceListWidget__(self):
+        self.__datasourceListWidget__ = DatasourceListWidget(self.__splitter__,
+                                                            self.params.model)
         if self.__splitter__.sizesLoaded() == False:
-            idx = self.__splitter__.indexOf(self.__datasourceComposite__)
+            idx = self.__splitter__.indexOf(self.__datasourceListWidget__)
             self.__splitter__.setStretchFactor(idx, 1)
 
     def __createPlotComposite__(self):
@@ -60,3 +52,43 @@ class PoincareTabWidget(QWidget):
         if self.__splitter__.sizesLoaded() == False:
             idx = self.__splitter__.indexOf(self.__plotComposite__)
             self.__splitter__.setStretchFactor(idx, 20)
+
+
+class DatasourceListWidget(WidgetCommon):
+    def __init__(self, parent, model):
+        super(DatasourceListWidget, self).__init__(parent,
+                                                    add_widget_to_parent=True,
+                                                    layout=QVBoxLayout())
+        self.__datasourceList__ = \
+            createListWidget(self,
+                list_item_clicked_handler=self.__datasourceItemClickedHandler__, # @IgnorePep8
+                selectionMode=QAbstractItemView.MultiSelection,
+                selectionBehavior=QAbstractItemView.SelectRows)
+        if model and \
+            isinstance(model, DatasourceFilesSpecificationModel):
+            for row in range(model.rowCount()):
+                QListWidgetItem(model.fileSpecification(row).filename,
+                            self.__datasourceList__)
+        else:
+            QListWidgetItem('model not specified or incorrect type',
+                            self.__datasourceList__)
+        self.__showTachogramsButton__ = \
+            createPushButton(self,
+                    i18n="poincare.plot.show.tachograms.button",
+                    i18n_def="Show tachograms",
+                    enabled=False,
+                    clicked_handler=self.__showTachogramsHandler__,
+                    enabled_precheck_handler=self.__enabledPrecheckHandler__)
+
+    def __datasourceItemClickedHandler__(self, listItem):
+        self.emit(SIGNAL(ENABLED_SIGNAL_NAME), listItem.isSelected())
+
+    def __showTachogramsHandler__(self):
+        pass
+
+    def __enabledPrecheckHandler__(self, widget):
+        """
+        only interested widgets return bool value others return none value
+        """
+        if widget == self.__showTachogramsButton__:
+            return len(self.__datasourceList__.selectedIndexes()) > 0
