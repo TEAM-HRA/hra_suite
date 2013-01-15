@@ -25,7 +25,7 @@ class SlotWrapper(object):
                             "Action '" + self.__slot__ + "' doesn't exist !!!")
 
 
-class QTActionBuilder(object):
+class ActionBuilder(object):
     def __init__(self, parent):
         self.__parent = parent
 

@@ -5,7 +5,7 @@ Created on 28-10-2012
 '''
 from pycommon.menu_parser import MenuBuilder
 from pycore.globals import GLOBALS
-from pygui.qt.actions.actions import QTActionBuilder
+from pygui.qt.actions.actions import ActionBuilder
 from pygui.qt.actions.actions import SlotWrapper
 from pycore.resources import get_as_resource_handler_or_string
 from pycore.resources import close_resource
@@ -14,7 +14,7 @@ from pycore.resources import close_resource
 class QTMenuBuilder(object):
     def __init__(self, _parent):
         self.__parent = _parent
-        self.__action_builder = QTActionBuilder(self.__parent)
+        self.__action_builder = ActionBuilder(self.__parent)
         self.__builder = None
         self.__main_menus = None
 
