@@ -15,3 +15,7 @@ WIZARD_COMPLETE_CHANGED_SIGNAL = SIGNAL("completeChanged()")
 #the third parameter is a model used in the widget
 #the fourth parameter is reuse flag (true or false)
 ADD_TAB_WIDGET_SIGNAL = SIGNAL("add_tab_widget(PyQt_PyObject, PyQt_PyObject, PyQt_PyObject, bool)") # @IgnorePep8
+
+
+#signal emitted when a user click on QListWidget item
+LIST_ITEM_CLICKED_SIGNAL = SIGNAL("itemClicked(QListWidgetItem *)")
