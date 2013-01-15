@@ -10,8 +10,6 @@ from pygui.qt.utils.widgets import *  # @UnusedWildImport
 from pygui.qt.utils.graphics import get_width_of_n_letters
 from pycore.io_utils import is_text_file
 from pycore.io_utils import DataFileHeader
-from pygui.qt.utils.settings import SettingsFactory
-from pygui.qt.utils.settings import Setter
 from pygui.qt.custom_widgets.separator import DataSeparatorWidget
 from pygui.qt.custom_widgets.progress_bar import ProgressBarManager
 from pygui.qt.utils.windows import showFilePreviewDialog
