@@ -13,32 +13,33 @@ from pycore.misc import Params
 from pygui.qt.utils.logging import LoggingEventFilter
 from pycore.globals import Globals
 import inspect
+from pygui.qt.utils.signals import LIST_ITEM_CLICKED_SIGNAL
 
 
 def createComposite(parent=None, **params):
-    return __item(parent, widget=QWidget(parent), **params)
+    return item(parent, widget=QWidget(parent), **params)
 
 
 def createLabel(parent=None, **params):
     if params.get('sizePolicy', None) == None:
         params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Preferred)
-    return __item(parent, widget=QLabel(parent), textable=True, **params)
+    return item(parent, widget=QLabel(parent), textable=True, **params)
 
 
 def createPushButton(parent=None, **params):
     if params.get('sizePolicy', None) == None:
         params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed)
-    return __item(parent, widget=__PushButton(parent), textable=True, **params)
+    return item(parent, widget=__PushButton(parent), textable=True, **params)
 
 
 def createGroupBox(parent=None, **params):
-    return __item(parent, widget=QGroupBox(parent), titleable=True, **params)
+    return item(parent, widget=QGroupBox(parent), titleable=True, **params)
 
 
 def createLineEdit(parent=None, **params):
-    return __item(parent, widget=__LineEditWidget(parent, **params), **params)
+    return item(parent, widget=__LineEditWidget(parent, **params), **params)
 
 
 class LineEditWidget(QLineEdit):
@@ -54,50 +55,50 @@ class LineEditWidget(QLineEdit):
 
 
 def createCheckBox(parent=None, **params):
-    return __item(parent, widget=__CheckBox(parent), textable=True, **params)
+    return item(parent, widget=__CheckBox(parent), textable=True, **params)
 
 
 def createTableView(parent=None, **params):
-    return __item(parent, widget=__TableView(parent), **params)
+    return item(parent, widget=__TableView(parent), **params)
 
 
 def createSlider(parent=None, **params):
-    return __item(parent, widget=QSlider(parent), **params)
+    return item(parent, widget=QSlider(parent), **params)
 
 
 def createTextEdit(parent=None, **params):
-    return __item(parent, widget=QTextEdit(parent), **params)
+    return item(parent, widget=QTextEdit(parent), **params)
 
 
 def createPlainTextEdit(parent=None, **params):
-    return __item(parent, widget=QPlainTextEdit(parent), **params)
+    return item(parent, widget=QPlainTextEdit(parent), **params)
 
 
 def createProgressBar(parent=None, **params):
-    return __item(parent, widget=QProgressBar(parent), **params)
+    return item(parent, widget=QProgressBar(parent), **params)
 
 
 def createButtonGroup(parent=None, **params):
-    return __item(parent, widget=QButtonGroup(parent), **params)
+    return item(parent, widget=QButtonGroup(parent), **params)
 
 
 def createTabWidget(parent=None, **params):
-    return __item(parent, widget=QTabWidget(parent), **params)
+    return item(parent, widget=QTabWidget(parent), **params)
 
 
 def createWidget(parent=None, **params):
-    return __item(parent, widget=QWidget(parent), **params)
+    return item(parent, widget=QWidget(parent), **params)
 
 
 def createSplitter(parent=None, **params):
-    return __item(parent, widget=__Splitter(parent, **params), **params)
+    return item(parent, widget=__Splitter(parent, **params), **params)
 
 
 def createListWidget(parent=None, **params):
-    return __item(parent, widget=__ListWidget(parent), **params)
+    return item(parent, widget=__ListWidget(parent), **params)
 
 
-def __item(parent=None, **params):
+def item(parent=None, **params):
     """
     method to create a widget based o information contained in params
     dictionary, it is a factory method
@@ -160,6 +161,9 @@ def __item(parent=None, **params):
         widget.setEnabledPrecheckHandler(params.enabled_precheck_handler)
     if not params.close_handler == None:
         widget.connect(widget, SIGNAL("closeEvent()"), params.close_handler)
+    if not params.list_item_clicked_handler == None:
+        widget.connect(widget, LIST_ITEM_CLICKED_SIGNAL,
+                       params.list_item_clicked_handler)
     if parent and params.add_widget_to_parent == True:
         parent.addWidget(widget)
     return widget
@@ -243,6 +247,12 @@ class __LineEditWidget(LineEditWidget, Common):
 
 class __TableView(QTableView, Common):
     pass
+
+
+class WidgetCommon(QWidget, Common):
+    def __init__(self, parent, **params):
+        super(WidgetCommon, self).__init__(parent)
+        item(parent, widget=self, **params)
 
 
 class SplitterWidget(QSplitter):
