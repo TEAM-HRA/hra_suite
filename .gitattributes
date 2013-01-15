@@ -17,8 +17,8 @@ PyCommon/.pydevproject -text
 PyCommon/build_pycommon.properties -text
 PyCommon/build_pycommon.xml -text
 PyCommon/src/pycommon/__init__.py -text
+PyCommon/src/pycommon/actions.py -text
 PyCommon/src/pycommon/i18n.py -text
-PyCommon/src/pycommon/menu_action.py -text
 PyCommon/src/pycommon/menu_parser.py -text
 PyCommon/src/pycommon/plugins_parser.py -text
 PyConsole/.project -text

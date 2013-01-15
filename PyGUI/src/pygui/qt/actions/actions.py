@@ -5,7 +5,7 @@ Created on 29-10-2012
 '''
 from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
-from pycommon.menu_action import Action
+from pycommon.actions import Action
 from pycore.globals import GLOBALS
 from pycore.properties import Properties
 from pygui.qt.utils.graphics import get_resource_as_icon

@@ -7,7 +7,7 @@ Created on 20-10-2012
 from xml.sax import make_parser
 from xml.sax import ContentHandler
 from xml.sax import SAXParseException
-from menu_action import Action
+from actions import Action
 
 
 class MenuBuilder(object):
