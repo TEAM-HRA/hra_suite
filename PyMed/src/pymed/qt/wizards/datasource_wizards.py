@@ -6,6 +6,8 @@ Created on 03-11-2012
 from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
 from pygui.qt.utils.qt_i18n import QT_I18N
+from pygui.qt.utils.settings import SettingsFactory
+from pygui.qt.utils.settings import Setter
 from pygui.qt.utils.widgets import *  # @UnusedWildImport
 from pygui.qt.utils.graphics import get_width_of_n_letters
 from pycore.io_utils import is_text_file
