@@ -53,7 +53,7 @@ class _MenuBuilderHandler(ContentHandler):
         self.__level = -1
         self.__main_menus = []
         self.__parent_menus = []
-        self.__actions = []
+        self.__actions_specs = []
         self.__menuItem = None
 
     def startElement(self, name, attributes):
@@ -75,13 +75,13 @@ class _MenuBuilderHandler(ContentHandler):
             self.__parent_menus[self.__level].addSubItem(self.__menuItem)
 
         elif name == _MenuBuilderHandler.__ACTIONS_ID:
-            self.__actions = []
+            self.__actions_specs = []
 
         elif name == _MenuBuilderHandler.__ACTION_ID:
-            action = ActionSpec()
+            action_spec = ActionSpec()
             for key, value in attributes.items():
-                action.__setattr__(key, value)
-            self.__actions.append(action)
+                action_spec.__setattr__(key, value)
+            self.__actions_specs.append(action_spec)
 
     def endElement(self, name):
         if name == _MenuBuilderHandler.__MENU_ID:
@@ -90,8 +90,8 @@ class _MenuBuilderHandler(ContentHandler):
 
         elif name == _MenuBuilderHandler.__MENU_ITEM_ID:
             if self.__menuItem:
-                self.__menuItem.actions = self.__actions
-            self.__actions = []
+                self.__menuItem.actions_specs = self.__actions_specs
+            self.__actions_specs = []
 
     def getMainMenus(self):
         return self.__main_menus
@@ -139,12 +139,12 @@ class Menu(_Item):
 class MenuItem(_Item):
     def __init__(self):
         _Item.__init__(self, False)
-        self.__actions = []
+        self.__actions_specs = []
 
     @property
-    def actions(self):
-        return self.__actions
+    def actions_specs(self):
+        return self.__actions_specs
 
-    @actions.setter
-    def actions(self, _actions):
-        self.__actions = _actions
+    @actions_specs.setter
+    def actions_specs(self, _actions_specs):
+        self.__actions_specs = _actions_specs

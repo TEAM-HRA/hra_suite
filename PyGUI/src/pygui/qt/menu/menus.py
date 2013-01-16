@@ -30,8 +30,8 @@ class QTMenuBuilder(object):
                 self.__createMenuItem(parent, subItem)
 
     def __createMenuItem(self, _menu, _menuItem):
-        for action in _menuItem.actions:
-            _menu.addAction(create_action(self.__parent, action))
+        for action_spec in _menuItem.actions_specs:
+            _menu.addAction(create_action(self.__parent, action_spec))
 
     def __createMainMenus(self):
         if not self.__main_menus:
@@ -46,8 +46,8 @@ class QTMenuBuilder(object):
         self.__createMainMenus()
         menuItem = self.__builder.getMenuItem(menu_ident)
         if menuItem:
-            for action in menuItem.actions:
-                _slot = SlotWrapper(action.slot)
+            for action_spec in menuItem.actions_specs:
+                _slot = SlotWrapper(action_spec.slot)
                 if _slot:
                     _slot()
                     return True
