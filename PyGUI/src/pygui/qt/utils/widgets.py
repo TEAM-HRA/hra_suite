@@ -5,8 +5,6 @@ Created on 26-11-2012
 '''
 from PyQt4.QtGui import *  # @UnusedWildImport
 from PyQt4.QtCore import *  # @UnusedWildImport
-from pygui.qt.utils.settings import Setter
-from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.qt_i18n import text_I18N
 from pygui.qt.utils.qt_i18n import title_I18N
 from pycore.misc import Params
@@ -88,10 +86,6 @@ def createTabWidget(parent=None, **params):
 
 def createWidget(parent=None, **params):
     return item(parent, widget=QWidget(parent), **params)
-
-
-def createSplitter(parent=None, **params):
-    return item(parent, widget=__Splitter(parent, **params), **params)
 
 
 def createListWidget(parent=None, **params):
@@ -255,40 +249,10 @@ class WidgetCommon(QWidget, Common):
         item(parent, widget=self, **params)
 
 
-class SplitterWidget(QSplitter):
+class ToolBarCommon(QToolBar, Common):
     def __init__(self, parent, **params):
-        QSplitter.__init__(self, parent)
-        self.setHandleWidth(self.handleWidth() * 2)
-        self.params = Params(**params)
-        if self.params.save_state:
-            SettingsFactory.loadSettings(self,
-                    Setter(sizes_list=None,
-                           _conv=QVariant.toPyObject,
-                           _conv_2level=self.conv2level,
-                           objectName=self.params.objectName
-                           ))
-
-    def destroySplitter(self):
-        if self.params.save_state:
-            SettingsFactory.saveSettings(self,
-                                         Setter(sizes_list=self.sizes(),
-                                            _no_conv=True,
-                                            objectName=self.params.objectName))
-
-    def conv2level(self, value):
-        return None if value == None else [variant.toInt()[0]
-                                           for variant in value]
-
-    def sizesLoaded(self):
-        return not self.sizes_list == None and len(self.sizes_list) > 0
-
-    def updateSizes(self):
-        if self.sizesLoaded():
-            self.setSizes(self.sizes_list)
-
-
-class __Splitter(SplitterWidget, Common):
-    pass
+        super(ToolBarCommon, self).__init__(parent)
+        item(parent, widget=self, **params)
 
 
 class __ListWidget(QListWidget, Common):
