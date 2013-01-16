@@ -3,17 +3,19 @@ Created on 15-01-2013
 
 @author: jurek
 '''
+from pycore.misc import Params
 
 
-class Action(object):
-    CHECKABLE = "checkable"
+class ActionSpec(object):
 
-    def __init__(self):
-        self.__iconId = None
-        self.__tipId = None
-        self.__type = None
-        self.__signal = None
-        self.__slot = None
+    def __init__(self, **params):
+        self.params = Params(**params)
+        self.__iconId = self.params.iconId
+        self.__tipId = self.params.tipId
+        self.__signal = self.params.signal
+        self.__slot = self.params.handler
+        self.__title = self.params.title
+        self.__checkable = ("True" == str(self.params.checkable))
 
     @property
     def iconId(self):
@@ -32,12 +34,12 @@ class Action(object):
         self.__tipId = _tipId
 
     @property
-    def type(self):
-        return self.__type
+    def checkable(self):
+        return self.__checkable
 
-    @type.setter
-    def type(self, _type):
-        self.__type = _type
+    @checkable.setter
+    def checkable(self, _checkable):
+        self.__checkable = _checkable
 
     @property
     def signal(self):
@@ -54,3 +56,11 @@ class Action(object):
     @slot.setter
     def slot(self, _slot):
         self.__slot = _slot
+
+    @property
+    def title(self):
+        return self.__title
+
+    @title.setter
+    def title(self, _title):
+        self.__title = _title

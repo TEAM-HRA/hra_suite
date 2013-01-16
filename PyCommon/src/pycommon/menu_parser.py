@@ -7,7 +7,7 @@ Created on 20-10-2012
 from xml.sax import make_parser
 from xml.sax import ContentHandler
 from xml.sax import SAXParseException
-from actions import Action
+from pycommon.actions import ActionSpec
 
 
 class MenuBuilder(object):
@@ -78,7 +78,7 @@ class _MenuBuilderHandler(ContentHandler):
             self.__actions = []
 
         elif name == _MenuBuilderHandler.__ACTION_ID:
-            action = Action()
+            action = ActionSpec()
             for key, value in attributes.items():
                 action.__setattr__(key, value)
             self.__actions.append(action)

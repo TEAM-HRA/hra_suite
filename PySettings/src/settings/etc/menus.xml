@@ -11,7 +11,6 @@
 			<menuItem ident="item51" title="Item 121">
 				<actions>
 					<action title="Action 000" iconId="users" 
-						signal="triggered()" 
 						slot="pymed.qt.test01.small.WindowTest.show"/>
 				</actions>
 			</menuItem>
@@ -31,7 +30,6 @@
 		<menuItem ident="datasource_import" title="Import datasource">
 			<actions>
 				<action title="Import datasource" iconId="users" 
-					signal="triggered()"
 					slot="pymed.qt.wizards.datasource_wizards.DatasourceWizard.show_wizard"/>
 			</actions>
 		</menuItem>		
