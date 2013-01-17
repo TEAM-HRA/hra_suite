@@ -27,9 +27,13 @@ class SlotWrapper(object):
 def create_action(parent, action_spec):
     if not action_spec.title:
         return
+    slot = None
+    if not action_spec.slot == None:
+        #action_spec.slot could be a method or a function
+        slot = action_spec.slot if hasattr(action_spec.slot, '__call__') else \
+                SlotWrapper(action_spec.slot, parent=parent)
     if action_spec.signal == None and action_spec.slot:
-        qt_action = QAction(action_spec.title, parent,
-                triggered=SlotWrapper(action_spec.slot, parent=parent))
+        qt_action = QAction(action_spec.title, parent, triggered=slot)
     else:
         qt_action = QAction(action_spec.title, parent)
     if action_spec.iconId:
@@ -45,7 +49,6 @@ def create_action(parent, action_spec):
             qt_action.setToolTip(tooltip)
             qt_action.setStatusTip(tooltip)
     if action_spec.signal and action_spec.slot:
-        slot = SlotWrapper(action_spec.slot, parent=parent)
         parent.connect(qt_action, SIGNAL(action_spec.signal), slot)
     qt_action.setCheckable(action_spec.checkable)
     return qt_action
