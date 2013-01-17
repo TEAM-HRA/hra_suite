@@ -6,13 +6,15 @@ Created on 05-01-2013
 from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
 from pycore.misc import Params
-from pygui.qt.utils.widgets import createSplitter
 from pygui.qt.utils.widgets import createPushButton
-from pygui.qt.utils.widgets import ENABLED_SIGNAL_NAME
 from pygui.qt.utils.widgets import WidgetCommon
 from pygui.qt.utils.widgets import createListWidget
 from pygui.qt.utils.widgets import createWidget
 from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
+from pygui.qt.utils.widgets_custom import SplitterWidget
+from pygui.qt.utils.widgets_custom import ToolBarManager
+from pygui.qt.utils.widgets_custom import CheckUncheckToolBarWidget
+from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
 
 
 class PoincarePlotTabWidget(QWidget):
@@ -22,7 +24,7 @@ class PoincarePlotTabWidget(QWidget):
         super(PoincarePlotTabWidget, self).__init__(self.params.parent)
         layout = QHBoxLayout()
         self.setLayout(layout)
-        self.__splitter__ = createSplitter(self, objectName='poincarePlot',
+        self.__splitter__ = SplitterWidget(self, objectName='poincarePlot',
                                            save_state=True)
         self.__createDatasourceListWidget__()
         self.__createPlotComposite__()
@@ -59,6 +61,10 @@ class DatasourceListWidget(WidgetCommon):
         super(DatasourceListWidget, self).__init__(parent,
                                                     add_widget_to_parent=True,
                                                     layout=QVBoxLayout())
+
+        toolbars = ToolBarManager(self, CheckUncheckToolBarWidget)
+        self.layout().addWidget(toolbars)
+
         self.__datasourceList__ = \
             createListWidget(self,
                 list_item_clicked_handler=self.__datasourceItemClickedHandler__, # @IgnorePep8
@@ -81,7 +87,7 @@ class DatasourceListWidget(WidgetCommon):
                     enabled_precheck_handler=self.__enabledPrecheckHandler__)
 
     def __datasourceItemClickedHandler__(self, listItem):
-        self.emit(SIGNAL(ENABLED_SIGNAL_NAME), listItem.isSelected())
+        self.emit(ENABLEMEND_SIGNAL, listItem.isSelected())
 
     def __showTachogramsHandler__(self):
         pass
@@ -92,3 +98,11 @@ class DatasourceListWidget(WidgetCommon):
         """
         if widget == self.__showTachogramsButton__:
             return len(self.__datasourceList__.selectedIndexes()) > 0
+
+    def toolbar_uncheck_handler(self):
+        self.__datasourceList__.clearSelection()
+        self.emit(ENABLEMEND_SIGNAL, False)
+
+    def toolbar_check_handler(self):
+        self.__datasourceList__.selectAll()
+        self.emit(ENABLEMEND_SIGNAL, True)

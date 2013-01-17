@@ -19,3 +19,7 @@ ADD_TAB_WIDGET_SIGNAL = SIGNAL("add_tab_widget(PyQt_PyObject, PyQt_PyObject, PyQ
 
 #signal emitted when a user click on QListWidget item
 LIST_ITEM_CLICKED_SIGNAL = SIGNAL("itemClicked(QListWidgetItem *)")
+
+
+#signal emmited when there is a need to change enable state of widgets
+ENABLEMEND_SIGNAL = SIGNAL('enabled_signal(bool)')
