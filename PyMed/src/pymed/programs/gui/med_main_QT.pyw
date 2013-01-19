@@ -3,12 +3,14 @@ Created on 27-09-2012
 
 @author: jurek
 '''
-
-import sys
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
-
-from pygui.qt.utils.windows import ApplicationMainWindow
+from pycore.special import ImportErrorMessage
+try:
+    import sys
+    from PyQt4.QtCore import *
+    from PyQt4.QtGui import *
+    from pygui.qt.utils.windows import ApplicationMainWindow
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 __version__ = "1.0.0"
 

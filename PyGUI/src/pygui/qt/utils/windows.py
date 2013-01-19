@@ -3,26 +3,30 @@ Created on 13-12-2012
 
 @author: jurek
 '''
-from os.path import join
-import sys
-import re
-from PyQt4.QtGui import *  # @UnusedWildImport
-from PyQt4.QtCore import *  # @UnusedWildImport
-from pycore.misc import Params
-from pycore.misc import get_max_number_between_signs
-from pygui.qt.utils.qt_i18n import QT_I18N
-from pygui.qt.utils.widgets import LabelCommon
-from pygui.qt.utils.widgets import MainWindowCommon
-from pygui.qt.utils.widgets import TabWidgetCommon
-from pygui.qt.utils.widgets import WidgetCommon
-from pygui.qt.utils.widgets import createPlainTextEdit
-from pygui.qt.utils.widgets import createPushButton
-from pygui.qt.menu.menus import QTMenuBuilder
-from pycore.globals import GLOBALS
-from pycore.introspection import get_class_object
-from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
-from pycore.collections import any_indexes
-from pycore.collections import or_values
+from pycore.special import ImportErrorMessage
+try:
+    from os.path import join
+    import sys
+    import re
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.misc import Params
+    from pycore.misc import get_max_number_between_signs
+    from pygui.qt.utils.qt_i18n import QT_I18N
+    from pygui.qt.utils.widgets import LabelCommon
+    from pygui.qt.utils.widgets import MainWindowCommon
+    from pygui.qt.utils.widgets import TabWidgetCommon
+    from pygui.qt.utils.widgets import WidgetCommon
+    from pygui.qt.utils.widgets import createPlainTextEdit
+    from pygui.qt.utils.widgets import createPushButton
+    from pygui.qt.menu.menus import QTMenuBuilder
+    from pycore.globals import GLOBALS
+    from pycore.introspection import get_class_object
+    from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
+    from pycore.collections import any_indexes
+    from pycore.collections import or_values
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class ApplicationMainWindow(MainWindowCommon):

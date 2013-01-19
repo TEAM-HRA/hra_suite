@@ -3,13 +3,17 @@ Created on 13-12-2012
 
 @author: jurek
 '''
-from PyQt4.QtGui import *  # @UnusedWildImport
-from PyQt4.QtCore import *  # @UnusedWildImport
-from pycore.misc import Params
-from pygui.qt.utils.threads import ThreadTask
-from pygui.qt.utils.widgets import createComposite
-from pygui.qt.utils.widgets import createProgressBar
-from pygui.qt.utils.widgets import createPushButton
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.misc import Params
+    from pygui.qt.utils.threads import ThreadTask
+    from pygui.qt.utils.widgets import createComposite
+    from pygui.qt.utils.widgets import createProgressBar
+    from pygui.qt.utils.widgets import createPushButton
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class ProgressBarManager(object):

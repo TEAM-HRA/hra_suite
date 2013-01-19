@@ -3,13 +3,17 @@ Created on 16-01-2013
 
 @author: jurek
 '''
-from PyQt4.QtGui import *  # @UnusedWildImport
-from PyQt4.QtCore import *  # @UnusedWildImport
-from pycore.misc import Params
-from pygui.qt.utils.settings import SettingsFactory
-from pygui.qt.utils.settings import Setter
-from pygui.qt.utils.widgets import item
-from pygui.qt.utils.widgets import Common
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.misc import Params
+    from pygui.qt.utils.settings import SettingsFactory
+    from pygui.qt.utils.settings import Setter
+    from pygui.qt.utils.widgets import item
+    from pygui.qt.utils.widgets import Common
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class SplitterWidget(QSplitter, Common):

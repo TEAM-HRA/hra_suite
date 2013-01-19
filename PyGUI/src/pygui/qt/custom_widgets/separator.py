@@ -3,18 +3,22 @@ Created on 13-12-2012
 
 @author: jurek
 '''
-from PyQt4.QtCore import *  # @UnusedWildImport
-from PyQt4.QtGui import *  # @UnusedWildImport
-from pygui.qt.utils.widgets import createGroupBox
-from pygui.qt.utils.widgets import createComposite
-from pygui.qt.utils.widgets import createCheckBox
-from pygui.qt.utils.widgets import createButtonGroup
-from pygui.qt.utils.widgets import createLineEdit
-from pygui.qt.utils.qt_i18n import QT_I18N
-from pygui.qt.utils.graphics import get_width_of_n_letters
-from pygui.qt.utils.windows import InformationWindow
-from pycore.misc import is_empty
-from pycore.misc import Params
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from pygui.qt.utils.widgets import createGroupBox
+    from pygui.qt.utils.widgets import createComposite
+    from pygui.qt.utils.widgets import createCheckBox
+    from pygui.qt.utils.widgets import createButtonGroup
+    from pygui.qt.utils.widgets import createLineEdit
+    from pygui.qt.utils.qt_i18n import QT_I18N
+    from pygui.qt.utils.graphics import get_width_of_n_letters
+    from pygui.qt.utils.windows import InformationWindow
+    from pycore.misc import is_empty
+    from pycore.misc import Params
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class DataSeparatorWidget(object):

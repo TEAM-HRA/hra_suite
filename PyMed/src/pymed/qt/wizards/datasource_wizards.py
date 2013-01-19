@@ -3,28 +3,32 @@ Created on 03-11-2012
 
 @author: jurek
 '''
-from PyQt4.QtCore import *  # @UnusedWildImport
-from PyQt4.QtGui import *  # @UnusedWildImport
-from pygui.qt.utils.qt_i18n import QT_I18N
-from pygui.qt.utils.settings import SettingsFactory
-from pygui.qt.utils.settings import Setter
-from pygui.qt.utils.widgets import *  # @UnusedWildImport
-from pygui.qt.utils.graphics import get_width_of_n_letters
-from pycore.io_utils import is_text_file
-from pycore.io_utils import DataFileHeader
-from pygui.qt.custom_widgets.separator import DataSeparatorWidget
-from pygui.qt.custom_widgets.progress_bar import ProgressBarManager
-from pygui.qt.utils.windows import showFilePreviewDialog
-from pygui.qt.utils.windows import InformationWindow
-from pygui.qt.utils.windows import ErrorWindow
-from pygui.qt.custom_widgets.modelviews import FilesTableView
-from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
-from pygui.qt.custom_widgets.modelviews import CheckStateProxySortFilterModel
-from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
-from pycore.collections import create_list
-from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
-from pygui.qt.utils.plugins import PluginsManager
-from pygui.qt.utils.plugins import PluginsNames
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from pycore.collections import create_list
+    from pycore.io_utils import is_text_file
+    from pycore.io_utils import DataFileHeader
+    from pygui.qt.utils.qt_i18n import QT_I18N
+    from pygui.qt.utils.settings import SettingsFactory
+    from pygui.qt.utils.settings import Setter
+    from pygui.qt.utils.widgets import *  # @UnusedWildImport
+    from pygui.qt.utils.graphics import get_width_of_n_letters
+    from pygui.qt.custom_widgets.separator import DataSeparatorWidget
+    from pygui.qt.custom_widgets.progress_bar import ProgressBarManager
+    from pygui.qt.utils.windows import showFilePreviewDialog
+    from pygui.qt.utils.windows import InformationWindow
+    from pygui.qt.utils.windows import ErrorWindow
+    from pygui.qt.custom_widgets.modelviews import FilesTableView
+    from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
+    from pygui.qt.custom_widgets.modelviews import CheckStateProxySortFilterModel # @IgnorePep8
+    from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
+    from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
+    from pygui.qt.utils.plugins import PluginsManager
+    from pygui.qt.utils.plugins import PluginsNames
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class DatasourceWizard(QWizard):

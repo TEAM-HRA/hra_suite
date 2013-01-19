@@ -3,17 +3,21 @@ Created on 19-01-2013
 
 @author: jurek
 '''
-import collections
-from PyQt4.QtGui import *  # @UnusedWildImport
-from PyQt4.QtCore import *  # @UnusedWildImport
-from pycore.misc import Params
-from pycore.collections import all_true_values
-from pycore.collections import nvl
-from pycommon.actions import ActionSpec
-from pygui.qt.actions.actions_utils import create_action
-from pygui.qt.utils.widgets import Common
-from pygui.qt.utils.widgets import WidgetCommon
-from pygui.qt.utils.widgets import item
+from pycore.special import ImportErrorMessage
+try:
+    import collections
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.misc import Params
+    from pycore.collections import all_true_values
+    from pycore.collections import nvl
+    from pycommon.actions import ActionSpec
+    from pygui.qt.actions.actions_utils import create_action
+    from pygui.qt.utils.widgets import Common
+    from pygui.qt.utils.widgets import WidgetCommon
+    from pygui.qt.utils.widgets import item
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class ToolButtonCommon(QToolButton, Common):

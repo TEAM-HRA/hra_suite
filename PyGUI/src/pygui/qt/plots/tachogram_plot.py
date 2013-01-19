@@ -3,11 +3,15 @@ Created on 15-01-2013
 
 @author: jurek
 '''
-from PyQt4.QtGui import *  # @UnusedWildImport
-from PyQt4.QtCore import *  # @UnusedWildImport
-from pygui.qt.utils.widgets import TabWidgetCommon
-from pygui.qt.utils.widgets import MainWindowCommon
-from pygui.qt.utils.widgets import LabelCommon
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pygui.qt.utils.widgets import TabWidgetCommon
+    from pygui.qt.utils.widgets import MainWindowCommon
+    from pygui.qt.utils.widgets import LabelCommon
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class TachogramPlotManager(TabWidgetCommon):

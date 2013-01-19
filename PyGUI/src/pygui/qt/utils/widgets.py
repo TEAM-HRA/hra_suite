@@ -3,15 +3,19 @@ Created on 26-11-2012
 
 @author: jurek
 '''
-import inspect
-from PyQt4.QtGui import *  # @UnusedWildImport
-from PyQt4.QtCore import *  # @UnusedWildImport
-from pygui.qt.utils.qt_i18n import text_I18N
-from pygui.qt.utils.qt_i18n import title_I18N
-from pycore.misc import Params
-from pygui.qt.utils.logging import LoggingEventFilter
-from pycore.globals import Globals
-from pygui.qt.utils.signals import LIST_ITEM_CLICKED_SIGNAL
+from pycore.special import ImportErrorMessage
+try:
+    import inspect
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pygui.qt.utils.qt_i18n import text_I18N
+    from pygui.qt.utils.qt_i18n import title_I18N
+    from pycore.misc import Params
+    from pygui.qt.utils.logging import LoggingEventFilter
+    from pycore.globals import Globals
+    from pygui.qt.utils.signals import LIST_ITEM_CLICKED_SIGNAL
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 def createComposite(parent=None, **params):

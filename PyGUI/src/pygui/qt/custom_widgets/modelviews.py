@@ -3,11 +3,15 @@ Created on 13-12-2012
 
 @author: jurek
 '''
-from PyQt4.QtGui import *  # @UnusedWildImport
-from PyQt4.QtCore import *  # @UnusedWildImport
-from pycore.misc import Params
-from pygui.qt.utils.widgets import createTableView
-from pygui.qt.utils.qt_i18n import QT_I18N
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.misc import Params
+    from pygui.qt.utils.widgets import createTableView
+    from pygui.qt.utils.qt_i18n import QT_I18N
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class WidgetsHorizontalHeader(QHeaderView):
