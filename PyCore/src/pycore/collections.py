@@ -112,3 +112,16 @@ def or_values(iterable):
                 if num > 0:
                     value = value | _iter
             return value
+
+
+def all_true_values(_object, _names):
+    """
+    check if all members of passed _object has value True
+    """
+    for name in _names:
+        if hasattr(_object, name):
+            if getattr(_object, name, False) == False:
+                return False
+        else:
+            return False
+    return True
