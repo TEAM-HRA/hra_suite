@@ -128,6 +128,7 @@ PySettings/src/settings/i18n/i18n_en.properties -text
 PySettings/src/settings/icons/User-Group.ico -text
 PySettings/src/settings/icons/__init__.py -text
 PySettings/src/settings/icons/toolbar_check_button.ico -text
+PySettings/src/settings/icons/toolbar_close_button.ico -text
 PySettings/src/settings/icons/toolbar_maximum_button.ico -text
 PySettings/src/settings/icons/toolbar_minimum_button.ico -text
 PySettings/src/settings/icons/toolbar_uncheck_button.ico -text

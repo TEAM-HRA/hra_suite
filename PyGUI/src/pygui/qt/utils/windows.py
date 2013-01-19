@@ -98,8 +98,8 @@ class ApplicationMainWindow(MainWindowCommon):
     def closeEvent(self, event):
         for idx in range(self.mainTabWidget.count()):
             tabWidget = self.mainTabWidget.widget(idx)
-            if hasattr(tabWidget, 'closeTab'):
-                tabWidget.closeTab()
+            if hasattr(tabWidget, 'beforeCloseTab'):
+                tabWidget.beforeCloseTab()
 
 
 def InformationWindow(parent=None, **params):

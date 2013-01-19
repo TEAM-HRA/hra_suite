@@ -7,21 +7,23 @@ from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
 from pycore.misc import Params
 from pygui.qt.utils.widgets import createPushButton
+from pygui.qt.utils.widgets import TabWidgetItemCommon
 from pygui.qt.utils.widgets import WidgetCommon
 from pygui.qt.utils.widgets import createListWidget
 from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
 from pygui.qt.utils.widgets_custom import SplitterWidget
+from pygui.qt.utils.widgets_custom import OperationalToolBarWidget
 from pygui.qt.utils.widgets_custom import ToolBarManager
 from pygui.qt.utils.widgets_custom import CheckUncheckToolBarWidget
 from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
 from pygui.qt.plots.tachogram_plot import TachogramPlotManager
 
 
-class PoincarePlotTabWidget(QWidget):
+class PoincarePlotTabWidget(TabWidgetItemCommon):
 
     def __init__(self, **params):
+        super(PoincarePlotTabWidget, self).__init__(**params)
         self.params = Params(**params)
-        super(PoincarePlotTabWidget, self).__init__(self.params.parent)
         layout = QHBoxLayout()
         self.setLayout(layout)
         self.__splitter__ = SplitterWidget(self, objectName='poincarePlot',
@@ -34,7 +36,7 @@ class PoincarePlotTabWidget(QWidget):
         #the PoincarePlotTabWidget's creation process
         self.__splitter__.updateSizes()
 
-    def closeTab(self):
+    def beforeCloseTab(self):
         """
         this method includes actions to be invoked when a PoincarePlotTabWidget is closing @IgnorePep8
         """
@@ -42,9 +44,9 @@ class PoincarePlotTabWidget(QWidget):
 
     def __createDatasourceListWidget__(self):
         self.__datasourceListWidget__ = \
-            DatasourceListWidget(self.__splitter__,
-                        self.params.model,
-                        add_tachogram_plot_handler=self.__addTachogramPlot__)
+            DatasourceListWidget(self.__splitter__, self.params.model,
+                        add_tachogram_plot_handler=self.__addTachogramPlot__,
+                        close_tachogram_plot_handler=self.closeTab)
         if self.__splitter__.sizesLoaded() == False:
             idx = self.__splitter__.indexOf(self.__datasourceListWidget__)
             self.__splitter__.setStretchFactor(idx, 1)
@@ -67,7 +69,9 @@ class DatasourceListWidget(WidgetCommon):
                                                     add_widget_to_parent=True,
                                                     layout=QVBoxLayout())
         self.params = Params(**params)
-        toolbars = ToolBarManager(self, CheckUncheckToolBarWidget)
+        toolbars = ToolBarManager(self, CheckUncheckToolBarWidget,
+                OperationalToolBarWidget,
+                toolbar_close_handler=self.params.close_tachogram_plot_handler)
         self.layout().addWidget(toolbars)
 
         self.__datasourceList__ = \

@@ -17,7 +17,7 @@ from pygui.qt.utils.widgets import Common
 class SplitterWidget(QSplitter, Common):
     def __init__(self, parent, **params):
         QSplitter.__init__(self, parent)
-        item(parent, widget=self, **params)
+        item(parent=parent, widget=self, **params)
         self.params = Params(**params)
         self.setHandleWidth(self.handleWidth() * 2)
         if self.params.save_state:

@@ -20,22 +20,22 @@ from pygui.qt.actions.actions_utils import create_action
 
 
 def createComposite(parent=None, **params):
-    return item(parent, widget=QWidget(parent), **params)
+    return item(parent=parent, widget=QWidget(parent), **params)
 
 
 def createPushButton(parent=None, **params):
     if params.get('sizePolicy', None) == None:
         params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed)
-    return item(parent, widget=__PushButton(parent), textable=True, **params)
+    return item(parent=parent, widget=__PushButton(parent), textable=True, **params) # @IgnorePep8
 
 
 def createGroupBox(parent=None, **params):
-    return item(parent, widget=QGroupBox(parent), titleable=True, **params)
+    return item(parent=parent, widget=QGroupBox(parent), titleable=True, **params) # @IgnorePep8
 
 
 def createLineEdit(parent=None, **params):
-    return item(parent, widget=__LineEditWidget(parent, **params), **params)
+    return item(parent=parent, widget=__LineEditWidget(parent, **params), **params) # @IgnorePep8
 
 
 class LineEditWidget(QLineEdit):
@@ -51,45 +51,47 @@ class LineEditWidget(QLineEdit):
 
 
 def createCheckBox(parent=None, **params):
-    return item(parent, widget=__CheckBox(parent), textable=True, **params)
+    return item(parent=parent, widget=__CheckBox(parent), textable=True, **params) # @IgnorePep8
 
 
 def createTableView(parent=None, **params):
-    return item(parent, widget=__TableView(parent), **params)
+    return item(parent=parent, widget=__TableView(parent), **params)
 
 
 def createSlider(parent=None, **params):
-    return item(parent, widget=QSlider(parent), **params)
+    return item(parent=parent, widget=QSlider(parent), **params)
 
 
 def createTextEdit(parent=None, **params):
-    return item(parent, widget=QTextEdit(parent), **params)
+    return item(parent=parent, widget=QTextEdit(parent), **params)
 
 
 def createPlainTextEdit(parent=None, **params):
-    return item(parent, widget=QPlainTextEdit(parent), **params)
+    return item(parent=parent, widget=QPlainTextEdit(parent), **params)
 
 
 def createProgressBar(parent=None, **params):
-    return item(parent, widget=QProgressBar(parent), **params)
+    return item(parent=parent, widget=QProgressBar(parent), **params)
 
 
 def createButtonGroup(parent=None, **params):
-    return item(parent, widget=QButtonGroup(parent), **params)
+    return item(parent=parent, widget=QButtonGroup(parent), **params)
 
 
 def createListWidget(parent=None, **params):
-    return item(parent, widget=__ListWidget(parent), **params)
+    return item(parent=parent, widget=__ListWidget(parent), **params)
 
 
-def item(parent=None, **params):
+def item(**params):
     """
-    method to create a widget based o information contained in params
-    dictionary, it is a factory method
+    method to create a widget based o information contained in
+    a parameter params dictionary, it is a factory method
     """
-    parent_layout = parent.layout() \
-                if not parent == None and not parent.layout() == 0 else None
     params = Params(**params)
+    parent_layout = params.parent.layout() \
+                if not params.parent == None and \
+                not params.parent.layout() == 0 else None
+
     widget = params.widget
     __set_widget_size(widget, params.size, params.width, params.height)
     if not params.enabled == None:
@@ -148,8 +150,8 @@ def item(parent=None, **params):
     if not params.list_item_clicked_handler == None:
         widget.connect(widget, LIST_ITEM_CLICKED_SIGNAL,
                        params.list_item_clicked_handler)
-    if parent and params.add_widget_to_parent == True:
-        parent.addWidget(widget)
+    if params.parent and params.add_widget_to_parent == True:
+        params.parent.addWidget(widget)
     return widget
 
 
@@ -236,13 +238,13 @@ class __TableView(QTableView, Common):
 class WidgetCommon(QWidget, Common):
     def __init__(self, parent, **params):
         super(WidgetCommon, self).__init__(parent)
-        item(parent, widget=self, **params)
+        item(parent=parent, widget=self, **params)
 
 
 class ToolBarCommon(QToolBar, Common):
     def __init__(self, parent, _button_types=[], _check_fields=[], **params):
         super(ToolBarCommon, self).__init__(parent)
-        item(parent, widget=self, **params)
+        item(parent=parent, widget=self, **params)
 
         #to avoid some weird behaviour which manifests in including
         #in this toolbar buttons from the previous one
@@ -267,7 +269,20 @@ class __ListWidget(QListWidget, Common):
 class TabWidgetCommon(QTabWidget, Common):
     def __init__(self, parent, **params):
         super(TabWidgetCommon, self).__init__(parent)
-        item(parent, widget=self, **params)
+        item(parent=parent, widget=self, **params)
+
+
+class TabWidgetItemCommon(QWidget, Common):
+    def __init__(self, **params):
+        self.params = Params(**params)
+        super(TabWidgetItemCommon, self).__init__(self.params.parent)
+        item(widget=self, **params)
+
+    def closeTab(self):
+        if hasattr(self, 'beforeCloseTab'):
+            self.beforeCloseTab()
+        idx = self.params.parent.indexOf(self)
+        self.params.parent.removeTab(idx)
 
 
 class LabelCommon(QLabel, Common):
@@ -276,19 +291,19 @@ class LabelCommon(QLabel, Common):
         if params.get('sizePolicy', None) == None:
             params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Preferred)
-        item(parent, widget=self, textable=True, **params)
+        item(parent=parent, widget=self, textable=True, **params)
 
 
 class MainWindowCommon(QMainWindow, Common):
     def __init__(self, parent, **params):
         super(MainWindowCommon, self).__init__(parent)
-        item(parent, widget=self, **params)
+        item(parent=parent, widget=self, **params)
 
 
 class StatusBarCommon(QStatusBar, Common):
     def __init__(self, parent, **params):
         super(StatusBarCommon, self).__init__(parent)
-        item(parent, widget=self, **params)
+        item(parent=parent, widget=self, **params)
 
 DefaultToolButtonType = collections.namedtuple('ToolButtonType',
                     'active operational checkable handler_name icon_id title')
@@ -373,7 +388,7 @@ class ToolButtonCommon(QToolButton, Common):
             params['add_widget_to_parent'] = False
         if params.get('not_add_widget_to_parent_layout', None) == None:
             params['not_add_widget_to_parent_layout'] = True
-        item(parent, widget=self, **params)
+        item(parent=parent, widget=self, **params)
         action = params.get('action', None)
         if action:
             self.setDefaultAction(action)
