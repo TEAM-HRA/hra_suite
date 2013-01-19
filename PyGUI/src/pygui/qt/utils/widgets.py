@@ -263,3 +263,9 @@ class MainWindowCommon(QMainWindow, Common):
     def __init__(self, parent, **params):
         super(MainWindowCommon, self).__init__(parent)
         item(parent, widget=self, **params)
+
+
+class StatusBarCommon(QStatusBar, Common):
+    def __init__(self, parent, **params):
+        super(StatusBarCommon, self).__init__(parent)
+        item(parent, widget=self, **params)
