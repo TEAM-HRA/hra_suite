@@ -9,12 +9,12 @@ from pycore.misc import Params
 from pygui.qt.utils.widgets import createPushButton
 from pygui.qt.utils.widgets import WidgetCommon
 from pygui.qt.utils.widgets import createListWidget
-from pygui.qt.utils.widgets import createWidget
 from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
 from pygui.qt.utils.widgets_custom import SplitterWidget
 from pygui.qt.utils.widgets_custom import ToolBarManager
 from pygui.qt.utils.widgets_custom import CheckUncheckToolBarWidget
 from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
+from pygui.qt.plots.tachogram_plot import TachogramPlotManager
 
 
 class PoincarePlotTabWidget(QWidget):
@@ -27,12 +27,11 @@ class PoincarePlotTabWidget(QWidget):
         self.__splitter__ = SplitterWidget(self, objectName='poincarePlot',
                                            save_state=True)
         self.__createDatasourceListWidget__()
-        self.__createPlotComposite__()
+        self.__createTachogramPlotManager__()
 
-        #this method's call is very important, it sets up widgets sizes
-        #which make up a splitter;
-        #it has to be the last operation in the PoincarePlotTabWidget's
-        #creation process
+        #this method's call is very important, it sets up widgets sizes which
+        #make up a splitter; it has to be the last operation in
+        #the PoincarePlotTabWidget's creation process
         self.__splitter__.updateSizes()
 
     def closeTab(self):
@@ -42,26 +41,32 @@ class PoincarePlotTabWidget(QWidget):
         self.__splitter__.destroySplitter()
 
     def __createDatasourceListWidget__(self):
-        self.__datasourceListWidget__ = DatasourceListWidget(self.__splitter__,
-                                                            self.params.model)
+        self.__datasourceListWidget__ = \
+            DatasourceListWidget(self.__splitter__,
+                        self.params.model,
+                        add_tachogram_plot_handler=self.__addTachogramPlot__)
         if self.__splitter__.sizesLoaded() == False:
             idx = self.__splitter__.indexOf(self.__datasourceListWidget__)
             self.__splitter__.setStretchFactor(idx, 1)
 
-    def __createPlotComposite__(self):
-        self.__plotComposite__ = createWidget(self.__splitter__,
-                                              add_widget_to_parent=True)
+    def __createTachogramPlotManager__(self):
+        self.__tachogramsManager__ = TachogramPlotManager(self.__splitter__,
+                                                     add_widget_to_parent=True)
+        self.__tachogramsManager__.createInitialPlot()
         if self.__splitter__.sizesLoaded() == False:
-            idx = self.__splitter__.indexOf(self.__plotComposite__)
+            idx = self.__splitter__.indexOf(self.__tachogramsManager__)
             self.__splitter__.setStretchFactor(idx, 20)
+
+    def __addTachogramPlot__(self, pathfile):
+        self.__tachogramsManager__.addTachogramPlot()
 
 
 class DatasourceListWidget(WidgetCommon):
-    def __init__(self, parent, model):
+    def __init__(self, parent, model, **params):
         super(DatasourceListWidget, self).__init__(parent,
                                                     add_widget_to_parent=True,
                                                     layout=QVBoxLayout())
-
+        self.params = Params(**params)
         toolbars = ToolBarManager(self, CheckUncheckToolBarWidget)
         self.layout().addWidget(toolbars)
 
@@ -90,7 +95,8 @@ class DatasourceListWidget(WidgetCommon):
         self.emit(ENABLEMEND_SIGNAL, listItem.isSelected())
 
     def __showTachogramsHandler__(self):
-        pass
+        if self.params.add_tachogram_plot_handler:
+            self.params.add_tachogram_plot_handler(None)
 
     def __enabledPrecheckHandler__(self, widget):
         """

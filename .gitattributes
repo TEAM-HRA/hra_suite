@@ -60,6 +60,8 @@ PyGUI/src/pygui/qt/menu/__init__.py -text
 PyGUI/src/pygui/qt/menu/menus.py -text
 PyGUI/src/pygui/qt/models/__init__.py -text
 PyGUI/src/pygui/qt/models/datasources.py -text
+PyGUI/src/pygui/qt/plots/__init__.py -text
+PyGUI/src/pygui/qt/plots/tachogram_plot.py -text
 PyGUI/src/pygui/qt/utils/__init__.py -text
 PyGUI/src/pygui/qt/utils/context.py -text
 PyGUI/src/pygui/qt/utils/graphics.py -text
