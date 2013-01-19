@@ -6,14 +6,12 @@ Created on 16-01-2013
 from PyQt4.QtGui import *  # @UnusedWildImport
 from PyQt4.QtCore import *  # @UnusedWildImport
 from pycore.misc import Params
-from pycommon.actions import ActionSpec
 from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.settings import Setter
 from pygui.qt.utils.widgets import item
 from pygui.qt.utils.widgets import WidgetCommon
 from pygui.qt.utils.widgets import ToolBarCommon
 from pygui.qt.utils.widgets import Common
-from pygui.qt.actions.actions_utils import create_action
 
 
 class SplitterWidget(QSplitter, Common):
@@ -67,46 +65,15 @@ class ToolBarManager(WidgetCommon):
             self.layout().addWidget(toolbar_class(self, **params))
 
 
-def create_toolbar_button(parent, toolbar, title, handler_name=None, **params):
-    params = Params(**params)
-    if params.handler == None and handler_name:
-        if hasattr(parent, handler_name):
-            params.handler = getattr(parent, handler_name)
-        elif hasattr(parent.parentWidget(), handler_name):
-            params.handler = getattr(parent.parentWidget(), handler_name)
-        elif hasattr(params, handler_name):
-            params.handler = getattr(params, handler_name)
-    title = params.button_title if params.button_title else title
-    actionSpec = ActionSpec(iconId=params.iconId,
-                                 handler=params.handler,
-                                 title=title)
-    action = create_action(toolbar, actionSpec)
-    button = QToolButton()
-    button.setDefaultAction(action)
-    toolbar.addWidget(button)
-
-
 class CheckUncheckToolBarWidget(ToolBarCommon):
     def __init__(self, parent=None, **params):
-        super(CheckUncheckToolBarWidget, self).__init__(parent, **params)
-        create_toolbar_button(parent, self, 'Check all',
-                        handler_name='toolbar_check_handler',
-                        iconId='toolbar_check_button',
-                        **params)
-        create_toolbar_button(parent, self, 'Uncheck all',
-                        handler_name='toolbar_uncheck_handler',
-                        iconId='toolbar_uncheck_button',
-                        **params)
+        super(CheckUncheckToolBarWidget, self).__init__(parent,
+                                                _check_fields=['checkable'],
+                                                 **params)
 
 
-class MaxMinToolBarWidget(ToolBarCommon):
-    def __init__(self, parent=None, **params):
-        super(MaxMinToolBarWidget, self).__init__(parent, **params)
-        create_toolbar_button(parent, self, 'Maximum',
-                        handler_name='toolbar_maximum_handler',
-                        iconId='toolbar_maximum_button',
-                        **params)
-        create_toolbar_button(parent, self, 'Minimum',
-                        handler_name='toolbar_minimum_handler',
-                        iconId='toolbar_minimum_button',
-                        **params)
+class OperationalToolBarWidget(ToolBarCommon):
+    def __init__(self, parent=None, _button_types=[], **params):
+        super(OperationalToolBarWidget, self).__init__(parent,
+                                                _check_fields=['operational'],
+                                                **params)
