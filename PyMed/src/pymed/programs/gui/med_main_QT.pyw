@@ -16,8 +16,6 @@ from pygui.qt.utils.settings import Setter
 from pygui.qt.menu.menus import QTMenuBuilder
 from pycore.globals import GLOBALS
 from pygui.qt.utils.context import GlobalContext
-from pygui.qt.utils.widgets import createTabWidget
-from pygui.qt.utils.widgets import createWidget
 from pygui.qt.utils.windows import MainWindow
 
 __version__ = "1.0.0"
