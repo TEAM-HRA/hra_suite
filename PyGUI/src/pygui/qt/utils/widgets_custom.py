@@ -9,8 +9,6 @@ from pycore.misc import Params
 from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.settings import Setter
 from pygui.qt.utils.widgets import item
-from pygui.qt.utils.widgets import WidgetCommon
-from pygui.qt.utils.widgets import ToolBarCommon
 from pygui.qt.utils.widgets import Common
 
 
@@ -45,35 +43,3 @@ class SplitterWidget(QSplitter, Common):
     def updateSizes(self):
         if self.sizesLoaded():
             self.setSizes(self.sizes_list)
-
-
-class ToolBarManager(WidgetCommon):
-    """
-    this class give ability to join toolbars as a one widget
-    """
-    def __init__(self, parent=None, *toolbar_classes, **params):
-        super(ToolBarManager, self).__init__(parent, **params)
-
-        #toolbars cannot set up their own layouts, one have to remove
-        #this parameter to avoid it's propagating to toolbars classes,
-        #if there is no layout passed for ToolBarManager then default one
-        #is created
-        layout = params.pop('layout', QHBoxLayout())
-        self.setLayout(layout)
-
-        for toolbar_class in toolbar_classes:
-            self.layout().addWidget(toolbar_class(self, **params))
-
-
-class CheckUncheckToolBarWidget(ToolBarCommon):
-    def __init__(self, parent=None, **params):
-        super(CheckUncheckToolBarWidget, self).__init__(parent,
-                                                _check_fields=['checkable'],
-                                                 **params)
-
-
-class OperationalToolBarWidget(ToolBarCommon):
-    def __init__(self, parent=None, _button_types=[], **params):
-        super(OperationalToolBarWidget, self).__init__(parent,
-                                                _check_fields=['operational'],
-                                                **params)

@@ -12,9 +12,9 @@ from pygui.qt.utils.widgets import WidgetCommon
 from pygui.qt.utils.widgets import createListWidget
 from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
 from pygui.qt.utils.widgets_custom import SplitterWidget
-from pygui.qt.utils.widgets_custom import OperationalToolBarWidget
-from pygui.qt.utils.widgets_custom import ToolBarManager
-from pygui.qt.utils.widgets_custom import CheckUncheckToolBarWidget
+from pygui.qt.utils.toolbars import OperationalToolBarWidget
+from pygui.qt.utils.toolbars import ToolBarManager
+from pygui.qt.utils.toolbars import CheckUncheckToolBarWidget
 from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
 from pygui.qt.plots.tachogram_plot import TachogramPlotManager
 
