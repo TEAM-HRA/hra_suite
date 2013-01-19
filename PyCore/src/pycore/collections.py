@@ -100,3 +100,15 @@ def any_indexes(iterable):
     """
     if iterable:
         return [idx for idx, item in enumerate(iterable) if item == True]
+
+
+def or_values(iterable):
+    if iterable:
+        if len(iterable) == 0:
+            return None
+        elif len(iterable) >= 1:
+            value = iterable[0]
+            for num, _iter in enumerate(iterable):
+                if num > 0:
+                    value = value | _iter
+            return value
