@@ -18,4 +18,4 @@ def I18N(_id, _default=None, **params):
         i18n = __I18N_PROPERTIES.getValue(_id)
         if i18n:
             return replace_all_by_dict(i18n, params)
-    return _default
+    return "" if _default == None else _default
