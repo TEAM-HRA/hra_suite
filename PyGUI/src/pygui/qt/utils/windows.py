@@ -4,23 +4,24 @@ Created on 13-12-2012
 @author: jurek
 '''
 from os.path import join
+import sys
 import re
 from PyQt4.QtGui import *  # @UnusedWildImport
 from PyQt4.QtCore import *  # @UnusedWildImport
 from pycore.misc import Params
 from pycore.misc import get_max_number_between_signs
 from pygui.qt.utils.qt_i18n import QT_I18N
-from pygui.qt.utils.widgets import createLabel
-from pygui.qt.utils.widgets import createTabWidget
-from pygui.qt.utils.widgets import createWidget
+from pygui.qt.utils.widgets import LabelCommon
+from pygui.qt.utils.widgets import TabWidgetCommon
+from pygui.qt.utils.widgets import WidgetCommon
 from pygui.qt.utils.widgets import createPlainTextEdit
 from pygui.qt.utils.widgets import createPushButton
 from pygui.qt.menu.menus import QTMenuBuilder
 from pycore.globals import GLOBALS
-import sys
 from pycore.introspection import get_class_object
 from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
 from pycore.collections import any_indexes
+from pycore.collections import or_values
 
 
 class MainWindow(QMainWindow):
@@ -46,12 +47,12 @@ class MainWindow(QMainWindow):
 
         self.mainTabWidget = None
         if main_workspace_name:
-            self.mainTabWidget = createTabWidget(self,
+            self.mainTabWidget = TabWidgetCommon(self,
                             object_name=main_workspace_name,
                             not_add_widget_to_parent_layout=True
                             )
             if main_widget_name:
-                self.mainWidget = createWidget(self.mainTabWidget)
+                self.mainWidget = WidgetCommon(self.mainTabWidget)
                 self.mainTabWidget.addTab(self.mainWidget, main_widget_name)
                 self.setCentralWidget(self.mainTabWidget)
 
@@ -110,13 +111,36 @@ def ErrorWindow(parent=None, **params):
     QMessageBox.information(parent, title, error, QMessageBox.Critical)
 
 
+def QuestionWindow(buttons_list, parent=None, default_button=None, **params):
+    (title, message) = __message__(parent=None, **params)
+    box = QMessageBox(parent)
+    if title:
+        box.setWindowTitle(title)
+    if message:
+        box.setText(message)
+    if default_button:
+        box.setDefaultButton(default_button)
+    box.setStandardButtons(or_values(buttons_list))
+    return box.exec_()
+
+
+def AreYouSureWindow(parent=None, default_button=QMessageBox.Yes, **params):
+    ret = QuestionWindow([QMessageBox.Yes, QMessageBox.No],
+                         parent,
+                         default_button=default_button,
+                         message='Are you sure ?', **params)
+    return ret == QMessageBox.Yes
+
+
 def __message__(parent=None, **params):
     local_params = Params(**params)
-    if local_params.title_id == None and local_params.title_default == None:
+    if local_params.title_id == None and local_params.title_default == None \
+        and local_params.title == None:
         title = "Information"
     else:
         title = QT_I18N(local_params.title_id,
-                        _default=local_params.title_default,
+                        _default=local_params.title if local_params.title \
+                                        else local_params.title_default,
                         **params)
     message = QT_I18N(local_params.message_id,
                           _default=local_params.message,
@@ -142,7 +166,7 @@ class FilePreviewDialog(QDialog):
         self.setWindowTitle('Preview of ' + filename)
         self.setGeometry(QRect(50, 50, 1000, 600))
         self.setLayout(QVBoxLayout())
-        self.lineNumberLabel = createLabel(self)
+        self.lineNumberLabel = LabelCommon(self)
         self.preview = createPlainTextEdit(self, readonly=True)
 
         closeButton = createPushButton(self,

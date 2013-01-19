@@ -104,17 +104,17 @@ class ChooseDatasourcePage(QWizardPage):
                         i18n_def="Choose root dir",
                         clicked_handler=self.chooseRootDirAction)
 
-        createLabel(fileConstraintsComposite,
+        LabelCommon(fileConstraintsComposite,
                      i18n="datasource.root.dir.label",
                      i18n_def="Root dir:")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.rootDirLabel = createLabel(fileConstraintsComposite,
+        self.rootDirLabel = LabelCommon(fileConstraintsComposite,
                                         i18n="datasource.root.dir.label",
                                         i18n_def="[Not set]",
                                         sizePolicy=sizePolicy,
                                         stretch_after_widget=1)
 
-        createLabel(fileConstraintsComposite,
+        LabelCommon(fileConstraintsComposite,
                     i18n="datasource.file.name.filter.label",
                     i18n_def="Files name filter")
 
@@ -646,7 +646,7 @@ class HeaderWidget(QWidget):
         layout = QVBoxLayout(self)
         self.setLayout(layout)
 
-        createLabel(self, i18n_def=_header)
+        LabelCommon(self, i18n_def=_header)
         self.dataButton = createCheckBox(self, i18n_def="data",
                                          clicked_handler=self.dataClicked)
         self.annotationButton = createCheckBox(self, i18n_def="annotation",

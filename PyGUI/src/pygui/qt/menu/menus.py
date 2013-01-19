@@ -5,8 +5,8 @@ Created on 28-10-2012
 '''
 from pycommon.menu_parser import MenuBuilder
 from pycore.globals import GLOBALS
-from pygui.qt.actions.actions import create_action
-from pygui.qt.actions.actions import SlotWrapper
+from pygui.qt.actions.actions_utils import create_action
+from pygui.qt.actions.actions_utils import SlotWrapper
 from pycore.resources import get_as_resource_handler_or_string
 from pycore.resources import close_resource
 

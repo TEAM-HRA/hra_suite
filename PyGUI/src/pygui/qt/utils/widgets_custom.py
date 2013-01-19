@@ -13,7 +13,7 @@ from pygui.qt.utils.widgets import item
 from pygui.qt.utils.widgets import WidgetCommon
 from pygui.qt.utils.widgets import ToolBarCommon
 from pygui.qt.utils.widgets import Common
-from pygui.qt.actions.actions import create_action
+from pygui.qt.actions.actions_utils import create_action
 
 
 class SplitterWidget(QSplitter, Common):

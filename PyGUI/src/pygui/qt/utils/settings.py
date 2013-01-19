@@ -8,6 +8,8 @@ from PyQt4.QtCore import QSettings
 from PyQt4.QtCore import QVariant
 from pycore.collections import get_other_keys
 
+GLOBAL_SETTINGS = QSettings("med", "med")
+
 
 class SettingsFactory(object):
     @staticmethod
@@ -28,8 +30,12 @@ class SettingsFactory(object):
 
     @staticmethod
     def _getInitials(_target, **params):
-        return (QSettings("med", "med"),
+        return (GLOBAL_SETTINGS,
                 params.get('_prefix', _target.__class__.__name__))
+
+    @staticmethod
+    def clearSettings():
+        GLOBAL_SETTINGS.clear()
 
 
 class Setter(object):

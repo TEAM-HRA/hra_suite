@@ -18,11 +18,11 @@ def createComposite(parent=None, **params):
     return item(parent, widget=QWidget(parent), **params)
 
 
-def createLabel(parent=None, **params):
-    if params.get('sizePolicy', None) == None:
-        params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
-                                           QSizePolicy.Preferred)
-    return item(parent, widget=QLabel(parent), textable=True, **params)
+#def createLabel(parent=None, **params):
+#    if params.get('sizePolicy', None) == None:
+#        params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
+#                                           QSizePolicy.Preferred)
+#    return item(parent, widget=QLabel(parent), textable=True, **params)
 
 
 def createPushButton(parent=None, **params):
@@ -80,12 +80,12 @@ def createButtonGroup(parent=None, **params):
     return item(parent, widget=QButtonGroup(parent), **params)
 
 
-def createTabWidget(parent=None, **params):
-    return item(parent, widget=QTabWidget(parent), **params)
+#def createTabWidget(parent=None, **params):
+#    return item(parent, widget=QTabWidget(parent), **params)
 
 
-def createWidget(parent=None, **params):
-    return item(parent, widget=QWidget(parent), **params)
+#def createWidget(parent=None, **params):
+#    return item(parent, widget=QWidget(parent), **params)
 
 
 def createListWidget(parent=None, **params):
@@ -257,3 +257,18 @@ class ToolBarCommon(QToolBar, Common):
 
 class __ListWidget(QListWidget, Common):
     pass
+
+
+class TabWidgetCommon(QTabWidget, Common):
+    def __init__(self, parent, **params):
+        super(TabWidgetCommon, self).__init__(parent)
+        item(parent, widget=self, **params)
+
+
+class LabelCommon(QLabel, Common):
+    def __init__(self, parent, **params):
+        super(LabelCommon, self).__init__(parent)
+        if params.get('sizePolicy', None) == None:
+            params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
+                                           QSizePolicy.Preferred)
+        item(parent, widget=self, textable=True, **params)
