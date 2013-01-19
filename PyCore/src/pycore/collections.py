@@ -125,3 +125,12 @@ def all_true_values(_object, _names):
         else:
             return False
     return True
+
+
+def nvl(*iterable):
+    """
+    returns first not None value in collection
+    """
+    for _iter in iterable:
+        if not _iter == None:
+            return _iter
