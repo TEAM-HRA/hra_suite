@@ -12,6 +12,7 @@ from pycore.misc import Params
 from pycore.misc import get_max_number_between_signs
 from pygui.qt.utils.qt_i18n import QT_I18N
 from pygui.qt.utils.widgets import LabelCommon
+from pygui.qt.utils.widgets import MainWindowCommon
 from pygui.qt.utils.widgets import TabWidgetCommon
 from pygui.qt.utils.widgets import WidgetCommon
 from pygui.qt.utils.widgets import createPlainTextEdit
@@ -24,14 +25,14 @@ from pycore.collections import any_indexes
 from pycore.collections import or_values
 
 
-class MainWindow(QMainWindow):
+class ApplicationMainWindow(MainWindowCommon):
 
     def __init__(self, parent=None,
                  create_menus=True,
                  main_workspace_name=GLOBALS.WORKSPACE_NAME,
                  main_widget_name=GLOBALS.TAB_MAIN_NAME,
                  **params):
-        super(MainWindow, self).__init__(parent)
+        super(ApplicationMainWindow, self).__init__(parent)
         self.params = Params(**params)
         self.setObjectName(GLOBALS.MAIN_WINDOW_NAME)
 

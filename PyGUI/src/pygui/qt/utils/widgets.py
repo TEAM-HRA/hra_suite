@@ -18,13 +18,6 @@ def createComposite(parent=None, **params):
     return item(parent, widget=QWidget(parent), **params)
 
 
-#def createLabel(parent=None, **params):
-#    if params.get('sizePolicy', None) == None:
-#        params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
-#                                           QSizePolicy.Preferred)
-#    return item(parent, widget=QLabel(parent), textable=True, **params)
-
-
 def createPushButton(parent=None, **params):
     if params.get('sizePolicy', None) == None:
         params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
@@ -78,14 +71,6 @@ def createProgressBar(parent=None, **params):
 
 def createButtonGroup(parent=None, **params):
     return item(parent, widget=QButtonGroup(parent), **params)
-
-
-#def createTabWidget(parent=None, **params):
-#    return item(parent, widget=QTabWidget(parent), **params)
-
-
-#def createWidget(parent=None, **params):
-#    return item(parent, widget=QWidget(parent), **params)
 
 
 def createListWidget(parent=None, **params):
@@ -272,3 +257,9 @@ class LabelCommon(QLabel, Common):
             params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Preferred)
         item(parent, widget=self, textable=True, **params)
+
+
+class MainWindowCommon(QMainWindow, Common):
+    def __init__(self, parent, **params):
+        super(MainWindowCommon, self).__init__(parent)
+        item(parent, widget=self, **params)

@@ -4,19 +4,11 @@ Created on 27-09-2012
 @author: jurek
 '''
 
-import os
-import platform
 import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 
-
-from pygui.qt.utils.settings import SettingsFactory
-from pygui.qt.utils.settings import Setter
-from pygui.qt.menu.menus import QTMenuBuilder
-from pycore.globals import GLOBALS
-from pygui.qt.utils.context import GlobalContext
-from pygui.qt.utils.windows import MainWindow
+from pygui.qt.utils.windows import ApplicationMainWindow
 
 __version__ = "1.0.0"
 
@@ -27,9 +19,9 @@ def main():
     app.setOrganizationDomain("med")
     app.setApplicationName("Medical app")
     app.setWindowIcon(QIcon(":/icon.png"))
-    form = MainWindow(window_title="Medical Workspace")
+    appWindow = ApplicationMainWindow(window_title="Medical Workspace")
     #print('id main window ' + str(id(form)))
-    form.showMaximized()
+    appWindow.showMaximized()
     app.exec_()
 
 main()
