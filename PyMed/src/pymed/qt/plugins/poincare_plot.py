@@ -8,7 +8,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pygui.qt.utils.widgets import createPushButton
+    from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.utils.widgets import TabWidgetItemCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
@@ -96,7 +96,7 @@ class DatasourceListWidget(WidgetCommon):
             QListWidgetItem('model not specified or incorrect type',
                             self.__datasourceList__)
         self.__showTachogramsButton__ = \
-            createPushButton(self,
+            PushButtonCommon(self,
                     i18n="poincare.plot.show.tachograms.button",
                     i18n_def="Show tachograms",
                     enabled=False,

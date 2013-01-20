@@ -11,7 +11,7 @@ try:
     from pygui.qt.utils.threads import ThreadTask
     from pygui.qt.utils.widgets import createComposite
     from pygui.qt.utils.widgets import createProgressBar
-    from pygui.qt.utils.widgets import createPushButton
+    from pygui.qt.utils.widgets import PushButtonCommon
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -37,7 +37,7 @@ class ProgressBarManager(object):
         if self.params.hidden == True:
             self.progressBarComposite.hide()
 
-        self.stopButton = createPushButton(
+        self.stopButton = PushButtonCommon(
                                 self.progressBarComposite,
                                 i18n="datasource.stop.progress.bar.button",
                                 i18n_def="Stop")

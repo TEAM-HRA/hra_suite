@@ -18,7 +18,7 @@ try:
     from pygui.qt.utils.widgets import TabWidgetCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import createPlainTextEdit
-    from pygui.qt.utils.widgets import createPushButton
+    from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.menu.menus import QTMenuBuilder
     from pycore.globals import GLOBALS
     from pycore.introspection import get_class_object
@@ -174,7 +174,7 @@ class FilePreviewDialog(QDialog):
         self.lineNumberLabel = LabelCommon(self)
         self.preview = createPlainTextEdit(self, readonly=True)
 
-        closeButton = createPushButton(self,
+        closeButton = PushButtonCommon(self,
                             i18n="close",
                             i18n_def="Close")
         self.connect(closeButton, SIGNAL("clicked()"), self, SLOT("reject()"))

@@ -22,7 +22,8 @@ try:
     from pygui.qt.utils.windows import ErrorWindow
     from pygui.qt.custom_widgets.modelviews import FilesTableView
     from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
-    from pygui.qt.custom_widgets.modelviews import CheckStateProxySortFilterModel # @IgnorePep8
+    from pygui.qt.custom_widgets.modelviews \
+        import CheckStateProxySortFilterModel # @IgnorePep8
     from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
     from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
     from pygui.qt.utils.plugins import PluginsManager
@@ -103,7 +104,7 @@ class ChooseDatasourcePage(QWizardPage):
         fileConstraintsComposite = createComposite(parent,
                                                    layout=QHBoxLayout())
 
-        self.chooseRootDirButton = createPushButton(fileConstraintsComposite,
+        self.chooseRootDirButton = PushButtonCommon(fileConstraintsComposite,
                         i18n="datasource.datasource.choose.root.dir.button",
                         i18n_def="Choose root dir",
                         clicked_handler=self.chooseRootDirAction)
@@ -145,7 +146,7 @@ class ChooseDatasourcePage(QWizardPage):
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
     def __createReloadButton__(self, parent):
-        self.reloadButton = createPushButton(parent,
+        self.reloadButton = PushButtonCommon(parent,
                         i18n="datasource.reload.button",
                         i18n_def="Reload",
                         clicked_handler=self.reload,
@@ -167,21 +168,21 @@ class ChooseDatasourcePage(QWizardPage):
         filesOperations = createComposite(parent,
                                             layout=QHBoxLayout())
 
-        self.filePreviewButton = createPushButton(filesOperations,
+        self.filePreviewButton = PushButtonCommon(filesOperations,
                         i18n="datasource.file.preview.button",
                         i18n_def="File preview",
                         stretch_after_widget=1,
                         clicked_handler=self.filePreviewAction,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
-        self.checkAllButton = createPushButton(filesOperations,
+        self.checkAllButton = PushButtonCommon(filesOperations,
                         i18n="datasource.accept.check.all.button",
                         i18n_def="Check all",
                         enabled=False,
                         clicked_handler=self.checkAllAction,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
-        self.uncheckAllButton = createPushButton(filesOperations,
+        self.uncheckAllButton = PushButtonCommon(filesOperations,
                         i18n="datasource.accept.uncheck.all.button",
                         i18n_def="Uncheck all",
                         enabled=False,
@@ -360,7 +361,7 @@ class ChooseColumnsDataPage(QWizardPage):
                                         sorting=True)
         self.filesTableView.setColumnHidden(0, True)
 
-        self.filePreviewButton = createPushButton(self.tableViewComposite,
+        self.filePreviewButton = PushButtonCommon(self.tableViewComposite,
                             i18n="datasource.file.preview.button",
                             i18n_def="File preview",
                             enabled=False,

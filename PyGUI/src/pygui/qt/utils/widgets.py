@@ -22,13 +22,6 @@ def createComposite(parent=None, **params):
     return item(parent=parent, widget=QWidget(parent), **params)
 
 
-def createPushButton(parent=None, **params):
-    if params.get('sizePolicy', None) == None:
-        params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
-                                           QSizePolicy.Fixed)
-    return item(parent=parent, widget=__PushButton(parent), textable=True, **params) # @IgnorePep8
-
-
 def createGroupBox(parent=None, **params):
     return item(parent=parent, widget=QGroupBox(parent), titleable=True, **params) # @IgnorePep8
 
@@ -218,10 +211,6 @@ class __CheckBox(QCheckBox, Common):
     pass
 
 
-class __PushButton(QPushButton, Common):
-    pass
-
-
 class __LineEditWidget(LineEditWidget, Common):
     pass
 
@@ -307,3 +296,12 @@ class ListWidgetCommon(QListWidget, Common):
     def __init__(self, parent, **params):
         super(ListWidgetCommon, self).__init__(parent)
         item(parent=parent, widget=self, **params)
+
+
+class PushButtonCommon(QPushButton, Common):
+    def __init__(self, parent, **params):
+        super(PushButtonCommon, self).__init__(parent)
+        if params.get('sizePolicy', None) == None:
+            params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
+                                               QSizePolicy.Fixed)
+        item(parent=parent, widget=self, textable=True, **params)
