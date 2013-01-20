@@ -42,10 +42,6 @@ class LineEditWidget(QLineEdit):
         super(LineEditWidget, self).focusInEvent(qfocusevent)
 
 
-def createCheckBox(parent=None, **params):
-    return item(parent=parent, widget=__CheckBox(parent), textable=True, **params) # @IgnorePep8
-
-
 def createTableView(parent=None, **params):
     return item(parent=parent, widget=__TableView(parent), **params)
 
@@ -207,10 +203,6 @@ class Common(QObject):
                     if precheck_enabled == None else precheck_enabled)
 
 
-class __CheckBox(QCheckBox, Common):
-    pass
-
-
 class __LineEditWidget(LineEditWidget, Common):
     pass
 
@@ -301,6 +293,15 @@ class ListWidgetCommon(QListWidget, Common):
 class PushButtonCommon(QPushButton, Common):
     def __init__(self, parent, **params):
         super(PushButtonCommon, self).__init__(parent)
+        if params.get('sizePolicy', None) == None:
+            params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
+                                               QSizePolicy.Fixed)
+        item(parent=parent, widget=self, textable=True, **params)
+
+
+class CheckBoxCommon(QCheckBox, Common):
+    def __init__(self, parent, **params):
+        super(CheckBoxCommon, self).__init__(parent)
         if params.get('sizePolicy', None) == None:
             params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                                QSizePolicy.Fixed)

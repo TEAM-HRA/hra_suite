@@ -132,13 +132,13 @@ class ChooseDatasourcePage(QWizardPage):
                      SIGNAL("textChanged(const QString&)"),
                      self.reload)
 
-        self.recursively = createCheckBox(fileConstraintsComposite,
+        self.recursively = CheckBoxCommon(fileConstraintsComposite,
                         i18n="datasource.search.files.recursively.label",
                         i18n_def="Search files recursively",
                         clicked_handler=self.reload,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
-        self.onlyKnownTypes = createCheckBox(fileConstraintsComposite,
+        self.onlyKnownTypes = CheckBoxCommon(fileConstraintsComposite,
                         i18n="datasource.only.known.types.checkbox",
                         i18n_def="Only known types",
                         checked=True,
@@ -465,7 +465,7 @@ class ChooseColumnsDataPage(QWizardPage):
                             selectionBehavior=QAbstractItemView.SelectRows,
                             selectionMode=QAbstractItemView.SingleSelection)
 
-        self.__globalCheckBox__ = createCheckBox(
+        self.__globalCheckBox__ = CheckBoxCommon(
                                     self.fileHeaderPreviewGroup,
                                     i18n="global.data.column.index",
                                     i18n_def="Global columns indexes",
@@ -652,9 +652,9 @@ class HeaderWidget(QWidget):
         self.setLayout(layout)
 
         LabelCommon(self, i18n_def=_header)
-        self.dataButton = createCheckBox(self, i18n_def="data",
+        self.dataButton = CheckBoxCommon(self, i18n_def="data",
                                          clicked_handler=self.dataClicked)
-        self.annotationButton = createCheckBox(self, i18n_def="annotation",
+        self.annotationButton = CheckBoxCommon(self, i18n_def="annotation",
                                         clicked_handler=self.annotationClicked)
 
         self.__dataHandler__ = _dataHandler

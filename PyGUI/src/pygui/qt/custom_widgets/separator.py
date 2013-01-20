@@ -9,7 +9,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pygui.qt.utils.widgets import createGroupBox
     from pygui.qt.utils.widgets import createComposite
-    from pygui.qt.utils.widgets import createCheckBox
+    from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.widgets import createButtonGroup
     from pygui.qt.utils.widgets import createLineEdit
     from pygui.qt.utils.qt_i18n import QT_I18N
@@ -39,7 +39,7 @@ class DataSeparatorWidget(object):
         self.predefinedSeparatorsLabels = SeparatorSign.getSeparatorLabels()
         for (_, _, label) in self.predefinedSeparatorsLabels:
             if not label == SeparatorSign.CUSTOM.label:
-                predefinedSeparatorCheckBox = createCheckBox(
+                predefinedSeparatorCheckBox = CheckBoxCommon(
                                             self.predefinedSeparatorsComposite)
                 predefinedSeparatorCheckBox.setText(label)
                 self.predefinedSeparatorsButtonsGroup.addButton(
@@ -58,7 +58,7 @@ class DataSeparatorWidget(object):
                                         SIGNAL("textChanged(const QString&)"),
                                         self.customSeparatorEditChanged)
 
-        self.customSeparatorCheckBox = createCheckBox(
+        self.customSeparatorCheckBox = CheckBoxCommon(
                                         self.predefinedSeparatorsComposite,
                                         i18n="separator.custom.checkbox",
                                         i18n_def="Custom",
@@ -69,7 +69,7 @@ class DataSeparatorWidget(object):
 
         self.globalSettingsCheckBox = None
         if self.params.globalHandler:
-            self.globalSettingsCheckBox = createCheckBox(
+            self.globalSettingsCheckBox = CheckBoxCommon(
                                         self.separatorsGroupBox,
                                         i18n="separator.global.separator",
                                         i18n_def="Global separator")
