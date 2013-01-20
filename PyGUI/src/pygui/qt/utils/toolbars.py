@@ -36,6 +36,8 @@ class ToolButtonCommon(QToolButton, Common):
 
 class ToolBarCommon(QToolBar, Common):
     def __init__(self, parent, _button_types=[], _check_fields=[], **params):
+        if params.get('not_add_widget_to_parent_layout', None) == None:
+            params['not_add_widget_to_parent_layout'] = True
         super(ToolBarCommon, self).__init__(parent)
         item(parent=parent, widget=self, **params)
 
@@ -56,11 +58,12 @@ class ToolBarCommon(QToolBar, Common):
 
 
 DefaultToolButtonType = collections.namedtuple('ToolButtonType',
-                    'active operational checkable handler_name icon_id title')
+    'active operational checkable handler_name icon_id title handler_callable_name') # @IgnorePep8
 
 
 def create_toolbar_button(parent, toolbar, button_type, **params):
     params = Params(**params)
+    params.handler = getattr(params, button_type.handler_callable_name, None)
     if params.handler == None and button_type.handler_name:
         if hasattr(parent, button_type.handler_name):
             params.handler = getattr(parent, button_type.handler_name)
@@ -118,45 +121,52 @@ class ToolButtonType(object):
         self.handler_name = nvl(params.handler_name, default.handler_name)
         self.icon_id = nvl(params.icon_id, default.icon_id)
         self.title = nvl(params.title, default.title)
+        self.handler_callable_name = default.handler_callable_name
 
 
 class MaximumToolButton(ToolButtonType):
     def __init__(self, **params):
         default = DefaultToolButtonType(True, True, False,
-            'toolbar_maximum_handler', 'toolbar_maximum_button', 'Maximize')
+            'toolbar_maximum_handler', 'toolbar_maximum_button',
+            'Maximize', 'toolbar_maximum_handler_callable')
         super(MaximumToolButton, self).__init__(default, **params)
 
 
 class MinimumToolButton(ToolButtonType):
     def __init__(self, **params):
         default = DefaultToolButtonType(True, True, False,
-            'toolbar_minimum_handler', 'toolbar_minimum_button', 'Minimize')
+            'toolbar_minimum_handler', 'toolbar_minimum_button',
+            'Minimize', 'toolbar_minimum_handler_callable')
         super(MinimumToolButton, self).__init__(default, **params)
 
 
 class CloseToolButton(ToolButtonType):
     def __init__(self, **params):
         default = DefaultToolButtonType(True, True, False,
-            'toolbar_close_handler', 'toolbar_close_button', 'Close')
+            'toolbar_close_handler', 'toolbar_close_button',
+            'Close', 'toolbar_close_handler_callable')
         super(CloseToolButton, self).__init__(default, **params)
 
 
 class HideToolButton(ToolButtonType):
     def __init__(self, **params):
         default = DefaultToolButtonType(True, True, False,
-            'toolbar_hide_handler', 'toolbar_hide_button', 'Hide')
+            'toolbar_hide_handler', 'toolbar_hide_button',
+            'Hide', 'toolbar_hide_handler_callable')
         super(HideToolButton, self).__init__(default, **params)
 
 
 class CheckToolButton(ToolButtonType):
     def __init__(self, **params):
         default = DefaultToolButtonType(True, False, True,
-            'toolbar_check_handler', 'toolbar_check_button', 'Check')
+            'toolbar_check_handler', 'toolbar_check_button',
+            'Check', 'toolbar_check_handler_callable')
         super(CheckToolButton, self).__init__(default, **params)
 
 
 class UncheckToolButton(ToolButtonType):
     def __init__(self, **params):
         default = DefaultToolButtonType(True, False, True,
-            'toolbar_uncheck_handler', 'toolbar_uncheck_button', 'Uncheck')
+            'toolbar_uncheck_handler', 'toolbar_uncheck_button',
+            'Uncheck', 'toolbar_uncheck_handler_callable')
         super(UncheckToolButton, self).__init__(default, **params)

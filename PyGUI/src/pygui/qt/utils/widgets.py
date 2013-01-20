@@ -244,10 +244,35 @@ class __ListWidget(QListWidget, Common):
     pass
 
 
+def close_tab_widget(tab_widget_parent, tab_widget):
+    """
+    method which closes specified tab
+    """
+    if hasattr(tab_widget, 'beforeCloseTab'):
+        tab_widget.beforeCloseTab()
+    idx = tab_widget_parent.indexOf(tab_widget)
+    tab_widget_parent.removeTab(idx)
+
+
+class TabWidgetCallableCloseHandler(object):
+    """
+    class used as a callable object to close tab widget item
+    """
+    def __init__(self, tab_widget_parent, tab_widget):
+        self.tab_widget_parent = tab_widget_parent
+        self.tab_widget = tab_widget
+
+    def __call__(self):
+        close_tab_widget(self.tab_widget_parent, self.tab_widget)
+
+
 class TabWidgetCommon(QTabWidget, Common):
     def __init__(self, parent, **params):
         super(TabWidgetCommon, self).__init__(parent)
         item(parent=parent, widget=self, **params)
+
+    def closeTab(self, widget):
+        close_tab_widget(self, widget)
 
 
 class TabWidgetItemCommon(QWidget, Common):
@@ -257,10 +282,8 @@ class TabWidgetItemCommon(QWidget, Common):
         item(widget=self, **params)
 
     def closeTab(self):
-        if hasattr(self, 'beforeCloseTab'):
-            self.beforeCloseTab()
-        idx = self.params.parent.indexOf(self)
-        self.params.parent.removeTab(idx)
+        #self.params.parent has to be a QTabWidget object
+        close_tab_widget(self.params.parent, self)
 
 
 class LabelCommon(QLabel, Common):
