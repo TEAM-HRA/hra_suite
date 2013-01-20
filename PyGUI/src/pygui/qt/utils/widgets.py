@@ -251,6 +251,12 @@ class TabWidgetCommon(QTabWidget, Common):
     def closeTab(self, widget):
         close_tab_widget(self, widget)
 
+    def tabExists(self, objectName):
+        for idx in range(self.count()):
+            if objectName == self.widget(idx).objectName():
+                return True
+        return False
+
 
 class TabWidgetItemCommon(QWidget, Common):
     def __init__(self, **params):
@@ -306,3 +312,6 @@ class CheckBoxCommon(QCheckBox, Common):
             params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                                QSizePolicy.Fixed)
         item(parent=parent, widget=self, textable=True, **params)
+
+    def isChecked(self):
+        return self.checkState() == Qt.Checked
