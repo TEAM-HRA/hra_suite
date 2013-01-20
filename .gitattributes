@@ -107,8 +107,6 @@ PyMed/src/pymed/programs/gui/med_main_QT.pyw -text
 PyMed/src/pymed/programs/gui/qwizard_example.py -text
 PyMed/src/pymed/programs/gui/test_QT.pyw -text
 PyMed/src/pymed/qt/__init__.py -text
-PyMed/src/pymed/qt/plugins/__init__.py -text
-PyMed/src/pymed/qt/plugins/poincare_plot.py -text
 PyMed/src/pymed/qt/test01/__init__.py -text
 PyMed/src/pymed/qt/test01/small.py -text
 PyMed/src/pymed/qt/test01/tests.py -text
