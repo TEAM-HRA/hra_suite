@@ -229,7 +229,7 @@ class ChooseDatasourcePage(QWizardPage):
 
     def tableViewProgressBarAction(self):
         iteratorFlag = QDirIterator.Subdirectories \
-                if self.recursively.checkState() == Qt.Checked \
+                if self.recursively.isChecked() \
                 else QDirIterator.NoIteratorFlags
 
         nameFilters = QStringList(self.filesExtension.text()) \
@@ -534,7 +534,7 @@ class ChooseColumnsDataPage(QWizardPage):
             self.__globalCheckBox__.setEnabled(True)
 
     def __globalClicked__(self):
-        if self.__globalCheckBox__.checkState() == Qt.Checked:
+        if self.__globalCheckBox__.isChecked():
             data_index = None
             annotation_index = None
             for num, widget in enumerate(self.__headerWidgets__):

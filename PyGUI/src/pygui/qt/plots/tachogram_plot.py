@@ -21,7 +21,10 @@ class TachogramPlotManager(TabWidgetCommon):
     def __init__(self, parent, **params):
         super(TachogramPlotManager, self).__init__(parent, **params)
 
-    def addTachogramPlot(self, file_specification):
+    def addTachogramPlot(self, file_specification, allow_duplication=False):
+        if not allow_duplication and \
+            self.tabExists(self.__getObjectName__(file_specification)):
+            return
         self.__createTachogramTab__(file_specification)
 
     def createInitialPlot(self):
@@ -38,8 +41,14 @@ class TachogramPlotManager(TabWidgetCommon):
     def __createTachogramTab__(self, file_specification):
         tachogramTabWidget = TachogramPlotWindow(self,
                                     file_specification=file_specification)
+        tachogramTabWidget.setObjectName(
+                                    self.__getObjectName__(file_specification))
         self.addTab(tachogramTabWidget, file_specification.filename)
         return tachogramTabWidget
+
+    def __getObjectName__(self, file_specification):
+        return ".".join([file_specification.filepath,
+                         file_specification.filename])
 
 
 class TachogramPlotWindow(MainWindowCommon):

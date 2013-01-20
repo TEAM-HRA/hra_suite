@@ -12,6 +12,7 @@ try:
     from pygui.qt.utils.widgets import TabWidgetItemCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
+    from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
     from pygui.qt.utils.widgets_custom import SplitterWidget
     from pygui.qt.utils.toolbars import OperationalToolBarWidget
@@ -63,8 +64,9 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
             idx = self.__splitter__.indexOf(self.__tachogramsManager__)
             self.__splitter__.setStretchFactor(idx, 20)
 
-    def __addTachogramPlot__(self, fileSpecification):
-        self.__tachogramsManager__.addTachogramPlot(fileSpecification)
+    def __addTachogramPlot__(self, fileSpecification, allow_duplication):
+        self.__tachogramsManager__.addTachogramPlot(fileSpecification,
+                                        allow_duplication=allow_duplication)
 
 
 class DatasourceListWidget(WidgetCommon):
@@ -95,12 +97,18 @@ class DatasourceListWidget(WidgetCommon):
         else:
             QListWidgetItem('model not specified or incorrect type',
                             self.__datasourceList__)
-        self.__showTachogramsButton__ = \
-            PushButtonCommon(self,
+        self.__showTachogramsButton__ = PushButtonCommon(self,
                     i18n="poincare.plot.show.tachograms.button",
                     i18n_def="Show tachograms",
                     enabled=False,
                     clicked_handler=self.__showTachogramsHandler__,
+                    enabled_precheck_handler=self.__enabledPrecheckHandler__)
+
+        self.__allowTachogramsDuplicationButton__ = CheckBoxCommon(self,
+                    i18n="poincare.plot.allow.tachograms.duplications.button",
+                    i18n_def="Allow tachograms duplication",
+                    enabled=False,
+                    #clicked_handler=self.__showTachogramsHandler__,
                     enabled_precheck_handler=self.__enabledPrecheckHandler__)
 
     def __datasourceItemClickedHandler__(self, listItem):
@@ -113,13 +121,15 @@ class DatasourceListWidget(WidgetCommon):
                     for listItem in self.__datasourceList__.selectedItems()]
             #pass separately each file specification object
             for fileSpecification in filesSpecifications:
-                self.params.add_tachogram_plot_handler(fileSpecification)
+                self.params.add_tachogram_plot_handler(fileSpecification,
+                        self.__allowTachogramsDuplicationButton__.isChecked())
 
     def __enabledPrecheckHandler__(self, widget):
         """
         only interested widgets return bool value others return none value
         """
-        if widget == self.__showTachogramsButton__:
+        if widget in (self.__showTachogramsButton__,
+                      self.__allowTachogramsDuplicationButton__):
             return len(self.__datasourceList__.selectedIndexes()) > 0
 
     def toolbar_uncheck_handler(self):
