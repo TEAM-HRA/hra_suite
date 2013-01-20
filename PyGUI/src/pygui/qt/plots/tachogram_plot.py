@@ -21,11 +21,11 @@ class TachogramPlotManager(TabWidgetCommon):
     def __init__(self, parent, **params):
         super(TachogramPlotManager, self).__init__(parent, **params)
 
-    def addTachogramPlot(self):
-        self.__createTachogramTab__("test")
+    def addTachogramPlot(self, file_specification):
+        self.__createTachogramTab__(file_specification)
 
     def createInitialPlot(self):
-        self.__initial_tab__ = self.__createTachogramTab__('Welcome', False)
+        self.__initial_tab__ = MainWindowCommon(self)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         label = LabelCommon(self.__initial_tab__,
                             i18n="tachogram.initial.page.label",
@@ -33,11 +33,12 @@ class TachogramPlotManager(TabWidgetCommon):
                             sizePolicy=sizePolicy,
                             not_add_widget_to_parent_layout=True)
         self.__initial_tab__.setCentralWidget(label)
+        self.addTab(self.__initial_tab__, 'Welcome')
 
-    def __createTachogramTab__(self, _title="", create_toolbar=True):
+    def __createTachogramTab__(self, file_specification):
         tachogramTabWidget = TachogramPlotWindow(self,
-                                                 create_toolbar=create_toolbar)
-        self.addTab(tachogramTabWidget, _title)
+                                    file_specification=file_specification)
+        self.addTab(tachogramTabWidget, file_specification.filename)
         return tachogramTabWidget
 
 
@@ -45,9 +46,8 @@ class TachogramPlotWindow(MainWindowCommon):
     def __init__(self, parent, **params):
         super(TachogramPlotWindow, self).__init__(parent, **params)
         self.params = Params(**params)
-        if self.params.create_toolbar:
-            close_handler = TabWidgetCallableCloseHandler(parent, self)
-            self.addToolBar(OperationalToolBarWidget(self,
+        close_handler = TabWidgetCallableCloseHandler(parent, self)
+        self.addToolBar(OperationalToolBarWidget(self,
                              toolbar_close_handler_callable=close_handler))
 
 #        statusbar = StatusBarCommon(self.__initial_tab__)

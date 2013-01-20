@@ -11,7 +11,7 @@ try:
     from pygui.qt.utils.widgets import createPushButton
     from pygui.qt.utils.widgets import TabWidgetItemCommon
     from pygui.qt.utils.widgets import WidgetCommon
-    from pygui.qt.utils.widgets import createListWidget
+    from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
     from pygui.qt.utils.widgets_custom import SplitterWidget
     from pygui.qt.utils.toolbars import OperationalToolBarWidget
@@ -63,8 +63,8 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
             idx = self.__splitter__.indexOf(self.__tachogramsManager__)
             self.__splitter__.setStretchFactor(idx, 20)
 
-    def __addTachogramPlot__(self, pathfile):
-        self.__tachogramsManager__.addTachogramPlot()
+    def __addTachogramPlot__(self, fileSpecification):
+        self.__tachogramsManager__.addTachogramPlot(fileSpecification)
 
 
 class DatasourceListWidget(WidgetCommon):
@@ -79,15 +79,19 @@ class DatasourceListWidget(WidgetCommon):
         self.layout().addWidget(toolbars)
 
         self.__datasourceList__ = \
-            createListWidget(self,
+            ListWidgetCommon(self,
                 list_item_clicked_handler=self.__datasourceItemClickedHandler__, # @IgnorePep8
                 selectionMode=QAbstractItemView.MultiSelection,
                 selectionBehavior=QAbstractItemView.SelectRows)
         if model and \
             isinstance(model, DatasourceFilesSpecificationModel):
             for row in range(model.rowCount()):
-                QListWidgetItem(model.fileSpecification(row).filename,
-                            self.__datasourceList__)
+                fileSpecification = model.fileSpecification(row)
+                listItem = QListWidgetItem(fileSpecification.filename,
+                                           self.__datasourceList__)
+                #store in data buffer of list item the whole file
+                #specification object for later use
+                listItem.setData(Qt.UserRole, QVariant(fileSpecification))
         else:
             QListWidgetItem('model not specified or incorrect type',
                             self.__datasourceList__)
@@ -104,7 +108,12 @@ class DatasourceListWidget(WidgetCommon):
 
     def __showTachogramsHandler__(self):
         if self.params.add_tachogram_plot_handler:
-            self.params.add_tachogram_plot_handler(None)
+            #acquired from data buffer of list items file specification objects
+            filesSpecifications = [listItem.data(Qt.UserRole).toPyObject()
+                    for listItem in self.__datasourceList__.selectedItems()]
+            #pass separately each file specification object
+            for fileSpecification in filesSpecifications:
+                self.params.add_tachogram_plot_handler(fileSpecification)
 
     def __enabledPrecheckHandler__(self, widget):
         """

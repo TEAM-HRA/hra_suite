@@ -77,10 +77,6 @@ def createButtonGroup(parent=None, **params):
     return item(parent=parent, widget=QButtonGroup(parent), **params)
 
 
-def createListWidget(parent=None, **params):
-    return item(parent=parent, widget=__ListWidget(parent), **params)
-
-
 def item(**params):
     """
     method to create a widget based o information contained in
@@ -304,4 +300,10 @@ class MainWindowCommon(QMainWindow, Common):
 class StatusBarCommon(QStatusBar, Common):
     def __init__(self, parent, **params):
         super(StatusBarCommon, self).__init__(parent)
+        item(parent=parent, widget=self, **params)
+
+
+class ListWidgetCommon(QListWidget, Common):
+    def __init__(self, parent, **params):
+        super(ListWidgetCommon, self).__init__(parent)
         item(parent=parent, widget=self, **params)
