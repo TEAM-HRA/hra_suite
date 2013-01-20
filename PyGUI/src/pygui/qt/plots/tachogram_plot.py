@@ -7,6 +7,7 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.misc import Params
     from pygui.qt.utils.widgets import TabWidgetCommon
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import LabelCommon
@@ -34,15 +35,21 @@ class TachogramPlotManager(TabWidgetCommon):
         self.__initial_tab__.setCentralWidget(label)
 
     def __createTachogramTab__(self, _title="", create_toolbar=True):
-        tachogramTabWidget = MainWindowCommon(self)
-        if create_toolbar:
-            close_handler = TabWidgetCallableCloseHandler(self,
-                                                          tachogramTabWidget)
-            tachogramTabWidget.addToolBar(
-                OperationalToolBarWidget(tachogramTabWidget,
-                        toolbar_close_handler_callable=close_handler))
-#        toolbar = MaxMinToolBarWidget(self.__initial_tab__)
-#        self.__initial_tab__.addToolBar(toolbar)
+        tachogramTabWidget = TachogramPlotWindow(self,
+                                                 create_toolbar=create_toolbar)
+        self.addTab(tachogramTabWidget, _title)
+        return tachogramTabWidget
+
+
+class TachogramPlotWindow(MainWindowCommon):
+    def __init__(self, parent, **params):
+        super(TachogramPlotWindow, self).__init__(parent, **params)
+        self.params = Params(**params)
+        if self.params.create_toolbar:
+            close_handler = TabWidgetCallableCloseHandler(parent, self)
+            self.addToolBar(OperationalToolBarWidget(self,
+                             toolbar_close_handler_callable=close_handler))
+
 #        statusbar = StatusBarCommon(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)
 #        statusLabel = LabelCommon(statusbar,
@@ -57,7 +64,3 @@ class TachogramPlotManager(TabWidgetCommon):
 #        logDockWidget.setWidget(self.listWidget)
 #        self.__initial_tab__.addDockWidget(Qt.RightDockWidgetArea,
 #                                           logDockWidget)
-        #statusbar.addWidget(statusLabel)
-
-        self.addTab(tachogramTabWidget, _title)
-        return tachogramTabWidget
