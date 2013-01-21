@@ -15,10 +15,10 @@ try:
     from pygui.qt.utils.qt_i18n import QT_I18N
     from pygui.qt.utils.widgets import LabelCommon
     from pygui.qt.utils.widgets import MainWindowCommon
-    from pygui.qt.utils.widgets import TabWidgetCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import createPlainTextEdit
     from pygui.qt.utils.widgets import PushButtonCommon
+    from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.menu.menus import QTMenuBuilder
     from pycore.globals import GLOBALS
     from pycore.introspection import get_class_object

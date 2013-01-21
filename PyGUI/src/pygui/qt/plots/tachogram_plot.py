@@ -8,12 +8,12 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pygui.qt.utils.widgets import TabWidgetCommon
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import LabelCommon
-    from pygui.qt.utils.widgets import TabWidgetCallableCloseHandler
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
+    from pygui.qt.custom_widgets.tabwidget import TabWidgetCallableCloseHandler
+    from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 

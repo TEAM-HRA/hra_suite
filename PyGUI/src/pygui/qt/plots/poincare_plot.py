@@ -9,7 +9,6 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import Params
     from pygui.qt.utils.widgets import PushButtonCommon
-    from pygui.qt.utils.widgets import TabWidgetItemCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
@@ -18,6 +17,7 @@ try:
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.custom_widgets.toolbars import ToolBarManager
     from pygui.qt.custom_widgets.toolbars import CheckUncheckToolBarWidget
+    from pygui.qt.custom_widgets.tabwidget import TabWidgetItemCommon
     from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
     from pygui.qt.plots.tachogram_plot import TachogramPlotManager
 except ImportError as error:
