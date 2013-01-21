@@ -73,6 +73,9 @@ class TabWidgetCommon(QTabWidget, Common):
     def getTabsTitles(self):
         return [str(self.tabText(idx)) for idx in range(self.count())]
 
+    def closeAllTabs(self):
+        map(self.closeTab, [self.widget(idx) for idx in range(self.count())])
+
 
 class TabWidgetItemCommon(QWidget, Common):
     def __init__(self, **params):
