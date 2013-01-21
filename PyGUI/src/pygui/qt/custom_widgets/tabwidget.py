@@ -73,8 +73,18 @@ class TabWidgetCommon(QTabWidget, Common):
     def getTabsTitles(self):
         return [str(self.tabText(idx)) for idx in range(self.count())]
 
-    def closeAllTabs(self):
-        map(self.closeTab, [self.widget(idx) for idx in range(self.count())])
+    def closeAllTabs(self, honour_not_close_tabs=True):
+        map(self.closeTab,
+                    [self.widget(idx) for idx in range(self.count())
+                     if honour_not_close_tabs == False or \
+                        not getattr(self.widget(idx), 'not_close', False)])
+
+    def markTabAsNotClose(self, widget):
+        """
+        this method give ability to mark passed tab widget
+        which can't be closed by closeAllTabs method
+        """
+        widget.not_close = True
 
 
 class TabWidgetItemCommon(QWidget, Common):

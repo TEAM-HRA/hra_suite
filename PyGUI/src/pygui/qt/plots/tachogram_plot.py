@@ -47,6 +47,7 @@ class TachogramPlotManager(TabWidgetCommon):
                             not_add_widget_to_parent_layout=True)
         self.__initial_tab__.setCentralWidget(label)
         self.addTab(self.__initial_tab__, 'Welcome')
+        self.markTabAsNotClose(self.__initial_tab__)
 
     def __createTachogramTab__(self, file_specification, object_name):
         tachogramTabWidget = TachogramPlotWindow(self,
