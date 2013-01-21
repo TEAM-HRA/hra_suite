@@ -218,10 +218,6 @@ class WidgetCommon(QWidget, Common):
         item(parent=parent, widget=self, **params)
 
 
-class __ListWidget(QListWidget, Common):
-    pass
-
-
 def close_tab_widget(tab_widget_parent, tab_widget):
     """
     method which closes specified tab
