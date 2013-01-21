@@ -14,7 +14,7 @@ try:
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
-    from pygui.qt.utils.widgets_custom import SplitterWidget
+    from pygui.qt.custom_widgets.splitter import SplitterWidget
     from pygui.qt.utils.toolbars import OperationalToolBarWidget
     from pygui.qt.utils.toolbars import ToolBarManager
     from pygui.qt.utils.toolbars import CheckUncheckToolBarWidget
