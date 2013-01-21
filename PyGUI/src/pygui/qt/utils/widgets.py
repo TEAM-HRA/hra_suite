@@ -11,6 +11,7 @@ try:
     from pygui.qt.utils.qt_i18n import text_I18N
     from pygui.qt.utils.qt_i18n import title_I18N
     from pycore.misc import Params
+    from pycore.misc import get_max_number_between_signs
     from pygui.qt.utils.logging import LoggingEventFilter
     from pycore.globals import Globals
     from pygui.qt.utils.signals import LIST_ITEM_CLICKED_SIGNAL
@@ -251,11 +252,32 @@ class TabWidgetCommon(QTabWidget, Common):
     def closeTab(self, widget):
         close_tab_widget(self, widget)
 
-    def tabExists(self, objectName):
-        for idx in range(self.count()):
-            if objectName == self.widget(idx).objectName():
-                return True
-        return False
+    def tabIndex(self, object_name_or_widget):
+        if isinstance(object_name_or_widget, QWidget):
+            return self.indexOf(object_name_or_widget)
+        else:
+            for idx in range(self.count()):
+                if object_name_or_widget == self.widget(idx).objectName():
+                    return idx
+        return -1
+
+    def tabExists(self, object_name_or_widget):
+        return self.tabIndex(object_name_or_widget) >= 0
+
+    def setTabFocus(self, object_name_or_widget):
+        if isinstance(object_name_or_widget, QWidget):
+            self.setCurrentWidget(object_name_or_widget)
+        else:
+            self.setCurrentIndex(self.tabIndex(object_name_or_widget))
+
+    def getNextTitle(self, title):
+        titles = [_t for _t in self.getTabsTitles() if _t.startswith(title)]
+        max_num = -1 if len(titles) == 0 else \
+                get_max_number_between_signs(titles, from_end=True, default=0)
+        return title if max_num == -1 else '%s [%d]' % (title, max_num + 1)
+
+    def getTabsTitles(self):
+        return [str(self.tabText(idx)) for idx in range(self.count())]
 
 
 class TabWidgetItemCommon(QWidget, Common):
