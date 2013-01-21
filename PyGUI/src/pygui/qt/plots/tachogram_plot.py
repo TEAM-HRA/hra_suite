@@ -24,6 +24,7 @@ class TachogramPlotManager(TabWidgetCommon):
 
     def addTachogramPlots(self, files_specifications, allow_duplication=False):
         first = True
+        count_opened = 0
         for file_specification in files_specifications:
             object_name = self.__getObjectName__(file_specification)
             if allow_duplication == False and self.tabExists(object_name):
@@ -32,6 +33,9 @@ class TachogramPlotManager(TabWidgetCommon):
             if first:
                 first = False
                 self.setTabFocus(tab)
+            if tab:
+                count_opened = count_opened + 1
+        return count_opened
 
     def createInitialPlot(self):
         self.__initial_tab__ = MainWindowCommon(self)
