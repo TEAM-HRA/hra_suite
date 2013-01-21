@@ -50,7 +50,7 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
     def __createDatasourceListWidget__(self):
         self.__datasourceListWidget__ = \
             DatasourceListWidget(self.__splitter__, self.params.model,
-                        add_tachogram_plot_handler=self.__addTachogramPlot__,
+                        add_tachogram_plots_handler=self.__addTachogramPlots__,
                         close_tachogram_plot_handler=self.closeTab)
         if self.__splitter__.sizesLoaded() == False:
             idx = self.__splitter__.indexOf(self.__datasourceListWidget__)
@@ -64,8 +64,8 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
             idx = self.__splitter__.indexOf(self.__tachogramsManager__)
             self.__splitter__.setStretchFactor(idx, 20)
 
-    def __addTachogramPlot__(self, fileSpecification, allow_duplication):
-        self.__tachogramsManager__.addTachogramPlot(fileSpecification,
+    def __addTachogramPlots__(self, files_specifications, allow_duplication):
+        self.__tachogramsManager__.addTachogramPlots(files_specifications,
                                         allow_duplication=allow_duplication)
 
 
@@ -115,13 +115,11 @@ class DatasourceListWidget(WidgetCommon):
         self.emit(ENABLEMEND_SIGNAL, listItem.isSelected())
 
     def __showTachogramsHandler__(self):
-        if self.params.add_tachogram_plot_handler:
+        if self.params.add_tachogram_plots_handler:
             #acquired from data buffer of list items file specification objects
-            filesSpecifications = [listItem.data(Qt.UserRole).toPyObject()
+            files_specifications = [listItem.data(Qt.UserRole).toPyObject()
                     for listItem in self.__datasourceList__.selectedItems()]
-            #pass separately each file specification object
-            for fileSpecification in filesSpecifications:
-                self.params.add_tachogram_plot_handler(fileSpecification,
+            self.params.add_tachogram_plots_handler(files_specifications,
                         self.__allowTachogramsDuplicationButton__.isChecked())
 
     def __enabledPrecheckHandler__(self, widget):

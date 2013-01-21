@@ -12,6 +12,7 @@ try:
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import LabelCommon
     from pygui.qt.utils.widgets import TabWidgetCallableCloseHandler
+    from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.toolbars import OperationalToolBarWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -21,11 +22,16 @@ class TachogramPlotManager(TabWidgetCommon):
     def __init__(self, parent, **params):
         super(TachogramPlotManager, self).__init__(parent, **params)
 
-    def addTachogramPlot(self, file_specification, allow_duplication=False):
-        if not allow_duplication and \
-            self.tabExists(self.__getObjectName__(file_specification)):
-            return
-        self.__createTachogramTab__(file_specification)
+    def addTachogramPlots(self, files_specifications, allow_duplication=False):
+        first = True
+        for file_specification in files_specifications:
+            object_name = self.__getObjectName__(file_specification)
+            if allow_duplication == False and self.tabExists(object_name):
+                continue
+            tab = self.__createTachogramTab__(file_specification, object_name)
+            if first:
+                first = False
+                self.setTabFocus(tab)
 
     def createInitialPlot(self):
         self.__initial_tab__ = MainWindowCommon(self)
@@ -38,12 +44,12 @@ class TachogramPlotManager(TabWidgetCommon):
         self.__initial_tab__.setCentralWidget(label)
         self.addTab(self.__initial_tab__, 'Welcome')
 
-    def __createTachogramTab__(self, file_specification):
+    def __createTachogramTab__(self, file_specification, object_name):
         tachogramTabWidget = TachogramPlotWindow(self,
                                     file_specification=file_specification)
-        tachogramTabWidget.setObjectName(
-                                    self.__getObjectName__(file_specification))
-        self.addTab(tachogramTabWidget, file_specification.filename)
+        tachogramTabWidget.setObjectName(object_name)
+        self.addTab(tachogramTabWidget,
+                    self.getNextTitle(file_specification.filename))
         return tachogramTabWidget
 
     def __getObjectName__(self, file_specification):
@@ -59,6 +65,8 @@ class TachogramPlotWindow(MainWindowCommon):
         self.addToolBar(OperationalToolBarWidget(self,
                              toolbar_close_handler_callable=close_handler))
 
+        self.tachogramPlot = TachogramPlotPlot(self)
+        self.setCentralWidget(self.tachogramPlot)
 #        statusbar = StatusBarCommon(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)
 #        statusLabel = LabelCommon(statusbar,
@@ -73,3 +81,12 @@ class TachogramPlotWindow(MainWindowCommon):
 #        logDockWidget.setWidget(self.listWidget)
 #        self.__initial_tab__.addDockWidget(Qt.RightDockWidgetArea,
 #                                           logDockWidget)
+
+
+class TachogramPlotPlot(WidgetCommon):
+    """
+    this class represents core of the tachogram plot that is a plot itself
+    """
+    def __init__(self, parent, **params):
+        super(TachogramPlotPlot, self).__init__(parent,
+                                        not_add_widget_to_parent_layout=True)
