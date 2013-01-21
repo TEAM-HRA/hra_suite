@@ -8,6 +8,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import Params
+    from pygui.qt.utils.windows import AreYouSureWindow
     from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
@@ -50,8 +51,9 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
     def __createDatasourceListWidget__(self):
         self.__datasourceListWidget__ = \
             DatasourceListWidget(self.__splitter__, self.params.model,
-                        add_tachogram_plots_handler=self.__addTachogramPlots__,
-                        close_tachogram_plot_handler=self.closeTab)
+                add_tachogram_plots_handler=self.__addTachogramPlots__,
+                close_tachogram_plot_handler=self.closeTab,
+                close_tachograms_handler=self.__closeTachogramsHandler__)
         if self.__splitter__.sizesLoaded() == False:
             idx = self.__splitter__.indexOf(self.__datasourceListWidget__)
             self.__splitter__.setStretchFactor(idx, 1)
@@ -65,8 +67,15 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
             self.__splitter__.setStretchFactor(idx, 20)
 
     def __addTachogramPlots__(self, files_specifications, allow_duplication):
-        self.__tachogramsManager__.addTachogramPlots(files_specifications,
+        return self.__tachogramsManager__.addTachogramPlots(
+                                        files_specifications,
                                         allow_duplication=allow_duplication)
+
+    def __closeTachogramsHandler__(self):
+        if AreYouSureWindow(self, title='Closing all tachograms plots'):
+            self.__tachogramsManager__.closeAllTabs()
+            return True
+        return False
 
 
 class DatasourceListWidget(WidgetCommon):
@@ -108,8 +117,13 @@ class DatasourceListWidget(WidgetCommon):
                     i18n="poincare.plot.allow.tachograms.duplications.button",
                     i18n_def="Allow tachograms duplication",
                     enabled=False,
-                    #clicked_handler=self.__showTachogramsHandler__,
                     enabled_precheck_handler=self.__enabledPrecheckHandler__)
+
+        self.__closeAllTachogramsButton__ = PushButtonCommon(self,
+                    i18n="poincare.plot.close.all.tachograms.button",
+                    i18n_def="Close all tachograms",
+                    enabled=False,
+                    clicked_handler=self.__closeTachogramsHandler__)
 
     def __datasourceItemClickedHandler__(self, listItem):
         self.emit(ENABLEMEND_SIGNAL, listItem.isSelected())
@@ -119,8 +133,11 @@ class DatasourceListWidget(WidgetCommon):
             #acquired from data buffer of list items file specification objects
             files_specifications = [listItem.data(Qt.UserRole).toPyObject()
                     for listItem in self.__datasourceList__.selectedItems()]
-            self.params.add_tachogram_plots_handler(files_specifications,
-                        self.__allowTachogramsDuplicationButton__.isChecked())
+
+            if self.params.add_tachogram_plots_handler(files_specifications,
+                    self.__allowTachogramsDuplicationButton__.isChecked()) > 0:
+                #if some tachograms plots are successfully opened
+                self.__closeAllTachogramsButton__.setEnabled(True)
 
     def __enabledPrecheckHandler__(self, widget):
         """
@@ -129,6 +146,11 @@ class DatasourceListWidget(WidgetCommon):
         if widget in (self.__showTachogramsButton__,
                       self.__allowTachogramsDuplicationButton__):
             return len(self.__datasourceList__.selectedIndexes()) > 0
+
+    def __closeTachogramsHandler__(self):
+        if self.params.close_tachograms_handler:
+            if self.params.close_tachograms_handler():
+                self.__closeAllTachogramsButton__.setEnabled(False)
 
     def toolbar_uncheck_handler(self):
         self.__datasourceList__.clearSelection()
