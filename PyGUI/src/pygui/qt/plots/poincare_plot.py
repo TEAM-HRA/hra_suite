@@ -15,9 +15,9 @@ try:
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
     from pygui.qt.custom_widgets.splitter import SplitterWidget
-    from pygui.qt.utils.toolbars import OperationalToolBarWidget
-    from pygui.qt.utils.toolbars import ToolBarManager
-    from pygui.qt.utils.toolbars import CheckUncheckToolBarWidget
+    from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
+    from pygui.qt.custom_widgets.toolbars import ToolBarManager
+    from pygui.qt.custom_widgets.toolbars import CheckUncheckToolBarWidget
     from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
     from pygui.qt.plots.tachogram_plot import TachogramPlotManager
 except ImportError as error:

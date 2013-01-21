@@ -13,7 +13,7 @@ try:
     from pygui.qt.utils.widgets import LabelCommon
     from pygui.qt.utils.widgets import TabWidgetCallableCloseHandler
     from pygui.qt.utils.widgets import WidgetCommon
-    from pygui.qt.utils.toolbars import OperationalToolBarWidget
+    from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
