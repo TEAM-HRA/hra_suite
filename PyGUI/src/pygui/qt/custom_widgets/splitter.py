@@ -30,7 +30,7 @@ class SplitterWidget(QSplitter, Common):
                            objectName=self.params.objectName
                            ))
 
-    def destroySplitter(self):
+    def saveSettings(self):
         if self.params.save_state:
             SettingsFactory.saveSettings(self,
                                          Setter(sizes_list=self.sizes(),

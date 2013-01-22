@@ -21,5 +21,10 @@ ADD_TAB_WIDGET_SIGNAL = SIGNAL("add_tab_widget(PyQt_PyObject, PyQt_PyObject, PyQ
 LIST_ITEM_CLICKED_SIGNAL = SIGNAL("itemClicked(QListWidgetItem *)")
 
 
-#signal emmited when there is a need to change enable state of widgets
+#signal emitted when there is a need to change enable state of widgets
 ENABLEMEND_SIGNAL = SIGNAL('enabled_signal(bool)')
+
+
+#signal emitted when tab widget is closed in by method
+#pygui.qt.custom_widgets.tabwidget.TabWidgetCallableCloseHandler.__call__(self)
+TAB_WIDGET_CLOSE_SIGNAL = SIGNAL('tab_widget_close_signal()')

@@ -13,6 +13,7 @@ try:
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
     from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
     from pygui.qt.custom_widgets.splitter import SplitterWidget
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
@@ -46,7 +47,7 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
         """
         this method includes actions to be invoked when a PoincarePlotTabWidget is closing @IgnorePep8
         """
-        self.__splitter__.destroySplitter()
+        self.__splitter__.saveSettings()
 
     def __createDatasourceListWidget__(self):
         self.__datasourceListWidget__ = \
@@ -65,6 +66,8 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
         if self.__splitter__.sizesLoaded() == False:
             idx = self.__splitter__.indexOf(self.__tachogramsManager__)
             self.__splitter__.setStretchFactor(idx, 20)
+        self.connect(self.__tachogramsManager__, TAB_WIDGET_CLOSE_SIGNAL,
+                     self.__closeTachogramPlot__)
 
     def __addTachogramPlots__(self, files_specifications, allow_duplication):
         return self.__tachogramsManager__.addTachogramPlots(
@@ -76,6 +79,15 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
             self.__tachogramsManager__.closeAllTabs()
             return True
         return False
+
+    def __closeTachogramPlot__(self):
+        """
+        method invoked when tachogram plot is closed and then it checks
+        there are any opened tachogram plots if this is not the case
+        the button 'close all tachograms' is disabled
+        """
+        if self.__tachogramsManager__.countNotCloseTabs() == 0:
+            self.__datasourceListWidget__.enabledCloseAllTachogramsButton(False) #  @IgnorePep8
 
 
 class DatasourceListWidget(WidgetCommon):
@@ -159,3 +171,6 @@ class DatasourceListWidget(WidgetCommon):
     def toolbar_check_handler(self):
         self.__datasourceList__.selectAll()
         self.emit(ENABLEMEND_SIGNAL, True)
+
+    def enabledCloseAllTachogramsButton(self, enabled):
+        self.__closeAllTachogramsButton__.setEnabled(enabled)

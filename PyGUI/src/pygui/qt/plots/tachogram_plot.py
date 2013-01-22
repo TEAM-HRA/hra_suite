@@ -11,6 +11,7 @@ try:
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import LabelCommon
     from pygui.qt.utils.widgets import WidgetCommon
+    from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCallableCloseHandler
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
@@ -55,6 +56,8 @@ class TachogramPlotManager(TabWidgetCommon):
         tachogramTabWidget.setObjectName(object_name)
         self.addTab(tachogramTabWidget,
                     self.getNextTitle(file_specification.filename))
+        self.connect(tachogramTabWidget, TAB_WIDGET_CLOSE_SIGNAL,
+                     TAB_WIDGET_CLOSE_SIGNAL)
         return tachogramTabWidget
 
     def __getObjectName__(self, file_specification):
@@ -72,6 +75,8 @@ class TachogramPlotWindow(MainWindowCommon):
 
         self.tachogramPlot = TachogramPlotPlot(self)
         self.setCentralWidget(self.tachogramPlot)
+        self.connect(close_handler, TAB_WIDGET_CLOSE_SIGNAL,
+                     TAB_WIDGET_CLOSE_SIGNAL)
 #        statusbar = StatusBarCommon(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)
 #        statusLabel = LabelCommon(statusbar,

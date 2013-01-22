@@ -5,13 +5,13 @@ Created on 21-01-2013
 '''
 from pycore.special import ImportErrorMessage
 try:
-
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pycore.misc import get_max_number_between_signs
     from pygui.qt.utils.widgets import Common
     from pygui.qt.utils.widgets import item
+    from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -26,16 +26,18 @@ def close_tab_widget(tab_widget_parent, tab_widget):
     tab_widget_parent.removeTab(idx)
 
 
-class TabWidgetCallableCloseHandler(object):
+class TabWidgetCallableCloseHandler(QObject):
     """
     class used as a callable object to close tab widget item
     """
     def __init__(self, tab_widget_parent, tab_widget):
+        super(TabWidgetCallableCloseHandler, self).__init__()
         self.tab_widget_parent = tab_widget_parent
         self.tab_widget = tab_widget
 
     def __call__(self):
         close_tab_widget(self.tab_widget_parent, self.tab_widget)
+        self.emit(TAB_WIDGET_CLOSE_SIGNAL)
 
 
 class TabWidgetCommon(QTabWidget, Common):
@@ -85,6 +87,14 @@ class TabWidgetCommon(QTabWidget, Common):
         which can't be closed by closeAllTabs method
         """
         widget.not_close = True
+
+    def countNotCloseTabs(self):
+        """
+        method which returns count of tab widget with not set 'not_close'
+        property to True
+        """
+        return len([idx for idx in range(self.count())
+                     if not getattr(self.widget(idx), 'not_close', False)])
 
 
 class TabWidgetItemCommon(QWidget, Common):
