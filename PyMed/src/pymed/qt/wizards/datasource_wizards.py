@@ -123,7 +123,7 @@ class ChooseDatasourcePage(QWizardPage):
                     i18n="datasource.file.name.filter.label",
                     i18n_def="Files name filter")
 
-        self.filesExtension = createLineEdit(fileConstraintsComposite,
+        self.filesExtension = LineEditCommon(fileConstraintsComposite,
                         maxLength=15,
                         width=get_width_of_n_letters(14),
                         text="*",

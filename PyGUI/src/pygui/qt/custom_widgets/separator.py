@@ -11,7 +11,7 @@ try:
     from pygui.qt.utils.widgets import createComposite
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.widgets import createButtonGroup
-    from pygui.qt.utils.widgets import createLineEdit
+    from pygui.qt.utils.widgets import LineEditCommon
     from pygui.qt.utils.qt_i18n import QT_I18N
     from pygui.qt.utils.graphics import get_width_of_n_letters
     from pygui.qt.utils.windows import InformationWindow
@@ -49,7 +49,7 @@ class DataSeparatorWidget(object):
                                     SIGNAL("buttonClicked(QAbstractButton *)"),
                                     self.predefinedSeparatorButtonClicked)
 
-        self.customSeparatorEdit = createLineEdit(
+        self.customSeparatorEdit = LineEditCommon(
                         self.predefinedSeparatorsComposite,
                         maxLength=15,
                         width=get_width_of_n_letters(14),

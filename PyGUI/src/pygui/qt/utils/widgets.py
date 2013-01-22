@@ -26,22 +26,6 @@ def createGroupBox(parent=None, **params):
     return item(parent=parent, widget=QGroupBox(parent), titleable=True, **params) # @IgnorePep8
 
 
-def createLineEdit(parent=None, **params):
-    return item(parent=parent, widget=__LineEditWidget(parent, **params), **params) # @IgnorePep8
-
-
-class LineEditWidget(QLineEdit):
-    def __init__(self, parent, **params):
-        QLineEdit.__init__(self, parent)
-        params = Params(**params)
-        self.focusEventHandler = params.focusEventHandler
-
-    def focusInEvent(self, qfocusevent):
-        if not self.focusEventHandler == None:
-            self.focusEventHandler()
-        super(LineEditWidget, self).focusInEvent(qfocusevent)
-
-
 def createTableView(parent=None, **params):
     return item(parent=parent, widget=__TableView(parent), **params)
 
@@ -203,10 +187,6 @@ class Common(QObject):
                     if precheck_enabled == None else precheck_enabled)
 
 
-class __LineEditWidget(LineEditWidget, Common):
-    pass
-
-
 class __TableView(QTableView, Common):
     pass
 
@@ -263,3 +243,15 @@ class CheckBoxCommon(QCheckBox, Common):
 
     def isChecked(self):
         return self.checkState() == Qt.Checked
+
+
+class LineEditCommon(QLineEdit, Common):
+    def __init__(self, parent, **params):
+        QLineEdit.__init__(self, parent)
+        self.focusEventHandler = params.get('focusEventHandler', None)
+        item(parent=parent, widget=self, **params)
+
+    def focusInEvent(self, qfocusevent):
+        if not self.focusEventHandler == None:
+            self.focusEventHandler()
+        super(LineEditCommon, self).focusInEvent(qfocusevent)
