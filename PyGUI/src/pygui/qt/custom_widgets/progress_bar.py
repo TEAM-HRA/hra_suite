@@ -10,7 +10,7 @@ try:
     from pycore.misc import Params
     from pygui.qt.utils.threads import ThreadTask
     from pygui.qt.utils.widgets import CompositeCommon
-    from pygui.qt.utils.widgets import createProgressBar
+    from pygui.qt.utils.widgets import ProgressBarCommon
     from pygui.qt.utils.widgets import PushButtonCommon
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -30,7 +30,7 @@ class ProgressBarManager(object):
         self.progressBarComposite = CompositeCommon(parent,
                                             layout=QHBoxLayout())
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.progressBar = createProgressBar(self.progressBarComposite,
+        self.progressBar = ProgressBarCommon(self.progressBarComposite,
                                              sizePolicy=sizePolicy)
         self.progressBar.setRange(0, 0)
         self.progressBar.setValue(0)
