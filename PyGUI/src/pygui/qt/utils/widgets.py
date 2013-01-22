@@ -18,10 +18,6 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-def createPlainTextEdit(parent=None, **params):
-    return item(parent=parent, widget=QPlainTextEdit(parent), **params)
-
-
 def createProgressBar(parent=None, **params):
     return item(parent=parent, widget=QProgressBar(parent), **params)
 
@@ -262,4 +258,10 @@ class SliderCommon(QSlider, Common):
 class TextEditCommon(QTextEdit, Common):
     def __init__(self, parent, **params):
         super(TextEditCommon, self).__init__(parent)
+        item(parent=parent, widget=self, **params)
+
+
+class PlainTextEditCommon(QPlainTextEdit, Common):
+    def __init__(self, parent, **params):
+        super(PlainTextEditCommon, self).__init__(parent)
         item(parent=parent, widget=self, **params)

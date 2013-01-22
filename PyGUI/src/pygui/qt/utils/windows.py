@@ -16,7 +16,7 @@ try:
     from pygui.qt.utils.widgets import LabelCommon
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import WidgetCommon
-    from pygui.qt.utils.widgets import createPlainTextEdit
+    from pygui.qt.utils.widgets import PlainTextEditCommon
     from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.menu.menus import QTMenuBuilder
@@ -172,7 +172,7 @@ class FilePreviewDialog(QDialog):
         self.setGeometry(QRect(50, 50, 1000, 600))
         self.setLayout(QVBoxLayout())
         self.lineNumberLabel = LabelCommon(self)
-        self.preview = createPlainTextEdit(self, readonly=True)
+        self.preview = PlainTextEditCommon(self, readonly=True)
 
         closeButton = PushButtonCommon(self,
                             i18n="close",
