@@ -82,7 +82,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.rootDir = None
 
     def __createFilesGroupBox(self, pageLayout):
-        self.filesGroupBox = createGroupBox(self,
+        self.filesGroupBox = GroupBoxCommon(self,
                                     i18n="datasource.files.group.title",
                                     i18n_def="Files",
                                     layout=QVBoxLayout())
@@ -573,7 +573,7 @@ class ChooseColumnsDataPage(QWizardPage):
     def __createHeaderPreviewGroup__(self):
         if hasattr(self, 'fileHeaderPreviewGroup'):
             self.fileHeaderPreviewGroup.deleteLater()
-        self.fileHeaderPreviewGroup = createGroupBox(self.tableViewComposite,
+        self.fileHeaderPreviewGroup = GroupBoxCommon(self.tableViewComposite,
                                     i18n="datasource.file.header.preview",
                                     i18n_def="Header preview",
                                     layout=QVBoxLayout(),

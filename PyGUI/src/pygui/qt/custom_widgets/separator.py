@@ -7,7 +7,7 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
-    from pygui.qt.utils.widgets import createGroupBox
+    from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.widgets import createButtonGroup
@@ -25,7 +25,7 @@ class DataSeparatorWidget(object):
 
     def __init__(self, parent, **params):
         self.params = Params(**params)
-        self.separatorsGroupBox = createGroupBox(parent,
+        self.separatorsGroupBox = GroupBoxCommon(parent,
                                     i18n="separator.widget.group.title",
                                     i18n_def="Separator",
                                     layout=QVBoxLayout())

@@ -18,10 +18,6 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-def createGroupBox(parent=None, **params):
-    return item(parent=parent, widget=QGroupBox(parent), titleable=True, **params) # @IgnorePep8
-
-
 def createTableView(parent=None, **params):
     return item(parent=parent, widget=__TableView(parent), **params)
 
@@ -259,3 +255,9 @@ class CompositeCommon(WidgetCommon):
     widgets
     """
     pass
+
+
+class GroupBoxCommon(QGroupBox, Common):
+    def __init__(self, parent, **params):
+        super(GroupBoxCommon, self).__init__(parent)
+        item(parent=parent, titleable=True, widget=self, **params)
