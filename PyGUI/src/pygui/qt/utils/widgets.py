@@ -269,3 +269,9 @@ class ButtonGroupCommon(QButtonGroup, Common):
     def __init__(self, parent, **params):
         super(ButtonGroupCommon, self).__init__(parent)
         prepareWidget(parent=parent, widget=self, **params)
+
+
+class DockWidgetCommon(QDockWidget, Common):
+    def __init__(self, parent, **params):
+        super(DockWidgetCommon, self).__init__(parent)
+        prepareWidget(parent=parent, widget=self, **params)

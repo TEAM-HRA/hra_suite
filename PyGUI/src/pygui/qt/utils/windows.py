@@ -50,31 +50,33 @@ class ApplicationMainWindow(MainWindowCommon):
                 if menuBuilder.invokeMenuItem(GLOBALS.START_MENU_ID):
                     sys.exit(0)
 
-        self.mainTabWidget = None
+        self.applicationMainTabWidget = None
         if main_workspace_name:
-            self.mainTabWidget = TabWidgetCommon(self,
+            self.applicationMainTabWidget = TabWidgetCommon(self,
                             object_name=main_workspace_name,
                             not_add_widget_to_parent_layout=True
                             )
             if main_widget_name:
-                self.mainWidget = WidgetCommon(self.mainTabWidget)
-                self.mainTabWidget.addTab(self.mainWidget, main_widget_name)
-                self.setCentralWidget(self.mainTabWidget)
+                self.mainWidget = WidgetCommon(self.applicationMainTabWidget)
+                self.applicationMainTabWidget.addTab(self.mainWidget,
+                                                     main_widget_name)
+                self.setCentralWidget(self.applicationMainTabWidget)
 
         self.connect(self, ADD_TAB_WIDGET_SIGNAL, self.addTabWidget)
 
     def addTabWidget(self, _tab_widget_name, _tab_widget_classname, _model,
                      _reuse):
-        if self.mainTabWidget == None:
+        if self.applicationMainTabWidget == None:
             InformationWindow(message="Main tab widget wasn't created!")
             return
 
         _class_object = get_class_object(_tab_widget_classname)
-        tabWidget = _class_object(parent=self.mainTabWidget, model=_model)
+        tabWidget = _class_object(parent=self.applicationMainTabWidget,
+                                  model=_model)
 
         #get all tab titles
-        titles = [str(self.mainTabWidget.tabText(idx))
-                   for idx in range(self.mainTabWidget.count())]
+        titles = [str(self.applicationMainTabWidget.tabText(idx))
+                   for idx in range(self.applicationMainTabWidget.count())]
 
         #get list of true/false of matching titles to _tab_widget_name
         #with an optional number
@@ -84,7 +86,7 @@ class ApplicationMainWindow(MainWindowCommon):
 
         #reuse means we have to delete all matching tab widgets
         if _reuse == True:
-            map(self.mainTabWidget.removeTab, any_indexes(matches))
+            map(self.applicationMainTabWidget.removeTab, any_indexes(matches))
 
         #if have to be created a tab widget and there is
         #at least one, with the same title, already
@@ -96,12 +98,12 @@ class ApplicationMainWindow(MainWindowCommon):
             #add next number to the tab title
             _tab_widget_name = '%s [%d]' % (_tab_widget_name, max_num + 1)
 
-        self.mainTabWidget.addTab(tabWidget, _tab_widget_name)
-        self.mainTabWidget.setCurrentWidget(tabWidget)
+        self.applicationMainTabWidget.addTab(tabWidget, _tab_widget_name)
+        self.applicationMainTabWidget.setCurrentWidget(tabWidget)
 
     def closeEvent(self, event):
-        for idx in range(self.mainTabWidget.count()):
-            tabWidget = self.mainTabWidget.widget(idx)
+        for idx in range(self.applicationMainTabWidget.count()):
+            tabWidget = self.applicationMainTabWidget.widget(idx)
             if hasattr(tabWidget, 'beforeCloseTab'):
                 tabWidget.beforeCloseTab()
 
