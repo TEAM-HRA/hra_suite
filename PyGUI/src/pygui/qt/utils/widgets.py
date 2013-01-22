@@ -18,10 +18,6 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-def createSlider(parent=None, **params):
-    return item(parent=parent, widget=QSlider(parent), **params)
-
-
 def createTextEdit(parent=None, **params):
     return item(parent=parent, widget=QTextEdit(parent), **params)
 
@@ -258,4 +254,10 @@ class GroupBoxCommon(QGroupBox, Common):
 class TableViewCommon(QTableView, Common):
     def __init__(self, parent, **params):
         super(TableViewCommon, self).__init__(parent)
+        item(parent=parent, widget=self, **params)
+
+
+class SliderCommon(QSlider, Common):
+    def __init__(self, parent, **params):
+        super(SliderCommon, self).__init__(parent)
         item(parent=parent, widget=self, **params)
