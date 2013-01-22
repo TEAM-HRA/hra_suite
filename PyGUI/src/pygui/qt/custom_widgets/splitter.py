@@ -10,7 +10,7 @@ try:
     from pycore.misc import Params
     from pygui.qt.utils.settings import SettingsFactory
     from pygui.qt.utils.settings import Setter
-    from pygui.qt.utils.widgets import item
+    from pygui.qt.utils.widgets import prepareWidget
     from pygui.qt.utils.widgets import Common
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -19,7 +19,7 @@ except ImportError as error:
 class SplitterWidget(QSplitter, Common):
     def __init__(self, parent, **params):
         QSplitter.__init__(self, parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
         self.params = Params(**params)
         self.setHandleWidth(self.handleWidth() * 2)
         if self.params.save_state:

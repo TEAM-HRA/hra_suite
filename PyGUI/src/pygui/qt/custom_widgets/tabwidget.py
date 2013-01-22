@@ -10,7 +10,7 @@ try:
     from pycore.misc import Params
     from pycore.misc import get_max_number_between_signs
     from pygui.qt.utils.widgets import Common
-    from pygui.qt.utils.widgets import item
+    from pygui.qt.utils.widgets import prepareWidget
     from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -43,7 +43,7 @@ class TabWidgetCallableCloseHandler(QObject):
 class TabWidgetCommon(QTabWidget, Common):
     def __init__(self, parent, **params):
         super(TabWidgetCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
     def closeTab(self, widget):
         close_tab_widget(self, widget)
@@ -101,7 +101,7 @@ class TabWidgetItemCommon(QWidget, Common):
     def __init__(self, **params):
         self.params = Params(**params)
         super(TabWidgetItemCommon, self).__init__(self.params.parent)
-        item(widget=self, **params)
+        prepareWidget(widget=self, **params)
 
     def closeTab(self):
         #self.params.parent has to be a QTabWidget object

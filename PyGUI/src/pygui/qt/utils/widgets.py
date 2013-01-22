@@ -18,7 +18,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-def item(**params):
+def prepareWidget(**params):
     """
     method to create a widget based o information contained in
     a parameter params dictionary, it is a factory method
@@ -158,7 +158,7 @@ class Common(QObject):
 class WidgetCommon(QWidget, Common):
     def __init__(self, parent, **params):
         super(WidgetCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
 
 class LabelCommon(QLabel, Common):
@@ -167,25 +167,25 @@ class LabelCommon(QLabel, Common):
         if params.get('sizePolicy', None) == None:
             params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Preferred)
-        item(parent=parent, widget=self, textable=True, **params)
+        prepareWidget(parent=parent, widget=self, textable=True, **params)
 
 
 class MainWindowCommon(QMainWindow, Common):
     def __init__(self, parent, **params):
         super(MainWindowCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
 
 class StatusBarCommon(QStatusBar, Common):
     def __init__(self, parent, **params):
         super(StatusBarCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
 
 class ListWidgetCommon(QListWidget, Common):
     def __init__(self, parent, **params):
         super(ListWidgetCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
 
 class PushButtonCommon(QPushButton, Common):
@@ -194,7 +194,7 @@ class PushButtonCommon(QPushButton, Common):
         if params.get('sizePolicy', None) == None:
             params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                                QSizePolicy.Fixed)
-        item(parent=parent, widget=self, textable=True, **params)
+        prepareWidget(parent=parent, widget=self, textable=True, **params)
 
 
 class CheckBoxCommon(QCheckBox, Common):
@@ -203,7 +203,7 @@ class CheckBoxCommon(QCheckBox, Common):
         if params.get('sizePolicy', None) == None:
             params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
                                                QSizePolicy.Fixed)
-        item(parent=parent, widget=self, textable=True, **params)
+        prepareWidget(parent=parent, widget=self, textable=True, **params)
 
     def isChecked(self):
         return self.checkState() == Qt.Checked
@@ -213,7 +213,7 @@ class LineEditCommon(QLineEdit, Common):
     def __init__(self, parent, **params):
         QLineEdit.__init__(self, parent)
         self.focusEventHandler = params.get('focusEventHandler', None)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
     def focusInEvent(self, qfocusevent):
         if not self.focusEventHandler == None:
@@ -232,40 +232,40 @@ class CompositeCommon(WidgetCommon):
 class GroupBoxCommon(QGroupBox, Common):
     def __init__(self, parent, **params):
         super(GroupBoxCommon, self).__init__(parent)
-        item(parent=parent, titleable=True, widget=self, **params)
+        prepareWidget(parent=parent, titleable=True, widget=self, **params)
 
 
 class TableViewCommon(QTableView, Common):
     def __init__(self, parent, **params):
         super(TableViewCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
 
 class SliderCommon(QSlider, Common):
     def __init__(self, parent, **params):
         super(SliderCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
 
 class TextEditCommon(QTextEdit, Common):
     def __init__(self, parent, **params):
         super(TextEditCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
 
 class PlainTextEditCommon(QPlainTextEdit, Common):
     def __init__(self, parent, **params):
         super(PlainTextEditCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
 
 class ProgressBarCommon(QProgressBar, Common):
     def __init__(self, parent, **params):
         super(ProgressBarCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
 
 class ButtonGroupCommon(QButtonGroup, Common):
     def __init__(self, parent, **params):
         super(ButtonGroupCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)

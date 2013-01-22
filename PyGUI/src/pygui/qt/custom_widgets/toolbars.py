@@ -15,7 +15,7 @@ try:
     from pygui.qt.actions.actions_utils import create_action
     from pygui.qt.utils.widgets import Common
     from pygui.qt.utils.widgets import WidgetCommon
-    from pygui.qt.utils.widgets import item
+    from pygui.qt.utils.widgets import prepareWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -28,7 +28,7 @@ class ToolButtonCommon(QToolButton, Common):
             params['add_widget_to_parent'] = False
         if params.get('not_add_widget_to_parent_layout', None) == None:
             params['not_add_widget_to_parent_layout'] = True
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
         action = params.get('action', None)
         if action:
             self.setDefaultAction(action)
@@ -39,7 +39,7 @@ class ToolBarCommon(QToolBar, Common):
         if params.get('not_add_widget_to_parent_layout', None) == None:
             params['not_add_widget_to_parent_layout'] = True
         super(ToolBarCommon, self).__init__(parent)
-        item(parent=parent, widget=self, **params)
+        prepareWidget(parent=parent, widget=self, **params)
 
         #to avoid some weird behaviour which manifests in including
         #in this toolbar buttons from the previous one
