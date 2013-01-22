@@ -8,7 +8,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pygui.qt.utils.widgets import createGroupBox
-    from pygui.qt.utils.widgets import createComposite
+    from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.widgets import createButtonGroup
     from pygui.qt.utils.widgets import LineEditCommon
@@ -30,7 +30,7 @@ class DataSeparatorWidget(object):
                                     i18n_def="Separator",
                                     layout=QVBoxLayout())
 
-        self.predefinedSeparatorsComposite = createComposite(
+        self.predefinedSeparatorsComposite = CompositeCommon(
                                                     self.separatorsGroupBox,
                                                     layout=QHBoxLayout())
         self.predefinedSeparatorsButtonsGroup = createButtonGroup(

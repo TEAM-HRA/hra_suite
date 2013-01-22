@@ -9,7 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pygui.qt.utils.threads import ThreadTask
-    from pygui.qt.utils.widgets import createComposite
+    from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import createProgressBar
     from pygui.qt.utils.widgets import PushButtonCommon
 except ImportError as error:
@@ -27,7 +27,7 @@ class ProgressBarManager(object):
     def setParams(self, parent, **params):
         self.parent = parent
         self.params = Params(**params)
-        self.progressBarComposite = createComposite(parent,
+        self.progressBarComposite = CompositeCommon(parent,
                                             layout=QHBoxLayout())
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.progressBar = createProgressBar(self.progressBarComposite,

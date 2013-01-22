@@ -18,10 +18,6 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-def createComposite(parent=None, **params):
-    return item(parent=parent, widget=QWidget(parent), **params)
-
-
 def createGroupBox(parent=None, **params):
     return item(parent=parent, widget=QGroupBox(parent), titleable=True, **params) # @IgnorePep8
 
@@ -255,3 +251,11 @@ class LineEditCommon(QLineEdit, Common):
         if not self.focusEventHandler == None:
             self.focusEventHandler()
         super(LineEditCommon, self).focusInEvent(qfocusevent)
+
+
+class CompositeCommon(WidgetCommon):
+    """
+    this a placeholder used as a generic widget which could contains other
+    widgets
+    """
+    pass

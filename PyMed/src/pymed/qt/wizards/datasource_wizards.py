@@ -101,7 +101,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.chooseRootDirButton.setEnabled(True)
 
     def __createFileConstraintsComposite__(self, parent):
-        fileConstraintsComposite = createComposite(parent,
+        fileConstraintsComposite = CompositeCommon(parent,
                                                    layout=QHBoxLayout())
 
         self.chooseRootDirButton = PushButtonCommon(fileConstraintsComposite,
@@ -165,7 +165,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.progressBarManager.setParams(parent, hidden=True)
 
     def __createFilesOperationsComposite__(self, parent):
-        filesOperations = createComposite(parent,
+        filesOperations = CompositeCommon(parent,
                                             layout=QHBoxLayout())
 
         self.filePreviewButton = PushButtonCommon(filesOperations,
@@ -346,7 +346,7 @@ class ChooseColumnsDataPage(QWizardPage):
         self.filesTableView.selectRow(0)
 
     def __createTableView__(self, pageLayout):
-        self.tableViewComposite = createComposite(self, layout=QVBoxLayout())
+        self.tableViewComposite = CompositeCommon(self, layout=QVBoxLayout())
 
         datasource_page = self.wizard().page(self.datasource_page_id)
         model = CheckStateProxySortFilterModel(self)
