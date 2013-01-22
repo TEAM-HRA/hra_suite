@@ -56,6 +56,7 @@ class TachogramPlotManager(TabWidgetCommon):
         tachogramTabWidget.setObjectName(object_name)
         self.addTab(tachogramTabWidget,
                     self.getNextTitle(file_specification.filename))
+        #re-emit a signal
         self.connect(tachogramTabWidget, TAB_WIDGET_CLOSE_SIGNAL,
                      TAB_WIDGET_CLOSE_SIGNAL)
         return tachogramTabWidget
@@ -75,6 +76,7 @@ class TachogramPlotWindow(MainWindowCommon):
 
         self.tachogramPlot = TachogramPlotPlot(self)
         self.setCentralWidget(self.tachogramPlot)
+        #re-emit a signal
         self.connect(close_handler, TAB_WIDGET_CLOSE_SIGNAL,
                      TAB_WIDGET_CLOSE_SIGNAL)
 #        statusbar = StatusBarCommon(self.__initial_tab__)
