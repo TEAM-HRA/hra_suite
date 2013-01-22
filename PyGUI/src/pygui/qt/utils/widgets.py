@@ -18,10 +18,6 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-def createTextEdit(parent=None, **params):
-    return item(parent=parent, widget=QTextEdit(parent), **params)
-
-
 def createPlainTextEdit(parent=None, **params):
     return item(parent=parent, widget=QPlainTextEdit(parent), **params)
 
@@ -260,4 +256,10 @@ class TableViewCommon(QTableView, Common):
 class SliderCommon(QSlider, Common):
     def __init__(self, parent, **params):
         super(SliderCommon, self).__init__(parent)
+        item(parent=parent, widget=self, **params)
+
+
+class TextEditCommon(QTextEdit, Common):
+    def __init__(self, parent, **params):
+        super(TextEditCommon, self).__init__(parent)
         item(parent=parent, widget=self, **params)
