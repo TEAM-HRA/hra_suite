@@ -17,6 +17,7 @@ try:
     from pygui.qt.utils.graphics import get_width_of_n_letters
     from pygui.qt.custom_widgets.separator import DataSeparatorWidget
     from pygui.qt.custom_widgets.progress_bar import ProgressBarManager
+    from pygui.qt.activities.activities import ActivityWidget
     from pygui.qt.utils.windows import showFilePreviewDialog
     from pygui.qt.utils.windows import InformationWindow
     from pygui.qt.utils.windows import ErrorWindow
@@ -373,6 +374,8 @@ class ChooseColumnsDataPage(QWizardPage):
                                 enabled=False)
 
         self.__createHeaderPreviewGroup__()
+
+        self.__activity__ = ActivityWidget(self)
 
     def onClickedAction(self, idx):
         self.filePreviewButton.setEnabled(True)
