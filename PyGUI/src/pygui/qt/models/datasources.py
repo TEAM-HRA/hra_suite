@@ -31,3 +31,6 @@ class DatasourceFilesSpecificationModel(QStandardItemModel):
         data = [str(self.item(row, column).text())
                 for column in range(self.columnCount())]
         return FileSpecification(*data)
+
+    def getAsFilesSpecifications(self):
+        return  [self.fileSpecification(row) for row in range(self.rowCount())]

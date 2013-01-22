@@ -596,8 +596,8 @@ class ChooseColumnsDataPage(QWizardPage):
                                                 __annotationIndex, _separator)
 
         PluginsManager.invokePlugin(PluginsNames.POINCARE_PLOT_PLUGIN_NAME,
-                                    inspect.stack(),
-                                    model=filesSpecificationModel)
+                    inspect.stack(),
+                    model=filesSpecificationModel.getAsFilesSpecifications())
         return True
 
     def __getFilesSpec__(self, _pathfile=True,

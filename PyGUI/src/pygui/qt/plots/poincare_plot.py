@@ -14,7 +14,6 @@ try:
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
-    from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
     from pygui.qt.custom_widgets.splitter import SplitterWidget
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.custom_widgets.toolbars import ToolBarManager
@@ -106,10 +105,9 @@ class DatasourceListWidget(WidgetCommon):
                 list_item_clicked_handler=self.__datasourceItemClickedHandler__, # @IgnorePep8
                 selectionMode=QAbstractItemView.MultiSelection,
                 selectionBehavior=QAbstractItemView.SelectRows)
-        if model and \
-            isinstance(model, DatasourceFilesSpecificationModel):
-            for row in range(model.rowCount()):
-                fileSpecification = model.fileSpecification(row)
+        if len(model) > 0:
+            for row in range(len(model)):
+                fileSpecification = model[row]
                 listItem = QListWidgetItem(fileSpecification.filename,
                                            self.__datasourceList__)
                 #store in data buffer of list item the whole file
