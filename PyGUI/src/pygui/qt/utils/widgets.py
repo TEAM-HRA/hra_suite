@@ -18,10 +18,6 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-def createTableView(parent=None, **params):
-    return item(parent=parent, widget=__TableView(parent), **params)
-
-
 def createSlider(parent=None, **params):
     return item(parent=parent, widget=QSlider(parent), **params)
 
@@ -179,10 +175,6 @@ class Common(QObject):
                     if precheck_enabled == None else precheck_enabled)
 
 
-class __TableView(QTableView, Common):
-    pass
-
-
 class WidgetCommon(QWidget, Common):
     def __init__(self, parent, **params):
         super(WidgetCommon, self).__init__(parent)
@@ -261,3 +253,9 @@ class GroupBoxCommon(QGroupBox, Common):
     def __init__(self, parent, **params):
         super(GroupBoxCommon, self).__init__(parent)
         item(parent=parent, titleable=True, widget=self, **params)
+
+
+class TableViewCommon(QTableView, Common):
+    def __init__(self, parent, **params):
+        super(TableViewCommon, self).__init__(parent)
+        item(parent=parent, widget=self, **params)

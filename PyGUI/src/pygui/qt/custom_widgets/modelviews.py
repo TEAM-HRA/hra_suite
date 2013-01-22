@@ -8,7 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pygui.qt.utils.widgets import createTableView
+    from pygui.qt.utils.widgets import TableViewCommon
     from pygui.qt.utils.qt_i18n import QT_I18N
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -98,7 +98,7 @@ class FilesTableView(object):
                   QT_I18N("datasource.files.column.path", "File path")]
         self.labels = QStringList(labels)
 
-        self.filesTableView = createTableView(parent,
+        self.filesTableView = TableViewCommon(parent,
                 selectionBehavior=QAbstractItemView.SelectRows,
                 selectionMode=QAbstractItemView.SingleSelection,
                 enabled_precheck_handler=self.params.enabled_precheck_handler)

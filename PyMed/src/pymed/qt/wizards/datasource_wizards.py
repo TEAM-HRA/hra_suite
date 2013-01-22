@@ -461,7 +461,7 @@ class ChooseColumnsDataPage(QWizardPage):
 
         self.__createHeaderPreviewGroup__()
 
-        self.headersTablePreview = createTableView(self.fileHeaderPreviewGroup,
+        self.headersTablePreview = TableViewCommon(self.fileHeaderPreviewGroup,
                             selectionBehavior=QAbstractItemView.SelectRows,
                             selectionMode=QAbstractItemView.SingleSelection)
 
