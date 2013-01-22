@@ -10,7 +10,7 @@ try:
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
-    from pygui.qt.utils.widgets import createButtonGroup
+    from pygui.qt.utils.widgets import ButtonGroupCommon
     from pygui.qt.utils.widgets import LineEditCommon
     from pygui.qt.utils.qt_i18n import QT_I18N
     from pygui.qt.utils.graphics import get_width_of_n_letters
@@ -33,7 +33,7 @@ class DataSeparatorWidget(object):
         self.predefinedSeparatorsComposite = CompositeCommon(
                                                     self.separatorsGroupBox,
                                                     layout=QHBoxLayout())
-        self.predefinedSeparatorsButtonsGroup = createButtonGroup(
+        self.predefinedSeparatorsButtonsGroup = ButtonGroupCommon(
                                             self.predefinedSeparatorsComposite)
 
         self.predefinedSeparatorsLabels = SeparatorSign.getSeparatorLabels()

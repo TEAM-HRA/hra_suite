@@ -18,10 +18,6 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-def createButtonGroup(parent=None, **params):
-    return item(parent=parent, widget=QButtonGroup(parent), **params)
-
-
 def item(**params):
     """
     method to create a widget based o information contained in
@@ -266,4 +262,10 @@ class PlainTextEditCommon(QPlainTextEdit, Common):
 class ProgressBarCommon(QProgressBar, Common):
     def __init__(self, parent, **params):
         super(ProgressBarCommon, self).__init__(parent)
+        item(parent=parent, widget=self, **params)
+
+
+class ButtonGroupCommon(QButtonGroup, Common):
+    def __init__(self, parent, **params):
+        super(ButtonGroupCommon, self).__init__(parent)
         item(parent=parent, widget=self, **params)
