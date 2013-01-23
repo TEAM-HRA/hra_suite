@@ -19,6 +19,7 @@ try:
     from pygui.qt.utils.widgets import PlainTextEditCommon
     from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
+    from pygui.qt.activities.activities import ActivityDockWidget
     from pygui.qt.menu.menus import QTMenuBuilder
     from pycore.globals import GLOBALS
     from pycore.introspection import get_class_object
@@ -57,7 +58,8 @@ class ApplicationMainWindow(MainWindowCommon):
                             not_add_widget_to_parent_layout=True
                             )
             if main_widget_name:
-                self.mainWidget = WidgetCommon(self.applicationMainTabWidget)
+                self.mainWidget = MainTabItemWindow(
+                                            self.applicationMainTabWidget)
                 self.applicationMainTabWidget.addTab(self.mainWidget,
                                                      main_widget_name)
                 self.setCentralWidget(self.applicationMainTabWidget)
@@ -187,3 +189,12 @@ class FilePreviewDialog(QDialog):
             self.lineNumberLabel.setText('Lines # '
                         + str(self.preview.document().lineCount()))
             file_.close()
+
+
+class MainTabItemWindow(MainWindowCommon):
+    def __init__(self, parent, **params):
+        super(MainTabItemWindow, self).__init__(parent, **params)
+        self.__centralWidget__ = WidgetCommon(self,
+                                    not_add_widget_to_parent_layout=True)
+        self.setCentralWidget(self.__centralWidget__)
+        self.__activity__ = ActivityDockWidget(self, **params)
