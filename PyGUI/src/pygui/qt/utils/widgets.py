@@ -8,6 +8,7 @@ try:
     import inspect
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.collections import nvl
     from pygui.qt.utils.qt_i18n import text_I18N
     from pygui.qt.utils.qt_i18n import title_I18N
     from pycore.misc import Params
@@ -273,5 +274,17 @@ class ButtonGroupCommon(QButtonGroup, Common):
 
 class DockWidgetCommon(QDockWidget, Common):
     def __init__(self, parent, **params):
-        super(DockWidgetCommon, self).__init__(parent)
+        super(DockWidgetCommon, self).__init__(
+                            nvl(params.get('title', None), ''), parent)
+        if params.get('not_add_widget_to_parent_layout', None) == None:
+            params['not_add_widget_to_parent_layout'] = True
         prepareWidget(parent=parent, widget=self, **params)
+
+
+class ListWidgetItemCommon(QListWidgetItem):
+    def __init__(self, parent, **params):
+        params = Params(**params)
+        super(ListWidgetItemCommon, self).__init__(
+                                            nvl(params.text, ''), parent)
+        if params.data:
+            self.setData(Qt.UserRole, QVariant(params.data))
