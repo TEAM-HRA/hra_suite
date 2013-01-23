@@ -134,3 +134,16 @@ def nvl(*iterable):
     for _iter in iterable:
         if not _iter == None:
             return _iter
+
+
+def get_subdict(_dict, keys=None, not_keys=None):
+    """
+    function which returns sub dict of _dict dictionary
+    with specified keys or without not_keys
+    """
+    d = _dict
+    if keys:
+        d = dict([(key, d[key]) for key in d if key in keys])
+    if not_keys:
+        d = dict([(key, d[key]) for key in d if key not in not_keys])
+    return d
