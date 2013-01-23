@@ -85,3 +85,12 @@ def get_max_number_between_signs(iterable, left_sign='[', right_sign=']',
             if num > max_num:
                 max_num = num
     return default if max_num == None else max_num
+
+
+def replace_all(_string, replacement, matches):
+    """
+    function replaces all matches by replacement in the string _string
+    """
+    for match in matches:
+        _string = _string.replace(match, replacement)
+    return _string
