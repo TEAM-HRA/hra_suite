@@ -37,6 +37,16 @@ class SettingsFactory(object):
     def clearSettings():
         GLOBAL_SETTINGS.clear()
 
+    @staticmethod
+    def saveObject(object_id, _object):
+        GLOBAL_SETTINGS.setValue(object_id, _object)
+
+    @staticmethod
+    def getObjectsForGroup(object_group):
+        return [GLOBAL_SETTINGS.value(key).toPyObject()
+                for key in GLOBAL_SETTINGS.allKeys()
+                if key.indexOf(object_group) == 0]
+
 
 class Setter(object):
     def __init__(self, **params):
