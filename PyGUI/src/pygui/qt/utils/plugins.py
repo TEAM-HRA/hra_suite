@@ -8,8 +8,11 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycommon.plugins_parser import PluginsBuilder
     from pycore.globals import GLOBALS  # @UnusedImport
+    from pycore.collections import get_subdict
     from pygui.qt.utils.specials import getWidgetFromStack
     from pycore.misc import Params
+    from pygui.qt.activities.activities import ActivityManager
+    from pygui.qt.activities.activities import PluginActivity
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -56,6 +59,12 @@ class __Plugin__(object):
                             _params.append(None)
                         else:
                             _params.append(param.value)
+                if local_params.activity_description \
+                    and local_params.activity_params:
+                    ActivityManager.saveActivity(PluginActivity(self.__ident__,
+                        description=local_params.activity_description,
+                        **get_subdict(params,
+                                      keys=local_params.activity_params)))
                 if len(params) > 0:
                     self.__host_stack_object__.emit(signal.resolveIdent,
                                                     *_params)
