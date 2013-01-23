@@ -600,7 +600,9 @@ class ChooseColumnsDataPage(QWizardPage):
 
         PluginsManager.invokePlugin(PluginsNames.POINCARE_PLOT_PLUGIN_NAME,
                     inspect.stack(),
-                    model=filesSpecificationModel.getAsFilesSpecifications())
+                    model=filesSpecificationModel.getAsFilesSpecifications(),
+                    activity_description=self.__activity__.description(),
+                    activity_params=['model'])
         return True
 
     def __getFilesSpec__(self, _pathfile=True,
