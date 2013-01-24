@@ -72,7 +72,8 @@ class ActivityDockWidget(DockWidgetCommon):
                                     title=params.get('title', 'Activities'),
                                     **params)
         self.setObjectName("ActivityDockWidget")
-        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea)
+        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea |
+                             Qt.TopDockWidgetArea | Qt.BottomDockWidgetArea)
         self.listWidget = ListWidgetCommon(self,
                 not_add_widget_to_parent_layout=True,
                 list_item_clicked_handler=self.__list_item_handler__)
