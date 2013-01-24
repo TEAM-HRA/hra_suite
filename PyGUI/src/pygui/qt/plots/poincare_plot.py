@@ -104,6 +104,7 @@ class DatasourceListWidget(WidgetCommon):
         self.__datasourceList__ = \
             ListWidgetCommon(self,
                 list_item_clicked_handler=self.__datasourceItemClickedHandler__, # @IgnorePep8
+                list_item_double_clicked_handler=self.__datasourceDoubleItemClickedHandler__, # @IgnorePep8
                 selectionMode=QAbstractItemView.MultiSelection,
                 selectionBehavior=QAbstractItemView.SelectRows)
         if len(model) > 0:
@@ -138,10 +139,18 @@ class DatasourceListWidget(WidgetCommon):
         self.emit(ENABLEMEND_SIGNAL, listItem.isSelected())
 
     def __showTachogramsHandler__(self):
+        #acquired from data buffer of list items file specification objects
+        self.__showTachograms__(self.__datasourceList__.selectedItems())
+
+    def __datasourceDoubleItemClickedHandler__(self, listItem):
+        self.__showTachograms__([listItem])
+
+    def __showTachograms__(self, listItems):
         if self.params.add_tachogram_plots_handler:
+
             #acquired from data buffer of list items file specification objects
             files_specifications = [listItem.getData()
-                    for listItem in self.__datasourceList__.selectedItems()]
+                                    for listItem in listItems]
 
             if self.params.add_tachogram_plots_handler(files_specifications,
                     self.__allowTachogramsDuplicationButton__.isChecked()) > 0:

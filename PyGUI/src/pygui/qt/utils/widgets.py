@@ -15,6 +15,7 @@ try:
     from pygui.qt.utils.logging import LoggingEventFilter
     from pycore.globals import Globals
     from pygui.qt.utils.signals import LIST_ITEM_CLICKED_SIGNAL
+    from pygui.qt.utils.signals import LIST_ITEM_DOUBLE_CLICKED_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -187,6 +188,11 @@ class ListWidgetCommon(QListWidget, Common):
     def __init__(self, parent, **params):
         super(ListWidgetCommon, self).__init__(parent)
         prepareWidget(parent=parent, widget=self, **params)
+        double_click_handler = params.get('list_item_double_clicked_handler',
+                                          None)
+        if double_click_handler:
+            self.connect(self, LIST_ITEM_DOUBLE_CLICKED_SIGNAL,
+                         double_click_handler)
 
 
 class PushButtonCommon(QPushButton, Common):
