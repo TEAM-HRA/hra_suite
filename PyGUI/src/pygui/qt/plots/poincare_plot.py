@@ -156,6 +156,7 @@ class DatasourceListWidget(WidgetCommon):
                     self.__allowTachogramsDuplicationButton__.isChecked()) > 0:
                 #if some tachograms plots are successfully opened
                 self.__closeAllTachogramsButton__.setEnabled(True)
+        self.__datasourceList__.clearSelection()
 
     def __enabledPrecheckHandler__(self, widget):
         """
@@ -169,6 +170,7 @@ class DatasourceListWidget(WidgetCommon):
         if self.params.close_tachograms_handler:
             if self.params.close_tachograms_handler():
                 self.__closeAllTachogramsButton__.setEnabled(False)
+        self.__datasourceList__.clearSelection()
 
     def toolbar_uncheck_handler(self):
         self.__datasourceList__.clearSelection()
