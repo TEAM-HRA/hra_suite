@@ -197,4 +197,5 @@ class MainTabItemWindow(MainWindowCommon):
         self.__centralWidget__ = WidgetCommon(self,
                                     not_add_widget_to_parent_layout=True)
         self.setCentralWidget(self.__centralWidget__)
-        self.__activity__ = ActivityDockWidget(self, **params)
+        self.__activity__ = ActivityDockWidget(self, not_closable=True,
+                                               **params)

@@ -285,6 +285,11 @@ class DockWidgetCommon(QDockWidget, Common):
         if params.get('not_add_widget_to_parent_layout', None) == None:
             params['not_add_widget_to_parent_layout'] = True
         prepareWidget(parent=parent, widget=self, **params)
+        self.params = Params(**params)
+
+    def closeEvent(self, event):
+        if self.params.not_closable:
+            event.ignore()
 
 
 class ListWidgetItemCommon(QListWidgetItem):
