@@ -14,6 +14,7 @@ try:
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
+    from pygui.qt.utils.widgets import ListWidgetItemCommon
     from pygui.qt.custom_widgets.splitter import SplitterWidget
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.custom_widgets.toolbars import ToolBarManager
@@ -108,14 +109,12 @@ class DatasourceListWidget(WidgetCommon):
         if len(model) > 0:
             for row in range(len(model)):
                 fileSpecification = model[row]
-                listItem = QListWidgetItem(fileSpecification.filename,
-                                           self.__datasourceList__)
-                #store in data buffer of list item the whole file
-                #specification object for later use
-                listItem.setData(Qt.UserRole, QVariant(fileSpecification))
+                ListWidgetItemCommon(self.__datasourceList__,
+                                     text=fileSpecification.filename,
+                                     data=fileSpecification)
         else:
-            QListWidgetItem('model not specified or incorrect type',
-                            self.__datasourceList__)
+            ListWidgetItemCommon(self.__datasourceList__,
+                                 text='model not specified or incorrect type')
         self.__showTachogramsButton__ = PushButtonCommon(self,
                     i18n="poincare.plot.show.tachograms.button",
                     i18n_def="Show tachograms",
@@ -141,7 +140,7 @@ class DatasourceListWidget(WidgetCommon):
     def __showTachogramsHandler__(self):
         if self.params.add_tachogram_plots_handler:
             #acquired from data buffer of list items file specification objects
-            files_specifications = [listItem.data(Qt.UserRole).toPyObject()
+            files_specifications = [listItem.getData()
                     for listItem in self.__datasourceList__.selectedItems()]
 
             if self.params.add_tachogram_plots_handler(files_specifications,

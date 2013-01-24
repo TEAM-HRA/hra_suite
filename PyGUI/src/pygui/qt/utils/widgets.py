@@ -286,5 +286,11 @@ class ListWidgetItemCommon(QListWidgetItem):
         params = Params(**params)
         super(ListWidgetItemCommon, self).__init__(
                                             nvl(params.text, ''), parent)
+        #store in data buffer of list item for later use
         if params.data:
             self.setData(Qt.UserRole, QVariant(params.data))
+
+    def getData(self):
+        item = self.data(Qt.UserRole)
+        if item:
+            return item.toPyObject()
