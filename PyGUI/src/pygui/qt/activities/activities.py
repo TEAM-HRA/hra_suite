@@ -39,8 +39,8 @@ class ActivityManager(QObject):
 
     @staticmethod
     def clearActivities(activity_group=None):
-        SettingsFactory.clearSettings(SettingsFactory.getKeysForGroup(
-                            ActivityManager.activity_group_id(activity_group)))
+        SettingsFactory.clearSettings(
+                            ActivityManager.activity_group_id(activity_group))
         SignalDispatcher.broadcastSignal(CLEAR_ACTIVITIES_SIGNAL)
 
     @staticmethod
