@@ -13,6 +13,8 @@ except ImportError as error:
 
 GLOBAL_SETTINGS = QSettings("med", "med")
 
+DEFAULT_SETTINGS_GROUP = 'settings'
+
 
 class SettingsFactory(object):
     @staticmethod
@@ -37,11 +39,15 @@ class SettingsFactory(object):
                 params.get('_prefix', _target.__class__.__name__))
 
     @staticmethod
-    def clearSettings(keys=None):
-        if keys == None:
+    def clearSettings(keys_or_object_group=None):
+        if keys_or_object_group == None:
             GLOBAL_SETTINGS.clear()
         else:
-            map(GLOBAL_SETTINGS.remove, keys)
+            if isinstance(keys_or_object_group, list):
+                map(GLOBAL_SETTINGS.remove, keys_or_object_group)
+            else:
+                SettingsFactory.clearSettings(
+                        SettingsFactory.getKeysForGroup(keys_or_object_group))
 
     @staticmethod
     def saveObject(object_id, _object):
@@ -84,6 +90,8 @@ class Setter(object):
         self.__value = params[self.__name]
         self.__object_name = params.get('objectName', '')
         self.__conv_2level = params.get('_conv_2level', None)
+        self.__settings_group__ = params.get('settings_group',
+                                             DEFAULT_SETTINGS_GROUP)
 
     def get(self, _prefix, _settings):
         return _settings.value(self.__id(_prefix),
@@ -125,4 +133,5 @@ class Setter(object):
         self.set(_prefix, _settings)
 
     def __id(self, _prefix):
-        return self.__object_name + '/' + _prefix + '/' + self.__name
+        return '/'.join([self.__settings_group__, self.__object_name,
+                         _prefix, self.__name])
