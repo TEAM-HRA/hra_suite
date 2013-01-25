@@ -3,9 +3,13 @@ Created on 22-11-2012
 
 @author: jurek
 '''
-from PyQt4.QtCore import *  # @UnusedWildImport
-from PyQt4.QtGui import *  # @UnusedWildImport
-from pycore.resources import is_resource
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from pycore.resources import is_resource
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 def get_resource_as_icon(iconfilename_or_resource):

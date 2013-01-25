@@ -3,12 +3,16 @@ Created on 29-10-2012
 
 @author: jurek
 '''
-from PyQt4.QtCore import *  # @UnusedWildImport
-from PyQt4.QtGui import *  # @UnusedWildImport
-from pycore.globals import GLOBALS
-from pycore.properties import Properties
-from pygui.qt.utils.graphics import get_resource_as_icon
-from pycore.introspection import get_method_member_object
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from pycore.globals import GLOBALS
+    from pycore.properties import Properties
+    from pygui.qt.utils.graphics import get_resource_as_icon
+    from pycore.introspection import get_method_member_object
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class SlotWrapper(object):

@@ -6,10 +6,14 @@ Created on 25-12-2012
 Module with some special functionality which couldn't appear in other
 modules because occurrence of, for example, cycling imports
 '''
-import inspect
-from PyQt4.QtCore import *  # @UnusedWildImport
-from PyQt4.QtGui import *  # @UnusedWildImport
-from pycore.globals import GLOBALS
+from pycore.special import ImportErrorMessage
+try:
+    import inspect
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from pycore.globals import GLOBALS
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 #global cache for objects founded by __getObjectFromStack__(...) method
 __STACK_OBJECTS__ = {}

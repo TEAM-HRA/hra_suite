@@ -3,8 +3,12 @@ Created on 24-11-2012
 
 @author: jurek
 '''
-from PyQt4.QtCore import QString
-from pycommon.i18n import I18N
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtCore import QString
+    from pycommon.i18n import I18N
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 def QT_I18N(_id, _default=None, **params):

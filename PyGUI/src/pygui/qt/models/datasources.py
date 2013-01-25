@@ -3,10 +3,14 @@ Created on 02-01-2013
 
 @author: jurek
 '''
-import collections
-from PyQt4.QtCore import *  # @UnusedWildImport
-from PyQt4.QtGui import *  # @UnusedWildImport
-from pycore.collections import empty_string
+from pycore.special import ImportErrorMessage
+try:
+    import collections
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from pycore.collections import empty_string
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 FileSpecificationLabels = ["filepath", "filename", "data_index",
                            "annotation_index", "separator"]

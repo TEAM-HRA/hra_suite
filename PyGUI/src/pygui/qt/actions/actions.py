@@ -3,11 +3,15 @@ Created on 18-01-2013
 
 @author: jurek
 '''
-from pygui.qt.utils.settings import SettingsFactory
-from pygui.qt.utils.settings import DEFAULT_SETTINGS_GROUP
-from pygui.qt.utils.windows import AreYouSureWindow
-from pygui.qt.utils.windows import InformationWindow
-from pygui.qt.activities.activities import ActivityManager
+from pycore.special import ImportErrorMessage
+try:
+    from pygui.qt.utils.settings import SettingsFactory
+    from pygui.qt.utils.settings import DEFAULT_SETTINGS_GROUP
+    from pygui.qt.utils.windows import AreYouSureWindow
+    from pygui.qt.utils.windows import InformationWindow
+    from pygui.qt.activities.activities import ActivityManager
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 def clearSettings(dargs):

@@ -3,8 +3,12 @@ Created on 03-12-2012
 
 @author: jurek
 '''
-from PyQt4.QtCore import *  # @UnusedWildImport
-from pycore.misc import Params
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.misc import Params
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class ThreadTask(QThread):
