@@ -14,6 +14,7 @@ try:
     from pycore.misc import Params
     from pygui.qt.utils.logging import LoggingEventFilter
     from pycore.globals import Globals
+    from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import LIST_ITEM_CLICKED_SIGNAL
     from pygui.qt.utils.signals import LIST_ITEM_DOUBLE_CLICKED_SIGNAL
 except ImportError as error:
@@ -305,3 +306,10 @@ class ListWidgetItemCommon(QListWidgetItem):
         item = self.data(Qt.UserRole)
         if item:
             return item.toPyObject()
+
+
+class ApplicationCommon(QApplication):
+    def __init__(self, *params):
+        super(ApplicationCommon, self).__init__(*params)
+        #set up main dispatcher as a QApplication object
+        SignalDispatcher.setMainDispatcher(self)

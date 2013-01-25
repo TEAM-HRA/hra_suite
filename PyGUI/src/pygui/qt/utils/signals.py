@@ -30,3 +30,52 @@ ENABLEMEND_SIGNAL = SIGNAL('enabled_signal(bool)')
 #signal emitted when tab widget is closed in by method
 #pygui.qt.custom_widgets.tabwidget.TabWidgetCallableCloseHandler.__call__(self)
 TAB_WIDGET_CLOSE_SIGNAL = SIGNAL('tab_widget_close_signal()')
+
+#signal emitted when a new activity is added by
+#pygui.qt.activities.activities.ActivityManager.saveActivity method
+ADD_ACTIVITY_SIGNAL = SIGNAL('add_activity(PyQt_PyObject)')
+
+
+class SignalDispatcher(QObject):
+    """
+    tool class - dispatcher for custom signals,
+    subscribers have to register themselves for specified signal,
+    if a signal is emitted all subscribers all notify
+    """
+
+    @staticmethod
+    def getDispatcher():
+        return __SIGNAL_DISPATCHER__
+
+    def __init__(self):
+        super(SignalDispatcher, self).__init__()
+        self.__dispatcher__ = None
+
+    @staticmethod
+    def broadcastSignal(signal, *params):
+        __SIGNAL_DISPATCHER__.emitSignal(signal, *params)
+
+    def emitSignal(self, signal, *params):
+        if len(params) > 0:
+            self.__dispatcher__.emit(signal, *params)
+        else:
+            self.__dispatcher__.emit(signal)
+
+    @staticmethod
+    def addSignalSubscriber(subscriber, signal, slot):
+        __SIGNAL_DISPATCHER__.signalSubscriber(subscriber, signal, slot)
+
+    def mainDispatcher(self, _dispatcher):
+        self.__dispatcher__ = _dispatcher
+
+    def removeSubscriber(self, subscriber):
+        pass
+
+    def signalSubscriber(self, subscriber, signal, slot):
+        subscriber.connect(self.__dispatcher__, signal, slot)
+
+    @staticmethod
+    def setMainDispatcher(_dispatcher):
+        __SIGNAL_DISPATCHER__.mainDispatcher(_dispatcher)
+
+__SIGNAL_DISPATCHER__ = SignalDispatcher()

@@ -11,6 +11,8 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.collections import get_subdict
+    from pygui.qt.utils.signals import SignalDispatcher
+    from pygui.qt.utils.signals import ADD_ACTIVITY_SIGNAL
     from pygui.qt.utils.settings import SettingsFactory
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
@@ -27,6 +29,7 @@ class ActivityManager(QObject):
     @staticmethod
     def saveActivity(activity):
         SettingsFactory.saveObject(activity.activity_id, activity)
+        SignalDispatcher.broadcastSignal(ADD_ACTIVITY_SIGNAL, activity)
 
     @staticmethod
     def getActivities(activity_group):
@@ -78,11 +81,16 @@ class ActivityDockWidget(DockWidgetCommon):
                 not_add_widget_to_parent_layout=True,
                 list_item_clicked_handler=self.__list_item_handler__)
         for activity in ActivityManager.getActivities(PLUGIN_ACTIVITY_TYPE):
-            ListWidgetItemCommon(self.listWidget,
+            if activity:
+                ListWidgetItemCommon(self.listWidget,
                                  text=activity.label,
                                  data=activity)
         self.setWidget(self.listWidget)
         parent.addDockWidget(Qt.RightDockWidgetArea, self)
+
+        SignalDispatcher.addSignalSubscriber(self,
+                                             ADD_ACTIVITY_SIGNAL,
+                                             self.__add_activity__)
 
     def __list_item_handler__(self, listItem):
         data = listItem.data(Qt.UserRole)
@@ -91,6 +99,11 @@ class ActivityDockWidget(DockWidgetCommon):
             if activity:
                 activity()
 
+    def __add_activity__(self, activity):
+        if activity:
+            ListWidgetItemCommon(self.listWidget,
+                                 text=activity.label,
+                                 data=activity)
 
 PLUGIN_ACTIVITY_TYPE = 'plugin'
 

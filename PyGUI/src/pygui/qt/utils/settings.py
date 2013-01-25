@@ -4,9 +4,12 @@ Created on 23-10-2012
 @author: jurek
 '''
 
-from PyQt4.QtCore import QSettings
-from PyQt4.QtCore import QVariant
-from pycore.collections import get_other_keys
+from pycore.special import ImportErrorMessage
+try:
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.collections import get_other_keys
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 GLOBAL_SETTINGS = QSettings("med", "med")
 
@@ -39,13 +42,23 @@ class SettingsFactory(object):
 
     @staticmethod
     def saveObject(object_id, _object):
+        #if _object parameter is type of QObject then saving in QSettings
+        #repository will failed, so it's much better to throw an exception
+        if isinstance(_object, QObject):
+            raise TypeError("Type of object for QSettings setValue method can't be QObject type") # @IgnorePep8
         GLOBAL_SETTINGS.setValue(object_id, _object)
 
     @staticmethod
     def getObjectsForGroup(object_group):
-        return [GLOBAL_SETTINGS.value(key).toPyObject()
+        #in the case when there is a problem to fetch correctly
+        #python object from QSettings repository
+        #a catch block for exceptions is added
+        try:
+            return [GLOBAL_SETTINGS.value(key).toPyObject()
                 for key in GLOBAL_SETTINGS.allKeys()
                 if key.indexOf(object_group) == 0]
+        except TypeError:
+            return []
 
 
 class Setter(object):
