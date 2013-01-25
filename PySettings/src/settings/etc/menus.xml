@@ -40,6 +40,12 @@
 				<action title="Clear settings"
 					slot="pygui.qt.actions.actions.clearSettings" />
 			</actions>
-		</menuItem>		
+		</menuItem>
+		<menuItem ident="clear_activities" title="Clear activities">
+			<actions>
+				<action title="Clear activities"
+					slot="pygui.qt.actions.actions.clearActivities" />
+			</actions>
+		</menuItem>	
 	</menu>		
 </menus>

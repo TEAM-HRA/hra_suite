@@ -37,8 +37,11 @@ class SettingsFactory(object):
                 params.get('_prefix', _target.__class__.__name__))
 
     @staticmethod
-    def clearSettings():
-        GLOBAL_SETTINGS.clear()
+    def clearSettings(keys=None):
+        if keys == None:
+            GLOBAL_SETTINGS.clear()
+        else:
+            map(GLOBAL_SETTINGS.remove, keys)
 
     @staticmethod
     def saveObject(object_id, _object):
@@ -56,6 +59,17 @@ class SettingsFactory(object):
         try:
             return [GLOBAL_SETTINGS.value(key).toPyObject()
                 for key in GLOBAL_SETTINGS.allKeys()
+                if key.indexOf(object_group) == 0]
+        except TypeError:
+            return []
+
+    @staticmethod
+    def getKeysForGroup(object_group):
+        #in the case when there is a problem to fetch correctly
+        #python object from QSettings repository
+        #a catch block for exceptions is added
+        try:
+            return [key for key in GLOBAL_SETTINGS.allKeys()
                 if key.indexOf(object_group) == 0]
         except TypeError:
             return []

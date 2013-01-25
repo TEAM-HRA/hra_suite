@@ -35,6 +35,9 @@ TAB_WIDGET_CLOSE_SIGNAL = SIGNAL('tab_widget_close_signal()')
 #pygui.qt.activities.activities.ActivityManager.saveActivity method
 ADD_ACTIVITY_SIGNAL = SIGNAL('add_activity(PyQt_PyObject)')
 
+#signal emitted when clear of all activities is required
+CLEAR_ACTIVITIES_SIGNAL = SIGNAL('clear_activities()')
+
 
 class SignalDispatcher(QObject):
     """

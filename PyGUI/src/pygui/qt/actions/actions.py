@@ -6,6 +6,9 @@ Created on 18-01-2013
 from pygui.qt.utils.settings import SettingsFactory
 from pygui.qt.utils.windows import AreYouSureWindow
 from pygui.qt.utils.windows import InformationWindow
+from pygui.qt.activities.activities import ActivityManager
+from pygui.qt.utils.signals import SignalDispatcher
+from pygui.qt.utils.signals import CLEAR_ACTIVITIES_SIGNAL
 
 
 def clearSettings(dargs):
@@ -13,3 +16,11 @@ def clearSettings(dargs):
     if AreYouSureWindow(parent, title='Clearing settings'):
         SettingsFactory.clearSettings()
         InformationWindow(message="Settings cleared !")
+
+
+def clearActivities(dargs):
+    parent = dargs.get('parent', None)
+    if AreYouSureWindow(parent, title='Clearing activities'):
+        ActivityManager.clearActivities()
+        SignalDispatcher.broadcastSignal(CLEAR_ACTIVITIES_SIGNAL)
+        InformationWindow(message="Activities cleared !")

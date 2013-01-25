@@ -13,6 +13,7 @@ try:
     from pycore.collections import get_subdict
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import ADD_ACTIVITY_SIGNAL
+    from pygui.qt.utils.signals import CLEAR_ACTIVITIES_SIGNAL
     from pygui.qt.utils.settings import SettingsFactory
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
@@ -32,9 +33,19 @@ class ActivityManager(QObject):
         SignalDispatcher.broadcastSignal(ADD_ACTIVITY_SIGNAL, activity)
 
     @staticmethod
-    def getActivities(activity_group):
-        return SettingsFactory.getObjectsForGroup('/'.join(['activity',
-                                                     activity_group]))
+    def getActivities(activity_group=None):
+        return SettingsFactory.getObjectsForGroup(
+                            ActivityManager.activity_group_id(activity_group))
+
+    @staticmethod
+    def clearActivities(activity_group=None):
+        return SettingsFactory.clearSettings(SettingsFactory.getKeysForGroup(
+                            ActivityManager.activity_group_id(activity_group)))
+
+    @staticmethod
+    def activity_group_id(activity_group):
+        return 'activity' if activity_group == None \
+                else '/'.join(['activity', activity_group])
 
 
 class ActivityWidget(CompositeCommon):
@@ -91,6 +102,9 @@ class ActivityDockWidget(DockWidgetCommon):
         SignalDispatcher.addSignalSubscriber(self,
                                              ADD_ACTIVITY_SIGNAL,
                                              self.__add_activity__)
+        SignalDispatcher.addSignalSubscriber(self,
+                                             CLEAR_ACTIVITIES_SIGNAL,
+                                             self.__clear_list__)
 
     def __list_item_handler__(self, listItem):
         data = listItem.data(Qt.UserRole)
@@ -104,6 +118,10 @@ class ActivityDockWidget(DockWidgetCommon):
             ListWidgetItemCommon(self.listWidget,
                                  text=activity.label,
                                  data=activity)
+
+    def __clear_list__(self):
+        self.listWidget.clear()
+
 
 PLUGIN_ACTIVITY_TYPE = 'plugin'
 
