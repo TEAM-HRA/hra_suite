@@ -9,6 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pycore.misc import get_max_number_between_signs
+    from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.widgets import Common
     from pygui.qt.utils.widgets import prepareWidget
     from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
@@ -37,7 +38,7 @@ class TabWidgetCallableCloseHandler(QObject):
 
     def __call__(self):
         close_tab_widget(self.tab_widget_parent, self.tab_widget)
-        self.emit(TAB_WIDGET_CLOSE_SIGNAL)
+        SignalDispatcher.broadcastSignal(TAB_WIDGET_CLOSE_SIGNAL)
 
 
 class TabWidgetCommon(QTabWidget, Common):

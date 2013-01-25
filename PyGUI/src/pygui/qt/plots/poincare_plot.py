@@ -14,6 +14,7 @@ try:
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
+    from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.widgets import ListWidgetItemCommon
     from pygui.qt.custom_widgets.splitter import SplitterWidget
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
@@ -66,8 +67,8 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
         if self.__splitter__.sizesLoaded() == False:
             idx = self.__splitter__.indexOf(self.__tachogramsManager__)
             self.__splitter__.setStretchFactor(idx, 20)
-        self.connect(self.__tachogramsManager__, TAB_WIDGET_CLOSE_SIGNAL,
-                     self.__closeTachogramPlot__)
+        SignalDispatcher.addSignalSubscriber(self, TAB_WIDGET_CLOSE_SIGNAL,
+                                            self.__closeTachogramPlot__)
 
     def __addTachogramPlots__(self, files_specifications, allow_duplication):
         return self.__tachogramsManager__.addTachogramPlots(
