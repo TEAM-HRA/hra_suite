@@ -213,9 +213,6 @@ class CheckBoxCommon(QCheckBox, Common):
                                                QSizePolicy.Fixed)
         prepareWidget(parent=parent, widget=self, textable=True, **params)
 
-    def isChecked(self):
-        return self.checkState() == Qt.Checked
-
 
 class LineEditCommon(QLineEdit, Common):
     def __init__(self, parent, **params):
