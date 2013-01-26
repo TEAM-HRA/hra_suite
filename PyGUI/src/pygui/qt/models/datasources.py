@@ -5,24 +5,21 @@ Created on 02-01-2013
 '''
 from pycore.special import ImportErrorMessage
 try:
-    import collections
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.collections import empty_string
+    from pycore.collections import get_namedtuple_fields_as_list
+    from pycommon.models import FileSpecification
 except ImportError as error:
     ImportErrorMessage(error, __name__)
-
-FileSpecificationLabels = ["filepath", "filename", "data_index",
-                           "annotation_index", "separator"]
-FileSpecification = collections.namedtuple('FileSpecification',
-                                           FileSpecificationLabels)
 
 
 class DatasourceFilesSpecificationModel(QStandardItemModel):
 
     def __init__(self):
         QStandardItemModel.__init__(self)
-        self.setHorizontalHeaderLabels(FileSpecificationLabels)
+        self.setHorizontalHeaderLabels(
+                            get_namedtuple_fields_as_list(FileSpecification))
 
     def appendRow(self, _path, _filename, _dataIndex, _annotationIndex,
                   _separator):

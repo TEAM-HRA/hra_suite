@@ -147,3 +147,7 @@ def get_subdict(_dict, keys=None, not_keys=None):
     if not_keys:
         d = dict([(key, d[key]) for key in d if key not in not_keys])
     return d
+
+
+def get_namedtuple_fields_as_list(_named_tuple):
+    return list(_named_tuple._fields) if _named_tuple else None
