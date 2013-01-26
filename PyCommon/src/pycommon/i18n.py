@@ -3,9 +3,13 @@ Created on 04-11-2012
 
 @author: jurek
 '''
-from pycore.globals import GLOBALS
-from pycore.properties import Properties
-from pycore.collections import replace_all_by_dict
+from pycore.special import ImportErrorMessage
+try:
+    from pycore.globals import GLOBALS
+    from pycore.properties import Properties
+    from pycore.collections import replace_all_by_dict
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 __I18N_PROPERTIES = Properties(GLOBALS.get(I18N_FILE=GLOBALS.ITEM,
                                            PARAM1=GLOBALS.LANG),

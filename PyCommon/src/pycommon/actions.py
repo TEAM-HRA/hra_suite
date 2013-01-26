@@ -3,7 +3,11 @@ Created on 15-01-2013
 
 @author: jurek
 '''
-from pycore.misc import Params
+from pycore.special import ImportErrorMessage
+try:
+    from pycore.misc import Params
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class ActionSpec(object):

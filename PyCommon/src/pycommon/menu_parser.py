@@ -3,11 +3,14 @@ Created on 20-10-2012
 
 @author: jurek
 '''
-
-from xml.sax import make_parser
-from xml.sax import ContentHandler
-from xml.sax import SAXParseException
-from pycommon.actions import ActionSpec
+from pycore.special import ImportErrorMessage
+try:
+    from xml.sax import make_parser
+    from xml.sax import ContentHandler
+    from xml.sax import SAXParseException
+    from pycommon.actions import ActionSpec
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class MenuBuilder(object):

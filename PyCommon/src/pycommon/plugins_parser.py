@@ -3,14 +3,17 @@ Created on 20-10-2012
 
 @author: jurek
 '''
-
-from xml.sax import make_parser
-from xml.sax import ContentHandler
-from xml.sax import SAXParseException
-from pycore.misc import camel_format
-from pycore.resources import get_as_resource_handler_or_string
-from pycore.globals import GLOBALS
-from pycore.introspection import get_object
+from pycore.special import ImportErrorMessage
+try:
+    from xml.sax import make_parser
+    from xml.sax import ContentHandler
+    from xml.sax import SAXParseException
+    from pycore.misc import camel_format
+    from pycore.resources import get_as_resource_handler_or_string
+    from pycore.globals import GLOBALS
+    from pycore.introspection import get_object
+except ImportError as error:
+    ImportErrorMessage(error, __name__)
 
 
 class Plugin(object):
