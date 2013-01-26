@@ -58,7 +58,7 @@ class TachogramPlotManager(TabWidgetCommon):
         return tachogramTabWidget
 
     def __getObjectName__(self, file_specification):
-        return ".".join([file_specification.filepath,
+        return ".".join([file_specification.pathname,
                          file_specification.filename])
 
 

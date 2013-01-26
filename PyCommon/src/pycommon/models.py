@@ -10,6 +10,6 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 FileSpecification = collections.namedtuple('FileSpecification',
-    ["filepath", "filename", "data_index", "annotation_index", "separator"])
+    ["pathname", "filename", "data_index", "annotation_index", "separator"])
 
 FilePath = collections.namedtuple('FilePath', ["pathname", "filename"])
