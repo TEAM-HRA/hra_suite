@@ -8,6 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
+    from pycommon.models import FilePath
     from pygui.qt.utils.widgets import TableViewCommon
     from pygui.qt.utils.qt_i18n import QT_I18N
 except ImportError as error:
@@ -135,18 +136,15 @@ class FilesTableView(object):
                                     self.filesTableView.model().rowCount())
         self.minCompleteState()
 
-    def getSelectedPathAndFilename(self, as_str=True):
-        return self.getPathAndFilename(self.selectedRow, as_str)
+    def getSelectedPathAndFilename(self):
+        return self.getPathAndFilename(self.selectedRow)
 
-    def getPathAndFilename(self, modelIdx, as_str=False):
+    def getPathAndFilename(self, modelIdx):
         if not modelIdx == None:
             model = modelIdx.model()
             path = model.item(modelIdx.row(), 3)
             filename = model.item(modelIdx.row(), 1)
-            if as_str == True:
-                return (str(path.text()), str(filename.text()))
-            else:
-                return (path.text(), filename.text())
+            return FilePath(str(path.text()), str(filename.text()))
 
     def onClickedAction(self, selectedRow):
         self.selectedRow = selectedRow

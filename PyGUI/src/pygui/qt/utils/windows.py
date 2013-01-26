@@ -169,9 +169,7 @@ class FilePreviewDialog(QDialog):
 
     def __init__(self, filepath, parent=None):
         super(FilePreviewDialog, self).__init__(parent)
-        fileparts = [str(part) for part in filepath] \
-                    if hasattr(filepath, '__iter__') else [str(filepath)]
-        filename = join(*fileparts)
+        filename = join(filepath.pathname, filepath.filename)
         self.setWindowTitle('Preview of ' + filename)
         self.setGeometry(QRect(50, 50, 1000, 600))
         self.setLayout(QVBoxLayout())

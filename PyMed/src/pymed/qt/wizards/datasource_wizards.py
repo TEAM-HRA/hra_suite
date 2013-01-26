@@ -214,7 +214,7 @@ class ChooseDatasourcePage(QWizardPage):
 
     def filePreviewAction(self):
         showFilePreviewDialog(
-                    self.filesTableView.getSelectedPathAndFilename(False))
+                    self.filesTableView.getSelectedPathAndFilename())
 
     def reload(self):
         if self.rootDirLabel.text():
@@ -391,7 +391,7 @@ class ChooseColumnsDataPage(QWizardPage):
 
     def filePreviewAction(self):
         showFilePreviewDialog(
-                        self.filesTableView.getSelectedPathAndFilename(False))
+                        self.filesTableView.getSelectedPathAndFilename())
 
     def __separatorHandler__(self, _separator):
         self.__createFileHeadersPreview__(_separator)
@@ -506,8 +506,7 @@ class ChooseColumnsDataPage(QWizardPage):
             #it's necessity to alter model index of QSortFilterProxyModel type
             #into source model index of QStandardItemModel type
             idx = model.mapToSource(model.index(row, 0))
-            pathFile = self.filesTableView.getPathAndFilename(idx,
-                                                         as_str=True)
+            pathFile = self.filesTableView.getPathAndFilename(idx)
             if pathFile:
                 self.__createDataFileHeader__(pathFile, _separator)
 
@@ -565,8 +564,7 @@ class ChooseColumnsDataPage(QWizardPage):
             #it's necessity to alter model index of QSortFilterProxyModel type
             #into source model index of QStandardItemModel type
             idx = model.mapToSource(model.index(row, 0))
-            pathFile = self.filesTableView.getPathAndFilename(idx,
-                                                         as_str=True)
+            pathFile = self.filesTableView.getPathAndFilename(idx)
             if pathFile:
                 self.__dataColumnIndexes__[pathFile] = _globalIndex[0]
                 if _globalIndex[1]:  # annontation global index
@@ -614,8 +612,7 @@ class ChooseColumnsDataPage(QWizardPage):
             #it's necessity to alter model index of QSortFilterProxyModel type
             #into source model index of QStandardItemModel type
             idx = model.mapToSource(model.index(row, 0))
-            pathFile = self.filesTableView.getPathAndFilename(idx,
-                                                         as_str=True)
+            pathFile = self.filesTableView.getPathAndFilename(idx)
 
             if pathFile:
                 fileSpec = []
