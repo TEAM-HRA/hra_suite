@@ -345,6 +345,7 @@ class ChooseColumnsDataPage(QWizardPage):
             self.__createTableView__(self.pageLayout)
         #select the first row
         self.filesTableView.selectRow(0)
+        self.separatorWidget.setGlobalSeparatorAsDefault()
 
     def __createTableView__(self, pageLayout):
         self.tableViewComposite = CompositeCommon(self, layout=QVBoxLayout())
@@ -474,7 +475,7 @@ class ChooseColumnsDataPage(QWizardPage):
                                     i18n_def="Global columns indexes",
                                     clicked_handler=self.__globalClicked__)
         if self.__globalIndex__:
-            self.__globalCheckBox__.setCheckState(Qt.Checked)
+            self.__globalCheckBox__.setChecked(True)
 
     def __createDataFileHeader__(self, pathFile, _separator):
         dataFileHeader = self.__dataFilesHeaders__.get(pathFile, None)
@@ -546,7 +547,7 @@ class ChooseColumnsDataPage(QWizardPage):
                 if widget.isChecked(HeaderWidget.ANNOTATION_TYPE):
                     annotation_index = num
             if data_index == None:
-                self.__globalCheckBox__.setCheckState(Qt.Unchecked)
+                self.__globalCheckBox__.setChecked(False)
                 InformationWindow(None,
                         message='At least data column has to be selected !')
             else:
@@ -672,13 +673,13 @@ class HeaderWidget(QWidget):
         self.__dataHandler__(self)
 
     def check(self, _type):
-        self.__getButton__(_type).setCheckState(Qt.Checked)
+        self.__getButton__(_type).setChecked(True)
 
     def uncheck(self, _type):
-        self.__getButton__(_type).setCheckState(Qt.Unchecked)
+        self.__getButton__(_type).setChecked(False)
 
     def isChecked(self, _type):
-        return self.__getButton__(_type).checkState() == Qt.Checked
+        return self.__getButton__(_type).isChecked()
 
     def enabled(self, _type, _enabled):
         self.__getButton__(_type).setEnabled(_enabled)

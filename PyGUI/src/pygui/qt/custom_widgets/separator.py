@@ -95,15 +95,17 @@ class DataSeparatorWidget(object):
         self.customSeparatorButtonClicked()
         self.customSeparatorCheckBox.setEnabled(_text.size() > 0)
 
-    def globalSettingsButtonClicked(self):
-        if self.globalSettingsCheckBox.checkState() == Qt.Checked:
+    def globalSettingsButtonClicked(self, clicked=None):
+        if clicked:
+            self.globalSettingsCheckBox.setChecked(clicked)
+        if self.globalSettingsCheckBox.isChecked():
             if not self.predefinedSeparatorsButtonsGroup.checkedButton() \
                 == None \
               or not is_empty(self.customSeparatorEdit.text()):
                 self.predefinedSeparatorsComposite.setEnabled(False)
                 self.params.globalHandler(True, self.getSeparatorSign())
             else:
-                self.globalSettingsCheckBox.setCheckState(Qt.Unchecked)
+                self.globalSettingsCheckBox.setChecked(False)
                 InformationWindow(message='A separator must be chosen !')
         else:
             self.predefinedSeparatorsComposite.setEnabled(True)
@@ -112,7 +114,7 @@ class DataSeparatorWidget(object):
     def customSeparatorButtonClicked(self):
         self.__uncheckPredefinedButtons__()
         separator = self.__getCustomSeparatorSign__()
-        if self.customSeparatorCheckBox.checkState() == Qt.Checked and \
+        if self.customSeparatorCheckBox.isChecked() and \
             self.params.separatorHandler and separator:
             self.params.separatorHandler(separator)
 
@@ -124,7 +126,7 @@ class DataSeparatorWidget(object):
                     return sign
 
     def __getCustomSeparatorSign__(self):
-        if self.customSeparatorCheckBox.checkState() == Qt.Checked:
+        if self.customSeparatorCheckBox.isChecked():
             return self.customSeparatorEdit.text()
 
     def setEnabled(self, enabled):
@@ -141,11 +143,11 @@ class DataSeparatorWidget(object):
                 for button in self.predefinedSeparatorsButtonsGroup.buttons():
                     if button.text() == separatorSign.label:
                         self.__customSeparatorClear__()
-                        button.setCheckState(Qt.Checked)
+                        button.setChecked(True)
                         return
 
     def __customSeparatorClear__(self):
-        self.customSeparatorCheckBox.setCheckState(Qt.Unchecked)
+        self.customSeparatorCheckBox.setChecked(False)
         self.customSeparatorCheckBox.setEnabled(False)
         self.customSeparatorEdit.setText("")
 
@@ -159,6 +161,9 @@ class DataSeparatorWidget(object):
             self.predefinedSeparatorsButtonsGroup.checkedButton().setChecked(
                                                                         False)
             self.predefinedSeparatorsButtonsGroup.setExclusive(True)
+
+    def setGlobalSeparatorAsDefault(self):
+        self.globalSettingsButtonClicked(True)
 
 
 class SeparatorSign(object):
