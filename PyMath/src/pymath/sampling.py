@@ -3,11 +3,15 @@ Created on 17-07-2012
 
 @author: jurek
 '''
-from pylab import cumsum
-from pylab import arange
-from pylab import where
-from pylab import take
-from pycore.globals import GLOBALS
+from pymath.utils.utils import print_import_error
+try:
+    from pylab import cumsum
+    from pylab import arange
+    from pylab import where
+    from pylab import take
+    from pymath.utils.utils import USE_NUMPY_EQUIVALENT
+except ImportError as error:
+    print_import_error(__name__, error)
 
 
 class Sampling(object):
@@ -44,7 +48,7 @@ class LinearInterpolatedSampling(Sampling):
     '''
     def __sampling__(self, signal, step=250):
 
-        if GLOBALS.NUMPY_USAGE:
+        if USE_NUMPY_EQUIVALENT:
             """ use more pythonic version of the method """
             return self.__numpy_sampling__(signal, step)
 

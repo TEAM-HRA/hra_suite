@@ -3,19 +3,22 @@ Created on 27-07-2012
 
 @author: jurek
 '''
-
-from numpy import array
-from pylab import find
-from pylab import arange
-from pylab import r_
-from pylab import in1d
-from pymath.datasources import DataSource
-from pymath.statistics.statistics import StatisticsFactory
-from pymath.statistics.statistics import MeanStatistic
-from pymath.statistics.statistics import SDRRStatistic
-from pymath.statistics.statistics import NtotStatistic
-from pymath.statistics.statistics import TotTimeStatistic
-from pycore.globals import GLOBALS
+from pymath.utils.utils import print_import_error
+try:
+    from numpy import array
+    from pylab import find
+    from pylab import arange
+    from pylab import r_
+    from pylab import in1d
+    from pymath.utils.utils import USE_NUMPY_EQUIVALENT
+    from pymath.datasources import DataSource
+    from pymath.statistics.statistics import StatisticsFactory
+    from pymath.statistics.statistics import MeanStatistic
+    from pymath.statistics.statistics import SDRRStatistic
+    from pymath.statistics.statistics import NtotStatistic
+    from pymath.statistics.statistics import TotTimeStatistic
+except ImportError as error:
+    print_import_error(__name__, error)
 
 
 class Filter(DataSource):
@@ -87,7 +90,7 @@ class RemoveAnnotatedSignalFilter(Filter):
                               NtotStatistic, TotTimeStatistic)
 
     def __filter__(self, _signal, _annotation):
-        if GLOBALS.NUMPY_USAGE:
+        if USE_NUMPY_EQUIVALENT:
             return DataSource(_signal[_annotation == 0])
 
         indexy = find(_annotation == 0)
@@ -127,7 +130,7 @@ class ZeroAnnotationFilter(Filter):
         self.__leave_annotations__ = leave_annotations
 
     def __filter__(self, _signal, _annotation):
-        if GLOBALS.NUMPY_USAGE:
+        if USE_NUMPY_EQUIVALENT:
             return self.__numpy_filter__(_signal, _annotation)
 
         for pobudzenie in self.__leave_annotations__:

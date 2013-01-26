@@ -3,7 +3,6 @@
 	<name>PyMath</name>
 	<comment></comment>
 	<projects>
-		<project>PyCore</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

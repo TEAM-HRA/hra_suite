@@ -3,21 +3,22 @@ Created on 16-08-2012
 
 @author: jurek
 '''
-
-from pylab import convolve
-from pylab import array
-from pylab import fft
-from pylab import arange
-from pylab import mean
-from pylab import find
-import numpy as np
-
-import pymath.interpolation as interpolation_module
-from pymath.sampling import LinearInterpolatedSampling
-from pymath.integrals import DefiniteIntegral
-from pymath.datasources import DataSource
-from pycore.collections import get_values_as_map
-from pycore.collections import initialize_fields
+from pymath.utils.utils import print_import_error
+try:
+    import numpy as np
+    from pylab import convolve
+    from pylab import array
+    from pylab import fft
+    from pylab import arange
+    from pylab import mean
+    from pylab import find
+    import pymath.interpolation as interpolation_module
+    from pymath.sampling import LinearInterpolatedSampling
+    from pymath.integrals import DefiniteIntegral
+    from pymath.datasources import DataSource
+    from pymath.utils.utils import get_values_as_map
+except ImportError as error:
+    print_import_error(__name__, error)
 
 
 class FourierTransform(DataSource):
@@ -144,14 +145,11 @@ class FastFourierTransform(FourierTransform):
         #just to be on the safe side
         variancja = np.var(_signal)
         #return rezultaty
-        return results.values
+        return get_values_as_map(results)
 
 
 ## Class to hold outocomes of FastFourier calculations
 class FourierResults(object):
-
-    def __init__(self):
-        initialize_fields(self, None)
 
     @property
     def HF(self):
@@ -224,6 +222,6 @@ class FourierResults(object):
     def HFnu(self):
         return (self.HF / (self.TP0_4 - self.VLF)) * 100
 
-    @property
-    def values(self):
-        return get_values_as_map(self, excluded_names=['values'])
+    # if parameter is not set then returns None
+    def __getattr__(self, name):
+        return None

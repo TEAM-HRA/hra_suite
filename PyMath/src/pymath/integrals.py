@@ -3,8 +3,12 @@ Created on 19-08-2012
 
 @author: jurek
 '''
-from pylab import find
-from pylab import sum
+from pymath.utils.utils import print_import_error
+try:
+    from pylab import find
+    from pylab import sum
+except ImportError as error:
+    print_import_error(__name__, error)
 
 
 class DefiniteIntegral(object):

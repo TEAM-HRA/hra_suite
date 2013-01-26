@@ -3,15 +3,17 @@ Created on 03-09-2012
 
 @author: jurek
 '''
-
-from numpy import mean
-from pylab import find
-from pylab import arange
-from pylab import append
-from itertools import count
-
-from datasources import DataSource
-from pycore.globals import GLOBALS
+from pymath.utils.utils import print_import_error
+try:
+    from numpy import mean
+    from pylab import find
+    from pylab import arange
+    from pylab import append
+    from itertools import count
+    from pymath.utils.utils import USE_NUMPY_EQUIVALENT
+    from datasources import DataSource
+except ImportError as error:
+    print_import_error(__name__, error)
 
 
 class Interpolation(DataSource):
@@ -28,7 +30,7 @@ class Interpolation(DataSource):
 
 class LinearInterpolation(Interpolation):
     def __interpolate__(self, _signal, _annotation):
-        if GLOBALS.NUMPY_USAGE:
+        if USE_NUMPY_EQUIVALENT:
             return self.__numpy_interpolate__(_signal, _annotation)
 
         #removing nonsinus beats from the beginning

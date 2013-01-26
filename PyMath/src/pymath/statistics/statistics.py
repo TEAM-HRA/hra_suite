@@ -2,18 +2,20 @@
 #  @author jurek
 #  @date 27-07-2012
 #  Classes with base functionality for statistics
-
-from pylab import sqrt
-from pylab import size
-from pylab import pi
-from pylab import dot
-from pylab import greater
-from pylab import compress
-from pylab import equal
-from numpy import var
-
-from pymath.datasources import DataSource
-from pycore.globals import GLOBALS
+from pymath.utils.utils import print_import_error
+try:
+    from pylab import sqrt
+    from pylab import size
+    from pylab import pi
+    from pylab import dot
+    from pylab import greater
+    from pylab import compress
+    from pylab import equal
+    from numpy import var
+    from pymath.utils.utils import USE_NUMPY_EQUIVALENT
+    from pymath.datasources import DataSource
+except ImportError as error:
+    print_import_error(__name__, error)
 
 
 ## Base class for all specific statitistics,
@@ -86,7 +88,7 @@ class TotTimeStatistic(Statistic):
 
 class SDStatistic(Statistic):
     def __calculate__(self):
-        if GLOBALS.NUMPY_USAGE:
+        if USE_NUMPY_EQUIVALENT:
             # ddof=1 means divide by size-1
             return sqrt(var(self.signal, ddof=1))
         else:

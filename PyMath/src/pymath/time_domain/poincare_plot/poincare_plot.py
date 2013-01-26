@@ -3,20 +3,24 @@ Created on 27-07-2012
 
 @author: jurek
 '''
+from pymath.utils.utils import print_import_error
+try:
+    from pymath.statistics.statistics import StatisticsFactory
+    from pymath.statistics.statistics import Statistic
+    from pymath.statistics.statistics import SD1Statistic
+    from pymath.statistics.statistics import SD2Statistic
+    from pymath.statistics.statistics import SsStatistic
+    from pymath.statistics.statistics import SD21Statistic
+    from pymath.statistics.statistics import RStatistic
+    from pymath.statistics.statistics import RMSSDStatistic
+    from pymath.statistics.statistics import SD1upStatistic
+    from pymath.statistics.statistics import SD1downStatistic
+    from pymath.statistics.statistics import NupStatistic
+    from pymath.statistics.statistics import NdownStatistic
+    from pymath.statistics.statistics import NonStatistic
+except ImportError as error:
+    print_import_error(__name__, error)
 
-from pymath.statistics.statistics import StatisticsFactory
-from pymath.statistics.statistics import Statistic
-from pymath.statistics.statistics import SD1Statistic
-from pymath.statistics.statistics import SD2Statistic
-from pymath.statistics.statistics import SsStatistic
-from pymath.statistics.statistics import SD21Statistic
-from pymath.statistics.statistics import RStatistic
-from pymath.statistics.statistics import RMSSDStatistic
-from pymath.statistics.statistics import SD1upStatistic
-from pymath.statistics.statistics import SD1downStatistic
-from pymath.statistics.statistics import NupStatistic
-from pymath.statistics.statistics import NdownStatistic
-from pymath.statistics.statistics import NonStatistic
 
 from pymath.datasources import DataSource
 

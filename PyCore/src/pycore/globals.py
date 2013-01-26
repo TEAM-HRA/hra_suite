@@ -46,7 +46,6 @@ class Globals(object):
 
     DATA_DIR = None
     EXT_MASK = None
-    NUMPY_USAGE = None
     MENUS_FILE = None
     PLUGINS_FILE = None
     PLUGINS_DIR = None
