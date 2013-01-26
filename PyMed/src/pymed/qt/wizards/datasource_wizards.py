@@ -208,8 +208,7 @@ class ChooseDatasourcePage(QWizardPage):
                                       after=self.afterProgressBarAction)
 
     def uncheckAllAction(self):
-        self.progressBarManager.start(
-                                    before=self.beforeProgressBarAction,
+        self.progressBarManager.start(before=self.beforeProgressBarAction,
                                     progressJob=self.uncheckProgressBarAction,
                                     after=self.afterProgressBarAction)
 
