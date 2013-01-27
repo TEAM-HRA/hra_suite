@@ -13,6 +13,7 @@ try:
     from pycore.misc import Params
     from pycore.misc import get_max_number_between_signs
     from pygui.qt.utils.qt_i18n import QT_I18N
+    from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import LabelCommon
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import WidgetCommon
@@ -157,36 +158,50 @@ def __message__(parent=None, **params):
     return (title, message)
 
 
-def showFilePreviewDialog(filepath, parent=None):
-    if filepath == None:
+def showFilesPreviewDialog(filespaths, parent=None):
+    if filespaths == None or len(filespaths) == 0:
         InformationWindow(message="No files selected !")
     else:
-        dialog = FilePreviewDialog(filepath, parent)
+        dialog = FilesPreviewDialog(filespaths, parent)
         dialog.exec_()
 
 
-class FilePreviewDialog(QDialog):
+class FilesPreviewDialog(QDialog):
 
-    def __init__(self, filepath, parent=None):
-        super(FilePreviewDialog, self).__init__(parent)
-        filename = join(filepath.pathname, filepath.filename)
-        self.setWindowTitle('Preview of ' + filename)
+    def __init__(self, filespaths, parent=None):
+        super(FilesPreviewDialog, self).__init__(parent)
+        self.setWindowTitle('File(s) preview')
         self.setGeometry(QRect(50, 50, 1000, 600))
         self.setLayout(QVBoxLayout())
-        self.lineNumberLabel = LabelCommon(self)
-        self.preview = PlainTextEditCommon(self, readonly=True)
+        #a list object has attribute 'insert'
+        filespaths = filespaths if hasattr(filespaths, 'insert') \
+                        else [filespaths]
 
-        closeButton = PushButtonCommon(self,
-                            i18n="close",
-                            i18n_def="Close")
+        for filepath in filespaths:
+            filename = join(filepath.pathname, filepath.filename)
+            filesPreviewTabWidget = TabWidgetCommon(self)
+            tab = self.__createFilePreview__(filesPreviewTabWidget, filename)
+            filesPreviewTabWidget.addTab(tab, 'File: ' + filename)
+
+        closeButton = PushButtonCommon(self, i18n="close", i18n_def="Close")
         self.connect(closeButton, SIGNAL("clicked()"), self, SLOT("reject()"))
+
+    def __createFilePreview__(self, parent, filename):
+        composite = CompositeCommon(parent)
+        layout = QVBoxLayout()
+        composite.setLayout(layout)
+        informationLabel = LabelCommon(composite)
+        layout.addWidget(informationLabel)
+        preview = PlainTextEditCommon(composite, readonly=True)
+        layout.addWidget(preview)
         file_ = QFile(filename)
         if file_.open(QFile.ReadOnly):
-            self.preview.insertPlainText(QString(file_.readAll()))
-            self.preview.moveCursor(QTextCursor.Start)
-            self.lineNumberLabel.setText('Lines # '
-                        + str(self.preview.document().lineCount()))
+            preview.insertPlainText(QString(file_.readAll()))
+            preview.moveCursor(QTextCursor.Start)
+            informationLabel.setText('Lines # '
+                                     + str(preview.document().lineCount()))
             file_.close()
+        return composite
 
 
 class MainTabItemWindow(MainWindowCommon):

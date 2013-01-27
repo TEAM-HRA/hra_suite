@@ -18,7 +18,7 @@ try:
     from pygui.qt.custom_widgets.separator import DataSeparatorWidget
     from pygui.qt.custom_widgets.progress_bar import ProgressBarManager
     from pygui.qt.activities.activities import ActivityWidget
-    from pygui.qt.utils.windows import showFilePreviewDialog
+    from pygui.qt.utils.windows import showFilesPreviewDialog
     from pygui.qt.utils.windows import InformationWindow
     from pygui.qt.utils.windows import ErrorWindow
     from pygui.qt.custom_widgets.modelviews import FilesTableView
@@ -213,7 +213,7 @@ class ChooseDatasourcePage(QWizardPage):
                                     after=self.afterProgressBarAction)
 
     def filePreviewAction(self):
-        showFilePreviewDialog(
+        showFilesPreviewDialog(
                     self.filesTableView.getSelectedPathAndFilename())
 
     def reload(self):
@@ -390,7 +390,7 @@ class ChooseColumnsDataPage(QWizardPage):
         self.separatorWidget.setEnabled(True)
 
     def filePreviewAction(self):
-        showFilePreviewDialog(
+        showFilesPreviewDialog(
                         self.filesTableView.getSelectedPathAndFilename())
 
     def __separatorHandler__(self, _separator):
