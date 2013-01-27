@@ -3,7 +3,7 @@ Created on 09-09-2012
 
 @author: jurek
 '''
-import optparse
+import argparse
 import sys
 from os.path import join
 from os.path import dirname
@@ -15,22 +15,30 @@ from pycore.resources import is_resource
 
 
 class Globals(object):
-    __parser = optparse.OptionParser()
-    __parser.add_option("-e", "--settings_egg", type="string", default="")
-    __parser.add_option("-u", "--use_settings_egg", default=True)
-    __parser.add_option("-s", "--settings_file", type="string", default="")
-    __parser.add_option("-l", "--lang", type="string", default="en")
-    __parser.add_option("-m", "--start_menu_ident", type="string", default="")
-    __parser.add_option("-d", "--debug", default=False)
 
-    __opts, __args = __parser.parse_args()
+    to_bool = lambda p: True if p.title() == "True" else False
 
-    USE_SETTINGS_EGG = __opts.use_settings_egg
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-e", "--settings_egg",
+                        help="give an egg for settings of application", # @IgnorePep8
+                        default="")
+    parser.add_argument("-u", "--use_settings_egg", default=True,
+                        type=to_bool)
+    parser.add_argument("-s", "--settings_file", default="")
+    parser.add_argument("-l", "--lang", default="en")
+    parser.add_argument("-m", "--start_menu_ident", default="")
+    parser.add_argument("-d", "--debug", default=False, type=to_bool)
+    parser.add_argument("-n", "--use_numpy_equivalent", default=True,
+                        type=to_bool)
+    __args = parser.parse_args()
+
+    USE_NUMPY_EQUIVALENT = __args.use_numpy_equivalent
+    USE_SETTINGS_EGG = __args.use_settings_egg
     #if a parameter starts with a phrase 'use' it's value has bool type,
     #otherwise string, 'very intuitive bahaviour'
-    DEBUG = (__opts.debug == str(True))
-    if len(__opts.settings_egg) > 0:
-        sys.path.insert(0, __opts.settings_egg)
+    DEBUG = __args.debug
+    if len(__args.settings_egg) > 0:
+        sys.path.insert(0, __args.settings_egg)
         USE_SETTINGS_EGG = True
 
     if USE_SETTINGS_EGG:
@@ -38,19 +46,19 @@ class Globals(object):
         SETTINGS_DIR = None
     else:
         PROGRAM_DIR = sys.path[0]
-        SETTINGS_FILE = __opts.settings_file \
-        if __opts.settings_file else join(PROGRAM_DIR, "settings.properties")
+        SETTINGS_FILE = __args.settings_file \
+        if __args.settings_file else join(PROGRAM_DIR, "settings.properties")
         SETTINGS_DIR = dirname(SETTINGS_FILE)
 
-    LANG = __opts.lang
+    LANG = __args.lang
 
     DATA_DIR = None
     EXT_MASK = None
     MENUS_FILE = None
     PLUGINS_FILE = None
     PLUGINS_DIR = None
-    START_MENU_ID = __opts.start_menu_ident \
-                    if len(__opts.start_menu_ident) > 0 else None
+    START_MENU_ID = __args.start_menu_ident \
+                    if len(__args.start_menu_ident) > 0 else None
 
     # a value of ITEM property doesn't matter,
     # this property is used as a marker in a situation
