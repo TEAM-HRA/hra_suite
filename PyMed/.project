@@ -6,6 +6,7 @@
 		<project>PyCommon</project>
 		<project>PyCore</project>
 		<project>PyGUI</project>
+		<project>PyMath</project>
 		<project>PyMed</project>
 		<project>PySettings</project>
 	</projects>
