@@ -9,6 +9,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import Params
     from pygui.qt.utils.windows import AreYouSureWindow
+    from pygui.qt.utils.windows import showFilesPreviewDialog
     from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
@@ -89,6 +90,7 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
         """
         if self.__tachogramsManager__.countNotCloseTabs() == 0:
             self.__datasourceListWidget__.enabledCloseAllTachogramsButton(False) #  @IgnorePep8
+            self.__datasourceListWidget__.emit(ENABLEMEND_SIGNAL, False)
 
 
 class DatasourceListWidget(WidgetCommon):
@@ -101,6 +103,13 @@ class DatasourceListWidget(WidgetCommon):
                 OperationalToolBarWidget,
                 toolbar_close_handler=self.params.close_tachogram_plot_handler)
         self.layout().addWidget(toolbars)
+
+        self.__filesPreviewButton__ = PushButtonCommon(self,
+                    i18n="poincare.plot.files.preview.button",
+                    i18n_def="Files preview",
+                    enabled=False,
+                    clicked_handler=self.__filesPreviewHandler__,
+                    enabled_precheck_handler=self.__enabledPrecheckHandler__)
 
         self.__datasourceList__ = \
             ListWidgetCommon(self,
@@ -140,19 +149,16 @@ class DatasourceListWidget(WidgetCommon):
         self.emit(ENABLEMEND_SIGNAL, listItem.isSelected())
 
     def __showTachogramsHandler__(self):
-        #acquired from data buffer of list items file specification objects
-        self.__showTachograms__(self.__datasourceList__.selectedItems())
+        self.__showTachograms__(self.__getFilesSpecifications__(selected=True))
+
+    def __filesPreviewHandler__(self):
+        showFilesPreviewDialog(self.__getFilesSpecifications__(selected=True))
 
     def __datasourceDoubleItemClickedHandler__(self, listItem):
-        self.__showTachograms__([listItem])
+        self.__showTachograms__(self.__getFilesSpecifications__([listItem]))
 
-    def __showTachograms__(self, listItems):
+    def __showTachograms__(self, files_specifications):
         if self.params.add_tachogram_plots_handler:
-
-            #acquired from data buffer of list items file specification objects
-            files_specifications = [listItem.getData()
-                                    for listItem in listItems]
-
             if self.params.add_tachogram_plots_handler(files_specifications,
                     self.__allowTachogramsDuplicationButton__.isChecked()) > 0:
                 #if some tachograms plots are successfully opened
@@ -164,14 +170,15 @@ class DatasourceListWidget(WidgetCommon):
         only interested widgets return bool value others return none value
         """
         if widget in (self.__showTachogramsButton__,
-                      self.__allowTachogramsDuplicationButton__):
+                      self.__allowTachogramsDuplicationButton__,
+                      self.__filesPreviewButton__):
             return len(self.__datasourceList__.selectedIndexes()) > 0
 
     def __closeTachogramsHandler__(self):
         if self.params.close_tachograms_handler:
             if self.params.close_tachograms_handler():
                 self.__closeAllTachogramsButton__.setEnabled(False)
-        self.__datasourceList__.clearSelection()
+        self.toolbar_uncheck_handler()
 
     def toolbar_uncheck_handler(self):
         self.__datasourceList__.clearSelection()
@@ -183,3 +190,9 @@ class DatasourceListWidget(WidgetCommon):
 
     def enabledCloseAllTachogramsButton(self, enabled):
         self.__closeAllTachogramsButton__.setEnabled(enabled)
+
+    def __getFilesSpecifications__(self, list_items=None, selected=False):
+        if selected:  # get files specifications from selected items
+            list_items = self.__datasourceList__.selectedItems()
+        #acquired from data buffer of list items file specification objects
+        return [list_item.getData() for list_item in list_items]
