@@ -177,9 +177,9 @@ class FilesPreviewDialog(QDialog):
         filespaths = filespaths if hasattr(filespaths, 'insert') \
                         else [filespaths]
 
+        filesPreviewTabWidget = TabWidgetCommon(self)
         for filepath in filespaths:
             filename = join(filepath.pathname, filepath.filename)
-            filesPreviewTabWidget = TabWidgetCommon(self)
             tab = self.__createFilePreview__(filesPreviewTabWidget, filename)
             filesPreviewTabWidget.addTab(tab, 'File: ' + filename)
 
