@@ -28,8 +28,7 @@ class Globals(object):
     parser.add_argument("-l", "--lang", default="en")
     parser.add_argument("-m", "--start_menu_ident", default="")
     parser.add_argument("-d", "--debug", default=False, type=to_bool)
-    parser.add_argument("-n", "--use_numpy_equivalent", default=True,
-                        type=to_bool)
+    parser.add_argument("-n", "--use_numpy_equivalent", type=to_bool)
     __args = parser.parse_args()
 
     USE_NUMPY_EQUIVALENT = __args.use_numpy_equivalent

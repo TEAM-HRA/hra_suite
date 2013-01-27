@@ -313,7 +313,7 @@ class ApplicationCommon(QApplication):
         SignalDispatcher.setMainDispatcher(self)
 
         #set up USE_NUMPY_EQUIVALENT property
-        if Globals.USE_NUMPY_EQUIVALENT:
+        if not Globals.USE_NUMPY_EQUIVALENT == None:
             NUMPY_UTILS = get_object("pymath.utils.utils")
             if NUMPY_UTILS:
                 if hasattr(NUMPY_UTILS, 'USE_NUMPY_EQUIVALENT'):
