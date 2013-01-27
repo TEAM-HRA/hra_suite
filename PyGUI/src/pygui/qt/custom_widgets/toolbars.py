@@ -73,8 +73,26 @@ def create_toolbar_button(parent, toolbar, button_type, **params):
         elif hasattr(params, button_type.handler_name):
             params.handler = getattr(params, button_type.handler_name)
     title = nvl(params.button_title, button_type.title)
-    actionSpec = ActionSpec(iconId=button_type.icon_id,
-                                 handler=params.handler,
+    handler = params.handler
+
+    #give ability to call addition toolbar handler after proper button handler
+    if button_type.handler_callable_name and \
+        hasattr(button_type, 'after_toolbar_handler'):
+        class ActionToolbarHandler():
+            def __init__(self, button_handler, toolbar, after_toolbar_handler):
+                self.__button_handler__ = button_handler
+                self.__toolbar__ = toolbar
+                self.__after_toolbar_handler__ = after_toolbar_handler
+
+            def __call__(self):
+                self.__button_handler__()
+                self.__after_toolbar_handler__(toolbar)
+
+        #replace button handler with toolbar button handler
+        handler = ActionToolbarHandler(handler, toolbar,
+                                getattr(button_type, 'after_toolbar_handler'))
+
+    actionSpec = ActionSpec(iconId=button_type.icon_id, handler=handler,
                                  title=title)
     toolbar.addWidget(ToolButtonCommon(toolbar,
                         action=create_action(toolbar, actionSpec)))
@@ -146,6 +164,14 @@ class CloseToolButton(ToolButtonType):
             'toolbar_close_handler', 'toolbar_close_button',
             'Close', 'toolbar_close_handler_callable')
         super(CloseToolButton, self).__init__(default, **params)
+
+    def after_toolbar_handler(self, toolbar):
+        """
+        when a toolbar is detached (floatable feature) from the parent widget
+        then close button closes the parent as usual but not the toolbar
+        itself, this method does it
+        """
+        toolbar.close()
 
 
 class HideToolButton(ToolButtonType):
