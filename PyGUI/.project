@@ -5,6 +5,7 @@
 	<projects>
 		<project>PyCommon</project>
 		<project>PyCore</project>
+		<project>PyMath</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
