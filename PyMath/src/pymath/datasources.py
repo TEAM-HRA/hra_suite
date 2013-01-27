@@ -7,10 +7,13 @@ from pymath.utils.utils import print_import_error
 try:
     import glob
     import os
+    from ntpath import join
     from re import findall
+    from re import compile
     from numpy import array
     from numpy import loadtxt
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
+    from pymath.utils.utils import Params
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -193,4 +196,87 @@ class FilesDataSources(object):
 
         data_source = DataSource(signal, annotation)
         data_source.filename = filename  # set up an additional property
+        return data_source
+
+
+class FileDataSource(object):
+
+    HEADER_PATTERN = compile(r'\b[A-Za-z\[\]\-\%\#\!\@\$\^\&\*]*')
+
+    def __init__(self, **params):
+        #params: pathname, filename, data_index, annotation_index, separator
+        self.params = Params(**params)
+        self.__file__ = join(self.params.pathname, self.params.filename)
+        self.__headers__ = None
+        self.__cols__ = [self.params.data_index,
+                         self.params.annotation_index] \
+                         if self.params.annotation_index \
+                            else [self.params.data_index]
+
+    @property
+    def headers(self):
+        if self.__headers__ == None:
+
+            self.__headers__ = []
+            with open(self.__file__, 'r') as _file:
+                header_ok = False
+                for line in _file:
+                    headers = line.rstrip('\n').split(self.params.separator)
+                    for header in headers:
+                        if FileDataSource.HEADER_PATTERN.match(header):
+                            header_ok = True
+                            break
+                    if header_ok == False:
+                        break
+                self.__headers__.append(headers)
+        return self.__headers__
+
+    def getDataSource(self):
+        return self.__getNumPyDataSource__() if USE_NUMPY_EQUIVALENT else \
+               self.__getSimpleDataSource__()
+
+    def __getSimpleDataSource__(self):
+        signal = []
+        annotation = []
+        with open(self.__file__, 'r') as _file:
+            for _ in range(len(self.headers)):  # skip header lines
+                _file.readline()
+
+            for line in _file:
+                #contents = findall(r'\b[0-9\.]+', line)
+                contents = line.split(self.params.separator)
+                if self.params.data_index:
+                    signal.append(float(contents[self.params.data_index]))
+                if self.params.annotation_index:
+                    annotation.append(int(float(contents[self.params.annotation_index]))) #@IgnorePep8
+
+        return self.__createDataSource__(array(signal), array(annotation))
+
+    def __getNumPyDataSource__(self):
+        signal = None
+        annotation = None
+
+        if self.params.annotation_index == None:
+            signal = loadtxt(self.__file__,
+                             skiprows=len(self.headers),
+                             usecols=self.__cols__,
+                             unpack=True,
+                             delimiter=self.params.separator)
+        else:
+            (signal, annotation) = loadtxt(self.__file__,
+                                        skiprows=len(self.headers),
+                                        usecols=self.__cols__,
+                                        unpack=True,
+                                        delimiter=self.params.separator)
+            annotation = annotation.astype(int)
+
+        return self.__createDataSource__(signal, annotation)
+
+    def __createDataSource__(self, signal, annotation):
+        if self.params.annotation_index == self.params.data_index \
+            or self.params.annotation_index == None:
+            annotation = 0 * signal
+
+        data_source = DataSource(signal, annotation)
+        data_source.filename = self.__file__  # set up an additional property
         return data_source
