@@ -69,6 +69,7 @@ PyGUI/src/pygui/qt/models/datasources.py -text
 PyGUI/src/pygui/qt/plots/__init__.py -text
 PyGUI/src/pygui/qt/plots/poincare_plot.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot.py -text
+PyGUI/src/pygui/qt/plots/tachogram_plot_plot.py -text
 PyGUI/src/pygui/qt/utils/__init__.py -text
 PyGUI/src/pygui/qt/utils/context.py -text
 PyGUI/src/pygui/qt/utils/graphics.py -text

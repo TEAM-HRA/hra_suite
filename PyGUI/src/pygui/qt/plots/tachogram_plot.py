@@ -10,10 +10,10 @@ try:
     from pycore.misc import Params
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import LabelCommon
-    from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCallableCloseHandler
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
+    from pygui.qt.plots.tachogram_plot_plot import TachogramPlotPlot
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -70,7 +70,8 @@ class TachogramPlotWindow(MainWindowCommon):
         self.addToolBar(OperationalToolBarWidget(self,
                              toolbar_close_handler_callable=close_handler))
 
-        self.tachogramPlot = TachogramPlotPlot(self)
+        self.tachogramPlot = TachogramPlotPlot(self,
+                        file_specification=self.params.file_specification)
         self.setCentralWidget(self.tachogramPlot)
 #        statusbar = StatusBarCommon(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)
@@ -78,20 +79,3 @@ class TachogramPlotWindow(MainWindowCommon):
 #                    i18n_def="STATUS",
 #                    add_widget_to_parent=True)
 #
-#        logDockWidget = QDockWidget("Log", self.__initial_tab__)
-#        logDockWidget.setObjectName("LogDockWidget")
-#        logDockWidget.setAllowedAreas(Qt.LeftDockWidgetArea |
-#                                      Qt.RightDockWidgetArea)
-#        self.listWidget = QListWidget()
-#        logDockWidget.setWidget(self.listWidget)
-#        self.__initial_tab__.addDockWidget(Qt.RightDockWidgetArea,
-#                                           logDockWidget)
-
-
-class TachogramPlotPlot(WidgetCommon):
-    """
-    this class represents core of the tachogram plot that is a plot itself
-    """
-    def __init__(self, parent, **params):
-        super(TachogramPlotPlot, self).__init__(parent,
-                                        not_add_widget_to_parent_layout=True)
