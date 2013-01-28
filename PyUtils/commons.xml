@@ -116,8 +116,9 @@
 		packages where the code is located by hidden.package.<number> properties,
 		hidden_packages - includes all hidden packages passed by hidden.package.[number] properties
 		-->
-		<var name="hidden.packages" value=""/>		
-		<for list="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15" param="counter"> <!-- up to 15 hidden packages could by examined -->
+		<var name="hidden.packages" value=""/>
+		<!-- up to 25 hidden packages could by examined -->		
+		<for list="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25" param="counter">
 			<sequential>
 				<!-- if hidden.package.[counter] property is not set by parent (invoking) target 
 					then the following instruction set it to the empty string -->				
