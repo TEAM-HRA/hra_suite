@@ -7,7 +7,6 @@ from pymath.utils.utils import print_import_error
 try:
     import glob
     import os
-    from ntpath import join
     from re import findall
     from re import compile
     from numpy import array
@@ -206,7 +205,7 @@ class FileDataSource(object):
     def __init__(self, **params):
         #params: pathname, filename, data_index, annotation_index, separator
         self.params = Params(**params)
-        self.__file__ = join(self.params.pathname, self.params.filename)
+        self.__file__ = os.path.join(self.params.pathname, self.params.filename) # @IgnorePep8
         self.__headers__ = None
         self.__cols__ = [self.params.data_index,
                          self.params.annotation_index] \
