@@ -5,6 +5,8 @@ Created on 03-11-2012
 '''
 from pycore.special import ImportErrorMessage
 try:
+    import os
+    import sys
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.collections import create_list
@@ -197,7 +199,7 @@ class ChooseDatasourcePage(QWizardPage):
                                     caption=self.chooseRootDirButton.text(),
                                     directory=self.rootDir)
         if rootDir:
-            self.rootDir = rootDir
+            self.rootDir = rootDir + os.path.sep
             SettingsFactory.saveSettings(self, Setter(rootDir=self.rootDir))
             self.rootDirLabel.setText(self.rootDir)
             self.reload()
@@ -250,7 +252,8 @@ class ChooseDatasourcePage(QWizardPage):
                 if self.progressBarManager.isStopped() == True:
                     break
                 if self.filesExtension.text() in ("*", "*.*", "", None):
-                    if infoFile.isExecutable() == True or \
+                    if (sys.platform == 'win32' \
+                        and infoFile.isExecutable() == True) or \
                         is_text_file(infoFile.filePath(),
                                     self.onlyKnownTypes.checkState()) == False:
                             continue
