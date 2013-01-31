@@ -12,11 +12,13 @@
 	<property name="application.root" location="../${application.name}"/>
 	-->
 	
-	<property name="python-path" location="../../../../python/python_64/Python27"/>	
+	<property name="python-path-win" location="../../../../python/python_64/Python27"/>	
+	<property name="python-path-linux" location="/usr/bin"/>
 
-	<property name="doxygen" location="../../../../Programs/doxygen/bin/doxygen.exe"/>
+	<property name="doxygen-win" location="../../../../Programs/doxygen/bin/doxygen.exe"/>	
+	<property name="doxygen-linux" location="/usr/bin/doxygen"/>
 	
-	<property name="miktext" location="F:/MiKTeX2.9/miktex/bin"/>
+	<property name="miktext-win" location="F:/MiKTeX2.9/miktex/bin"/>
 
 	<property name="doc_temp" location="doc/temp"/>
 	
@@ -49,10 +51,16 @@
 	<target name="_help.py_med.egg">
 		<exec executable="cmd" osfamily="winnt">
 			<arg value="/c" />
-			<arg value="${python-path}/python.exe" />			
+			<arg value="${python-path-win}/python.exe" />			
 			<arg value="${py_setup_egg}" />
 			<arg value="--help-commands" />
 		</exec>		
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="-c" />
+			<arg value="${python-path-linux}/python" />			
+			<arg value="${py_setup_egg}" />
+			<arg value="--help-commands" />
+		</exec>				
 	</target>	
 	
 	<target name="build.egg">
@@ -62,9 +70,17 @@
 			<env key="REQUIRED_PACKAGES" value="${required.packages}"/>
 			<env key="ADDITIONAL_FILES" value="${additional.files}"/>			
 			<arg value="/c" />
-			<arg value="${python-path}/python.exe" />
+			<arg value="${python-path-win}/python.exe" />
 			<arg value="${py_setup_egg}" />
 			<arg value="bdist_egg" />
+		</exec>
+		<exec executable="/bin/bash" os="Linux">
+			<env key="APPLICATION_DESCRIPTION" value="${application.description}"/>
+			<env key="APPLICATION_NAME" value="${application.name}"/>
+			<env key="REQUIRED_PACKAGES" value="${required.packages}"/>
+			<env key="ADDITIONAL_FILES" value="${additional.files}"/>
+			<arg value="-c" />
+			<arg value="${python-path-linux}/python ${py_setup_egg} bdist_egg" />
 		</exec>
 		<delete dir="${application.root}/src/${application.name}.egg-info"/>
 	</target>	
@@ -135,8 +151,22 @@
 		</for>
 
 		<exec executable="/bin/bash" os="Linux">
-			<arg value="mvn" />
-			<arg value="assembly:directory" />
+			<env key="PATH" path="${env.PATH};${additional.paths}"/>
+			<env key="APPLICATION_NAME" value="${application.name}"/>
+			<env key="START_SCRIPT" value="${start.script}"/>
+			<!-- True - with console -->
+			<env key="CONSOLE_TYPE" value="${console.type}"/>
+			<!-- D - dictionary F- file -->
+			<env key="BUILD_TYPE" value="${build.type}"/>
+			<!-- True - with debug -->			
+			<env key="DEBUG_INFO" value="${debug.info}" />
+
+			<env key="APPLICATION_ROOT" value="${application.root}"/>
+			<env key="EGGS" value="${eggs}"/>			
+			<env key="PYTHONPATH" value="${env.PYTHONPATH};${eggs_names};src"/>
+			<env key="HIDDEN_PACKAGES" value="${hidden.packages}"/>
+			<arg value="-c" />
+			<arg value="${python-path-linux}/python ${win-pyinstaller-path}/utils/Build.py ../PyUtils/application.spec.py -y --buildpath=${application.root}/build/${application.name}" />
 		</exec>
 		<exec executable="cmd" osfamily="winnt" >
 			<env key="PATH" path="${env.PATH};${additional.paths}"/>
@@ -155,7 +185,7 @@
 			<env key="HIDDEN_PACKAGES" value="${hidden.packages}"/>
 
 			<arg value="/c" />
-			<arg value="${python-path}/python.exe" />
+			<arg value="${python-path-win}/python.exe" />
 			<!--
 			<arg value="-v" />
 			-->			
@@ -199,12 +229,12 @@
 
 	<target name="py_installer.help" description="PyInstaller help">
 		<exec executable="/bin/bash" os="Linux">
-			<arg value="mvn" />
-			<arg value="assembly:directory" />
+			<arg value="-c" />
+			<arg value="${python-path-linux}/python ${win-pyinstaller-path}/pyinstaller.py --help" />			
 		</exec>
 		<exec executable="cmd" osfamily="winnt">
 			<arg value="/c" />
-			<arg value="${python-path}/python.exe" />			
+			<arg value="${python-path-win}/python.exe" />			
 			<arg value="${win-pyinstaller-path}/pyinstaller.py" />
 			<arg value="--help" />
 		</exec>		
@@ -220,7 +250,7 @@
 		<exec executable="cmd" osfamily="winnt">
 			<env key="APPLICATION_NAME" value="${application.name}"/>			
 			<arg value="/c" />
-			<arg value="${doxygen}" />			
+			<arg value="${doxygen-win}" />			
 			<arg value="../PyUtils/doc_chm.doxygen" />
 		</exec>
 		<move file="${doc_temp_html}/${application.name}.chm" todir="${doc_html_dir}"/>
@@ -237,26 +267,26 @@
 		<exec executable="cmd" osfamily="winnt">
 			<env key="APPLICATION_NAME" value="${application.name}"/>			
 			<arg value="/c" />
-			<arg value="${doxygen}" />			
+			<arg value="${doxygenw-win}" />			
 			<arg value="../PyUtils/doc_pdf.doxygen" />
 		</exec>
 
 		<exec executable="cmd" osfamily="winnt" dir="${doc_temp_latex}">
 			<arg value="/c" />
-			<arg value="${miktext}/pdflatex.exe" />
+			<arg value="${miktext-win}/pdflatex.exe" />
 			<arg value="refman.tex" />
 			<arg value="-job-name=${application.name}" />
 		</exec>
 
 		<exec executable="cmd" osfamily="winnt" dir="${doc_temp_latex}">
 			<arg value="/c" />
-			<arg value="${miktext}/makeindex.exe" />
+			<arg value="${miktext-win}/makeindex.exe" />
 			<arg value="${application.name}.idx" />
 		</exec>
 		
 		<exec executable="cmd" osfamily="winnt" dir="${doc_temp_latex}">
 			<arg value="/c" />
-			<arg value="${miktext}/pdflatex.exe" />
+			<arg value="${miktext-win}/pdflatex.exe" />
 			<arg value="refman.tex" />
 			<arg value="${application.name}.idx" />
 		</exec>
@@ -279,7 +309,7 @@
 				</echo>
 		    	<!-- D -to a directory  F to a file -o ${spec.path} -->
 				<echo file="build.bat">
-${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${src.path} -o ../PyMed -n ${application.name} ${application.type} -y --noupx --buildpath build\${application.name} 
+${python-path-win}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${src.path} -o ../PyMed -n ${application.name} ${application.type} -y --noupx --buildpath build\${application.name} 
 				</echo>
 				<exec executable="cmd" osfamily="winnt">
 					<arg value="/c" />
@@ -330,7 +360,7 @@ ${python-path}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.scrip
 		    <then>
 				<exec executable="cmd" osfamily="winnt">
 					<arg value="/c" />
-					<arg value="${python-path}/python.exe" />
+					<arg value="${python-path-win}/python.exe" />
 					<arg value="${win-pyinstaller-path}/utils/ArchiveViewer.py" />
 					<arg value="-r" />
 					<arg value="-b" />					

@@ -2,6 +2,7 @@
 
 from pkgutil import walk_packages
 import sys
+import os
 
 #set up additional packages
 hidden_packages = os.environ.get("HIDDEN_PACKAGES")
@@ -43,27 +44,32 @@ if (application_root == None or len(application_root)==0) or application_root ==
 else:
 	application_root += '/'
 
+eggs = os.environ.get("EGGS")
+if not ( eggs == None or len(eggs)==0 or eggs == '${eggs}'):
+	eggs_names = [egg_name for egg_name in eggs.split(";")]
+else:
+	eggs_names = None
 a = Analysis([start_script],
-             #pathex=['src', '.'],
+             pathex=eggs_names,
              hiddenimports=hidden_imports,
              hookspath=None)
 
 #set up additional eggs into eggs directory
-eggs = os.environ.get("EGGS")
 if not ( eggs == None or len(eggs)==0 or eggs == '${eggs}'):
 	for egg_name in eggs.split(";"): # eggs are separated by ';' sign
 		if ( len(egg_name) > 0 ):
-			name = egg_name.split("\\")[-1]
+			name = egg_name.split(os.path.sep)[-1]
 			a.zipfiles += [('eggs/' + name, egg_name, 'ZIPFILE',)]		
 
 pyz = PYZ(a.pure)
 
+exe_ext = '.exe' if sys.platform == 'win32' else ''
 # for DIR
 if (build_type == "D"):
 	exe = EXE(pyz,
 				a.scripts,
 				exclude_binaries=1,
-				name=os.path.join(application_root + 'build\\' + application_name, application_name + '.exe'),
+				name=os.path.join(application_root + 'build\\' + application_name, application_name + exe_ext),
 				debug=debug_info,
 				strip=None,
 				upx=False,
@@ -78,7 +84,7 @@ if (build_type == "D"):
 					name=os.path.join(application_root + 'dist', application_name))            
 
 	app = BUNDLE(coll,
-	            name=os.path.join(application_root + 'dist', application_name + '.exe.app'))
+	            name=os.path.join(application_root + 'dist', application_name + exe_ext + '.app'))
 
 # for FILE
 if (build_type == "F"):
@@ -87,11 +93,11 @@ if (build_type == "F"):
 				a.binaries,
 				a.zipfiles,
 				a.datas,
-				name=os.path.join(application_root + 'dist', application_name + '.exe'),
+				name=os.path.join(application_root + 'dist', application_name + exe_ext),
 				debug=debug_info,
 				strip=None,
 				upx=False,
 				console=(console_type=='True') )
 
 	app = BUNDLE(exe,
-	             name=os.path.join(application_root + 'dist', application_name + '.exe.app'))
+	             name=os.path.join(application_root + 'dist', application_name + exe_ext + '.app'))
