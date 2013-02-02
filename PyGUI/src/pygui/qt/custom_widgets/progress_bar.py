@@ -48,8 +48,7 @@ class ProgressJob(QObject):
         while(self.progressIterator.hasNext()):
             self.emit(PROGRESS_ITERATOR_SIGNAL, self.progressIterator.next())
             # improves GUI responsiveness
-            if counter % 5 == 0:
-                QThread.currentThread().usleep(1)
+            QThread.currentThread().usleep(1)
             counter = counter + 1
             if self.finished:
                 break
