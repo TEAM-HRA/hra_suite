@@ -19,6 +19,9 @@ try:
     from pygui.qt.utils.graphics import get_width_of_n_letters
     from pygui.qt.custom_widgets.separator import DataSeparatorWidget
     from pygui.qt.custom_widgets.progress_bar import ProgressBarManager
+    from pygui.qt.custom_widgets.progress_bar import AbstractProgressIterator
+    from pygui.qt.custom_widgets.progress_bar import ProgressJob
+    from pygui.qt.custom_widgets.progress_bar import CounterProgressJob
     from pygui.qt.activities.activities import ActivityWidget
     from pygui.qt.utils.windows import showFilesPreviewDialog
     from pygui.qt.utils.windows import InformationWindow
@@ -26,7 +29,7 @@ try:
     from pygui.qt.custom_widgets.modelviews import FilesTableView
     from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
     from pygui.qt.custom_widgets.modelviews \
-        import CheckStateProxySortFilterModel # @IgnorePep8
+        import CheckStateProxySortFilterModel
     from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
     from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
     from pygui.qt.utils.plugins import PluginsManager
@@ -64,13 +67,6 @@ class ChooseDatasourcePage(QWizardPage):
 
     def __init__(self, _parent):
         QWizardPage.__init__(self, parent=_parent)
-        self.progressBarManager = ProgressBarManager()
-
-    def closeEvent(self, event):
-        self.progressBarManager.close()
-
-    def hideEvent(self, event):
-        self.progressBarManager.stop()
 
     def initializePage(self):
         title_I18N(self, "datasource.page.title", "Datasource chooser")
@@ -160,12 +156,12 @@ class ChooseDatasourcePage(QWizardPage):
                         model=QStandardItemModel(self),
                         onClickedAction=self.onClickedAction,
                         wizardButtons=(QWizard.NextButton,),
-                        wizard=self.wizard(),
+                        wizard_handler=self.wizard,
                         sorting=True,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
     def __createProgressBarComposite__(self, parent):
-        self.progressBarManager.setParams(parent, hidden=True)
+        self.progressBar = ProgressBarManager(self, hidden=True)
 
     def __createFilesOperationsComposite__(self, parent):
         filesOperations = CompositeCommon(parent,
@@ -205,66 +201,80 @@ class ChooseDatasourcePage(QWizardPage):
             self.reload()
 
     def checkAllAction(self):
-        self.progressBarManager.start(before=self.beforeProgressBarAction,
-                                      progressJob=self.checkProgressBarAction,
-                                      after=self.afterProgressBarAction)
+        self.__checkUncheckAllAction__(True)
 
     def uncheckAllAction(self):
-        self.progressBarManager.start(before=self.beforeProgressBarAction,
-                                    progressJob=self.uncheckProgressBarAction,
-                                    after=self.afterProgressBarAction)
+        self.__checkUncheckAllAction__(False)
+
+    def __checkUncheckAllAction__(self, check=True):
+        self.progressBar.start(
+                    CounterProgressJob(self.filesTableView.getRowCount()),
+                    self.__checkRowFilesTableView__ if check else \
+                        self.__uncheckRowFilesTableView__,
+                    before=self.beforeProgressBarAction,
+                    after=self.afterProgressBarAction)
 
     def filePreviewAction(self):
         showFilesPreviewDialog(
                     self.filesTableView.getSelectedPathAndFilename())
 
     def reload(self):
+        self.changeEnablemend(True)
         if self.rootDirLabel.text():
-            self.progressBarManager.start(
-                    before=self.beforeTableViewProgressAction,
-                    progressJob=self.tableViewProgressBarAction,
-                    after=self.afterTableViewProgressAction)
+            self.progressBar.start(  # self.__filesTableViewProgressJob__(),
+                 ProgressJob(ChooseDatasourcePage.FilesProgressIterator(self)),
+                 self.__addFileToTableView__,
+                 before=self.beforeTableViewProgressAction,
+                 after=self.afterTableViewProgressAction)
 
     def beforeTableViewProgressAction(self):
         self.filesTableView.clear()
         self.changeEnablemend(False)
 
-    def tableViewProgressBarAction(self):
-        iteratorFlag = QDirIterator.Subdirectories \
-                if self.recursively.isChecked() \
-                else QDirIterator.NoIteratorFlags
+    class FilesProgressIterator(AbstractProgressIterator):
+        def __init__(self, parent_context, parent=None,):
+            super(ChooseDatasourcePage.FilesProgressIterator, self).__init__(
+                                                                        parent)
+            self.parent_context = parent_context
 
-        nameFilters = QStringList(self.filesExtension.text()) \
-                    if len(self.filesExtension.text()) > 0 \
-                        and not self.filesExtension.text() \
-                            in ("*", "*.*", "", None) \
+        def getIterator(self):
+            iteratorFlag = QDirIterator.Subdirectories \
+                            if self.parent_context.recursively.isChecked() \
+                            else QDirIterator.NoIteratorFlags
+            nameFilters = QStringList(
+                    self.parent_context.filesExtension.text()) \
+                    if len(self.parent_context.filesExtension.text()) > 0 \
+                            and not self.parent_context.filesExtension.text() \
+                                in ("*", "*.*", "", None) \
                     else QStringList()
+            self.iterator = QDirIterator(
+                                self.parent_context.rootDirLabel.text(),
+                                nameFilters,
+                                QDir.Filters(QDir.Files),
+                                iteratorFlag)
+            return self.iterator
 
-        self.dir_iterator = QDirIterator(self.rootDirLabel.text(),
-                                    nameFilters,
-                                    QDir.Filters(QDir.Files),
-                                    iteratorFlag)
-        while(self.dir_iterator.next()):
-            if self.progressBarManager.update() == False:
-                break
-            infoFile = self.dir_iterator.fileInfo()
-            if infoFile.isFile() == True and infoFile.size() > 0:
-                if self.progressBarManager.isStopped() == True:
-                    break
-                if self.filesExtension.text() in ("*", "*.*", "", None):
-                    if (sys.platform == 'win32' \
-                        and infoFile.isExecutable() == True) or \
-                        is_text_file(infoFile.filePath(),
-                                    self.onlyKnownTypes.checkState()) == False:
-                            continue
-                checkable = QStandardItem("")
-                checkable.setCheckable(True)
-                filename = QStandardItem(infoFile.fileName())
-                size = QStandardItem(str(infoFile.size()))
-                path = QStandardItem(infoFile.path())
-                if self.progressBarManager.isStopped() == True:
-                    break
-                self.filesTableView.addRow((checkable, filename, size, path))
+        def hasNext(self):
+            return len(self.iterator.next()) > 0
+
+        def next(self):
+            return self.iterator.fileInfo()
+
+    def __addFileToTableView__(self, fileInfo):
+        if fileInfo.size() == 0 or fileInfo.isFile() == False:
+            return
+        if self.filesExtension.text() in ("*", "*.*", "", None):
+            if (sys.platform == 'win32' and fileInfo.isExecutable() == True) \
+                or is_text_file(fileInfo.filePath(),
+                                self.onlyKnownTypes.checkState()) == False:
+                return
+        #print('File added')
+        checkable = QStandardItem("")
+        checkable.setCheckable(True)
+        filename = QStandardItem(fileInfo.fileName())
+        size = QStandardItem(str(fileInfo.size()))
+        path = QStandardItem(fileInfo.path())
+        self.filesTableView.addRow((checkable, filename, size, path))
 
     def afterTableViewProgressAction(self):
         self.filesTableView.resizeColumnsToContents()
@@ -298,24 +308,18 @@ class ChooseDatasourcePage(QWizardPage):
     def beforeProgressBarAction(self):
         self.changeEnablemend(False)
 
-    def checkProgressBarAction(self):
-        self.__checkingProgressBarAction__(Qt.Checked)
-
     def afterProgressBarAction(self):
         self.filesTableView.changeCompleteState()
         self.changeEnablemend(True)
 
-    def uncheckProgressBarAction(self):
-        self.__checkingProgressBarAction__(Qt.Unchecked)
-
-    def __checkingProgressBarAction__(self, checked):
-        for idx in range(self.filesTableView.getRowCount()):
-            if self.progressBarManager.update() == False:
-                break
-            self.filesTableView.setCheckedRowState(idx, checked)
-
     def getDatasourceModel(self):
         return self.filesTableView.getModel()
+
+    def __checkRowFilesTableView__(self, idx):
+        self.filesTableView.setCheckedRowState(idx, Qt.Checked)
+
+    def __uncheckRowFilesTableView__(self, idx):
+        self.filesTableView.setCheckedRowState(idx, Qt.Unchecked)
 
 
 class ChooseColumnsDataPage(QWizardPage):
@@ -361,7 +365,7 @@ class ChooseColumnsDataPage(QWizardPage):
                                         model=model,
                                         onClickedAction=self.onClickedAction,
                                         wizardButtons=(QWizard.NextButton,),
-                                        wizard=self.wizard(),
+                                        wizard_handler=self.wizard,
                                         sorting=True)
         self.filesTableView.setColumnHidden(0, True)
 

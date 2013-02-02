@@ -188,9 +188,9 @@ class FilesTableView(object):
                 self.__completed_count__ = self.__completed_count__ - value
 
         #self.emit(SIGNAL("completeChanged()"))
-        if self.params.wizardButtons:
+        if self.params.wizardButtons and self.params.wizard_handler:
             for button in self.params.wizardButtons:
-                self.params.wizard.button(button).setEnabled(
+                self.params.wizard_handler().button(button).setEnabled(
                                                     self.isCompletedCount())
 
     def isCompletedCount(self):

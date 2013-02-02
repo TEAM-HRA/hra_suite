@@ -8,7 +8,8 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pygui.qt.utils.threads import ThreadTask
+    from pygui.qt.utils.signals import PROGRESS_ITERATOR_SIGNAL
+    from pygui.qt.utils.signals import PROGRESS_FINISH_SIGNAL
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import ProgressBarCommon
     from pygui.qt.utils.widgets import PushButtonCommon
@@ -16,26 +17,67 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class ProgressBarManager(object):
+class AbstractProgressIterator(QObject):
+    """
+    this class have to be implemented in a client's code
+    """
+    def __init__(self, parent=None):
+        super(AbstractProgressIterator, self).__init__(parent)
+
+    def hasNext(self):
+        return False
+
+    def next(self):
+        pass
+
+    def getIterator(self):
+        pass
+
+
+class ProgressJob(QObject):
+    def __init__(self, progressIterator, parent=None):
+        super(ProgressJob, self).__init__(parent)
+        self.progressIterator = progressIterator
+        self.finished = False
+
+    @pyqtSlot()
+    def started(self):
+        self.finished = False
+        self.progressIterator.getIterator()
+        counter = 0
+        while(self.progressIterator.hasNext()):
+            self.emit(PROGRESS_ITERATOR_SIGNAL, self.progressIterator.next())
+            # improves GUI responsiveness
+            if counter % 5 == 0:
+                QThread.currentThread().usleep(1)
+            counter = counter + 1
+            if self.finished:
+                break
+        self.emit(PROGRESS_FINISH_SIGNAL)
+
+    @pyqtSlot()
+    def finish(self):
+        self.finished = True
+
+
+class ProgressBarManager(QObject):
 
     def __init__(self, parent=None, **params):
-        self.progressBarComposite = None
-        self.threadTask = None
-        if parent:
-            self.setParams(parent, **params)
-
-    def setParams(self, parent, **params):
+        super(ProgressBarManager, self).__init__(parent)
         self.parent = parent
         self.params = Params(**params)
+        self.local_params = None
+
         self.progressBarComposite = CompositeCommon(parent,
-                                            layout=QHBoxLayout())
+                            layout=QHBoxLayout(),
+                            hide_event_handler=self.__hideEventHandler__)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
         self.progressBar = ProgressBarCommon(self.progressBarComposite,
                                              sizePolicy=sizePolicy)
+        if self.params.hidden:
+            self.progressBarComposite.hide()
         self.progressBar.setRange(0, 0)
         self.progressBar.setValue(0)
-        if self.params.hidden == True:
-            self.progressBarComposite.hide()
 
         self.stopButton = PushButtonCommon(
                                 self.progressBarComposite,
@@ -43,87 +85,82 @@ class ProgressBarManager(object):
                                 i18n_def="Stop")
         self.progressBarComposite.connect(self.stopButton,
                                           SIGNAL("clicked()"),
-                                          self.stop)
-        self.threadTask = None
-        self.local_params = None
+                                          self.finish)
 
-    def show(self):
-        if self.progressBarComposite:
-            self.progressBarComposite.show()
+    @pyqtSlot()
+    def finish(self):
+        self.progressBarComposite.hide()
+        if self.local_params and self.local_params.after:
+            self.local_params.after()
 
-    def hide(self, reset=True):
-        if self.progressBarComposite:
-            self.progressBarComposite.hide()
+    def __progressBarHandler__(self, _object):
+        if self.progress_handler:
+            self.progress_handler(_object)
+        #self.progressBar.setValue(0)
 
-    def reset(self):
-        if self.progressBarComposite:
-            self.progressBar.reset()
-
-    def setValue(self, value):
-        if self.progressBarComposite:
-            self.progressBar.setValue(0)
-
-    def tick(self):
-        self.setValue(0)
-
-    def start(self, **params):
+    def start(self, progress_job=None, progress_handler=None, **params):
         self.local_params = Params(**params)
+        if not progress_handler or not progress_job:
+            return
+        if self.params.hidden:
+            self.progressBarComposite.show()
+        self.progress_job = progress_job
+        self.progress_handler = progress_handler
+        self.thread = QThread()
+        self.progress_job.moveToThread(self.thread)
+
+        #self.connect(thread, SIGNAL('started()'), reader, reader.started)
+        self.connect(self.thread, SIGNAL('started()'), self.progress_job, SLOT('started()')) # @IgnorePep8
+        #self.connect(reader, SIGNAL('file_found(PyQt_PyObject)'), self, self.file_found) # @IgnorePep8
+        self.connect(self.progress_job, PROGRESS_ITERATOR_SIGNAL, self.__progressBarHandler__) # @IgnorePep8
+        self.connect(self.progress_job, PROGRESS_FINISH_SIGNAL, self.thread, SLOT('quit()')) # @IgnorePep8
+        self.connect(self.progress_job, PROGRESS_FINISH_SIGNAL, self, SLOT('finish()')) # @IgnorePep8
+        self.connect(self.progress_job, PROGRESS_FINISH_SIGNAL, self.progress_job, SLOT('finish()')) # @IgnorePep8
+        self.connect(self.progress_job, PROGRESS_FINISH_SIGNAL, self.progress_job, SLOT('deleteLater()')) # @IgnorePep8
+
+#        self.connect(self.parent, SIGNAL('close()'), self.thread, SLOT('quit()')) # @IgnorePep8
+#        self.connect(self.parent, SIGNAL('close()'), self.progress_job, SLOT('finish()')) # @IgnorePep8
+#        self.connect(self.parent, SIGNAL('deleteLater()'), self.thread, SLOT('quit()')) # @IgnorePep8
+#        self.connect(self.parent, SIGNAL('deleteLater()'), self.progress_job, SLOT('finish()')) # @IgnorePep8        
+
+        #self.connect(reader, SIGNAL('finished()'), thread, SLOT('deleteLater()')) # @IgnorePep8
+        #J.E self.connect(reader, SIGNAL('finished()'), thread, SLOT('quit()'))
+        #delete thread only when thread has really finished
+        self.connect(self.thread, PROGRESS_FINISH_SIGNAL, self.thread, SLOT('deleteLater()')) # @IgnorePep8
+        self.connect(self.thread, SIGNAL('terminated()'), self.thread, SLOT('deleteLater()')) # @IgnorePep8
+
         if self.local_params.before:
             self.local_params.before()
+        self.thread.start()
 
-        if self.threadTask:
-            self.threadTask.stop()
-            self.threadTask.setTask(self.local_params.progressJob)
-            self.threadTask.setUpdateTask(updateTaskName='taskUpdated',
-                                          updateAction=self.tick)
-            self.threadTask.setFinishTask(finishTaskName='taskFinished',
-                                          finishAction=self.stop)
-        else:
+    def __hideEventHandler__(self, event):
+        if not self.progressBarComposite.isVisible():
+            if hasattr(self, 'progress_job'):
+                self.progress_job.finish()
 
-            self.threadTask = ThreadTask(self.parent,
-                                        updateTaskName='taskUpdated',
-                                        updateAction=self.tick,
-                                        task=self.local_params.progressJob,
-                                        finishTaskName='taskFinished',
-                                        finishAction=self.stop)
-        if self.threadTask:
-            if self.params.hidden == True:
-                self.show()
-            self.reset()
-            if not self.params.progressJob == None:
-                self.threadTask.setTask(self.params.progressJob)
-            if not self.local_params.progressJob == None:
-                self.threadTask.setTask(self.local_params.progressJob)
-            self.threadTask.start()
 
-    def stop(self):
-        if self.progressBarComposite == None:
-            return
-        if self.threadTask == None:
-            return
-        if self.threadTask and self.threadTask.isStopped() == False:
-            self.threadTask.stop()
-        if not self.local_params == None:
-            if not self.local_params.after == None:
-                self.local_params.after()
-        if self.params.hidden == True:
-            self.hide()
-        self.reset()
+class CounterProgressIterator(AbstractProgressIterator):
+    """
+    this is a simple iterator runs over range of numbers
+    """
+    def __init__(self, size=0, start=0):
+        super(CounterProgressIterator, self).__init__(None)
+        self.size = size
+        self.idx = start
 
-    def close(self):
-        self.stop()
-        if self.threadTask:
-            self.threadTask.close()
+    def getIterator(self):
+        return range(self.size)
 
-    def isStopped(self):
-        if self.progressBarComposite == None:
-            return False
-        if not self.threadTask == None:
-            return self.threadTask.isStopped()
-        return True
+    def hasNext(self):
+        return self.idx < self.size
 
-    def update(self):
-        if self.threadTask:
-            if self.isStopped() == False:
-                self.threadTask.emitUpdateTask()
-        return not self.isStopped()
+    def next(self):
+        idx = self.idx
+        self.idx = self.idx + 1
+        return idx
+
+
+class CounterProgressJob(ProgressJob):
+    def __init__(self, size, parent=None):
+        super(CounterProgressJob, self).__init__(CounterProgressIterator(size),
+                                                 parent)

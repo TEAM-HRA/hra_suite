@@ -163,6 +163,12 @@ class WidgetCommon(QWidget, Common):
     def __init__(self, parent, **params):
         super(WidgetCommon, self).__init__(parent)
         prepareWidget(parent=parent, widget=self, **params)
+        self.params = Params(**params)
+
+    def hideEvent(self, event):
+        if self.params.hide_event_handler:
+            self.params.hide_event_handler(event)
+        super(WidgetCommon, self).hideEvent(event)
 
 
 class LabelCommon(QLabel, Common):

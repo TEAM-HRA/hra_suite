@@ -39,6 +39,12 @@ ADD_ACTIVITY_SIGNAL = SIGNAL('add_activity(PyQt_PyObject)')
 CLEAR_ACTIVITIES_SIGNAL = SIGNAL('clear_activities()')
 
 
+PROGRESS_ITERATOR_SIGNAL = SIGNAL('progress_iterator_item(PyQt_PyObject)')
+
+#signal emitted when progress bar emits finish signal
+PROGRESS_FINISH_SIGNAL = SIGNAL('finish()')
+
+
 class SignalDispatcher(QObject):
     """
     tool class - dispatcher for custom signals,
