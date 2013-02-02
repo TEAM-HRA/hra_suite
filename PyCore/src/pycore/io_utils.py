@@ -54,22 +54,22 @@ def is_text_file(filepath, only_known_types=False):
     if not filetype == None:
         if filetype.startswith('text'):
             return True
-    else:
-        if only_known_types == False:
-            _file = None
-            try:
-                _file = file(filepath)
-                headlines = head(_file, lines=3)
-                for line in headlines:
-                    line.decode('ascii')
-                return True
-            except UnicodeError:
-                pass
-            except IOError:
-                pass
-            finally:
-                if not _file == None:
-                    _file.close()
+
+    if only_known_types == False:
+        _file = None
+        try:
+            _file = file(filepath)
+            headlines = head(_file, lines=3)
+            for line in headlines:
+                line.strip('\r\n').strip('\n').decode('ascii')
+            return True
+        except UnicodeError:
+            pass
+        except IOError:
+            pass
+        finally:
+            if not _file == None:
+                _file.close()
     return False
 
 
