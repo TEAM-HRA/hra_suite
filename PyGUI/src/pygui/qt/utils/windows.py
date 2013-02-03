@@ -20,6 +20,7 @@ try:
     from pygui.qt.utils.widgets import PlainTextEditCommon
     from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
+    from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
     from pygui.qt.activities.activities import ActivityDockWidget
     from pygui.qt.menu.menus import QTMenuBuilder
     from pycore.globals import GLOBALS
@@ -178,10 +179,18 @@ class FilesPreviewDialog(QDialog):
                         else [filespaths]
 
         filesPreviewTabWidget = TabWidgetCommon(self)
-        for filepath in filespaths:
-            filename = join(filepath.pathname, filepath.filename)
-            tab = self.__createFilePreview__(filesPreviewTabWidget, filename)
-            filesPreviewTabWidget.addTab(tab, 'File: ' + filename)
+        progressManager = ProgressDialogManager(self,
+                                        label_text="Opening files ...",
+                                        max_value=len(filespaths))
+        with progressManager as progress:
+            for filepath in filespaths:
+                if (progress.wasCanceled()):
+                    break
+                progress.increaseCounter()
+                filename = join(filepath.pathname, filepath.filename)
+                tab = self.__createFilePreview__(filesPreviewTabWidget,
+                                                 filename)
+                filesPreviewTabWidget.addTab(tab, 'File: ' + filename)
 
         closeButton = PushButtonCommon(self, i18n="close", i18n_def="Close")
         self.connect(closeButton, SIGNAL("clicked()"), self, SLOT("reject()"))
