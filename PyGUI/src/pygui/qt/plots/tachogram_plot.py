@@ -14,6 +14,8 @@ try:
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCallableCloseHandler
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.plots.tachogram_plot_plot import TachogramPlotPlot
+    from pygui.qt.utils.signals import SignalDispatcher
+    from pygui.qt.utils.signals import TAB_WIDGET_ADDED_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -22,20 +24,16 @@ class TachogramPlotManager(TabWidgetCommon):
     def __init__(self, parent, **params):
         super(TachogramPlotManager, self).__init__(parent, **params)
 
-    def addTachogramPlots(self, files_specifications, allow_duplication=False):
-        first = True
-        count_opened = 0
-        for file_specification in files_specifications:
+    def addTachogramPlot(self, file_specification, allow_duplication=False,
+                         first_focus=False):
+        if file_specification:
             object_name = self.__getObjectName__(file_specification)
             if allow_duplication == False and self.tabExists(object_name):
-                continue
+                return
             tab = self.__createTachogramTab__(file_specification, object_name)
-            if first:
-                first = False
+            if tab and first_focus:
                 self.setTabFocus(tab)
-            if tab:
-                count_opened = count_opened + 1
-        return count_opened
+            return tab
 
     def createInitialPlot(self):
         self.__initial_tab__ = MainWindowCommon(self)
@@ -55,6 +53,7 @@ class TachogramPlotManager(TabWidgetCommon):
         tachogramTabWidget.setObjectName(object_name)
         self.addTab(tachogramTabWidget,
                     self.getNextTitle(file_specification.filename))
+        SignalDispatcher.broadcastSignal(TAB_WIDGET_ADDED_SIGNAL)
         return tachogramTabWidget
 
     def __getObjectName__(self, file_specification):

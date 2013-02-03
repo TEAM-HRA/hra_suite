@@ -15,6 +15,7 @@ try:
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
+    from pygui.qt.utils.signals import TAB_WIDGET_ADDED_SIGNAL
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.widgets import ListWidgetItemCommon
     from pygui.qt.custom_widgets.splitter import SplitterWidget
@@ -22,6 +23,7 @@ try:
     from pygui.qt.custom_widgets.toolbars import ToolBarManager
     from pygui.qt.custom_widgets.toolbars import CheckUncheckToolBarWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetItemCommon
+    from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
     from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
     from pygui.qt.plots.tachogram_plot import TachogramPlotManager
 except ImportError as error:
@@ -54,7 +56,7 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
     def __createDatasourceListWidget__(self):
         self.__datasourceListWidget__ = \
             DatasourceListWidget(self.__splitter__, self.params.model,
-                add_tachogram_plots_handler=self.__addTachogramPlots__,
+                add_tachogram_plot_handler=self.__addTachogramPlot__,
                 close_tachogram_plot_handler=self.closeTab,
                 close_tachograms_handler=self.__closeTachogramsHandler__)
         if self.__splitter__.sizesLoaded() == False:
@@ -70,17 +72,24 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
             self.__splitter__.setStretchFactor(idx, 20)
         SignalDispatcher.addSignalSubscriber(self, TAB_WIDGET_CLOSE_SIGNAL,
                                             self.__closeTachogramPlot__)
+        SignalDispatcher.addSignalSubscriber(self, TAB_WIDGET_ADDED_SIGNAL,
+                                            self.__tachogramPlotAdded__)
 
-    def __addTachogramPlots__(self, files_specifications, allow_duplication):
-        return self.__tachogramsManager__.addTachogramPlots(
+    def __addTachogramPlot__(self, files_specifications, allow_duplication,
+                             first_focus):
+        return self.__tachogramsManager__.addTachogramPlot(
                                         files_specifications,
-                                        allow_duplication=allow_duplication)
+                                        allow_duplication=allow_duplication,
+                                        first_focus=first_focus)
 
     def __closeTachogramsHandler__(self):
         if AreYouSureWindow(self, title='Closing all tachograms plots'):
             self.__tachogramsManager__.closeAllTabs()
             return True
         return False
+
+    def __tachogramPlotAdded__(self):
+        self.__datasourceListWidget__.enabledCloseAllTachogramsButton(True)
 
     def __closeTachogramPlot__(self):
         """
@@ -158,11 +167,22 @@ class DatasourceListWidget(WidgetCommon):
         self.__showTachograms__(self.__getFilesSpecifications__([listItem]))
 
     def __showTachograms__(self, files_specifications):
-        if self.params.add_tachogram_plots_handler:
-            if self.params.add_tachogram_plots_handler(files_specifications,
-                    self.__allowTachogramsDuplicationButton__.isChecked()) > 0:
-                #if some tachograms plots are successfully opened
-                self.__closeAllTachogramsButton__.setEnabled(True)
+        progressManager = ProgressDialogManager(self,
+                                        label_text="Create tachograms",
+                                        max_value=len(files_specifications))
+        firstFocus = True
+        checked = self.__allowTachogramsDuplicationButton__.isChecked()
+        with progressManager as progress:
+            for idx in range(progress.maximum()):
+                if (progress.wasCanceled()):
+                    break
+                progress.increaseCounter()
+                tachogram_plot = self.params.add_tachogram_plot_handler(
+                                            files_specifications[idx],
+                                            checked, firstFocus)
+                if firstFocus and tachogram_plot:
+                    firstFocus = False
+
         self.__datasourceList__.clearSelection()
 
     def __enabledPrecheckHandler__(self, widget):
