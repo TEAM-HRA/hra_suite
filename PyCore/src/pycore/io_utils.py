@@ -13,6 +13,7 @@ from mimetypes import guess_type
 from tailer import head  # @UnresolvedImport
 from pycore.misc import contains_letter
 from pycore.misc import get_separator_between_numbers
+import sys
 
 
 def get_filenames(path, depth=1):
@@ -54,6 +55,8 @@ def is_text_file(filepath, only_known_types=False):
     if not filetype == None:
         if filetype.startswith('text'):
             return True
+        if sys.platform == 'win32':
+            return False
 
     if only_known_types == False:
         _file = None
