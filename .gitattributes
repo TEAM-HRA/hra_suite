@@ -134,6 +134,8 @@ PySettings/src/settings/i18n/__init__.py -text
 PySettings/src/settings/i18n/i18n_en.properties -text
 PySettings/src/settings/icons/User-Group.ico -text
 PySettings/src/settings/icons/__init__.py -text
+PySettings/src/settings/icons/graph_button.ico -text
+PySettings/src/settings/icons/scatter_plot_button.ico -text
 PySettings/src/settings/icons/toolbar_check_button.ico -text
 PySettings/src/settings/icons/toolbar_close_button.ico -text
 PySettings/src/settings/icons/toolbar_maximum_button.ico -text
