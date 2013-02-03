@@ -113,28 +113,6 @@ class DatasourceListWidget(WidgetCommon):
                 toolbar_close_handler=self.params.close_tachogram_plot_handler)
         self.layout().addWidget(toolbars)
 
-        self.__filesPreviewButton__ = PushButtonCommon(self,
-                    i18n="poincare.plot.files.preview.button",
-                    i18n_def="Files preview",
-                    enabled=False,
-                    clicked_handler=self.__filesPreviewHandler__,
-                    enabled_precheck_handler=self.__enabledPrecheckHandler__)
-
-        self.__datasourceList__ = \
-            ListWidgetCommon(self,
-                list_item_clicked_handler=self.__datasourceItemClickedHandler__, # @IgnorePep8
-                list_item_double_clicked_handler=self.__datasourceDoubleItemClickedHandler__, # @IgnorePep8
-                selectionMode=QAbstractItemView.MultiSelection,
-                selectionBehavior=QAbstractItemView.SelectRows)
-        if len(model) > 0:
-            for row in range(len(model)):
-                fileSpecification = model[row]
-                ListWidgetItemCommon(self.__datasourceList__,
-                                     text=fileSpecification.filename,
-                                     data=fileSpecification)
-        else:
-            ListWidgetItemCommon(self.__datasourceList__,
-                                 text='model not specified or incorrect type')
         self.__showTachogramsButton__ = PushButtonCommon(self,
                     i18n="poincare.plot.show.tachograms.button",
                     i18n_def="Show tachograms",
@@ -153,6 +131,29 @@ class DatasourceListWidget(WidgetCommon):
                     i18n_def="Close all tachograms",
                     enabled=False,
                     clicked_handler=self.__closeTachogramsHandler__)
+
+        self.__datasourceList__ = \
+            ListWidgetCommon(self,
+                list_item_clicked_handler=self.__datasourceItemClickedHandler__, # @IgnorePep8
+                list_item_double_clicked_handler=self.__datasourceDoubleItemClickedHandler__, # @IgnorePep8
+                selectionMode=QAbstractItemView.MultiSelection,
+                selectionBehavior=QAbstractItemView.SelectRows)
+        if len(model) > 0:
+            for row in range(len(model)):
+                fileSpecification = model[row]
+                ListWidgetItemCommon(self.__datasourceList__,
+                                     text=fileSpecification.filename,
+                                     data=fileSpecification)
+        else:
+            ListWidgetItemCommon(self.__datasourceList__,
+                                 text='model not specified or incorrect type')
+
+        self.__filesPreviewButton__ = PushButtonCommon(self,
+                    i18n="poincare.plot.files.preview.button",
+                    i18n_def="Files preview",
+                    enabled=False,
+                    clicked_handler=self.__filesPreviewHandler__,
+                    enabled_precheck_handler=self.__enabledPrecheckHandler__)
 
     def __datasourceItemClickedHandler__(self, listItem):
         self.emit(ENABLEMEND_SIGNAL, listItem.isSelected())
