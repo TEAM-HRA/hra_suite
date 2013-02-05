@@ -42,8 +42,12 @@ def contains_letter(_string):
     return not search(r'[a-zA-Z]+', _string) == None
 
 
-def is_empty(_string):
-    return True if _string == None or len(_string) == 0 else False
+def is_empty(_value):
+    if _value == None:
+        return True
+    elif hasattr(_value, '__len__'):
+        return len(_value) == 0
+    return False
 
 
 def camel_format(_string):
