@@ -9,7 +9,8 @@ try:
     from pygui.qt.utils.settings import DEFAULT_SETTINGS_GROUP
     from pygui.qt.utils.windows import AreYouSureWindow
     from pygui.qt.utils.windows import InformationWindow
-    from pygui.qt.activities.activities import ActivityManager
+    from pygui.qt.utils.signals import SignalDispatcher
+    from pygui.qt.utils.signals import CLEAR_ACTIVITIES_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -24,5 +25,5 @@ def clearSettings(dargs):
 def clearActivities(dargs):
     parent = dargs.get('parent', None)
     if AreYouSureWindow(parent, title='Clearing activities'):
-        ActivityManager.clearActivities()
+        SignalDispatcher.broadcastSignal(CLEAR_ACTIVITIES_SIGNAL)
         InformationWindow(message="Activities cleared !")

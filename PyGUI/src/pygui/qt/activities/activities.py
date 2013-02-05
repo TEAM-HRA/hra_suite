@@ -22,6 +22,7 @@ try:
     from pygui.qt.utils.widgets import DockWidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import ListWidgetItemCommon
+    from pygui.qt.utils.widgets import PushButtonCommon
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -41,7 +42,6 @@ class ActivityManager(QObject):
     def clearActivities(activity_group=None):
         SettingsFactory.clearSettings(
                             ActivityManager.activity_group_id(activity_group))
-        SignalDispatcher.broadcastSignal(CLEAR_ACTIVITIES_SIGNAL)
 
     @staticmethod
     def activity_group_id(activity_group):
@@ -89,15 +89,27 @@ class ActivityDockWidget(DockWidgetCommon):
         self.setObjectName("ActivityDockWidget")
         self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea |
                              Qt.TopDockWidgetArea | Qt.BottomDockWidgetArea)
-        self.listWidget = ListWidgetCommon(self,
-                not_add_widget_to_parent_layout=True,
-                list_item_clicked_handler=self.__list_item_handler__)
+        layout = QVBoxLayout()
+        layout.setMargin(0)  # no margin for internal layout
+        self.dockComposite = CompositeCommon(self, layout=layout,
+                                        not_add_widget_to_parent_layout=True)
+        self.listWidget = ListWidgetCommon(self.dockComposite,
+                list_item_double_clicked_handler=self.__list_item_handler__,
+                selectionMode=QAbstractItemView.MultiSelection,
+                sizePolicy=QSizePolicy(QSizePolicy.Expanding,
+                                       QSizePolicy.Expanding))
         for activity in ActivityManager.getActivities(PLUGIN_ACTIVITY_TYPE):
             if activity:
                 ListWidgetItemCommon(self.listWidget,
                                  text=activity.label,
                                  data=activity)
-        self.setWidget(self.listWidget)
+
+        self.clearAll = PushButtonCommon(self.dockComposite,
+                            i18n="clear.all.activity.button",
+                            i18n_def="Clear all activities",
+                            clicked_handler=self.__clear_list__)
+
+        self.setWidget(self.dockComposite)
         parent.addDockWidget(Qt.RightDockWidgetArea, self)
 
         SignalDispatcher.addSignalSubscriber(self,
@@ -121,6 +133,7 @@ class ActivityDockWidget(DockWidgetCommon):
                                  data=activity)
 
     def __clear_list__(self):
+        ActivityManager.clearActivities()
         self.listWidget.clear()
 
 
