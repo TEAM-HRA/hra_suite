@@ -22,11 +22,11 @@ class DatasourceFilesSpecificationModel(QStandardItemModel):
         self.setHorizontalHeaderLabels(
                             get_namedtuple_fields_as_list(FileSpecification))
 
-    def appendRow(self, _path, _filename, _dataIndex, _annotationIndex,
-                  _separator):
+    def appendRow(self, _path, _filename, _data_index, _annotation_index,
+                  _time_index, _separator):
         row = [QStandardItem(QString(empty_string(item)))
-                for item in [_path, _filename, _dataIndex,
-                             _annotationIndex, _separator]]
+                for item in [_path, _filename, _data_index,
+                             _annotation_index, _time_index, _separator]]
         super(DatasourceFilesSpecificationModel, self).appendRow(row)
 
     def fileSpecification(self, row):
