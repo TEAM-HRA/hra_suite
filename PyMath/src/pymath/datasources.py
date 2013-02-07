@@ -19,16 +19,18 @@ except ImportError as error:
 
 class DataSource(object):
 
-    def __init__(self, signal=None, annotation=None):
+    def __init__(self, signal=None, annotation=None, time=None):
         '''
         Constructor
         '''
         if (isinstance(signal, DataSource)):
             self.signal = signal.signal
             self.annotation = signal.annotation
+            self.time = signal.time
         else:
             self.signal = signal
             self.annotation = annotation
+            self.time = time
 
     @property
     def signal(self):
@@ -43,12 +45,21 @@ class DataSource(object):
         return self.__annotation__
 
     @annotation.setter
-    def annotation(self, anntotation):
-        self.__annotation__ = anntotation
+    def annotation(self, annotation):
+        self.__annotation__ = annotation
+
+    @property
+    def time(self):
+        return self.__time__
+
+    @time.setter
+    def time(self, time):
+        self.__time__ = time
 
     def __str__(self):
         return (self.__for_str__('signal', self.signal) + ' '
-              + self.__for_str__('annotation', self.annotation))
+              + self.__for_str__('annotation', self.annotation)
+              + self.__for_str__('time', self.time))
 
     def __for_str__(self, prefix, data):
         if hasattr(data, 'take') or hasattr(data, '__getslice__'):
@@ -88,6 +99,10 @@ class AnnotationColumnSpec(ColumnSpec):
 
 
 class SignalColumnSpec(ColumnSpec):
+    pass
+
+
+class TimeColumnSpec(ColumnSpec):
     pass
 
 
@@ -201,21 +216,30 @@ class FilesDataSources(object):
 class FileDataSource(object):
 
     HEADER_PATTERN = compile(r'\b[A-Za-z\[\]\-\%\#\!\@\$\^\&\*]*')
+    SIGNAL_IDENT = 'S'
+    ANNOTATION_IDENT = 'A'
+    TIME_IDENT = 'T'
 
     def __init__(self, **params):
-        #params: pathname, filename, data_index, annotation_index, separator
+        #params: pathname, filename, data_index, annotation_index, time_index, separator @IgnorePep8
         self.params = Params(**params)
         self.__file__ = os.path.join(self.params.pathname, self.params.filename) # @IgnorePep8
         self.__headers__ = None
-        self.__cols__ = [self.params.data_index,
-                         self.params.annotation_index] \
-                         if self.params.annotation_index \
-                            else [self.params.data_index]
+        self.__cols__ = []
+        self.__cols_idents__ = ""
+        if self.params.data_index:
+            self.__cols__.append(self.params.data_index)
+            self.__cols_idents__ += FileDataSource.SIGNAL_IDENT
+        if self.params.annotation_index:
+            self.__cols__.append(self.params.annotation_index)
+            self.__cols_idents__ += FileDataSource.ANNOTATION_IDENT
+        if self.params.time_index:
+            self.__cols__.append(self.params.time_index)
+            self.__cols_idents__ += FileDataSource.TIME_IDENT
 
     @property
     def headers(self):
         if self.__headers__ == None:
-
             self.__headers__ = []
             with open(self.__file__, 'r') as _file:
                 header_ok = False
@@ -235,8 +259,8 @@ class FileDataSource(object):
                self.__getSimpleDataSource__()
 
     def __getSimpleDataSource__(self):
-        signal = []
-        annotation = []
+
+        _data = [[]] * len(self.__cols__)
         with open(self.__file__, 'r') as _file:
             for _ in range(len(self.headers)):  # skip header lines
                 _file.readline()
@@ -244,38 +268,33 @@ class FileDataSource(object):
             for line in _file:
                 #contents = findall(r'\b[0-9\.]+', line)
                 contents = line.split(self.params.separator)
-                if self.params.data_index:
-                    signal.append(float(contents[self.params.data_index]))
-                if self.params.annotation_index:
-                    annotation.append(int(float(contents[self.params.annotation_index]))) #@IgnorePep8
+                for index in self.__cols__:
+                    _data[index].append(contents[self.__cols__[index]])
 
-        return self.__createDataSource__(array(signal), array(annotation))
+        return self.__createDataSource__(map(array, _data))
 
     def __getNumPyDataSource__(self):
-        signal = None
-        annotation = None
+        _data = [None] * len(self.__cols__)
+        _data = loadtxt(self.__file__,
+                        skiprows=len(self.headers),
+                        usecols=self.__cols__,
+                        unpack=True,
+                        delimiter=self.params.separator)
+        return self.__createDataSource__(_data)
 
-        if self.params.annotation_index == None:
-            signal = loadtxt(self.__file__,
-                             skiprows=len(self.headers),
-                             usecols=self.__cols__,
-                             unpack=True,
-                             delimiter=self.params.separator)
-        else:
-            (signal, annotation) = loadtxt(self.__file__,
-                                        skiprows=len(self.headers),
-                                        usecols=self.__cols__,
-                                        unpack=True,
-                                        delimiter=self.params.separator)
+    def __createDataSource__(self, _data):
+        indexes = map(self.__cols_idents__.find,
+                      [FileDataSource.SIGNAL_IDENT,
+                       FileDataSource.ANNOTATION_IDENT,
+                       FileDataSource.TIME_IDENT])
+        (signal, annotation, time) = \
+              [(None if index == -1 else \
+                _data[index:index + 1][0]) for index in indexes]
+        if annotation == None:
+            annotation = 0 * signal
+        if not annotation == None:
             annotation = annotation.astype(int)
 
-        return self.__createDataSource__(signal, annotation)
-
-    def __createDataSource__(self, signal, annotation):
-        if self.params.annotation_index == self.params.data_index \
-            or self.params.annotation_index == None:
-            annotation = 0 * signal
-
-        data_source = DataSource(signal, annotation)
+        data_source = DataSource(signal, annotation, time)
         data_source.filename = self.__file__  # set up an additional property
         return data_source
