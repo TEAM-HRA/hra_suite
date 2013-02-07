@@ -307,7 +307,7 @@ class ChooseColumnsDataPage(QWizardPage):
         self.headersTablePreview = None
 
         self.__dataFilesHeaders__ = {}
-        self.__dataColumnIndexes__ = {}  # includes selected data column indexes @IgnorePep8
+        self.__signalColumnIndexes__ = {}  # includes selected signal column indexes @IgnorePep8
         self.__annotationColumnIndexes__ = {}  # includes selected annotation column indexes @IgnorePep8
         self.__timeColumnIndexes__ = {}  # includes selected [optional] time column indexes @IgnorePep8
 
@@ -404,21 +404,21 @@ class ChooseColumnsDataPage(QWizardPage):
             for num, header in enumerate(headerLine):
                 widget = HeaderWidget(self.__widgetsHorizontalHeader__,
                                       header,
-                                      self.__dataWidgetHandler__,
+                                      self.__signalWidgetHandler__,
                                       self.__annotationWidgetHandler__,
                                       self.__timeWidgetHandler__)
                 self.__headerWidgets__.append(widget)
                 # some value of global indicator have to be not None
                 if not nvl(*self.__globalIndex__) == None:
                     widget.enabledAll(False)
-                    if self.__globalIndex__.data == num:  # data index
-                        widget.check(ColumnType.data)
+                    if self.__globalIndex__.signal == num:  # signal index
+                        widget.check(ColumnType.signal)
                     elif self.__globalIndex__.annotation == num:  # annotation index @IgnorePep8
                         widget.check(ColumnType.annotation)
                     if self.__globalIndex__.time == num:  # time index
                         widget.check(ColumnType.time)
-                elif self.__dataColumnIndexes__.get(pathFile) == num:
-                    widget.check(ColumnType.data)
+                elif self.__signalColumnIndexes__.get(pathFile) == num:
+                    widget.check(ColumnType.signal)
                 elif self.__annotationColumnIndexes__.get(pathFile) == num:
                     widget.check(ColumnType.annotation)
                 elif self.__timeColumnIndexes__.get(pathFile) == num:
@@ -463,7 +463,7 @@ class ChooseColumnsDataPage(QWizardPage):
                                     i18n="global.data.column.index",
                                     i18n_def="Global columns indexes",
                                     clicked_handler=self.__globalClicked__)
-        if self.__globalIndex__.data:
+        if self.__globalIndex__.signal:
             self.__globalCheckBox__.setChecked(True)
 
     def __createDataFileHeader__(self, pathFile, _separator):
@@ -500,8 +500,8 @@ class ChooseColumnsDataPage(QWizardPage):
             if pathFile:
                 self.__createDataFileHeader__(pathFile, _separator)
 
-    def __dataWidgetHandler__(self, _widget):
-        self.__widgetHandler__(_widget, ColumnType.data)
+    def __signalWidgetHandler__(self, _widget):
+        self.__widgetHandler__(_widget, ColumnType.signal)
 
     def __annotationWidgetHandler__(self, _widget):
         self.__widgetHandler__(_widget, ColumnType.annotation)
@@ -515,19 +515,19 @@ class ChooseColumnsDataPage(QWizardPage):
         if checked:
             for num, widget in enumerate(self.__headerWidgets__):
                 if widget == _widget:
-                    if _type == ColumnType.data:
+                    if _type == ColumnType.signal:
                         _widget.uncheck(ColumnType.annotation)
-                        self.__dataColumnIndexes__[pathFile] = num
+                        self.__signalColumnIndexes__[pathFile] = num
                     elif _type == ColumnType.annotation:
-                        _widget.uncheck(ColumnType.data)
+                        _widget.uncheck(ColumnType.signal)
                         _widget.uncheck(ColumnType.time)
                         self.__annotationColumnIndexes__[pathFile] = num
                     elif _type == ColumnType.time:
                         _widget.uncheck(ColumnType.annotation)
                         self.__timeColumnIndexes__[pathFile] = num
                 else:
-                    if _type == ColumnType.data:
-                        widget.uncheck(ColumnType.data)
+                    if _type == ColumnType.signal:
+                        widget.uncheck(ColumnType.signal)
                     elif _type == ColumnType.annotation:
                         widget.uncheck(ColumnType.annotation)
                     elif _type == ColumnType.time:
@@ -535,8 +535,8 @@ class ChooseColumnsDataPage(QWizardPage):
 
             self.__globalCheckBox__.setEnabled(True)
         else:
-            if _type == ColumnType.data:
-                self.__dataColumnIndexes__[pathFile] = None
+            if _type == ColumnType.signal:
+                self.__signalColumnIndexes__[pathFile] = None
             elif _type == ColumnType.annotation:
                 self.__annotationColumnIndexes__[pathFile] = None
             elif _type == ColumnType.time:
@@ -544,22 +544,22 @@ class ChooseColumnsDataPage(QWizardPage):
 
     def __globalClicked__(self):
 
-        _data = None
+        _signal = None
         _annotation = None
         _time = None
         if self.__globalCheckBox__.isChecked():
             for num, widget in enumerate(self.__headerWidgets__):
-                if widget.isChecked(ColumnType.data):
-                    _data = num
+                if widget.isChecked(ColumnType.signal):
+                    _signal = num
                 if widget.isChecked(ColumnType.annotation):
                     _annotation = num
                 if widget.isChecked(ColumnType.time):
                     _time = num
-            index = ColumnType(_data, _annotation, _time)
-            if index.data == None:
+            index = ColumnType(_signal, _annotation, _time)
+            if index.signal == None:
                 self.__globalCheckBox__.setChecked(False)
                 InformationWindow(None,
-                        message='At least data column has to be selected !')
+                        message='At least signal column has to be selected !')
                 return
             else:
                 for num, widget in enumerate(self.__headerWidgets__):
@@ -579,7 +579,7 @@ class ChooseColumnsDataPage(QWizardPage):
             idx = model.mapToSource(model.index(row, 0))
             pathFile = self.filesTableView.getPathAndFilename(idx)
             if pathFile:
-                self.__dataColumnIndexes__[pathFile] = _globalIndex.data
+                self.__signalColumnIndexes__[pathFile] = _globalIndex.signal
 
                 if _globalIndex.annotation:  # annontation global index
                     self.__annotationColumnIndexes__[pathFile] = \
@@ -600,19 +600,19 @@ class ChooseColumnsDataPage(QWizardPage):
 
     def validatePage(self):
         filesSpecificationModel = DatasourceFilesSpecificationModel()
-        for (_path, _filename, _dataIndex, _annotationIndex, _timeIndex,
+        for (_path, _filename, _signalIndex, _annotationIndex, _timeIndex,
              _separator) in \
             self.__getFilesSpec__(indexes=True, separators=True):
-                if _dataIndex == None:
-                    ErrorWindow(message=("No data column for the file %s !"
+                if _signalIndex == None:
+                    ErrorWindow(message=("No signal column for the file %s !"
                                          % (_filename)))
                     return False
                 if _separator == None:
                     ErrorWindow(message=("No separator for file %s !"
                                          % (_filename)))
                     return False
-                filesSpecificationModel.appendRow(_path, _filename, _dataIndex,
-                                    _annotationIndex, _timeIndex, _separator)
+                filesSpecificationModel.appendRow(_path, _filename,
+                    _signalIndex, _annotationIndex, _timeIndex, _separator)
 
         PluginsManager.invokePlugin(PluginsNames.POINCARE_PLOT_PLUGIN_NAME,
                     inspect.stack(),
@@ -638,11 +638,11 @@ class ChooseColumnsDataPage(QWizardPage):
                     fileSpec.extend(pathFile)
 
                 if indexes == True:
-                    dataIndex = self.__dataColumnIndexes__.get(pathFile)
-                    if dataIndex == None and use_global_index == True and \
-                        not self.__globalIndex__.data == None:
-                        dataIndex = self.__globalIndex__.data
-                    fileSpec.append(dataIndex)
+                    signalIndex = self.__signalColumnIndexes__.get(pathFile)
+                    if signalIndex == None and use_global_index == True and \
+                        not self.__globalIndex__.signal == None:
+                        signalIndex = self.__globalIndex__.signal
+                    fileSpec.append(signalIndex)
 
                     annotationIndex = self.__annotationColumnIndexes__.get(
                                                                    pathFile)
@@ -668,7 +668,7 @@ class ChooseColumnsDataPage(QWizardPage):
                 filesSpec.append(tuple(fileSpec))
         return filesSpec
 
-ColumnType = collections.namedtuple('ColumnType', ['data', 'annotation', 'time']) # @IgnorePep8
+ColumnType = collections.namedtuple('ColumnType', ['signal', 'annotation', 'time']) # @IgnorePep8
 
 
 class HeaderWidget(QWidget):
@@ -682,9 +682,9 @@ class HeaderWidget(QWidget):
         LabelCommon(self, i18n_def=_header)
 
         self.__buttons__ = {}
-        self.__buttons__[ColumnType.data] = CheckBoxCommon(self,
-                                        i18n_def="data",
-                                        clicked_handler=self.__dataClicked__)
+        self.__buttons__[ColumnType.signal] = CheckBoxCommon(self,
+                                    i18n_def="signal",
+                                    clicked_handler=self.__signalClicked__)
         self.__buttons__[ColumnType.annotation] = CheckBoxCommon(self,
                                     i18n_def="annotation",
                                     clicked_handler=self.__annotationClicked__)
@@ -699,7 +699,7 @@ class HeaderWidget(QWidget):
     def __annotationClicked__(self):
         self.__annotationHandler__(self)
 
-    def __dataClicked__(self):
+    def __signalClicked__(self):
         self.__dataHandler__(self)
 
     def __timeClicked__(self):
@@ -718,7 +718,7 @@ class HeaderWidget(QWidget):
         self.__getButton__(_type).setEnabled(_enabled)
 
     def enabledAll(self, _enabled):
-        self.enabled(ColumnType.data, _enabled)
+        self.enabled(ColumnType.signal, _enabled)
         self.enabled(ColumnType.annotation, _enabled)
         self.enabled(ColumnType.time, _enabled)
 
