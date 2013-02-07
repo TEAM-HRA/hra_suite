@@ -221,14 +221,14 @@ class FileDataSource(object):
     TIME_IDENT = 'T'
 
     def __init__(self, **params):
-        #params: pathname, filename, data_index, annotation_index, time_index, separator @IgnorePep8
+        #params: pathname, filename, signal_index, annotation_index, time_index, separator @IgnorePep8
         self.params = Params(**params)
         self.__file__ = os.path.join(self.params.pathname, self.params.filename) # @IgnorePep8
         self.__headers__ = None
         self.__cols__ = []
         self.__cols_idents__ = ""
-        if self.params.data_index:
-            self.__cols__.append(self.params.data_index)
+        if self.params.signal_index:
+            self.__cols__.append(self.params.signal_index)
             self.__cols_idents__ += FileDataSource.SIGNAL_IDENT
         if self.params.annotation_index:
             self.__cols__.append(self.params.annotation_index)

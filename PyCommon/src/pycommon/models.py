@@ -12,23 +12,20 @@ except ImportError as error:
 
 FileSpecification = collections.namedtuple('FileSpecification',
     ["pathname", "filename",
-     "data_index", "annotation_index", "time_index", "separator"])
+     "signal_index", "annotation_index", "time_index", "separator"])
 
 FilePath = collections.namedtuple('FilePath', ["pathname", "filename"])
 
 
 def convert_file_specification(file_specification):
-    data_index = int(file_specification.data_index)
-    annotation_index = file_specification.annotation_index
-    time_index = None if is_empty(str(file_specification.time_index)) \
-                else file_specification.time_index
-    if not annotation_index == None and len(str(annotation_index)) == 0:
-        file_specification = file_specification._replace(annotation_index=None,
-                                                    data_index=data_index,
-                                                    time_index=time_index)
-    else:
-        file_specification = file_specification._replace(
-                                        annotation_index=int(annotation_index),
-                                        data_index=data_index,
+    (signal_index, annotation_index, time_index) = \
+        [(None if is_empty(str(index)) else int(index)) \
+         for index in [file_specification.signal_index,
+                      file_specification.annotation_index,
+                      file_specification.time_index]]
+
+    file_specification = file_specification._replace(
+                                        annotation_index=annotation_index,
+                                        signal_index=signal_index,
                                         time_index=time_index)
     return file_specification
