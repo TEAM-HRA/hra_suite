@@ -134,17 +134,23 @@ class Separator(object):
 
     @staticmethod
     def getSeparatorsSpec(label_handler=None):
-        labels = []
+        separators_specs = []
         for member in dir(Separator):
             separator = getattr(Separator, member)
             if isinstance(separator, __SeparatorSpec__):
                 if not separator == Separator.NONE:
                     if label_handler:
-                        labels.append(__SeparatorSpec__(separator.counter,
+                        separators_specs.append(
+                            __SeparatorSpec__(separator.counter,
                                 separator.sign, label_handler(separator)))
                     else:
-                        labels.append(separator)
-        return sorted(labels, key=lambda separator: separator.sign)
+                        separators_specs.append(separator)
+        return sorted(separators_specs, key=lambda separator: separator.sign)
+
+    @staticmethod
+    def getSeparatorsLabels(label_handler=None):
+        return [separator_spec.label for separator_spec
+                    in Separator.getSeparatorsSpec(label_handler)]
 
     @staticmethod
     def getSeparatorSign(sign):
