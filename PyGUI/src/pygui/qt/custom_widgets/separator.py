@@ -23,7 +23,7 @@ except ImportError as error:
 
 
 def separator_label_handler(separator):
-    i18n = separator._id
+    i18n = separator.id_
     i18n_def = separator.label
     if hasattr(separator.sign, '__len__') and len(separator.sign.strip()) > 0:
         return "%s [ %s ]" % (QT_I18N(i18n, i18n_def), separator.sign)
@@ -46,10 +46,10 @@ class DataSeparatorWidget(object):
         self.predefinedSeparatorsButtonsGroup = ButtonGroupCommon(
                                             self.predefinedSeparatorsComposite)
 
-        self.predefinedSeparatorsLabels = Separator.getSeparatorLabels(
+        self.predefinedSeparatorsSpecs = Separator.getSeparatorsSpec(
                                                     separator_label_handler)
-        for (_, _, label) in self.predefinedSeparatorsLabels:
-            if not label == Separator.CUSTOM.label:
+        for (_, _, label) in self.predefinedSeparatorsSpecs:
+            if not label == Separator.CUSTOM.label:  # @UndefinedVariable
                 predefinedSeparatorCheckBox = CheckBoxCommon(
                                             self.predefinedSeparatorsComposite)
                 predefinedSeparatorCheckBox.setText(label)
@@ -132,7 +132,7 @@ class DataSeparatorWidget(object):
     def __getPredefinedSeparatorSign__(self):
         button = self.predefinedSeparatorsButtonsGroup.checkedButton()
         if not button == None:
-            for (_, sign, label) in self.predefinedSeparatorsLabels:
+            for (_, sign, label) in self.predefinedSeparatorsSpecs:
                 if button.text() == label:
                     return sign
 

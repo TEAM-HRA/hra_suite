@@ -5,6 +5,7 @@ Created on 03-12-2012
 '''
 from re import findall
 from re import search
+import collections
 
 
 class Params(object):
@@ -100,24 +101,16 @@ def replace_all(_string, replacement, matches):
     return _string
 
 
-class __SeparatorSpec__(object):
+SeparatorItem = collections.namedtuple("SeparatorItem", "sign id_ label")
+
+
+class __SeparatorSpec__(SeparatorItem):
 
     COUNTER = 0
 
-    def __init__(self, sign, _id, _label):
-        self.sign = sign
-        self.__id__ = _id
-        self.__label__ = _label
+    def __init__(self, sign, id_, _label):
         __SeparatorSpec__.COUNTER = __SeparatorSpec__.COUNTER + 1
         self.counter = __SeparatorSpec__.COUNTER
-
-    @property
-    def label(self):
-        return self.__label__
-
-    @property
-    def _id(self):
-        return self.__id__
 
 
 class Separator(object):
@@ -140,16 +133,18 @@ class Separator(object):
         return Separator.__SEPARATORS__
 
     @staticmethod
-    def getSeparatorLabels(label_handler=None):
+    def getSeparatorsSpec(label_handler=None):
         labels = []
         for member in dir(Separator):
             separator = getattr(Separator, member)
             if isinstance(separator, __SeparatorSpec__):
                 if not separator == Separator.NONE:
-                    labels.append((separator.counter, separator.sign,
-                                label_handler(separator)
-                                    if label_handler else separator.label, ))
-        return sorted(labels, key=lambda separator: separator[0])
+                    if label_handler:
+                        labels.append(__SeparatorSpec__(separator.counter,
+                                separator.sign, label_handler(separator)))
+                    else:
+                        labels.append(separator)
+        return sorted(labels, key=lambda separator: separator.sign)
 
     @staticmethod
     def getSeparatorSign(sign):
