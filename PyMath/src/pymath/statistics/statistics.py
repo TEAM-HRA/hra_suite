@@ -68,6 +68,15 @@ class Statistic(DataSource):
             self.annotation = other.annotation
             return self.compute()
 
+    @staticmethod
+    def getSubclasses():
+        return Statistic.__subclasses__()
+
+    @staticmethod
+    def getSubclassesShortNames():
+        return [_class.__name__[:_class.__name__.rfind('Statistic')]
+                for _class in Statistic.getSubclasses()]
+
 
 class MeanStatistic(Statistic):
     '''
