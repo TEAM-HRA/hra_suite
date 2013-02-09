@@ -150,7 +150,8 @@ class Separator(object):
     @staticmethod
     def getSeparatorsLabels(label_handler=None):
         return [separator_spec.label for separator_spec
-                    in Separator.getSeparatorsSpec(label_handler)]
+                    in Separator.getSeparatorsSpec(label_handler)
+                        if not separator_spec == Separator.CUSTOM]
 
     @staticmethod
     def getSeparatorSign(sign):
