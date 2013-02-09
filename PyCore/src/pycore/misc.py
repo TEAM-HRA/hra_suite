@@ -98,3 +98,64 @@ def replace_all(_string, replacement, matches):
     for match in matches:
         _string = _string.replace(match, replacement)
     return _string
+
+
+class __SeparatorSpec__(object):
+
+    COUNTER = 0
+
+    def __init__(self, sign, _id, _label):
+        self.sign = sign
+        self.__id__ = _id
+        self.__label__ = _label
+        __SeparatorSpec__.COUNTER = __SeparatorSpec__.COUNTER + 1
+        self.counter = __SeparatorSpec__.COUNTER
+
+    @property
+    def label(self):
+        return self.__label__
+
+    @property
+    def _id(self):
+        return self.__id__
+
+
+class Separator(object):
+    NONE = __SeparatorSpec__('', '', '')
+    SPACE = __SeparatorSpec__(' ', 'separator.space', 'Space')
+    TAB = __SeparatorSpec__('\t', 'separator.tab', 'Tab')
+    SEMICOLON = __SeparatorSpec__(';', 'separator.semicolon', 'Semicolon')
+    DASH = __SeparatorSpec__('-', 'separator.dash', 'Dash')
+    COMMA = __SeparatorSpec__(',', 'separator.comma', 'Comma')
+    CUSTOM = __SeparatorSpec__(-1, 'separator.custom', 'Custom')
+
+    __SEPARATORS__ = None
+
+    @staticmethod
+    def getSeparators():
+        if not Separator.__SEPARATORS__:
+            Separator.__SEPARATORS__ = [getattr(Separator, name)
+                for name in dir(Separator)
+                if not name.startswith('get') and not name.startswith('__')]
+        return Separator.__SEPARATORS__
+
+    @staticmethod
+    def getSeparatorLabels(label_handler=None):
+        labels = []
+        for member in dir(Separator):
+            separator = getattr(Separator, member)
+            if isinstance(separator, __SeparatorSpec__):
+                if not separator == Separator.NONE:
+                    labels.append((separator.counter, separator.sign,
+                                label_handler(separator)
+                                    if label_handler else separator.label, ))
+        return sorted(labels, key=lambda separator: separator[0])
+
+    @staticmethod
+    def getSeparatorSign(sign):
+        for member in dir(Separator):
+            separator = getattr(Separator, member)
+            if isinstance(separator, __SeparatorSpec__) \
+                and separator.sign == sign:
+                return separator
+        return Separator.CUSTOM if not sign == None else Separator.NONE

@@ -17,8 +17,18 @@ try:
     from pygui.qt.utils.windows import InformationWindow
     from pycore.misc import is_empty
     from pycore.misc import Params
+    from pycore.misc import Separator
 except ImportError as error:
     ImportErrorMessage(error, __name__)
+
+
+def separator_label_handler(separator):
+    i18n = separator._id
+    i18n_def = separator.label
+    if hasattr(separator.sign, '__len__') and len(separator.sign.strip()) > 0:
+        return "%s [ %s ]" % (QT_I18N(i18n, i18n_def), separator.sign)
+    else:
+        return QT_I18N(i18n, i18n_def)
 
 
 class DataSeparatorWidget(object):
@@ -36,9 +46,10 @@ class DataSeparatorWidget(object):
         self.predefinedSeparatorsButtonsGroup = ButtonGroupCommon(
                                             self.predefinedSeparatorsComposite)
 
-        self.predefinedSeparatorsLabels = SeparatorSign.getSeparatorLabels()
+        self.predefinedSeparatorsLabels = Separator.getSeparatorLabels(
+                                                    separator_label_handler)
         for (_, _, label) in self.predefinedSeparatorsLabels:
-            if not label == SeparatorSign.CUSTOM.label:
+            if not label == Separator.CUSTOM.label:
                 predefinedSeparatorCheckBox = CheckBoxCommon(
                                             self.predefinedSeparatorsComposite)
                 predefinedSeparatorCheckBox.setText(label)
@@ -135,11 +146,11 @@ class DataSeparatorWidget(object):
 
     def setSeparator(self, _separator):
         if _separator:
-            separatorSign = SeparatorSign.getSeparatorSign(_separator)
-            if separatorSign == SeparatorSign.CUSTOM:
+            separatorSign = Separator.getSeparatorSign(_separator)
+            if separatorSign == Separator.CUSTOM:
                 self.customSeparatorEdit.setText(_separator)
                 self.__uncheckPredefinedButtons__()
-            elif not separatorSign == SeparatorSign.NONE:
+            elif not separatorSign == Separator.NONE:
                 for button in self.predefinedSeparatorsButtonsGroup.buttons():
                     if button.text() == separatorSign.label:
                         self.__customSeparatorClear__()
@@ -164,51 +175,3 @@ class DataSeparatorWidget(object):
 
     def setGlobalSeparatorAsDefault(self):
         self.globalSettingsButtonClicked(True)
-
-
-class SeparatorSign(object):
-
-    COUNTER = 0
-
-    def __init__(self, sign, i18n, i18n_def):
-        self.sign = sign
-        self.i18n = i18n
-        self.i18n_def = i18n_def
-        SeparatorSign.COUNTER = SeparatorSign.COUNTER + 1
-        self.counter = SeparatorSign.COUNTER
-
-    @property
-    def label(self):
-        if hasattr(self.sign, '__len__') and len(self.sign.strip()) > 0:
-            return "%s [ %s ]" % (QT_I18N(self.i18n, self.i18n_def), self.sign)
-        else:
-            return QT_I18N(self.i18n, self.i18n_def)
-
-    @staticmethod
-    def getSeparatorSign(sign):
-        for member in dir(SeparatorSign):
-            separator = getattr(SeparatorSign, member)
-            if isinstance(separator, SeparatorSign) and separator.sign == sign:
-                return separator
-        return SeparatorSign.CUSTOM if not sign == None else SeparatorSign.NONE
-
-    @staticmethod
-    def getSeparatorLabels():
-        labels = []
-        for member in dir(SeparatorSign):
-            separator = getattr(SeparatorSign, member)
-            if isinstance(separator, SeparatorSign):
-                if not separator == SeparatorSign.NONE:
-                    labels.append((separator.counter, separator.sign,
-                                   separator.label, ))
-        return sorted(labels, key=lambda separator: separator[0])
-
-
-SeparatorSign.NONE = SeparatorSign('', '', '')
-SeparatorSign.SPACE = SeparatorSign(' ', 'separator.space', 'Space')
-SeparatorSign.TAB = SeparatorSign('\t', 'separator.tab', 'Tab')
-SeparatorSign.SEMICOLON = SeparatorSign(';', 'separator.semicolon',
-                                        'Semicolon')
-SeparatorSign.DASH = SeparatorSign('-', 'separator.dash', 'Dash')
-SeparatorSign.COMMA = SeparatorSign(',', 'separator.comma', 'Comma')
-SeparatorSign.CUSTOM = SeparatorSign(-1, 'separator.custom', 'Custom')
