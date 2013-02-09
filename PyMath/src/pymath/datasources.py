@@ -223,7 +223,13 @@ class FileDataSource(object):
     def __init__(self, **params):
         #params: pathname, filename, signal_index, annotation_index, time_index, separator @IgnorePep8
         self.params = Params(**params)
-        self.__file__ = os.path.join(self.params.pathname, self.params.filename) # @IgnorePep8
+        self.__file__ = None
+        if not self.params._file == None:
+            self.__file__ = self.params._file
+        elif not self.params.pathname == None and \
+            not self.params.filename == None:
+            self.__file__ = os.path.join(self.params.pathname,
+                                         self.params.filename)
         self.__headers__ = None
         self.__cols__ = []
         self.__cols_idents__ = ""
