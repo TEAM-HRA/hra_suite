@@ -7,7 +7,7 @@ from pycore.special import ImportErrorMessage
 try:
     from pycore.globals import GLOBALS
     from pycore.properties import Properties
-    from pycore.collections import replace_all_by_dict
+    from pycore.collections_utils import replace_all_by_dict
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 

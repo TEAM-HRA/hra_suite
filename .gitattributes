@@ -36,7 +36,7 @@ PyCore/.pydevproject -text
 PyCore/build_pycore.properties -text
 PyCore/build_pycore.xml -text
 PyCore/src/pycore/__init__.py -text
-PyCore/src/pycore/collections.py -text
+PyCore/src/pycore/collections_utils.py -text
 PyCore/src/pycore/globals.py -text
 PyCore/src/pycore/introspection.py -text
 PyCore/src/pycore/io_utils.py -text

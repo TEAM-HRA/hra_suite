@@ -8,7 +8,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycommon.plugins_parser import PluginsBuilder
     from pycore.globals import GLOBALS  # @UnusedImport
-    from pycore.collections import get_subdict
+    from pycore.collections_utils import get_subdict
     from pygui.qt.utils.specials import getWidgetFromStack
     from pycore.misc import Params
     from pygui.qt.activities.activities import ActivityManager

@@ -10,7 +10,7 @@ try:
     import collections
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
-    from pycore.collections import create_list
+    from pycore.collections_utils import create_list
     from pycore.io_utils import is_text_file
     from pycore.io_utils import DataFileHeader
     from pygui.qt.utils.qt_i18n import QT_I18N

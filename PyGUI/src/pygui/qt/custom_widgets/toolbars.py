@@ -9,8 +9,8 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pycore.collections import all_true_values
-    from pycore.collections import nvl
+    from pycore.collections_utils import all_true_values
+    from pycore.collections_utils import nvl
     from pycommon.actions import ActionSpec
     from pygui.qt.actions.actions_utils import create_action
     from pygui.qt.utils.widgets import Common

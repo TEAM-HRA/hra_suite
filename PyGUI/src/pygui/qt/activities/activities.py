@@ -10,7 +10,7 @@ try:
     from pycore.misc import replace_all
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
-    from pycore.collections import get_subdict
+    from pycore.collections_utils import get_subdict
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import ADD_ACTIVITY_SIGNAL
     from pygui.qt.utils.signals import CLEAR_ACTIVITIES_SIGNAL

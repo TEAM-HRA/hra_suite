@@ -11,7 +11,7 @@ try:
     from pycore.globals import Globals
     from pycore.misc import Params
     from pycore.introspection import get_object
-    from pycore.collections import nvl
+    from pycore.collections_utils import nvl
     from pygui.qt.utils.qt_i18n import text_I18N
     from pygui.qt.utils.qt_i18n import title_I18N
     from pygui.qt.utils.logging import LoggingEventFilter

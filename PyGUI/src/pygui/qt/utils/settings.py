@@ -7,7 +7,7 @@ Created on 23-10-2012
 from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtCore import *  # @UnusedWildImport
-    from pycore.collections import get_other_keys
+    from pycore.collections_utils import get_other_keys
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 

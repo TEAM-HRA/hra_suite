@@ -26,8 +26,8 @@ try:
     from pycore.globals import GLOBALS
     from pycore.introspection import get_class_object
     from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
-    from pycore.collections import any_indexes
-    from pycore.collections import or_values
+    from pycore.collections_utils import any_indexes
+    from pycore.collections_utils import or_values
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 

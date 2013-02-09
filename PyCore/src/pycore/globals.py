@@ -7,8 +7,8 @@ import argparse
 import sys
 from os.path import join
 from os.path import dirname
-from pycore.collections import get_keys_for_value
-from pycore.collections import get_for_regexpr
+from pycore.collections_utils import get_keys_for_value
+from pycore.collections_utils import get_for_regexpr
 from pycore.properties import Properties
 from pycore.resources import get_application_settings
 from pycore.resources import is_resource

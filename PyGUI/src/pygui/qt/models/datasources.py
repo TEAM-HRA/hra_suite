@@ -7,8 +7,8 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
-    from pycore.collections import empty_string
-    from pycore.collections import get_namedtuple_fields_as_list
+    from pycore.collections_utils import empty_string
+    from pycore.collections_utils import get_namedtuple_fields_as_list
     from pycommon.models import convert_file_specification
     from pycommon.models import FileSpecification
 except ImportError as error:
