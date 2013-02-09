@@ -260,11 +260,11 @@ class FileDataSource(object):
                 self.__headers__.append(headers)
         return self.__headers__
 
-    def getDataSource(self):
-        return self.__getNumPyDataSource__() if USE_NUMPY_EQUIVALENT else \
-               self.__getSimpleDataSource__()
+    def getData(self):
+        return self.__getNumPyData__() if USE_NUMPY_EQUIVALENT else \
+               self.__getSimpleData__()
 
-    def __getSimpleDataSource__(self):
+    def __getSimpleData__(self):
 
         _data = [[]] * len(self.__cols__)
         with open(self.__file__, 'r') as _file:
@@ -277,18 +277,18 @@ class FileDataSource(object):
                 for index in self.__cols__:
                     _data[index].append(contents[self.__cols__[index]])
 
-        return self.__createDataSource__(map(array, _data))
+        return self.__createData__(map(array, _data))
 
-    def __getNumPyDataSource__(self):
+    def __getNumPyData__(self):
         _data = [None] * len(self.__cols__)
         _data = loadtxt(self.__file__,
                         skiprows=len(self.headers),
                         usecols=self.__cols__,
                         unpack=True,
                         delimiter=self.params.separator)
-        return self.__createDataSource__(_data)
+        return self.__createData__(_data)
 
-    def __createDataSource__(self, _data):
+    def __createData__(self, _data):
         indexes = map(self.__cols_idents__.find,
                       [FileDataSource.SIGNAL_IDENT,
                        FileDataSource.ANNOTATION_IDENT,

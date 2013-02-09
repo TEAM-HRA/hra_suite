@@ -4,19 +4,18 @@ Created on 15-01-2013
 @author: jurek
 '''
 from pycore.special import ImportErrorMessage
-from pygui.qt.utils.widgets import PushButtonCommon
-from pycommon.actions import ActionSpec
-from pygui.qt.actions.actions_utils import create_action
 try:
-    from PyQt4.QtGui import *  # @UnusedWildImport
-    from PyQt4.QtCore import *  # @UnusedWildImport
-    from pycore.misc import Params
-    from pymath.datasources import FileDataSource
-    from pygui.qt.utils.widgets import CompositeCommon
+    import numpy as np
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas # @IgnorePep8
     from matplotlib.backends.backend_qt4agg import NavigationToolbar2QTAgg as NavigationToolbar # @IgnorePep8
-    import numpy as np
+    from PyQt4.QtGui import *  # @UnusedWildImport
+    from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.misc import Params
+    from pycommon.actions import ActionSpec
+    from pymath.datasources import FileDataSource
+    from pygui.qt.utils.widgets import CompositeCommon
+    from pygui.qt.actions.actions_utils import create_action
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -31,12 +30,11 @@ class TachogramPlotPlot(CompositeCommon):
         self.params = Params(**params)
         file_data_source_params = self.params.file_specification._asdict()
         file_data_source = FileDataSource(**file_data_source_params)
-        data_source = file_data_source.getDataSource()
+        data = file_data_source.getData()
         layout = QVBoxLayout()
         self.setLayout(layout)
-        self.canvas = TachogramPlotCanvas(self,
-                                    signal=data_source.signal,
-                                    annotation=data_source.annotation)
+        self.canvas = TachogramPlotCanvas(self, signal=data.signal,
+                                          annotation=data.annotation)
         layout.addWidget(self.canvas)
         self.navigation_toolbar = TachogramNavigationToolbar(self.canvas, self)
         layout.addWidget(self.navigation_toolbar)
@@ -56,6 +54,7 @@ class TachogramPlotCanvas(FigureCanvas):
         #self.y = np.cos(2 * np.pi * self.x)
         self.x = np.arange(0.0, len(self.params.signal), 1)
         self.y = self.params.signal
+        #print('SUM: ' + str(np.sum(self.y)))
         self.axes.scatter(self.x, self.y)
         #self.axes.plot(self.x, self.y)
         #self.axes.plot(self.y)

@@ -12,6 +12,7 @@ try:
     from pylab import compress
     from pylab import equal
     from numpy import var
+    from pycore.introspection import get_class_object
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
     from pymath.datasources import DataSource
 except ImportError as error:
@@ -183,12 +184,30 @@ class NonStatistic(Statistic):
 
 class StatisticsFactory(DataSource):
 
-    def __init__(self, statistics_classes, data_source=None):
+    def __init__(self, statistics_classes_or_names, data_source=None):
         '''
         Constructor
         '''
         DataSource.__init__(self, data_source)
-        self.__statistics_classes__ = statistics_classes
+        self.__statistics_classes__ = []
+        for type_or_name in statistics_classes_or_names:
+            #if type_or_name is a string
+            if isinstance(type_or_name, str):
+                #check if a name is not in dot format
+                if not type_or_name.index('.') >= 0:
+                    #append a 'Statistic' suffix if not present already
+                    if not type_or_name.endswith('Statistic'):
+                        type_or_name += 'Statistic'
+                    #prefix with current package
+                    type_or_name = 'pymath.statistics.statistics' + type_or_name # @IgnorePep8
+                class_object = get_class_object(type_or_name)
+                if class_object == None:
+                    raise TypeError("class " + type_or_name + " doesn't exist")
+                else:
+                    type_or_name = class_object
+
+            if isinstance(type_or_name, type):
+                self.__statistics_classes__.append(type_or_name)
         self.__statistics_objects__ = []
 
     @property
