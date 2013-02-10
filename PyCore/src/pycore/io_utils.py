@@ -4,21 +4,20 @@ Created on 20-10-2012
 @author: jurek
 '''
 
-from os.path import join
-from os.path import exists
-from os.path import pathsep
-from os.path import dirname
+import sys
 from os import walk
+from os import makedirs
+import os.path as fs
 from mimetypes import guess_type
 from tailer import head  # @UnresolvedImport
 from pycore.misc import contains_letter
 from pycore.misc import get_separator_between_numbers
-import sys
+from pycore.collections_utils import not_empty_nvl
 
 
 def get_filenames(path, depth=1):
     filenames = []
-    if (exists(path)):
+    if (fs.exists(path)):
         current_depth = 1
         for root, dirs, files in walk(path):  # @UnusedVariable
             filenames[len(files):] = files
@@ -37,16 +36,16 @@ def expand_files(path, extension=None, as_string=False):
         elif not extension.startswith("."):
             extension = "." + extension
 
-    if (exists(path)):
+    if (fs.exists(path)):
         for paths, dirnames, files in walk(path):  # @UnusedVariable
-            full_filenames[len(full_filenames):] = [join(path, _file) #@IgnorePep8
+            full_filenames[len(full_filenames):] = [fs.join(path, _file) #@IgnorePep8
                 for _file in files if (extension == None or _file.endswith(extension))] #@IgnorePep8
 
-    return pathsep.join(full_filenames) if as_string else full_filenames
+    return fs.pathsep.join(full_filenames) if as_string else full_filenames
 
 
 def get_dirname(_file):
-    return dirname(_file)
+    return fs.dirname(_file)
 
 
 def is_text_file(filepath, only_known_types=False):
@@ -81,7 +80,7 @@ class DataFileHeader(object):
     def __init__(self, file_path, _separator=None, number_of_lines=5):
         headlines = []
         try:
-            _file = file(join(*file_path)
+            _file = file(fs.join(*file_path)
                      if hasattr(file_path, '__iter__') else file_path)
             headlines = head(_file, number_of_lines)
             if len(headlines) > number_of_lines:
@@ -154,3 +153,67 @@ class DataFileHeader(object):
             splited_lines = [str(num)
                              for num in range(1, self.getHeadersCount())]
         return splited_lines
+
+
+class CSVFile(object):
+    """
+    class used to save data in csv format
+    parameters:
+    output_file - a file where data are saved
+    output_dir - directory where file will be place
+    reference_filename - a file used as a base to create output_file name
+    output_suffix - a suffix appended to output_file
+    sort_headers - whether to sort columns
+    """
+    def __init__(self, output_file=None, output_dir=None, output_suffix=None,
+                 reference_filename=None, sort_headers=True):
+        self.__output_file__ = None
+        self.__file__ = None  # means file descriptor
+        self.__headers__ = None
+        self.__sort_headers__ = sort_headers
+
+        if not output_file == None:
+            self.__output_file__ = output_file
+        elif not reference_filename == None:
+            if output_dir == None:
+                output_dir = fs.dirname(reference_filename)
+            self.__output_file__ = fs.join(output_dir,
+                                    fs.basename(reference_filename) +
+                                      not_empty_nvl(output_suffix, '_out'))
+
+        dir_ = fs.dirname(self.__output_file__)
+        if fs.exists(dir_) == False:
+            makedirs(dir_)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if not self.__file__ == None:
+            self.__file__.close()
+            self.__file__ = None
+
+    @property
+    def output_file(self):
+        return self.__output_file__
+
+    def get_values(self, _data):
+        values = None
+        if isinstance(_data, dict):
+            if self.__headers__ == None:
+                self.__headers__ = _data.keys()
+                if self.__sort_headers__:
+                    self.__headers__ = sorted(self.__headers__)
+            values = [_data.get(header, '') for header in self.__headers__]
+        return values
+
+    def write(self, _data):
+        values = self.get_values(_data)
+        if not values == None:
+            if self.__file__ == None and self.__output_file__:
+                self.__file__ = open(self.__output_file__, "w")
+            self.__file__.write(','.join(values) + '\n')
+
+    @property
+    def headers(self):
+        return self.__headers__
