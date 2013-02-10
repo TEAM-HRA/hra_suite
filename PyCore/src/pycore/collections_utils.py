@@ -126,3 +126,11 @@ def get_subdict(_dict, keys=None, not_keys=None):
 
 def get_namedtuple_fields_as_list(_named_tuple):
     return list(_named_tuple._fields) if _named_tuple else None
+
+
+def get_as_list(_string, separator=',', strip_spaces=True):
+    """
+    convert a string into a list divided by a specified separator
+    """
+    return [name.strip(' ') if strip_spaces else name
+                for name in _string.split(separator)]
