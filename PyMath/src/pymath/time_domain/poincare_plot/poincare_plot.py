@@ -9,6 +9,7 @@ try:
     import argparse
     import glob
     from pycore.misc import Separator
+    from pymath.utils.io_utils import NumpyCSVFile
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.statistics import Statistic
     from pymath.statistics.statistics import SD1Statistic
@@ -50,6 +51,7 @@ class PoincarePlotManager(object):
         self.__time_index__ = None
         self.__separator__ = None
         self.__data_file__ = None
+        self.__output_precision__ = None
 
     @property
     def data_dir(self):
@@ -77,7 +79,7 @@ class PoincarePlotManager(object):
 
     @property
     def output_dir(self):
-        return self.__window_size__
+        return self.__output_dir__
 
     @output_dir.setter
     def output_dir(self, _output_dir):
@@ -147,6 +149,14 @@ class PoincarePlotManager(object):
     def window_shift(self, _window_shift):
         self.__window_shift__ = _window_shift
 
+    @property
+    def output_precision(self):
+        return self.__output_precision__
+
+    @output_precision.setter
+    def output_precision(self, _output_precision):
+        self.__output_precision__ = _output_precision
+
     def generate(self):
         """
         the method which starts to generate Poincare Plot parameters
@@ -185,13 +195,17 @@ class PoincarePlotManager(object):
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
                                time_index=self.time_index)
-        data = file_data_source.getData()
-        for data_segment in PoincarePlotSegmenter(data, self.window_size,
-                                            shift=self.window_shift):
-#            print(str(data_segment))
-            statistics = StatisticsFactory(self.statistics_names,
-                                           data=data_segment).statistics
-            print(str(statistics))
+
+        with NumpyCSVFile(output_dir=self.output_dir,
+                         reference_filename=_file,
+                         output_precision=self.output_precision) as csv:
+            data = file_data_source.getData()
+            for data_segment in PoincarePlotSegmenter(data, self.window_size,
+                                                      shift=self.window_shift):
+                statistics = StatisticsFactory(self.statistics_names,
+                                               data=data_segment).statistics
+                csv.write(statistics)
+                print(str(statistics))
 
 
 class PoincarePlot(StatisticsFactory):
@@ -320,6 +334,9 @@ if __name__ == '__main__':
                 help="directory for outcomes [default: " +
                         DEFAULT_OUTCOME_DIRECTORY + "]",
                 default=DEFAULT_OUTCOME_DIRECTORY)
+    parser.add_argument("-out_prec", "--output_precision",
+                help="precision for output data [default: 10,5]",
+                default="10,5")
     parser.add_argument("-s", "--statistics_names",
                 help="list of statistics names to calculate, defaults to: " +
                         getDefaultStatisticsNames(),
@@ -348,4 +365,5 @@ if __name__ == '__main__':
     ppManager.signal_index = __args.signal_index
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
+    ppManager.output_precision = __args.output_precision
     ppManager.generate()
