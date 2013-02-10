@@ -101,6 +101,11 @@ def replace_all(_string, replacement, matches):
     return _string
 
 
+def fixed_size_string(_string, size):
+    return ('{:' + str(size) + 's}').format(_string) if len(_string) < size \
+            else _string[:size]
+
+
 SeparatorItem = collections.namedtuple("SeparatorItem", "sign id_ label")
 
 
