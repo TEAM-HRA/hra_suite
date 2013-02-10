@@ -128,9 +128,27 @@ def get_namedtuple_fields_as_list(_named_tuple):
     return list(_named_tuple._fields) if _named_tuple else None
 
 
-def get_as_list(_string, separator=',', strip_spaces=True):
+def get_as_list(_string, separator=',', strip_characters=' '):
     """
     convert a string into a list divided by a specified separator
     """
-    return [name.strip(' ') if strip_spaces else name
+    return [name.strip(strip_characters)
+            if not strip_characters == None else name
                 for name in _string.split(separator)]
+
+
+def not_empty_nvl(*iterable):
+    """
+    returns first not None and not empty value in collection
+    """
+    for _iter in iterable:
+        if not _iter == None and len(str(_iter)) > 0:
+            return _iter
+
+
+def get_as_tuple(_string, separator=',', strip_characters=' ', convert=None):
+    """
+    convert a string divided by a specified separator into a tuple
+    """
+    _list = get_as_list(_string, separator, strip_characters)
+    return tuple(_list if convert == None else map(convert, _list))
