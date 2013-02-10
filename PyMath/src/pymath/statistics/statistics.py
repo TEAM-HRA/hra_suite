@@ -12,6 +12,7 @@ try:
     from pylab import compress
     from pylab import equal
     from numpy import var
+    from pycore.collections_utils import get_as_list
     from pycore.introspection import get_class_object
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
     from pymath.datasources import DataSource
@@ -65,6 +66,7 @@ class Statistic(DataSource):
     def __rrshift__(self, other):
         if (isinstance(other, DataSource)):
             self.signal = other.signal
+            self.shifted_signal = other.shifted_signal
             self.annotation = other.annotation
             return self.compute()
 
@@ -118,12 +120,12 @@ class NtotStatistic(Statistic):
 
 class SD1Statistic(SDStatistic):
     def __pre_calculate__(self):
-        self.signal = (self.signal - self.annotation) / sqrt(2)
+        self.signal = (self.signal - self.shifted_signal) / sqrt(2)
 
 
 class SD2Statistic(SDStatistic):
     def __pre_calculate__(self):
-        self.signal = (self.signal + self.annotation) / sqrt(2)
+        self.signal = (self.signal + self.shifted_signal) / sqrt(2)
 
 
 class SsStatistic(Statistic):
@@ -143,20 +145,21 @@ class SD21Statistic(Statistic):
 class RStatistic(Statistic):
     def __calculate__(self):
         x_pn = self.signal - MeanStatistic(self.signal).compute()
-        x_ppn = (self.annotation
-                    - MeanStatistic(self.annotation).compute())
+        x_ppn = (self.shifted_signal
+                    - MeanStatistic(self.shifted_signal).compute())
         return dot(x_pn, x_ppn) / (sqrt(dot(x_pn, x_pn) * dot(x_ppn, x_ppn)))
 
 
 class RMSSDStatistic(Statistic):
     def __calculate__(self):
-        mean = MeanStatistic((self.signal - self.annotation) ** 2).compute()
+        mean = MeanStatistic(
+                        (self.signal - self.shifted_signal) ** 2).compute()
         return sqrt(mean)
 
 
 class SD1upStatistic(Statistic):
     def __calculate__(self):
-        xrzut = (self.signal - self.annotation) / sqrt(2)
+        xrzut = (self.signal - self.shifted_signal) / sqrt(2)
         nad = compress(greater(0, xrzut), xrzut)
         value = sqrt(sum(nad ** 2) / (size(xrzut) - 1))
         return value
@@ -164,7 +167,7 @@ class SD1upStatistic(Statistic):
 
 class SD1downStatistic(Statistic):
     def __calculate__(self):
-        xrzut = (self.signal - self.annotation) / sqrt(2)
+        xrzut = (self.signal - self.shifted_signal) / sqrt(2)
         pod = compress(greater(xrzut, 0), xrzut)
         value = sqrt(sum(pod ** 2) / (size(xrzut) - 1))
         return value
@@ -172,49 +175,64 @@ class SD1downStatistic(Statistic):
 
 class NupStatistic(Statistic):
     def __calculate__(self):
-        xrzut = self.signal - self.annotation
+        xrzut = self.signal - self.shifted_signal
         nad = compress(greater(0, xrzut), xrzut)
         return (size(nad))
 
 
 class NdownStatistic(Statistic):
     def __calculate__(self):
-        xrzut = self.signal - self.annotation
+        xrzut = self.signal - self.shifted_signal
         pod = compress(greater(xrzut, 0), xrzut)
         return (size(pod))
 
 
 class NonStatistic(Statistic):
     def __calculate__(self):
-        xrzut = self.signal - self.annotation
+        xrzut = self.signal - self.shifted_signal
         na = compress(equal(xrzut, 0), xrzut)
         return (size(na))
 
 
+class SymmetryStatistic(Statistic):
+    def __calculate__(self):
+        return 1 if ((self >> SD1upStatistic())
+                     > (self >> SD1downStatistic())) else 0
+
+
 class StatisticsFactory(DataSource):
 
-    def __init__(self, statistics_classes_or_names, data_source=None):
+    def __init__(self, statistics_classes_or_names, data=None):
         '''
         Constructor
         '''
-        DataSource.__init__(self, data_source)
+        DataSource.__init__(self, data)
         self.__statistics_classes__ = []
+
+        #if statistics_classes_or_names is a string object which included
+        #names of statistics separater by comma we change it into list of names
+        if isinstance(statistics_classes_or_names, str):
+            statistics_classes_or_names = get_as_list(
+                                                statistics_classes_or_names)
+
         for type_or_name in statistics_classes_or_names:
             #if type_or_name is a string
             if isinstance(type_or_name, str):
                 #check if a name is not in dot format
-                if not type_or_name.index('.') >= 0:
+                if not type_or_name.rfind('.') >= 0:
                     #append a 'Statistic' suffix if not present already
                     if not type_or_name.endswith('Statistic'):
                         type_or_name += 'Statistic'
                     #prefix with current package
-                    type_or_name = 'pymath.statistics.statistics' + type_or_name # @IgnorePep8
+                    type_or_name = '.'.join(['pymath.statistics.statistics',
+                                             type_or_name])
                 class_object = get_class_object(type_or_name)
                 if class_object == None:
                     raise TypeError("class " + type_or_name + " doesn't exist")
                 else:
                     type_or_name = class_object
 
+            #if type_or_name is a class type
             if isinstance(type_or_name, type):
                 self.__statistics_classes__.append(type_or_name)
         self.__statistics_objects__ = []

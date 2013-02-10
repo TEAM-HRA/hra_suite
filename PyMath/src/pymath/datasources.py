@@ -19,16 +19,19 @@ except ImportError as error:
 
 class DataSource(object):
 
-    def __init__(self, signal=None, annotation=None, time=None):
+    def __init__(self, signal=None, shifted_signal=None, annotation=None,
+                 time=None):
         '''
         Constructor
         '''
         if (isinstance(signal, DataSource)):
             self.signal = signal.signal
+            self.shifted_signal = signal.shifted_signal
             self.annotation = signal.annotation
             self.time = signal.time
         else:
             self.signal = signal
+            self.shifted_signal = shifted_signal
             self.annotation = annotation
             self.time = time
 
@@ -56,10 +59,20 @@ class DataSource(object):
     def time(self, time):
         self.__time__ = time
 
+    @property
+    def shifted_signal(self):
+        return self.__shifted_signal__
+
+    @shifted_signal.setter
+    def shifted_signal(self, shifted_signal):
+        self.__shifted_signal__ = shifted_signal
+
     def __str__(self):
-        return (self.__for_str__('signal', self.signal) + ' '
-              + self.__for_str__('annotation', self.annotation)
-              + self.__for_str__('time', self.time))
+        return (' '.join(
+                [self.__for_str__('signal', self.signal),
+                 self.__for_str__('shifted_signal', self.shifted_signal),
+                 self.__for_str__('annotation', self.annotation),
+                 self.__for_str__('time', self.time)]))
 
     def __for_str__(self, prefix, data):
         if hasattr(data, 'take') or hasattr(data, '__getslice__'):
@@ -208,7 +221,7 @@ class FilesDataSources(object):
             and self.signal_spec.num == self.annotation_spec.num):
             annotation = 0 * signal
 
-        data_source = DataSource(signal, annotation)
+        data_source = DataSource(signal=signal, annotation=annotation)
         data_source.filename = filename  # set up an additional property
         return data_source
 
@@ -301,6 +314,7 @@ class FileDataSource(object):
         if not annotation == None:
             annotation = annotation.astype(int)
 
-        data_source = DataSource(signal, annotation, time)
+        data_source = DataSource(signal=signal, annotation=annotation,
+                                 time=time)
         data_source.filename = self.__file__  # set up an additional property
         return data_source

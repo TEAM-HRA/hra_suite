@@ -5,6 +5,10 @@ Created on 27-07-2012
 '''
 from pymath.utils.utils import print_import_error
 try:
+    import os
+    import argparse
+    import glob
+    from pycore.misc import Separator
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.statistics import Statistic
     from pymath.statistics.statistics import SD1Statistic
@@ -18,17 +22,176 @@ try:
     from pymath.statistics.statistics import NupStatistic
     from pymath.statistics.statistics import NdownStatistic
     from pymath.statistics.statistics import NonStatistic
+    from pymath.statistics.statistics import SymmetryStatistic
+    from pymath.datasources import DataSource
+    from pymath.datasources import FileDataSource
 except ImportError as error:
     print_import_error(__name__, error)
 
 
-from pymath.datasources import DataSource
+DEFAULT_OUTCOME_DIRECTORY = os.path.join(os.getcwd(), 'pp_outcomes')
 
 
-class SymmetryStatistic(Statistic):
-    def __calculate__(self):
-        return 1 if ((self >> SD1upStatistic())
-                     > (self >> SD1downStatistic())) else 0
+def getDefaultStatisticsNames():
+    return ", ".join(Statistic.getSubclassesShortNames())
+
+
+class PoincarePlotManager(object):
+    def __init__(self):
+        self.__data_dir__ = os.getcwd()
+        self.__extension__ = '*'
+        self.__window_size__ = None
+        self.__window_shift__ = 1
+        self.__output_dir__ = None
+        self.__statistics_names__ = None
+        self.__headers__ = None
+        self.__signal_index__ = None
+        self.__annotation_index__ = None
+        self.__time_index__ = None
+        self.__separator__ = None
+        self.__data_file__ = None
+
+    @property
+    def data_dir(self):
+        return self.__data_dir__
+
+    @data_dir.setter
+    def data_dir(self, _data_dir):
+        self.__data_dir__ = _data_dir
+
+    @property
+    def extension(self):
+        return self.__extension__
+
+    @extension.setter
+    def extension(self, _extension):
+        self.__extension__ = _extension
+
+    @property
+    def window_size(self):
+        return self.__window_size__
+
+    @window_size.setter
+    def window_size(self, _window_size):
+        self.__window_size__ = _window_size
+
+    @property
+    def output_dir(self):
+        return self.__window_size__
+
+    @output_dir.setter
+    def output_dir(self, _output_dir):
+        self.__output_dir__ = _output_dir
+
+    @property
+    def statistics_names(self):
+        return self.__statistics_names__
+
+    @statistics_names.setter
+    def statistics_names(self, _statistics_names):
+        self.__statistics_names__ = _statistics_names
+
+    @property
+    def headers(self):
+        return self.__headers__
+
+    @headers.setter
+    def headers(self, _headers):
+        self.__headers__ = _headers
+
+    @property
+    def signal_index(self):
+        return self.__signal_index__
+
+    @signal_index.setter
+    def signal_index(self, _signal_index):
+        self.__signal_index__ = _signal_index
+
+    @property
+    def annotation_index(self):
+        return self.__annotation_index__
+
+    @annotation_index.setter
+    def annotation_index(self, _annotation_index):
+        self.__annotation_index__ = _annotation_index
+
+    @property
+    def time_index(self):
+        return self.__time_index__
+
+    @time_index.setter
+    def time_index(self, _time_index):
+        self.__time_index__ = _time_index
+
+    @property
+    def separator(self):
+        return self.__separator__
+
+    @separator.setter
+    def separator(self, _separator):
+        self.__separator__ = _separator
+
+    @property
+    def data_file(self):
+        return self.__data_file__
+
+    @data_file.setter
+    def data_file(self, _data_file):
+        self.__data_file__ = _data_file
+
+    @property
+    def window_shift(self):
+        return self.__window_shift__
+
+    @window_shift.setter
+    def window_shift(self, _window_shift):
+        self.__window_shift__ = _window_shift
+
+    def generate(self):
+        """
+        the method which starts to generate Poincare Plot parameters
+        """
+
+        sign_multiplicator = 80
+        file_counter = 0
+        #data_file parameter is superior to data_dir parameter
+        if self.data_file:
+            if os.path.exists(self.data_file) == False:
+                print('The file: ' + self.data_file + " doesn't exist")
+            else:
+                file_counter = 1
+                print('Processing file: ' + self.data_file)
+                self.__process__(self.data_file)
+        else:
+            path = self.data_dir + ('*.*'
+                            if self.extension == None else self.extension)
+            for _file in glob.glob(path):
+                if os.path.isfile(_file):
+                    file_counter = file_counter + 1
+                    print('=' * sign_multiplicator)
+                    print('Processing file: ' + _file)
+                    self.__process__(_file)
+        for _ in range(3):
+            print('*' * sign_multiplicator)
+        print('Processing finished')
+        if file_counter == 0:
+            print('No files to process ['
+                   + self.data_dir + self.extension + ']')
+        else:
+            print('Number of files processed: ' + str(file_counter))
+
+    def __process__(self, _file):
+        file_data_source = FileDataSource(_file=_file,
+                               signal_index=self.signal_index,
+                               annotation_index=self.annotation_index,
+                               time_index=self.time_index)
+        data = file_data_source.getData()
+        for data_segment in PoincarePlotSegmenter(data, self.window_size,
+                                            shift=self.window_shift):
+#            print(str(data_segment))
+            statistics = StatisticsFactory(self.statistics_names,
+                                           data=data_segment).statistics
+            print(str(statistics))
 
 
 class PoincarePlot(StatisticsFactory):
@@ -97,27 +260,31 @@ class PoincarePlot(StatisticsFactory):
 
 class PoincarePlotSegmenter(object):
 
-    def __init__(self, data_source, window_size,  shift=1):
-        self.data_source = data_source
+    def __init__(self, data, window_size,  shift=1):
+        self.__data__ = data
         self.__size__ = window_size
         self.__shift__ = shift
         self.__index__ = 0
-        if self.__size__ > len(self.data_source.signal):
+        if self.__size__ > len(self.__data__.signal):
             raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
 
     def __iter__(self):
         return self
 
     def next(self):
-        if self.__index__ + self.__size__ <= len(self.data_source.signal):
+        if self.__index__ + self.__size__ + self.__shift__ <= len(self.__data__.signal): # @IgnorePep8
             indexes = range(self.__index__, self.__index__ + self.__size__)
-            signal = self.data_source.signal.take(indexes)
-            annotation = (None if self.data_source.annotation == None else
-                          self.data_source.annotation.take(indexes))
+            signal = self.__data__.signal.take(indexes)
 
             self.__index__ += self.__shift__
+            shifted_indexes = range(self.__index__, self.__index__ + self.__size__) # @IgnorePep8
+            shifted_signal = self.__data__.signal.take(shifted_indexes)
 
-            return DataSource(signal, annotation)
+            annotation = (None if self.__data__.annotation == None else
+                          self.__data__.annotation.take(indexes))
+
+            return DataSource(signal=signal, shifted_signal=shifted_signal,
+                              annotation=annotation)
         else:
             raise StopIteration
 
@@ -128,3 +295,57 @@ class PoincarePlotSegmenter(object):
     @data_source.setter
     def data_source(self, _data_source):
         self.__data_source__ = _data_source
+
+
+if __name__ == '__main__':
+    to_bool = lambda p: True if p.title() == "True" else False
+
+    parser = argparse.ArgumentParser('Program to generate Poincare Plot parameters:') # @IgnorePep8
+    parser.add_argument("-i", "--interactive",
+                help="interactive mode (not implemented yet)", type=to_bool,
+                default=False)
+    parser.add_argument("-d", "--data_dir",
+                help="directory where input data files are located [default: " + os.getcwd() + "]", # @IgnorePep8
+                default=os.getcwd())
+    parser.add_argument("-e", "--extension", default="*",
+                help="extension of data input files in the form <*.ext>")
+    parser.add_argument("-f", "--data_file",
+                help="alternative option to set one data source file")
+    parser.add_argument("-w", "--window_size", type=int,
+                help="data window size")
+    parser.add_argument("-ws", "--window_shift", type=int,
+                help="window data shift between two sets of signals",
+                default=1)
+    parser.add_argument("-o", "--output_dir",
+                help="directory for outcomes [default: " +
+                        DEFAULT_OUTCOME_DIRECTORY + "]",
+                default=DEFAULT_OUTCOME_DIRECTORY)
+    parser.add_argument("-s", "--statistics_names",
+                help="list of statistics names to calculate, defaults to: " +
+                        getDefaultStatisticsNames(),
+                default=getDefaultStatisticsNames())
+    parser.add_argument("-r", "--headers",
+                help="display lines of headers (not implemented yet)")
+    parser.add_argument("-si", "--signal_index", type=int,
+                help="index of a signal column", default=-1)
+    parser.add_argument("-ai", "--annotation_index", type=int,
+                help="index of an annotation column", default=-1)
+    parser.add_argument("-ti", "--time_index", type=int,
+                help="index of a time column", default=-1)
+    parser.add_argument("-p", "--separator",
+                help="a separator used between columns, one from the set: " +
+                     ", ".join(Separator.getSeparatorsLabels()) + ", <custom>")
+    __args = parser.parse_args()
+
+    ppManager = PoincarePlotManager()
+    ppManager.data_file = __args.data_file
+    ppManager.data_dir = __args.data_dir
+    ppManager.extension = __args.extension
+    ppManager.window_size = __args.window_size
+    ppManager.window_shift = __args.window_shift
+    ppManager.output_dir = __args.output_dir
+    ppManager.statistics_names = __args.statistics_names
+    ppManager.signal_index = __args.signal_index
+    ppManager.annotation_index = __args.annotation_index
+    ppManager.time_index = __args.time_index
+    ppManager.generate()
