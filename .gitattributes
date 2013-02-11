@@ -44,6 +44,7 @@ PyCore/src/pycore/misc.py -text
 PyCore/src/pycore/properties.py -text
 PyCore/src/pycore/resources.py -text
 PyCore/src/pycore/special.py -text
+PyCore/src/pycore/units.py -text
 PyGUI/.project -text
 PyGUI/.pydevproject -text
 PyGUI/build_pygui.properties -text
