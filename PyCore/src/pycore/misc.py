@@ -118,13 +118,15 @@ def extract_number(_string, convert=None):
     return _number if convert == None else convert(_number)
 
 
-def extract_alphabetic(_string, strip=True):
+def extract_alphabetic(_string, strip=True, convert=None):
     if not hasattr(_string, 'strip'):  # this means some numeric value
         return None
     if strip:
         _string = _string.strip()
     _string = filter(lambda x: not x.isdigit(), _string)
-    return None if strip == True and is_empty(_string) else _string
+    if strip == True and is_empty(_string):
+        return None
+    return _string if convert == None else convert(_string)
 
 
 SeparatorItem = collections.namedtuple("SeparatorItem", "sign id_ label")
