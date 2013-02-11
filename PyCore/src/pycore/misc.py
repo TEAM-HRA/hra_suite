@@ -106,6 +106,27 @@ def fixed_size_string(_string, size):
             else _string[:size]
 
 
+def extract_number(_string, convert=None):
+    try:
+        return int(_string)
+    except ValueError:
+        pass
+    _string = _string.strip()
+    _number = filter(lambda x: x.isdigit(), _string)
+    if is_empty(_number):
+        return None
+    return _number if convert == None else convert(_number)
+
+
+def extract_alphabetic(_string, strip=True):
+    if not hasattr(_string, 'strip'):  # this means some numeric value
+        return None
+    if strip:
+        _string = _string.strip()
+    _string = filter(lambda x: not x.isdigit(), _string)
+    return None if strip == True and is_empty(_string) else _string
+
+
 SeparatorItem = collections.namedtuple("SeparatorItem", "sign id_ label")
 
 
