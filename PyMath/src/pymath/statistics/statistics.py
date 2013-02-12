@@ -52,6 +52,8 @@ class Statistic(DataSource):
     #  @return the name, of statistic, which doesn't contain word Statistic
     @property
     def _id(self):
+        if self.name:
+            return self.name
         name = self.__class__.__name__
         #remove suffix Statistic
         idx = name.find('Statistic')
@@ -70,6 +72,14 @@ class Statistic(DataSource):
             self.annotation = other.annotation
             return self.compute()
 
+    @property
+    def name(self):
+        return self.__name__
+
+    @name.setter
+    def name(self, _name):
+        self.__name__ = _name
+
     @staticmethod
     def getSubclasses():
         return Statistic.__subclasses__()
@@ -78,6 +88,10 @@ class Statistic(DataSource):
     def getSubclassesShortNames():
         return [_class.__name__[:_class.__name__.rfind('Statistic')]
                 for _class in Statistic.getSubclasses()]
+
+    # if parameter is not set in the __init__() this method then returns None
+    def __getattr__(self, name):
+        return None
 
 
 class MeanStatistic(Statistic):
