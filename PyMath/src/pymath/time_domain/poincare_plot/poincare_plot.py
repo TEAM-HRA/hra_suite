@@ -9,6 +9,11 @@ try:
     import argparse
     import glob
     from pycore.misc import Separator
+    from pycore.misc import extract_number
+    from pycore.misc import extract_alphabetic
+    from pycore.units import get_time_unit
+    from pymath.utils.array_utils import \
+        get_max_index_for_cumulative_sum_greater_then_value
     from pymath.utils.io_utils import NumpyCSVFile
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.statistics import Statistic
@@ -41,17 +46,11 @@ class PoincarePlotManager(object):
     def __init__(self):
         self.__data_dir__ = os.getcwd()
         self.__extension__ = '*'
-        self.__window_size__ = None
         self.__window_shift__ = 1
-        self.__output_dir__ = None
-        self.__statistics_names__ = None
-        self.__headers__ = None
-        self.__signal_index__ = None
-        self.__annotation_index__ = None
-        self.__time_index__ = None
-        self.__separator__ = None
-        self.__data_file__ = None
-        self.__output_precision__ = None
+
+    # if parameter is not set in the __init__() this method then returns None
+    def __getattr__(self, name):
+        return None
 
     @property
     def data_dir(self):
@@ -75,7 +74,13 @@ class PoincarePlotManager(object):
 
     @window_size.setter
     def window_size(self, _window_size):
-        self.__window_size__ = _window_size
+        self.__window_size__ = extract_number(_window_size, convert=int)
+        self.__window_size_unit__ = extract_alphabetic(_window_size,
+                                                       convert=str.lower)
+
+    @property
+    def window_size_unit(self):
+        return self.__window_size_unit__
 
     @property
     def output_dir(self):
@@ -164,8 +169,7 @@ class PoincarePlotManager(object):
 
         sign_multiplicator = 80
         file_counter = 0
-        #data_file parameter is superior to data_dir parameter
-        if self.data_file:
+        if self.data_file:  # data_file parameter is superior to data_dir parameter @IgnorePep8
             if os.path.exists(self.data_file) == False:
                 print('The file: ' + self.data_file + " doesn't exist")
             else:
@@ -200,8 +204,10 @@ class PoincarePlotManager(object):
                          reference_filename=_file,
                          output_precision=self.output_precision) as csv:
             data = file_data_source.getData()
-            for data_segment in PoincarePlotSegmenter(data, self.window_size,
-                                                      shift=self.window_shift):
+            for data_segment in PoincarePlotSegmenter(data,
+                                    self.window_size,
+                                    shift=self.window_shift,
+                                    window_size_unit=self.window_size_unit):
                 statistics = StatisticsFactory(self.statistics_names,
                                                data=data_segment).statistics
                 csv.write(statistics)
@@ -274,24 +280,52 @@ class PoincarePlot(StatisticsFactory):
 
 class PoincarePlotSegmenter(object):
 
-    def __init__(self, data, window_size,  shift=1):
+    def __init__(self, data, window_size,  shift=1, window_size_unit=None):
         self.__data__ = data
-        self.__size__ = window_size
+        self.__window_size__ = window_size
         self.__shift__ = shift
         self.__index__ = 0
-        if self.__size__ > len(self.__data__.signal):
-            raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
+        self.__window_size_unit__ = window_size_unit
+
+        #this means a user put window size in some unit
+        if self.__window_size_unit__:
+
+            #get time unit of window size
+            unit = get_time_unit(self.__window_size_unit__)
+
+            #convert signal unit into window size unit,
+            #for example express milliseconds in minutes
+            multiplier = unit.toUnitMultiplier(self.__data__.signal_unit)
+
+            #express window size in units of a signal
+            self.__window_size__ = multiplier * window_size
+        else:
+            if self.__window_size__ > len(self.__data__.signal):
+                raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
 
     def __iter__(self):
         return self
 
     def next(self):
-        if self.__index__ + self.__size__ + self.__shift__ <= len(self.__data__.signal): # @IgnorePep8
-            indexes = range(self.__index__, self.__index__ + self.__size__)
+        #this means a user expresses window size in a unit
+        if self.__window_size_unit__:
+            max_index = get_max_index_for_cumulative_sum_greater_then_value(
+                                                self.__data__.signal,
+                                                self.__window_size__,
+                                                self.__index__)
+            if max_index == -1:
+                raise StopIteration
+
+            #new window size is a difference between max_index a start index
+            signal_size = max_index - self.__index__
+        else:
+            signal_size = self.__window_size__
+        if self.__index__ + signal_size + self.__shift__ <= len(self.__data__.signal): # @IgnorePep8
+            indexes = range(self.__index__, self.__index__ + signal_size)
             signal = self.__data__.signal.take(indexes)
 
             self.__index__ += self.__shift__
-            shifted_indexes = range(self.__index__, self.__index__ + self.__size__) # @IgnorePep8
+            shifted_indexes = range(self.__index__, self.__index__ + signal_size) # @IgnorePep8
             shifted_signal = self.__data__.signal.take(shifted_indexes)
 
             annotation = (None if self.__data__.annotation == None else
@@ -301,14 +335,6 @@ class PoincarePlotSegmenter(object):
                               annotation=annotation)
         else:
             raise StopIteration
-
-    @property
-    def data_source(self):
-        return self.__data_source__
-
-    @data_source.setter
-    def data_source(self, _data_source):
-        self.__data_source__ = _data_source
 
 
 if __name__ == '__main__':
@@ -325,8 +351,9 @@ if __name__ == '__main__':
                 help="extension of data input files in the form <*.ext>")
     parser.add_argument("-f", "--data_file",
                 help="alternative option to set one data source file")
-    parser.add_argument("-w", "--window_size", type=int,
-                help="data window size")
+    parser.add_argument("-w", "--window_size",
+                help="""data window size expressed in number of data items or
+                in time units by suffix: s - second, m - minute, h - hour""")
     parser.add_argument("-ws", "--window_shift", type=int,
                 help="window data shift between two sets of signals",
                 default=1)
