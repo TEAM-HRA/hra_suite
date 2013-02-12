@@ -78,6 +78,21 @@ class DataSource(object):
     def signal_unit(self, signal_unit):
         self.__signal_unit__ = signal_unit
 
+    @property
+    def data(self):
+        pass
+
+    @data.setter
+    def data(self, _data):
+        if (isinstance(_data, DataSource)):
+            self.signal = _data.signal
+            self.shifted_signal = _data.shifted_signal
+            self.annotation = _data.annotation
+            self.time = _data.time
+            self.signal_unit = _data.signal_unit
+        else:
+            raise Exception('Parameter data have to be of DataSource type !!!')
+
     def __str__(self):
         return (' '.join(
                 [self.__for_str__('signal', self.signal),
@@ -94,6 +109,10 @@ class DataSource(object):
                 sample = data[0:(10 if l > 10 else l)]
             return ("{0} [size {1} sample {2}] ".format(prefix, l, sample))
         return ''
+
+    # if parameter is not set in the __init__() method then returns None
+    def __getattr__(self, name):
+        return None
 
 
 class ColumnSpec(object):
