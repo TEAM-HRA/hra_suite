@@ -4,6 +4,7 @@
 #  Classes with base functionality for statistics
 from pymath.utils.utils import print_import_error
 try:
+    import inspect
     from pylab import sqrt
     from pylab import size
     from pylab import pi
@@ -12,6 +13,7 @@ try:
     from pylab import compress
     from pylab import equal
     from numpy import var
+    from pycore.units import Minute
     from pycore.collections_utils import get_as_list
     from pycore.introspection import get_class_object
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
@@ -43,9 +45,19 @@ class Statistic(DataSource):
     ## Method used by clients to get a calculated value of specific statistic
     #  @return calculated value of a statistic
     def compute(self):
-        self.__pre_calculate__()
-        value = self.__calculate__()
-        return value
+        if self.handler:
+            if self.handler.arg_count == 2:
+                return self.handler(self.signal, self.shifted_signal)
+            elif self.handler.arg_count == 1:
+                return self.handler(self.signal)
+            elif self.handler.arg_count == 3:
+                return self.handler(self.signal, self.shifted_signal,
+                                    self.annotation)
+            return self.handler()
+        else:
+            self.__pre_calculate__()
+            value = self.__calculate__()
+            return value
 
     ## Method used to get a name of a statistic based on derived statistic's
     #  class name
@@ -80,6 +92,20 @@ class Statistic(DataSource):
     def name(self, _name):
         self.__name__ = _name
 
+    @property
+    def handler(self):
+        return self.__handler__
+
+    @handler.setter
+    def handler(self, _handler):
+        if _handler:
+            #name of a handler is a name of statistic
+            self.name = locals().get('_handler').__name__
+            self.__handler__ = _handler
+            #add number of arguments of a handler
+            self.__handler__.arg_count = len(
+                                    inspect.getargspec(self.__handler__).args)
+
     @staticmethod
     def getSubclasses():
         return Statistic.__subclasses__()
@@ -109,7 +135,8 @@ class TotTimeStatistic(Statistic):
     '''
 
     def __calculate__(self):
-        return sum(self.signal) / (1000 * 60)
+        # total time in minute unit (1000 * 60)
+        return sum(self.signal) / Minute.toUnitMultiplier(self.signal_unit)
 
 
 class SDStatistic(Statistic):
@@ -214,14 +241,14 @@ class SymmetryStatistic(Statistic):
                      > (self >> SD1downStatistic())) else 0
 
 
-class StatisticsFactory(DataSource):
+class StatisticsFactory(object):
 
-    def __init__(self, statistics_classes_or_names, data=None):
+    def __init__(self, statistics_classes_or_names, statistics_handlers=None):
         '''
         Constructor
         '''
-        DataSource.__init__(self, data)
         self.__statistics_classes__ = []
+        self.__statistics_handlers__ = statistics_handlers
 
         #if statistics_classes_or_names is a string object which included
         #names of statistics separater by comma we change it into list of names
@@ -251,12 +278,12 @@ class StatisticsFactory(DataSource):
                 self.__statistics_classes__.append(type_or_name)
         self.__statistics_objects__ = []
 
-    @property
-    def statistics(self):
+    def statistics(self, _data):
         __statistics = {}
-        with StatisticsFactory(self.statistics_classes, self) as factory:
+        with StatisticsFactory(self.statistics_classes,
+                statistics_handlers=self.__statistics_handlers__) as factory:
             for statistic in factory.statistics_objects:
-                __statistics[statistic._id] = self >> statistic
+                __statistics[statistic._id] = _data >> statistic
         return __statistics
 
     @property
@@ -277,16 +304,18 @@ class StatisticsFactory(DataSource):
     def __generate_statistics_objects__(self, classes__):
         for class__ in classes__:
             statistic_object = class__.__new__(class__)
-            statistic_object.__init__(self)
-            if (hasattr(self, 'annotation')
-                and hasattr(statistic_object, 'annotation')):
-                statistic_object.annotation = self.annotation
+            statistic_object.__init__()
             self.statistics_objects.append(statistic_object)
+
+        if not self.__statistics_handlers__ == None:
+            for handler in self.__statistics_handlers__:
+                statistic = Statistic()
+                statistic.handler = handler
+                self.statistics_objects.append(statistic)
 
             #calculate for next level subclasses
             #Warning: this functionality is deactivated
             #self.__generate_statistics_objects__(class__)
-
 
 #def Mean(__signal__):
 #    return sum(__signal__) / float(size(__signal__))

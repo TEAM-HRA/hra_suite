@@ -42,8 +42,8 @@ class Filter(DataSource):
         if not self.signal == None:
             filteredData = self.__filter__(self.signal, self.annotation)
             if not self.statisticsClasses == None:
-                statistics = StatisticsFactory(self.statisticsClasses,
-                                               filteredData).statistics
+                factory = StatisticsFactory(self.statisticsClasses)
+                statistics = factory.statistics(filteredData)
         if self.keepAnnotation:
             filteredData.annotation = self.annotation
         return Filter(filteredData, statistics)

@@ -200,6 +200,8 @@ class PoincarePlotManager(object):
                                annotation_index=self.annotation_index,
                                time_index=self.time_index)
 
+        statisticsFactory = StatisticsFactory(self.statistics_names,
+                            statistics_handlers=self.__statistics_handlers__)
         with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=_file,
                          output_precision=self.output_precision) as csv:
@@ -208,10 +210,14 @@ class PoincarePlotManager(object):
                                     self.window_size,
                                     shift=self.window_shift,
                                     window_size_unit=self.window_size_unit):
-                statistics = StatisticsFactory(self.statistics_names,
-                                               data=data_segment).statistics
+                statistics = statisticsFactory.statistics(data_segment)
                 csv.write(statistics)
-                print(str(statistics))
+                #print(str(statistics))
+
+    def add_statistic_handler(self, _handler=None):
+        if self.__statistics_handlers__ == None:
+            self.__statistics_handlers__ = []
+        self.__statistics_handlers__.append(_handler)
 
 
 class PoincarePlot(StatisticsFactory):
@@ -337,6 +343,12 @@ class PoincarePlotSegmenter(object):
             raise StopIteration
 
 
+#an example of statistic handler
+#def stat_double(signal, shifted_signal):
+#    print('stat double: ' + str(signal.sum() * 2))
+#    return signal.sum() * 2
+
+
 if __name__ == '__main__':
     to_bool = lambda p: True if p.title() == "True" else False
 
@@ -393,4 +405,5 @@ if __name__ == '__main__':
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
     ppManager.output_precision = __args.output_precision
+    #ppManager.add_statistic_handler(stat_double)
     ppManager.generate()
