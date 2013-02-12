@@ -121,6 +121,12 @@ def get_units_for_type(_unit_type):
     return __UNITS_TYPE_MAP__.get(_unit_type)
 
 
+def get_time_unit(unit_name):
+    for unit in __UNITS_TYPE_MAP__.get(TIME_UNIT_TYPE):
+        if unit.unit == unit_name:
+            return unit
+
+
 if __name__ == '__main__':
     print(Hour.toUnitMultiplier(Second))
     print(Second.toUnitMultiplier(Hour))
