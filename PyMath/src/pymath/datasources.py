@@ -11,6 +11,7 @@ try:
     from re import compile
     from numpy import array
     from numpy import loadtxt
+    from pycore.units import Millisecond
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
     from pymath.utils.utils import Params
 except ImportError as error:
@@ -20,7 +21,7 @@ except ImportError as error:
 class DataSource(object):
 
     def __init__(self, signal=None, shifted_signal=None, annotation=None,
-                 time=None):
+                 time=None, signal_unit=Millisecond):
         '''
         Constructor
         '''
@@ -29,11 +30,13 @@ class DataSource(object):
             self.shifted_signal = signal.shifted_signal
             self.annotation = signal.annotation
             self.time = signal.time
+            self.signal_unit = signal.signal_unit
         else:
             self.signal = signal
             self.shifted_signal = shifted_signal
             self.annotation = annotation
             self.time = time
+            self.signal_unit = signal_unit
 
     @property
     def signal(self):
@@ -66,6 +69,14 @@ class DataSource(object):
     @shifted_signal.setter
     def shifted_signal(self, shifted_signal):
         self.__shifted_signal__ = shifted_signal
+
+    @property
+    def signal_unit(self):
+        return self.__signal_unit__
+
+    @signal_unit.setter
+    def signal_unit(self, signal_unit):
+        self.__signal_unit__ = signal_unit
 
     def __str__(self):
         return (' '.join(
@@ -246,13 +257,13 @@ class FileDataSource(object):
         self.__headers__ = None
         self.__cols__ = []
         self.__cols_idents__ = ""
-        if self.params.signal_index:
+        if self.params.signal_index >= 0:
             self.__cols__.append(self.params.signal_index)
             self.__cols_idents__ += FileDataSource.SIGNAL_IDENT
-        if self.params.annotation_index:
+        if self.params.annotation_index >= 0:
             self.__cols__.append(self.params.annotation_index)
             self.__cols_idents__ += FileDataSource.ANNOTATION_IDENT
-        if self.params.time_index:
+        if self.params.time_index >= 0:
             self.__cols__.append(self.params.time_index)
             self.__cols_idents__ += FileDataSource.TIME_IDENT
 
