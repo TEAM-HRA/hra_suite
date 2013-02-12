@@ -51,7 +51,7 @@ class Statistic(DataSource):
     #  class name
     #  @return the name, of statistic, which doesn't contain word Statistic
     @property
-    def id(self):
+    def _id(self):
         name = self.__class__.__name__
         #remove suffix Statistic
         idx = name.find('Statistic')
@@ -242,7 +242,7 @@ class StatisticsFactory(DataSource):
         __statistics = {}
         with StatisticsFactory(self.statistics_classes, self) as factory:
             for statistic in factory.statistics_objects:
-                __statistics[statistic.id] = self >> statistic
+                __statistics[statistic._id] = self >> statistic
         return __statistics
 
     @property
