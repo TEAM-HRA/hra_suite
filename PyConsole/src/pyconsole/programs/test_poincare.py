@@ -13,7 +13,7 @@ from pymath.datasources import SignalColumnSpec
 from pymath.datasources import AnnotationColumnSpec
 from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlot
 from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlotSegmenter #@IgnorePep8
-from pymath.time_domain.poincare_plot.filters import RemoveAnnotatedSignalFilter #@IgnorePep8
+from pymath.time_domain.poincare_plot.filters import RemoveAnnotationFilter #@IgnorePep8
 from pymath.time_domain.poincare_plot.filters import ZeroAnnotationFilter
 from pymath.time_domain.poincare_plot.filters import AnnotationShiftedPartsFilter #@IgnorePep8
 from pymath.frequency_domain.fourier import FastFourierTransform
@@ -74,7 +74,7 @@ from pymath.frequency_domain.fourier import FastFourierTransform
 #sdata = StatisticsFactory(
 #                     (MeanStatistic, SDRRStatistic,
 #                      NtotStatistic, TotTimeStatistic),
-#                      RemoveAnnotatedSignalFilter(data).filter)
+#                      RemoveAnnotationFilter(data).filter)
 #print('filtered statistics:')
 #print(sdata.statistics)
 
@@ -137,10 +137,10 @@ def test_poincare():
     #        sdata = StatisticsFactory(
     #                             (MeanStatistic, SDRRStatistic,
     #                              NtotStatistic, TotTimeStatistic),
-    #                              RemoveAnnotatedSignalFilter(d2).filter)
+    #                              RemoveAnnotationFilter(d2).filter)
     #        print(sdata.statistics)
             print(4)
-            print(RemoveAnnotatedSignalFilter(d2).filter.statistics)
+            print(RemoveAnnotationFilter(d2).filter.statistics)
 
             anno = AnnotationShiftedPartsFilter(d2).filter
             print(anno)

@@ -21,6 +21,21 @@ except ImportError as error:
     print_import_error(__name__, error)
 
 
+class FilterManager(object):
+    def __init__(self):
+        self.__filters__ = []
+        self.__filters_handlers__ = []
+
+    def addFilter(self, _filter):
+        self.__filters__.append(_filter)
+
+    def activate(self):
+        pass
+
+    def addFilterHandler(self, _filter_handler):
+        self.__filters_handlers__.append(_filter_handler)
+
+
 class Filter(DataSource):
     '''
     classdocs
@@ -83,7 +98,7 @@ class Filter(DataSource):
         self.__keepAnnotation__ = _keepAnnotation
 
 
-class RemoveAnnotatedSignalFilter(Filter):
+class RemoveAnnotationFilter(Filter):
     def __init__(self, data_source):
         Filter.__init__(self, data_source)
         self.statisticsClasses = (MeanStatistic, SDRRStatistic,
