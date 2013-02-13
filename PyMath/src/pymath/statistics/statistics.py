@@ -27,10 +27,9 @@ except ImportError as error:
 class Statistic(DataSource):
 
     ## Constructor
-    #  @param data_source source of data it assumes type of
-    #  med.data_sources.datasources.DataSource
-    def __init__(self, data_source=None):
-        DataSource.__init__(self, data_source)
+    #  @param **data
+    def __init__(self, **data):
+        DataSource.__init__(self, **data)
 
     ## Method (optional) to put pre calculations done before proper
     #  calculations
@@ -71,18 +70,9 @@ class Statistic(DataSource):
         idx = name.find('Statistic')
         return None if idx == -1 else name[:idx]
 
-    ## Method to give ability for statistic calculation in the form
-    # if right shift operation which is expressed by:
-    #  (data source object) >> (statistic object)
-    #  @param other data source i.e. object of a type
-    #  med.data_sources.datasources.DataSource
-    #  @return calculated value of a statistic
     def __rrshift__(self, other):
-        if (isinstance(other, DataSource)):
-            self.signal = other.signal
-            self.shifted_signal = other.shifted_signal
-            self.annotation = other.annotation
-            return self.compute()
+        #depreciated method
+        raise NotImplementedError("def Statistic.__rrshift__(self, other)")
 
     @property
     def name(self):
@@ -124,7 +114,6 @@ class MeanStatistic(Statistic):
     '''
     classdocs
     '''
-
     def __calculate__(self):
         return sum(self.signal) / float(size(self.signal))
 
@@ -133,7 +122,6 @@ class TotTimeStatistic(Statistic):
     '''
     classdocs
     '''
-
     def __calculate__(self):
         # total time in minute unit (1000 * 60)
         return sum(self.signal) / Minute.toUnitMultiplier(self.signal_unit)
@@ -145,7 +133,7 @@ class SDStatistic(Statistic):
             # ddof=1 means divide by size-1
             return sqrt(var(self.signal, ddof=1))
         else:
-            meanValue = MeanStatistic(self.signal).compute()
+            meanValue = MeanStatistic(signal=self.signal).compute()
             return sqrt(sum(((self.signal - meanValue) ** 2))
                         / (size(self.signal) - 1))
 
@@ -171,30 +159,34 @@ class SD2Statistic(SDStatistic):
 
 class SsStatistic(Statistic):
     def __calculate__(self):
-        sd1 = SD1Statistic(self).compute()
-        sd2 = SD2Statistic(self).compute()
+        sd1 = SD1Statistic(signal=self.signal,
+                           shifted_signal=self.shifted_signal).compute()
+        sd2 = SD2Statistic(signal=self.signal,
+                           shifted_signal=self.shifted_signal).compute()
         return pi * sd1 * sd2
 
 
 class SD21Statistic(Statistic):
     def __calculate__(self):
-        sd1 = SD1Statistic(self).compute()
-        sd2 = SD2Statistic(self).compute()
+        sd1 = SD1Statistic(signal=self.signal,
+                           shifted_signal=self.shifted_signal).compute()
+        sd2 = SD2Statistic(signal=self.signal,
+                           shifted_signal=self.shifted_signal).compute()
         return sd2 / sd1
 
 
 class RStatistic(Statistic):
     def __calculate__(self):
-        x_pn = self.signal - MeanStatistic(self.signal).compute()
+        x_pn = self.signal - MeanStatistic(signal=self.signal).compute()
         x_ppn = (self.shifted_signal
-                    - MeanStatistic(self.shifted_signal).compute())
+                    - MeanStatistic(signal=self.shifted_signal).compute())
         return dot(x_pn, x_ppn) / (sqrt(dot(x_pn, x_pn) * dot(x_ppn, x_ppn)))
 
 
 class RMSSDStatistic(Statistic):
     def __calculate__(self):
         mean = MeanStatistic(
-                        (self.signal - self.shifted_signal) ** 2).compute()
+                signal=(self.signal - self.shifted_signal) ** 2).compute()
         return sqrt(mean)
 
 
@@ -237,8 +229,10 @@ class NonStatistic(Statistic):
 
 class SymmetryStatistic(Statistic):
     def __calculate__(self):
-        return 1 if ((self >> SD1upStatistic())
-                     > (self >> SD1downStatistic())) else 0
+        return 1 if SD1upStatistic(signal=self.signal,
+                            shifted_signal=self.shifted_signal).compute() > \
+                SD1downStatistic(signal=self.signal, \
+                        shifted_signal=self.shifted_signal).compute() else 0
 
 
 class StatisticsFactory(object):
@@ -283,7 +277,8 @@ class StatisticsFactory(object):
         with StatisticsFactory(self.statistics_classes,
                 statistics_handlers=self.__statistics_handlers__) as factory:
             for statistic in factory.statistics_objects:
-                __statistics[statistic._id] = _data >> statistic
+                statistic.data = _data
+                __statistics[statistic._id] = statistic.compute()
         return __statistics
 
     @property
