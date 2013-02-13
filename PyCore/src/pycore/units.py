@@ -57,7 +57,7 @@ class __Unit__(object):
         if not self._type == other._type:
             raise TypeError('Incompatible types: ' + self + ' <=> ' + other)
 
-    def toUnitMultiplier(self, unit):
+    def expressInUnit(self, unit):
         value = 1
         if self.ordinal == unit.ordinal:
             pass
@@ -128,8 +128,8 @@ def get_time_unit(unit_name):
 
 
 if __name__ == '__main__':
-    print(Hour.toUnitMultiplier(Second))
-    print(Second.toUnitMultiplier(Hour))
-    print(Hour.toUnitMultiplier(Hour))
-    print(Hour.toUnitMultiplier(Minute))
-    print(Minute.toUnitMultiplier(Hour))
+    print(Hour.expressInUnit(Second))
+    print(Second.expressInUnit(Hour))
+    print(Hour.expressInUnit(Hour))
+    print(Hour.expressInUnit(Minute))
+    print(Minute.expressInUnit(Hour))

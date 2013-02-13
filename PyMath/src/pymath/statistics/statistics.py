@@ -124,7 +124,7 @@ class TotTimeStatistic(Statistic):
     '''
     def __calculate__(self):
         # total time in minute unit (1000 * 60)
-        return sum(self.signal) / Minute.toUnitMultiplier(self.signal_unit)
+        return sum(self.signal) / Minute.expressInUnit(self.signal_unit)
 
 
 class SDStatistic(Statistic):

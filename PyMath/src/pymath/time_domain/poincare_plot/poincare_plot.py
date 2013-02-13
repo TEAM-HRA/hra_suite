@@ -301,7 +301,7 @@ class PoincarePlotSegmenter(object):
 
             #convert signal unit into window size unit,
             #for example express milliseconds in minutes
-            multiplier = unit.toUnitMultiplier(self.__data__.signal_unit)
+            multiplier = unit.expressInUnit(self.__data__.signal_unit)
 
             #express window size in units of a signal
             self.__window_size__ = multiplier * window_size
