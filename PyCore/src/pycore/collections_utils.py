@@ -152,3 +152,11 @@ def get_as_tuple(_string, separator=',', strip_characters=' ', convert=None):
     """
     _list = get_as_list(_string, separator, strip_characters)
     return tuple(_list if convert == None else map(convert, _list))
+
+
+def commas(*iterable, **params):
+    """
+    method used to join iterable by comma
+    """
+    c = map(str, *iterable)
+    return params.get('_default', None) if len(c) == 0 else ','.join(c)
