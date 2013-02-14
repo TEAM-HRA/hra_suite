@@ -35,6 +35,15 @@ class FilterManager(object):
     def addFilterHandler(self, _filter_handler):
         self.__filters_handlers__.append(_filter_handler)
 
+    @staticmethod
+    def getSubclasses():
+        return Filter.__subclasses__()
+
+    @staticmethod
+    def getSubclassesShortNames():
+        return [_class.__name__[:_class.__name__.rfind('Filter')]
+                for _class in FilterManager.getSubclasses()]
+
 
 class Filter(DataSource):
     '''
