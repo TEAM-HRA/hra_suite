@@ -7,10 +7,9 @@ from pymath.utils.utils import print_import_error
 try:
     import glob
     import os
+    import numpy as np
     from re import findall
     from re import compile
-    from numpy import array
-    from numpy import loadtxt
     from pycore.units import Millisecond
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
     from pymath.utils.utils import Params
@@ -198,7 +197,8 @@ class FilesDataSources(object):
         if not self.__headers__:
             with open(self.__filenames__[0], 'r') as _file:
                 header_line = _file.readline()  # header line
-                self.__headers__ = findall(r'\b[A-Za-z\[\]\-\%\#\!\@\$\^\&\*]+', header_line) #@IgnorePep8
+                self.__headers__ = findall(
+                        r'\b[A-Za-z\[\]\-\%\#\!\@\$\^\&\*]+', header_line)
         return self.__headers__
 
     def __getDataSource__(self, filename):
@@ -214,7 +214,8 @@ class FilesDataSources(object):
                 if self.annotation_spec:
                     annotation.append(int(float(contents[self.annotation_spec.num]))) #@IgnorePep8
 
-        return self.__createDataSource__(filename, array(signal), array(annotation)) #@IgnorePep8
+        return self.__createDataSource__(filename, np.array(signal),
+                                         np.array(annotation))
 
     @property
     def signal_spec(self):
@@ -233,13 +234,13 @@ class FilesDataSources(object):
         annotation = None
 
         if len(self.cols) == 2:
-            (signal, annotation) = loadtxt(filename,
+            (signal, annotation) = np.loadtxt(filename,
                                            skiprows=1,
                                            usecols=self.cols,
                                            unpack=True)
             annotation = annotation.astype(int)
         else:
-            signal = loadtxt(filename,
+            signal = np.loadtxt(filename,
                              skiprows=1,
                              usecols=self.cols,
                              unpack=True)
@@ -320,16 +321,19 @@ class FileDataSource(object):
                 for index in self.__cols__:
                     _data[index].append(contents[self.__cols__[index]])
 
-        return self.__createData__(map(array, _data))
+        return self.__createData__(map(np.array, _data))
 
     def __getNumPyData__(self):
         _data = [None] * len(self.__cols__)
-        _data = loadtxt(self.__file__,
+        _data = np.loadtxt(self.__file__,
                         skiprows=len(self.headers),
                         usecols=self.__cols__,
                         unpack=True,
                         delimiter=self.params.separator)
-        return self.__createData__(_data)
+        #if only one column is pick up then _data variable contains only
+        #one numpy array so it have to be enclosed as list type
+        return self.__createData__([_data] if len(self.__cols__) == 1 \
+                                   else _data)
 
     def __createData__(self, _data):
         indexes = map(self.__cols_idents__.find,
@@ -339,7 +343,7 @@ class FileDataSource(object):
         (signal, annotation, time) = \
               [(None if index == -1 else \
                 _data[index:index + 1][0]) for index in indexes]
-        if annotation == None:
+        if annotation == None and not signal == None:
             annotation = 0 * signal
         if not annotation == None:
             annotation = annotation.astype(int)
@@ -348,3 +352,9 @@ class FileDataSource(object):
                                  time=time)
         data_source.filename = self.__file__  # set up an additional property
         return data_source
+
+    def getUniqueAnnotations(self):
+        data = self.getData()
+        if data.annotation is not None:
+            unique_annotations = np.unique(data.annotation)
+            return unique_annotations[np.where(unique_annotations > 0)]
