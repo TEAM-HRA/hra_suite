@@ -31,6 +31,8 @@ try:
     from pymath.statistics.statistics import SymmetryStatistic
     from pymath.datasources import DataSource
     from pymath.datasources import FileDataSource
+    from pymath.time_domain.poincare_plot.filters import FilterManager
+    from pycore.collections_utils import commas
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -40,6 +42,10 @@ DEFAULT_OUTCOME_DIRECTORY = os.path.join(os.getcwd(), 'pp_outcomes')
 
 def getDefaultStatisticsNames():
     return ", ".join(Statistic.getSubclassesShortNames())
+
+
+def getFiltersNames():
+    return ", ".join(FilterManager.getSubclassesShortNames())
 
 
 class PoincarePlotManager(object):
@@ -166,6 +172,12 @@ class PoincarePlotManager(object):
         """
         the method which starts to generate Poincare Plot parameters
         """
+        self.__process__(self.__process_file__)
+
+    def __process__(self, _file_handler, **params):
+        """
+        the method which starts to generate Poincare Plot parameters
+        """
 
         sign_multiplicator = 80
         file_counter = 0
@@ -175,7 +187,7 @@ class PoincarePlotManager(object):
             else:
                 file_counter = 1
                 print('Processing file: ' + self.data_file)
-                self.__process__(self.data_file)
+                _file_handler(self.data_file, **params)
         else:
             path = self.data_dir + ('*.*'
                             if self.extension == None else self.extension)
@@ -184,7 +196,7 @@ class PoincarePlotManager(object):
                     file_counter = file_counter + 1
                     print('=' * sign_multiplicator)
                     print('Processing file: ' + _file)
-                    self.__process__(_file)
+                    _file_handler(_file, **params)
         for _ in range(3):
             print('*' * sign_multiplicator)
         print('Processing finished')
@@ -194,7 +206,7 @@ class PoincarePlotManager(object):
         else:
             print('Number of files processed: ' + str(file_counter))
 
-    def __process__(self, _file):
+    def __process_file__(self, _file):
         file_data_source = FileDataSource(_file=_file,
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
@@ -214,10 +226,22 @@ class PoincarePlotManager(object):
                 csv.write(statistics)
                 #print(str(statistics))
 
-    def add_statistic_handler(self, _handler=None):
+    def addStatisticHandler(self, _handler=None):
         if self.__statistics_handlers__ == None:
             self.__statistics_handlers__ = []
         self.__statistics_handlers__.append(_handler)
+
+    def getUniqueAnnotations(self):
+        unique_annotations = []
+        self.__process__(self.__process_annotations__,
+                         _unique_annotations=unique_annotations)
+        return set(unique_annotations)
+
+    def __process_annotations__(self, _file, _unique_annotations=None):
+        file_data_source = FileDataSource(_file=_file,
+                                annotation_index=self.annotation_index)
+        _unique_annotations[len(_unique_annotations):] = \
+                    file_data_source.getUniqueAnnotations()
 
 
 class PoincarePlot(StatisticsFactory):
@@ -380,8 +404,9 @@ if __name__ == '__main__':
                 help="list of statistics names to calculate, defaults to: " +
                         getDefaultStatisticsNames(),
                 default=getDefaultStatisticsNames())
-    parser.add_argument("-r", "--headers",
-                help="display lines of headers (not implemented yet)")
+    #parser.add_argument("-r", "--headers",
+    #            help="display lines of headers (not implemented yet)",
+    #            default="")
     parser.add_argument("-si", "--signal_index", type=int,
                 help="index of a signal column", default=-1)
     parser.add_argument("-ai", "--annotation_index", type=int,
@@ -391,6 +416,9 @@ if __name__ == '__main__':
     parser.add_argument("-p", "--separator",
                 help="a separator used between columns, one from the set: " +
                      ", ".join(Separator.getSeparatorsLabels()) + ", <custom>")
+    parser.add_argument("-dav", "--display_annotation_values",
+                help="display unique annotations values [True|False]",
+                type=to_bool, default=False)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -405,5 +433,9 @@ if __name__ == '__main__':
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
     ppManager.output_precision = __args.output_precision
-    #ppManager.add_statistic_handler(stat_double)
-    ppManager.generate()
+    #ppManager.addStatisticHandler(stat_double)
+    if __args.display_annotation_values == True:
+        print('Annotations: ' + commas(ppManager.getUniqueAnnotations(),
+                                       _default='none'))
+    else:
+        ppManager.generate()
