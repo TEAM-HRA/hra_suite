@@ -114,3 +114,29 @@ def get_object(name, default=None, level=0):
 
 def __s(_list):
     return ".".join(_list)
+
+
+def create_class_object_with_suffix(_class_package, _class_name, _suffix):
+    """
+    method creates class object using passed _class_package, _class_name
+    and with _suffix if it is present
+    """
+    #check if a name is not in dot format
+    if not _class_name.rfind('.') >= 0:
+        #append a _suffix suffix if not present already
+        if not _class_name.endswith(_suffix):
+            _class_name += _suffix
+        #prefix with current package
+        full_class_name = '.'.join([_class_package, _class_name])
+    class_object = get_class_object(full_class_name)
+    if class_object == None:
+        raise TypeError("class " + full_class_name + " doesn't exist")
+    else:
+        return class_object
+
+
+def get_method_arguments_count(_method):
+    """
+    method returns number of parameters of passed _method
+    """
+    return len(inspect.getargspec(_method).args) if hasattr(_method, '__call__') else -1 # @IgnorePep8

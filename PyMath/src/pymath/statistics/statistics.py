@@ -4,7 +4,6 @@
 #  Classes with base functionality for statistics
 from pymath.utils.utils import print_import_error
 try:
-    import inspect
     from pylab import sqrt
     from pylab import size
     from pylab import pi
@@ -15,7 +14,8 @@ try:
     from numpy import var
     from pycore.units import Minute
     from pycore.collections_utils import get_as_list
-    from pycore.introspection import get_class_object
+    from pycore.introspection import create_class_object_with_suffix
+    from pycore.introspection import get_method_arguments_count
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
     from pymath.datasources import DataSource
 except ImportError as error:
@@ -93,8 +93,8 @@ class Statistic(DataSource):
             self.name = locals().get('_handler').__name__
             self.__handler__ = _handler
             #add number of arguments of a handler
-            self.__handler__.arg_count = len(
-                                    inspect.getargspec(self.__handler__).args)
+            self.__handler__.arg_count = \
+                            get_method_arguments_count(self.__handler__)
 
     @staticmethod
     def getSubclasses():
@@ -253,20 +253,9 @@ class StatisticsFactory(object):
         for type_or_name in statistics_classes_or_names:
             #if type_or_name is a string
             if isinstance(type_or_name, str):
-                #check if a name is not in dot format
-                if not type_or_name.rfind('.') >= 0:
-                    #append a 'Statistic' suffix if not present already
-                    if not type_or_name.endswith('Statistic'):
-                        type_or_name += 'Statistic'
-                    #prefix with current package
-                    type_or_name = '.'.join(['pymath.statistics.statistics',
-                                             type_or_name])
-                class_object = get_class_object(type_or_name)
-                if class_object == None:
-                    raise TypeError("class " + type_or_name + " doesn't exist")
-                else:
-                    type_or_name = class_object
-
+                type_or_name = create_class_object_with_suffix(
+                                                'pymath.statistics.statistics',
+                                                type_or_name, 'Statistic')
             #if type_or_name is a class type
             if isinstance(type_or_name, type):
                 self.__statistics_classes__.append(type_or_name)
