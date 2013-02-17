@@ -11,6 +11,7 @@ try:
     from pylab import append
     from itertools import count
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
+    from pycore.introspection import get_subclasses_short_names
     from datasources import DataSource
 except ImportError as error:
     print_import_error(__name__, error)
@@ -26,6 +27,10 @@ class Interpolation(DataSource):
 
     def __interpolate__(self, signal, annotation):
         return None
+
+    @staticmethod
+    def getSubclassesShortNames():
+        return get_subclasses_short_names(Interpolation)
 
 
 class LinearInterpolation(Interpolation):
