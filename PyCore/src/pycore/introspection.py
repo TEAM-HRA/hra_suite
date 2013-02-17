@@ -140,3 +140,13 @@ def get_method_arguments_count(_method):
     method returns number of parameters of passed _method
     """
     return len(inspect.getargspec(_method).args) if hasattr(_method, '__call__') else -1 # @IgnorePep8
+
+
+def get_subclasses_short_names(_class, remove_base_classname=True):
+    """
+    get all class _class subclasses names, with ability to remove
+    a baseclass name in the outcome
+    """
+    return [_sub_class.__name__[:(_sub_class.__name__.rfind(_class.__name__)
+                                  if remove_base_classname else None)]
+                                  for _sub_class in _class.__subclasses__()]
