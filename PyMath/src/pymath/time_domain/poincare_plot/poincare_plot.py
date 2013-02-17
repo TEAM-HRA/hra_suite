@@ -31,8 +31,13 @@ try:
     from pymath.statistics.statistics import SymmetryStatistic
     from pymath.datasources import DataSource
     from pymath.datasources import FileDataSource
+    from pymath.interpolation import Interpolation
     from pymath.time_domain.poincare_plot.filters import FilterManager
+    from pymath.time_domain.poincare_plot.filters import Filter
     from pycore.collections_utils import commas
+    from pycore.collections_utils import get_as_list
+    from pymath.frequency_domain.fourier import FourierTransformManager
+    from pymath.frequency_domain.fourier import FastFourierTransform
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -41,11 +46,15 @@ DEFAULT_OUTCOME_DIRECTORY = os.path.join(os.getcwd(), 'pp_outcomes')
 
 
 def getDefaultStatisticsNames():
-    return ", ".join(Statistic.getSubclassesShortNames())
+    return commas(Statistic.getSubclassesShortNames())
 
 
 def getFiltersNames():
-    return ", ".join(FilterManager.getSubclassesShortNames())
+    return commas(Filter.getSubclassesShortNames())
+
+
+def getInterpolationNames():
+    return commas(Interpolation.getSubclassesShortNames())
 
 
 class PoincarePlotManager(object):
@@ -168,13 +177,49 @@ class PoincarePlotManager(object):
     def output_precision(self, _output_precision):
         self.__output_precision__ = _output_precision
 
+    @property
+    def use_filters(self):
+        return self.__use_filters__
+
+    @use_filters.setter
+    def use_filters(self, _filters_names):
+        if _filters_names is None:
+            return
+        #ZeroAnnotation[1-2-3],RemoveAnnotation[1-3],FIlter[ALL]
+        for filter_part in map(str.strip, _filters_names.split(',')):
+            idx_start = filter_part.find('[')
+            idx_stop = filter_part.find(']')
+            filter_name = \
+                filter_part[:(None if idx_start == -1 else idx_start)]
+            annotations = get_as_list(
+                        filter_part[idx_start + 1:idx_stop], separator='-') \
+                        if idx_start >= 0 and idx_stop > idx_start else None
+            if 'all' == str(annotations).lower():
+                self.addFilter(filter_name)
+            else:
+                self.addFilter(filter_name, annotations)
+
+    def addFilter(self, name_or_object, annotations=None):
+        if len(str(name_or_object)) > 0:
+            if self.__filter_manager__ == None:
+                self.__filter_manager__ = FilterManager()
+            self.__filter_manager__.addFilter(name_or_object, annotations)
+
+    @property
+    def use_fft_interpolation(self):
+        return self.__use_fft_interpolation__
+
+    @use_fft_interpolation.setter
+    def use_fft_interpolation(self, _use_fft_interpolation):
+        self.__use_fft_interpolation__ = _use_fft_interpolation
+
     def generate(self):
         """
         the method which starts to generate Poincare Plot parameters
         """
         self.__process__(self.__process_file__)
 
-    def __process__(self, _file_handler, **params):
+    def __process__(self, _file_handler, disp=True, **params):
         """
         the method which starts to generate Poincare Plot parameters
         """
@@ -183,10 +228,12 @@ class PoincarePlotManager(object):
         file_counter = 0
         if self.data_file:  # data_file parameter is superior to data_dir parameter @IgnorePep8
             if os.path.exists(self.data_file) == False:
-                print('The file: ' + self.data_file + " doesn't exist")
+                if disp:
+                    print('The file: ' + self.data_file + " doesn't exist")
             else:
                 file_counter = 1
-                print('Processing file: ' + self.data_file)
+                if disp:
+                    print('Processing file: ' + self.data_file)
                 _file_handler(self.data_file, **params)
         else:
             path = self.data_dir + ('*.*'
@@ -194,36 +241,43 @@ class PoincarePlotManager(object):
             for _file in glob.glob(path):
                 if os.path.isfile(_file):
                     file_counter = file_counter + 1
-                    print('=' * sign_multiplicator)
-                    print('Processing file: ' + _file)
+                    if disp:
+                        print('=' * sign_multiplicator)
+                        print('Processing file: ' + _file)
                     _file_handler(_file, **params)
-        for _ in range(3):
-            print('*' * sign_multiplicator)
-        print('Processing finished')
-        if file_counter == 0:
-            print('No files to process ['
-                   + self.data_dir + self.extension + ']')
-        else:
-            print('Number of files processed: ' + str(file_counter))
+        if disp:
+            for _ in range(3):
+                print('*' * sign_multiplicator)
+            print('Processing finished')
+            if file_counter == 0:
+                print('No files to process [' + self.data_dir
+                                            + self.extension + ']')
+            else:
+                print('Number of processed files: ' + str(file_counter))
 
     def __process_file__(self, _file):
         file_data_source = FileDataSource(_file=_file,
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
                                time_index=self.time_index)
-
-        statisticsFactory = StatisticsFactory(self.statistics_names,
-                            statistics_handlers=self.__statistics_handlers__)
+        data = file_data_source.getData()
+        parameters = {}
+        if self.__use_fft_interpolation__:
+            fourierManager = FourierTransformManager(FastFourierTransform,
+                                    self.__use_fft_interpolation__)
+            parameters.update(fourierManager.calculate(data))
         with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=_file,
                          output_precision=self.output_precision) as csv:
-            data = file_data_source.getData()
+            statisticsFactory = StatisticsFactory(self.statistics_names,
+                            statistics_handlers=self.__statistics_handlers__)
             for data_segment in PoincarePlotSegmenter(data,
                                     self.window_size,
                                     shift=self.window_shift,
                                     window_size_unit=self.window_size_unit):
                 statistics = statisticsFactory.statistics(data_segment)
-                csv.write(statistics)
+                parameters.update(statistics)
+                csv.write(parameters)
                 #print(str(statistics))
 
     def addStatisticHandler(self, _handler=None):
@@ -233,7 +287,7 @@ class PoincarePlotManager(object):
 
     def getUniqueAnnotations(self):
         unique_annotations = []
-        self.__process__(self.__process_annotations__,
+        self.__process__(self.__process_annotations__, disp=False,
                          _unique_annotations=unique_annotations)
         return set(unique_annotations)
 
@@ -419,6 +473,15 @@ if __name__ == '__main__':
     parser.add_argument("-dav", "--display_annotation_values",
                 help="display unique annotations values [True|False]",
                 type=to_bool, default=False)
+    parser.add_argument("-df", "--display_filters",
+                help="display list of available filters [True|False]",
+                type=to_bool, default=False)
+    parser.add_argument("-uf", "--use_filters",
+                help="""use filters in a form: <filter_name>[list of annotation
+                     values separated by '-'|ALL]""")
+    parser.add_argument("-ff", "--use_fft_interpolation",
+                help="""use Fast Fourier Transform with interpolation: """ +
+                        getInterpolationNames())
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -433,9 +496,16 @@ if __name__ == '__main__':
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
     ppManager.output_precision = __args.output_precision
+    ppManager.use_filters = __args.use_filters
+    ppManager.use_fft_interpolation = __args.use_fft_interpolation
+    _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:
+        _disp = True
         print('Annotations: ' + commas(ppManager.getUniqueAnnotations(),
                                        _default='none'))
-    else:
+    if __args.display_filters == True:
+        _disp = True
+        print('Filters: ' + getFiltersNames())
+    if _disp == False:
         ppManager.generate()

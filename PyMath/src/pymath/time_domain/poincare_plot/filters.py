@@ -11,6 +11,9 @@ try:
     from pylab import r_
     from pylab import in1d
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
+    from pycore.introspection import create_class_object_with_suffix
+    from pycore.introspection import get_method_arguments_count
+    from pycore.introspection import get_subclasses_short_names
     from pymath.datasources import DataSource
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.statistics import MeanStatistic
@@ -24,25 +27,46 @@ except ImportError as error:
 class FilterManager(object):
     def __init__(self):
         self.__filters__ = []
-        self.__filters_handlers__ = []
 
-    def addFilter(self, _filter):
-        self.__filters__.append(_filter)
+    def addFilter(self, _filter_object_or_handler_or_name, annotations=None):
+        """
+        filter entity could be passed as filter object itself, handler method
+        or a name of filter class
+        """
+        if isinstance(_filter_object_or_handler_or_name, str):
+            _filter_object_or_handler_or_name = \
+                create_class_object_with_suffix(
+                                'pymath.time_domain.poincare_plot.filters',
+                                _filter_object_or_handler_or_name, 'Filter')
+        _filter_object_or_handler_or_name.arg_count = \
+            get_method_arguments_count(_filter_object_or_handler_or_name)
+        self.__filters__.append(_filter_object_or_handler_or_name)
 
-    def activate(self):
-        pass
+    def run(self, _data):
+        """
+        method which runs all filters as objects or as methods;
+        when a method has two parameters it returns two values also
+        when has a one parameter it returns one value
+        when none parameters none value has to be returned
+        """
+        self.__statistics__ = {}
+        data = _data
+        for _filter in self.__filters__:
+            if _filter.arg_count == -1:
+                _filter.data = data
+                data = _filter.filter()
+                self.__statistics__.update(_filter.statistics)
+            elif _filter.arg_count == 2:
+                (data.signal, data.annotation) = _filter(data.signal,
+                                                         data.annotation)
+            elif _filter.arg_count == 1:
+                data.signal = _filter(data.signal)
+            elif _filter.arg_count == 0:
+                _filter()
+        return data
 
-    def addFilterHandler(self, _filter_handler):
-        self.__filters_handlers__.append(_filter_handler)
-
-    @staticmethod
-    def getSubclasses():
-        return Filter.__subclasses__()
-
-    @staticmethod
-    def getSubclassesShortNames():
-        return [_class.__name__[:_class.__name__.rfind('Filter')]
-                for _class in FilterManager.getSubclasses()]
+    def statistics(self):
+        return getattr(self, '__statistics__', None)
 
 
 class Filter(DataSource):
@@ -50,37 +74,32 @@ class Filter(DataSource):
     classdocs
     '''
 
-    def __init__(self, data_source, statistics=None):
+    def __init__(self, **data):
         '''
         Constructor
         '''
-        DataSource.__init__(self, data_source)
-        self.statistics = statistics
+        DataSource.__init__(self, **data)
         self.statisticsClasses = None
         self.keepAnnotation = False
 
+    # if parameter is not set in the __init__() this method then returns None
+    def __getattr__(self, name):
+        return None
+
     @property
     def filter(self):
-        statistics = None
         filteredData = None
         if not self.signal == None:
             filteredData = self.__filter__(self.signal, self.annotation)
             if not self.statisticsClasses == None:
                 factory = StatisticsFactory(self.statisticsClasses)
-                statistics = factory.statistics(filteredData)
+                self.__statistics__ = factory.statistics(filteredData)
         if self.keepAnnotation:
             filteredData.annotation = self.annotation
-        return Filter(filteredData, statistics)
+        return filteredData
 
     def __filter__(self, _signal, _annotation=None):
         pass
-
-    def __rrshift__(self, other):
-        """ overloading << operator """
-        if (isinstance(other, DataSource)):
-            self.signal = other.signal
-            self.annotation = other.annotation
-            return self.filter()
 
     @property
     def statistics(self):
@@ -92,11 +111,11 @@ class Filter(DataSource):
 
     @property
     def statisticsClasses(self):
-        return self.__statisticsClasses__
+        return self.__statistics_classes__
 
     @statisticsClasses.setter
     def statisticsClasses(self, statistics_classes):
-        self.__statisticsClasses__ = statistics_classes
+        self.__statistics_classes__ = statistics_classes
 
     @property
     def keepAnnotation(self):
@@ -105,6 +124,10 @@ class Filter(DataSource):
     @keepAnnotation.setter
     def keepAnnotation(self, _keepAnnotation):
         self.__keepAnnotation__ = _keepAnnotation
+
+    @staticmethod
+    def getSubclassesShortNames():
+        return get_subclasses_short_names(Filter)
 
 
 class RemoveAnnotationFilter(Filter):
@@ -115,12 +138,11 @@ class RemoveAnnotationFilter(Filter):
 
     def __filter__(self, _signal, _annotation):
         if USE_NUMPY_EQUIVALENT:
-            return DataSource(_signal[_annotation == 0])
+            return DataSource(signal=_signal[_annotation == 0])
 
-        indexy = find(_annotation == 0)
-        indexy = array(indexy)
-        _signal = _signal[indexy]
-        return DataSource(_signal)
+        indexy = array(find(_annotation == 0))
+        return DataSource(signal=_signal[indexy],
+                          annotation=_annotation[indexy])
 
 
 class AnnotationShiftedPartsFilter(Filter):
@@ -142,7 +164,7 @@ class AnnotationShiftedPartsFilter(Filter):
         indexy = array(find(x_p != -1))
         x_p = x_p[indexy]
         x_pp = x_pp[indexy]
-        return DataSource(x_p, x_pp)
+        return DataSource(signal=x_p, shifted_signal=x_pp)
 
 
 class ZeroAnnotationFilter(Filter):
@@ -162,9 +184,9 @@ class ZeroAnnotationFilter(Filter):
             index_pobudzenie = array(index_pobudzenie)
             if sum(index_pobudzenie != 0):
                 _annotation[index_pobudzenie] = 0
-        return DataSource(_signal, _annotation)
+        return DataSource(signal=_signal, annotation=_annotation)
 
-    def __numpy_filter__(self, signal, annotation):
+    def __numpy_filter__(self, _signal, _annotation):
         if not self.__leave_annotations__ == (0,):
-            annotation[in1d(annotation, self.__leave_annotations__)] = 0
-        return DataSource(signal, annotation)
+            _annotation[in1d(_annotation, self.__leave_annotations__)] = 0
+        return DataSource(signal=_signal, annotation=_annotation)
