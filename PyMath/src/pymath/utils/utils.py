@@ -32,18 +32,3 @@ def get_members_names(_object_class):
 
 #this variable is set up by external code, too
 USE_NUMPY_EQUIVALENT = True
-
-
-class Params(object):
-    """
-    class which represents dictionary parameters
-    by object where elements are accessible with dot notation
-    if client tries to access not existing element then None value is returned
-    """
-    def __init__(self, **params):
-        for param in params:
-            setattr(self, param, params[param])
-
-    # if parameter is not set in the __init__() method then returns None
-    def __getattr__(self, name):
-        return None

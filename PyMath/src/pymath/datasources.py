@@ -10,9 +10,9 @@ try:
     import numpy as np
     from re import findall
     from re import compile
+    from pycore.misc import Params
     from pycore.units import Millisecond
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
-    from pymath.utils.utils import Params
 except ImportError as error:
     print_import_error(__name__, error)
 
