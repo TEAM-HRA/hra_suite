@@ -21,52 +21,44 @@ except ImportError as error:
     print_import_error(__name__, error)
 
 
-class FourierTransform(DataSource):
+class FourierTransformManager(object):
+    def __init__(self, _fourier_transform_class, _interpolation_type=None):
+        self.__fourier_transform_class__ = _fourier_transform_class
+        self.__interpolation_type__ = _interpolation_type
 
+    def calculate(self, _data):
+        fourier_transform = self.__fourier_transform_class__(_data)
+        if len(self.__interpolation_type__) > 0:
+            signal = self.__get_interpolated_value__(_data)
+            fourier_transform.data = DataSource(signal=signal)
+        return fourier_transform.calculate()
+
+    def __get_interpolated_value__(self, _data):
+        _class_name = self.__interpolation_type__ + 'Interpolation'
+        interpolation_class = interpolation_module.__dict__.get(_class_name, None) #@IgnorePep8
+        if interpolation_class:
+            interpolation_object = interpolation_class()
+            interpolation_object.signal = _data.signal
+            interpolation_object.annotation = _data.annotation
+            return interpolation_object.interpolate()
+        raise AttributeError('Unknown interpolation: ' + _class_name)
+
+
+class FourierTransform(DataSource):
     def __init__(self, data_source):
         '''
         Constructor
         '''
         DataSource.__init__(self, data_source)
-        self.__interpolated_signal__ = None
 
-    @property
     def calculate(self):
-
-        if not self.__interpolated_signal__ == None:
-            return self.__calculate__(self.__interpolated_signal__)
-        else:
-            return self.__calculate__(self.signal)
+        return self.__calculate__(self.signal)
 
     def __calculate__(self, _signal):
         pass
 
-    def __rrshift__(self, other):
-        if (isinstance(other, DataSource)):
-            DataSource.__init__(self, other)
-            #self.__signal__ = other.__signal__
-            return self.calculate()
-
-    def __getattr__(self, name):
-        # create interpolation object dynamically
-        if name.startswith('interpolation_'):
-            prefix_name = name[len('interpolation_'):].capitalize()
-            if len(prefix_name) > 0:
-                _class_name = prefix_name + 'Interpolation'
-                interpolation_class = interpolation_module.__dict__.get(_class_name, None) #@IgnorePep8
-                if interpolation_class:
-                    interpolation_object = interpolation_class()
-                    interpolation_object.signal = self.signal
-                    interpolation_object.annotation = self.annotation
-                    self.__interpolated_signal__ = interpolation_object.interpolate() #@IgnorePep8
-                    return self
-                else:
-                    raise AttributeError('Unknown interpolation: ' + _class_name) #@IgnorePep8
-        return name
-
 
 class FastFourierTransform(FourierTransform):
-
     def __init__(self, data_source):
         '''
         Constructor
