@@ -14,10 +14,15 @@ except ImportError as error:
     print_import_error(__name__, error)
 
 
-def get_values_as_map(_object, with_none=False):
-    return dict([(method, getattr(_object, method, None))
-                for method in get_members_names(_object.__class__)
-                if with_none or not getattr(_object, method, None) == None])
+def get_values_as_map(_object, with_none=False, only_simple_type_values=True):
+    _list = []
+    for method in get_members_names(_object.__class__):
+        if with_none or not getattr(_object, method, None) == None:
+            value = getattr(_object, method, None)
+            if only_simple_type_values and hasattr(value, '__len__'):
+                continue  # skip composite elements
+            _list.append((method, value))
+    return dict(_list)
 
 
 def get_members_names(_object_class):
