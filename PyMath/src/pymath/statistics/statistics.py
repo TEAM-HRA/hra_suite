@@ -16,6 +16,7 @@ try:
     from pycore.collections_utils import get_as_list
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_method_arguments_count
+    from pycore.introspection import get_subclasses_short_names
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
     from pymath.datasources import DataSource
 except ImportError as error:
@@ -102,8 +103,7 @@ class Statistic(DataSource):
 
     @staticmethod
     def getSubclassesShortNames():
-        return [_class.__name__[:_class.__name__.rfind('Statistic')]
-                for _class in Statistic.getSubclasses()]
+        return get_subclasses_short_names(Statistic)
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
