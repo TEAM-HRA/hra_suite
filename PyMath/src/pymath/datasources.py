@@ -5,10 +5,8 @@ Created on 15-08-2012
 '''
 from pymath.utils.utils import print_import_error
 try:
-    import glob
     import os
     import numpy as np
-    from re import findall
     from re import compile
     from pycore.misc import Params
     from pycore.units import Millisecond
@@ -19,63 +17,61 @@ except ImportError as error:
 
 class DataVector(object):
 
-    def __init__(self, signal=None, shifted_signal=None, annotation=None,
-                 time=None, signal_unit=Millisecond):
+    def __init__(self, **params):
         '''
         Constructor
         '''
-        if (isinstance(signal, DataVector)):
-            self.signal = signal.signal
-            self.shifted_signal = signal.shifted_signal
-            self.annotation = signal.annotation
-            self.time = signal.time
-            self.signal_unit = signal.signal_unit
-        else:
-            self.signal = signal
-            self.shifted_signal = shifted_signal
-            self.annotation = annotation
-            self.time = time
-            self.signal_unit = signal_unit
+        self.__params__ = Params(**params)
+        if self.__params__.signal_unit is None:
+            self.__params__.signal_unit = Millisecond
 
     @property
     def signal(self):
-        return self.__signal__
+        return self.__params__.signal
 
     @signal.setter
-    def signal(self, signal):
-        self.__signal__ = signal
+    def signal(self, _signal):
+        self.__params__.signal = _signal
 
     @property
     def annotation(self):
-        return self.__annotation__
+        return self.__params__.annotation
 
     @annotation.setter
-    def annotation(self, annotation):
-        self.__annotation__ = annotation
+    def annotation(self, _annotation):
+        self.__params__.annotation = _annotation
 
     @property
     def time(self):
-        return self.__time__
+        return self.__params__.time
 
     @time.setter
-    def time(self, time):
-        self.__time__ = time
+    def time(self, _time):
+        self.__params__.time = _time
 
     @property
-    def shifted_signal(self):
-        return self.__shifted_signal__
+    def signal_plus(self):
+        return self.__params__.signal_plus
 
-    @shifted_signal.setter
-    def shifted_signal(self, shifted_signal):
-        self.__shifted_signal__ = shifted_signal
+    @signal_plus.setter
+    def signal_plus(self, _signal_plus):
+        self.__params__.signal_plus = _signal_plus
+
+    @property
+    def signal_minus(self):
+        return self.__params__.signal_minus
+
+    @signal_minus.setter
+    def signal_minus(self, _signal_minus):
+        self.__params__.signal_minus = _signal_minus
 
     @property
     def signal_unit(self):
-        return self.__signal_unit__
+        return self.__params__.signal_unit
 
     @signal_unit.setter
-    def signal_unit(self, signal_unit):
-        self.__signal_unit__ = signal_unit
+    def signal_unit(self, _signal_unit):
+        self.__params__.signal_unit = _signal_unit
 
     @property
     def data(self):
@@ -83,21 +79,21 @@ class DataVector(object):
 
     @data.setter
     def data(self, _data):
-        if (isinstance(_data, DataVector)):
-            self.signal = _data.signal
-            self.shifted_signal = _data.shifted_signal
-            self.annotation = _data.annotation
-            self.time = _data.time
-            self.signal_unit = _data.signal_unit
-        else:
-            raise Exception('Parameter data have to be of DataSource type !!!')
+        self.__params__ = Params(signal=_data.signal,
+                                 signal_plus=_data.signal_plus,
+                                 signal_minus=_data.signal_minus,
+                                 annotation=_data.annotation,
+                                 signal_unit=_data.signal_unit,
+                                 time=_data.time)
+        #raise Exception('Parameter data have to be of DataSource type !!!')
 
     def __str__(self):
         return (' '.join(
-                [self.__for_str__('signal', self.signal),
-                 self.__for_str__('shifted_signal', self.shifted_signal),
-                 self.__for_str__('annotation', self.annotation),
-                 self.__for_str__('time', self.time)]))
+            [self.__for_str__('signal', self.__params__.signal),
+             self.__for_str__('signal_plus', self.__params__.signal_plus),
+             self.__for_str__('signal_minus', self.__params__.signal_minus),
+             self.__for_str__('annotation', self.__params__.annotation),
+             self.__for_str__('time', self.__params__.time)]))
 
     def __for_str__(self, prefix, data):
         if hasattr(data, 'take') or hasattr(data, '__getslice__'):
@@ -112,149 +108,6 @@ class DataVector(object):
     # if parameter is not set in the __init__() method then returns None
     def __getattr__(self, name):
         return None
-
-
-class ColumnSpec(object):
-    def __init__(self, header):
-        self.header = header
-        self.num = -1
-
-    @property
-    def num(self):
-        return self.__num__
-
-    @num.setter
-    def num(self, num):
-        self.__num__ = num
-
-    @property
-    def header(self):
-        return self.__header__
-
-    @header.setter
-    def header(self, header):
-        self.__header__ = header
-
-
-class AnnotationColumnSpec(ColumnSpec):
-    pass
-
-
-class SignalColumnSpec(ColumnSpec):
-    pass
-
-
-class TimeColumnSpec(ColumnSpec):
-    pass
-
-
-class FilesDataSources(object):
-
-    def __init__(self, path, ext=None):
-
-        self.__idx__ = 0
-        self.__headers__ = []
-        self.__filenames__ = []
-        self.__signal_spec__ = None
-        self.__annotation_spec__ = None
-        self.__cols__ = []
-
-        path = path + ('*.*' if ext == None else ext)
-        for filename in glob.glob(path):
-            if os.path.isfile(filename):
-                self.__filenames__.append(filename)
-
-    def setColumnsSpecs(self, signal_spec, annotation_spec):
-        self.__signal_spec__ = self.__fillNum__(signal_spec)
-        self.__annotation_spec__ = self.__fillNum__(annotation_spec)
-
-    def __fillNum__(self, spec):
-        if spec:
-            spec.num = None
-            for num, header in enumerate(self.headers, start=0):
-                if spec.header == header:
-                    spec.num = num
-                    self.__cols__.append(num)
-                    break
-        return spec
-
-    def __iter__(self):
-        return self
-
-    def next(self):
-        if self.__filenames__ and len(self.__filenames__) > self.__idx__:
-            self.__idx__ += 1
-            filename = self.__filenames__[self.__idx__ - 1]
-            if USE_NUMPY_EQUIVALENT:
-                return self.__getNumPyDataSource__(filename)
-            else:
-                return self.__getDataSource__(filename)
-        else:
-            raise StopIteration
-
-    @property
-    def headers(self):
-        if not self.__headers__:
-            with open(self.__filenames__[0], 'r') as _file:
-                header_line = _file.readline()  # header line
-                self.__headers__ = findall(
-                        r'\b[A-Za-z\[\]\-\%\#\!\@\$\^\&\*]+', header_line)
-        return self.__headers__
-
-    def __getDataSource__(self, filename):
-        signal = []
-        annotation = []
-
-        with open(filename, 'r') as _file:
-            _file.readline()  # skip header line
-            for line in _file:
-                contents = findall(r'\b[0-9\.]+', line)
-                if self.signal_spec:
-                    signal.append(float(contents[self.signal_spec.num]))
-                if self.annotation_spec:
-                    annotation.append(int(float(contents[self.annotation_spec.num]))) #@IgnorePep8
-
-        return self.__createDataSource__(filename, np.array(signal),
-                                         np.array(annotation))
-
-    @property
-    def signal_spec(self):
-        return self.__signal_spec__
-
-    @property
-    def annotation_spec(self):
-        return self.__annotation_spec__
-
-    @property
-    def cols(self):
-        return self.__cols__
-
-    def __getNumPyDataSource__(self, filename):
-        signal = None
-        annotation = None
-
-        if len(self.cols) == 2:
-            (signal, annotation) = np.loadtxt(filename,
-                                           skiprows=1,
-                                           usecols=self.cols,
-                                           unpack=True)
-            annotation = annotation.astype(int)
-        else:
-            signal = np.loadtxt(filename,
-                             skiprows=1,
-                             usecols=self.cols,
-                             unpack=True)
-
-        return self.__createDataSource__(filename, signal, annotation)
-
-    def __createDataSource__(self, filename, signal, annotation):
-        if (self.annotation_spec and self.signal_spec
-            and self.signal_spec.num == self.annotation_spec.num):
-            annotation = 0 * signal
-
-        data_source = DataVector(signal=signal, annotation=annotation)
-        data_source.filename = filename  # set up an additional property
-        return data_source
 
 
 class FileDataSource(object):

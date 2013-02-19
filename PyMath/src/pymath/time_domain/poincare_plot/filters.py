@@ -164,7 +164,7 @@ class AnnotationShiftedPartsFilter(Filter):
         indexy = array(find(x_p != -1))
         x_p = x_p[indexy]
         x_pp = x_pp[indexy]
-        return DataVector(signal=x_p, shifted_signal=x_pp)
+        return DataVector(signal_plus=x_p, signal_minus=x_pp)
 
 
 class ZeroAnnotationFilter(Filter):

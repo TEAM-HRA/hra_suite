@@ -8,10 +8,7 @@ from numpy import array
 from pylab import find
 
 from pycore.globals import GLOBALS
-from pymath.datasources import FilesDataSources
 from pymath.datasources import DataVector
-from pymath.datasources import SignalColumnSpec
-from pymath.datasources import AnnotationColumnSpec
 from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlot
 from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlotSegmenter #@IgnorePep8
 from pymath.time_domain.poincare_plot.filters import RemoveAnnotationFilter #@IgnorePep8
@@ -117,9 +114,9 @@ def test_data_source():
 def test_poincare():
     print('DIR_DATA=' + str(GLOBALS.DATA_DIR) + ' EXT_MASK=' + \
                     str(GLOBALS.EXT_MASK))
-    fd = FilesDataSources(path=GLOBALS.DATA_DIR, ext=GLOBALS.EXT_MASK)
-    fd.setColumnsSpecs(SignalColumnSpec('rri[ms]'),
-                       AnnotationColumnSpec('rr-flags[]'))
+    fd = None  # FilesDataSources(path=GLOBALS.DATA_DIR, ext=GLOBALS.EXT_MASK)
+    #fd.setColumnsSpecs(SignalColumnSpec('rri[ms]'),
+    #                   AnnotationColumnSpec('rr-flags[]'))
     print(fd.headers)
 
 #    ddd = test_data_source()

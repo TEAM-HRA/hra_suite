@@ -8,6 +8,7 @@ try:
     import os
     import argparse
     import glob
+    import numpy as np
     from pycore.misc import Separator
     from pycore.misc import extract_number
     from pycore.misc import extract_alphabetic
@@ -29,7 +30,7 @@ try:
     from pymath.statistics.statistics import NdownStatistic
     from pymath.statistics.statistics import NonStatistic
     from pymath.statistics.statistics import SymmetryStatistic
-    from pymath.datasources import DataSource
+    from pymath.datasources import DataVector
     from pymath.datasources import FileDataSource
     from pymath.interpolation import Interpolation
     from pymath.time_domain.poincare_plot.filters import FilterManager
@@ -325,7 +326,7 @@ class PoincarePlot(StatisticsFactory):
                                    data_source=data_source)
 
     def __rrshift__(self, other):
-        if (isinstance(other, DataSource)):
+        if (isinstance(other, DataVector)):
             self.signal = other.signal
             self.annotation = other.annotation
             return self.statistics
@@ -405,26 +406,34 @@ class PoincarePlotSegmenter(object):
         else:
             signal_size = self.__window_size__
         if self.__index__ + signal_size + self.__shift__ <= len(self.__data__.signal): # @IgnorePep8
-            indexes = range(self.__index__, self.__index__ + signal_size)
+            indexes = np.arange(self.__index__, self.__index__ + signal_size)
             signal = self.__data__.signal.take(indexes)
 
-            self.__index__ += self.__shift__
-            shifted_indexes = range(self.__index__, self.__index__ + signal_size) # @IgnorePep8
-            shifted_signal = self.__data__.signal.take(shifted_indexes)
+            indexes_plus = np.arange(self.__index__,
+                                 self.__index__ + signal_size - self.__shift__)
+            signal_plus = self.__data__.signal.take(indexes_plus)
+
+            indexes_minus = np.arange(self.__index__ + self.__shift__,
+                                  self.__index__ + signal_size)
+            signal_minus = self.__data__.signal.take(indexes_minus)
 
             annotation = (None if self.__data__.annotation == None else
                           self.__data__.annotation.take(indexes))
 
-            return DataSource(signal=signal, shifted_signal=shifted_signal,
+            self.__index__ += self.__shift__
+
+            return DataVector(signal=signal,
+                              signal_plus=signal_plus,
+                              signal_minus=signal_minus,
                               annotation=annotation)
         else:
             raise StopIteration
 
 
 #an example of statistic handler
-#def stat_double(signal, shifted_signal):
-#    print('stat double: ' + str(signal.sum() * 2))
-#    return signal.sum() * 2
+#def stat_double(signal_plus, signal_minus):
+#    print('stat double: ' + str(signal_plus.sum() * 2))
+#    return signal_plus.sum() * 2
 
 
 if __name__ == '__main__':

@@ -47,12 +47,15 @@ class Statistic(DataVector):
     def compute(self):
         if self.handler:
             if self.handler.arg_count == 2:
-                return self.handler(self.signal, self.shifted_signal)
+                return self.handler(self.signal, self.annotation)
             elif self.handler.arg_count == 1:
                 return self.handler(self.signal)
             elif self.handler.arg_count == 3:
-                return self.handler(self.signal, self.shifted_signal,
-                                    self.annotation)
+                return self.handler(self.signal, self.signal_plus,
+                                    self.signal_minus)
+            elif self.handler.arg_count == 4:
+                return self.handler(self.signal, self.signal_plus,
+                                    self.signal_minus, self.annotation)
             return self.handler()
         else:
             self.__pre_calculate__()
@@ -149,50 +152,51 @@ class NtotStatistic(Statistic):
 
 class SD1Statistic(SDStatistic):
     def __pre_calculate__(self):
-        self.signal = (self.signal - self.shifted_signal) / sqrt(2)
+        self.signal = (self.signal_plus - self.signal_minus) / sqrt(2)
 
 
 class SD2Statistic(SDStatistic):
     def __pre_calculate__(self):
-        self.signal = (self.signal + self.shifted_signal) / sqrt(2)
+        self.signal = (self.signal_plus + self.signal_minus) / sqrt(2)
 
 
 class SsStatistic(Statistic):
     def __calculate__(self):
-        sd1 = SD1Statistic(signal=self.signal,
-                           shifted_signal=self.shifted_signal).compute()
-        sd2 = SD2Statistic(signal=self.signal,
-                           shifted_signal=self.shifted_signal).compute()
+        sd1 = SD1Statistic(signal_plus=self.signal_plus,
+                           signal_minus=self.signal_minus).compute()
+        sd2 = SD2Statistic(signal_plus=self.signal_plus,
+                           signal_minus=self.signal_minus).compute()
         return pi * sd1 * sd2
 
 
 class SD21Statistic(Statistic):
     def __calculate__(self):
-        sd1 = SD1Statistic(signal=self.signal,
-                           shifted_signal=self.shifted_signal).compute()
-        sd2 = SD2Statistic(signal=self.signal,
-                           shifted_signal=self.shifted_signal).compute()
+        sd1 = SD1Statistic(signal_plus=self.signal_plus,
+                           signal_minus=self.signal_minus).compute()
+        sd2 = SD2Statistic(signal_plus=self.signal_plus,
+                           signal_minus=self.signal_minus).compute()
         return sd2 / sd1
 
 
 class RStatistic(Statistic):
     def __calculate__(self):
-        x_pn = self.signal - MeanStatistic(signal=self.signal).compute()
-        x_ppn = (self.shifted_signal
-                    - MeanStatistic(signal=self.shifted_signal).compute())
+        x_pn = (self.signal_plus
+                    - MeanStatistic(signal=self.signal_plus).compute())
+        x_ppn = (self.signal_minus
+                    - MeanStatistic(signal=self.signal_minus).compute())
         return dot(x_pn, x_ppn) / (sqrt(dot(x_pn, x_pn) * dot(x_ppn, x_ppn)))
 
 
 class RMSSDStatistic(Statistic):
     def __calculate__(self):
         mean = MeanStatistic(
-                signal=(self.signal - self.shifted_signal) ** 2).compute()
+                signal=(self.signal_plus - self.signal_minus) ** 2).compute()
         return sqrt(mean)
 
 
 class SD1upStatistic(Statistic):
     def __calculate__(self):
-        xrzut = (self.signal - self.shifted_signal) / sqrt(2)
+        xrzut = (self.signal_plus - self.signal_minus) / sqrt(2)
         nad = compress(greater(0, xrzut), xrzut)
         value = sqrt(sum(nad ** 2) / (size(xrzut) - 1))
         return value
@@ -200,7 +204,7 @@ class SD1upStatistic(Statistic):
 
 class SD1downStatistic(Statistic):
     def __calculate__(self):
-        xrzut = (self.signal - self.shifted_signal) / sqrt(2)
+        xrzut = (self.signal_plus - self.signal_minus) / sqrt(2)
         pod = compress(greater(xrzut, 0), xrzut)
         value = sqrt(sum(pod ** 2) / (size(xrzut) - 1))
         return value
@@ -208,31 +212,31 @@ class SD1downStatistic(Statistic):
 
 class NupStatistic(Statistic):
     def __calculate__(self):
-        xrzut = self.signal - self.shifted_signal
+        xrzut = self.signal_plus - self.signal_minus
         nad = compress(greater(0, xrzut), xrzut)
         return (size(nad))
 
 
 class NdownStatistic(Statistic):
     def __calculate__(self):
-        xrzut = self.signal - self.shifted_signal
+        xrzut = self.signal_plus - self.signal_minus
         pod = compress(greater(xrzut, 0), xrzut)
         return (size(pod))
 
 
 class NonStatistic(Statistic):
     def __calculate__(self):
-        xrzut = self.signal - self.shifted_signal
+        xrzut = self.signal_plus - self.signal_minus
         na = compress(equal(xrzut, 0), xrzut)
         return (size(na))
 
 
 class SymmetryStatistic(Statistic):
     def __calculate__(self):
-        return 1 if SD1upStatistic(signal=self.signal,
-                            shifted_signal=self.shifted_signal).compute() > \
-                SD1downStatistic(signal=self.signal, \
-                        shifted_signal=self.shifted_signal).compute() else 0
+        return 1 if SD1upStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus).compute() > \
+                SD1downStatistic(signal_plus=self.signal_plus, \
+                        signal_minus=self.signal_minus).compute() else 0
 
 
 class StatisticsFactory(object):
