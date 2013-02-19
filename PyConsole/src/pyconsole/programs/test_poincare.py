@@ -8,7 +8,8 @@ from numpy import array
 from pylab import find
 
 from pycore.globals import GLOBALS
-from pymath.datasources import FilesDataSources, DataSource
+from pymath.datasources import FilesDataSources
+from pymath.datasources import DataVector
 from pymath.datasources import SignalColumnSpec
 from pymath.datasources import AnnotationColumnSpec
 from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlot
@@ -110,7 +111,7 @@ def test_data_source():
             757.500000
     ]
 
-    return DataSource(array(signal), array(annotation))
+    return DataVector(array(signal), array(annotation))
 
 
 def test_poincare():

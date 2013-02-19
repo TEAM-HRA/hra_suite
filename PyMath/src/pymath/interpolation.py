@@ -12,12 +12,12 @@ try:
     from itertools import count
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
     from pycore.introspection import get_subclasses_short_names
-    from datasources import DataSource
+    from datasources import DataVector
 except ImportError as error:
     print_import_error(__name__, error)
 
 
-class Interpolation(DataSource):
+class Interpolation(DataVector):
     def __init__(self):
         pass
 

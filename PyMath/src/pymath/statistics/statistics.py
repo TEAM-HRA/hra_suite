@@ -18,19 +18,19 @@ try:
     from pycore.introspection import get_method_arguments_count
     from pycore.introspection import get_subclasses_short_names
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
-    from pymath.datasources import DataSource
+    from pymath.datasources import DataVector
 except ImportError as error:
     print_import_error(__name__, error)
 
 
 ## Base class for all specific statitistics,
 #  this class have to be treated as an abstract class for such statistics
-class Statistic(DataSource):
+class Statistic(DataVector):
 
     ## Constructor
     #  @param **data
     def __init__(self, **data):
-        DataSource.__init__(self, **data)
+        DataVector.__init__(self, **data)
 
     ## Method (optional) to put pre calculations done before proper
     #  calculations

@@ -15,7 +15,7 @@ try:
     import pymath.interpolation as interpolation_module
     from pymath.sampling import LinearInterpolatedSampling
     from pymath.integrals import DefiniteIntegral
-    from pymath.datasources import DataSource
+    from pymath.datasources import DataVector
     from pymath.utils.utils import get_values_as_map
 except ImportError as error:
     print_import_error(__name__, error)
@@ -30,7 +30,7 @@ class FourierTransformManager(object):
         fourier_transform = self.__fourier_transform_class__(_data)
         if len(self.__interpolation_type__) > 0:
             signal = self.__get_interpolated_value__(_data)
-            fourier_transform.data = DataSource(signal=signal)
+            fourier_transform.data = DataVector(signal=signal)
         return fourier_transform.calculate()
 
     def __get_interpolated_value__(self, _data):
@@ -44,12 +44,12 @@ class FourierTransformManager(object):
         raise AttributeError('Unknown interpolation: ' + _class_name)
 
 
-class FourierTransform(DataSource):
+class FourierTransform(DataVector):
     def __init__(self, data_source):
         '''
         Constructor
         '''
-        DataSource.__init__(self, data_source)
+        DataVector.__init__(self, data_source)
 
     def calculate(self):
         return self.__calculate__(self.signal)

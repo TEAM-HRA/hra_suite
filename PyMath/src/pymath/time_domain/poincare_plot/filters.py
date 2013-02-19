@@ -14,7 +14,7 @@ try:
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_method_arguments_count
     from pycore.introspection import get_subclasses_short_names
-    from pymath.datasources import DataSource
+    from pymath.datasources import DataVector
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.statistics import MeanStatistic
     from pymath.statistics.statistics import SDRRStatistic
@@ -69,7 +69,7 @@ class FilterManager(object):
         return getattr(self, '__statistics__', None)
 
 
-class Filter(DataSource):
+class Filter(DataVector):
     '''
     classdocs
     '''
@@ -78,7 +78,7 @@ class Filter(DataSource):
         '''
         Constructor
         '''
-        DataSource.__init__(self, **data)
+        DataVector.__init__(self, **data)
         self.statisticsClasses = None
         self.keepAnnotation = False
 
@@ -138,10 +138,10 @@ class RemoveAnnotationFilter(Filter):
 
     def __filter__(self, _signal, _annotation):
         if USE_NUMPY_EQUIVALENT:
-            return DataSource(signal=_signal[_annotation == 0])
+            return DataVector(signal=_signal[_annotation == 0])
 
         indexy = array(find(_annotation == 0))
-        return DataSource(signal=_signal[indexy],
+        return DataVector(signal=_signal[indexy],
                           annotation=_annotation[indexy])
 
 
@@ -164,7 +164,7 @@ class AnnotationShiftedPartsFilter(Filter):
         indexy = array(find(x_p != -1))
         x_p = x_p[indexy]
         x_pp = x_pp[indexy]
-        return DataSource(signal=x_p, shifted_signal=x_pp)
+        return DataVector(signal=x_p, shifted_signal=x_pp)
 
 
 class ZeroAnnotationFilter(Filter):
@@ -184,9 +184,9 @@ class ZeroAnnotationFilter(Filter):
             index_pobudzenie = array(index_pobudzenie)
             if sum(index_pobudzenie != 0):
                 _annotation[index_pobudzenie] = 0
-        return DataSource(signal=_signal, annotation=_annotation)
+        return DataVector(signal=_signal, annotation=_annotation)
 
     def __numpy_filter__(self, _signal, _annotation):
         if not self.__leave_annotations__ == (0,):
             _annotation[in1d(_annotation, self.__leave_annotations__)] = 0
-        return DataSource(signal=_signal, annotation=_annotation)
+        return DataVector(signal=_signal, annotation=_annotation)

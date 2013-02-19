@@ -17,14 +17,14 @@ except ImportError as error:
     print_import_error(__name__, error)
 
 
-class DataSource(object):
+class DataVector(object):
 
     def __init__(self, signal=None, shifted_signal=None, annotation=None,
                  time=None, signal_unit=Millisecond):
         '''
         Constructor
         '''
-        if (isinstance(signal, DataSource)):
+        if (isinstance(signal, DataVector)):
             self.signal = signal.signal
             self.shifted_signal = signal.shifted_signal
             self.annotation = signal.annotation
@@ -83,7 +83,7 @@ class DataSource(object):
 
     @data.setter
     def data(self, _data):
-        if (isinstance(_data, DataSource)):
+        if (isinstance(_data, DataVector)):
             self.signal = _data.signal
             self.shifted_signal = _data.shifted_signal
             self.annotation = _data.annotation
@@ -252,7 +252,7 @@ class FilesDataSources(object):
             and self.signal_spec.num == self.annotation_spec.num):
             annotation = 0 * signal
 
-        data_source = DataSource(signal=signal, annotation=annotation)
+        data_source = DataVector(signal=signal, annotation=annotation)
         data_source.filename = filename  # set up an additional property
         return data_source
 
@@ -348,7 +348,7 @@ class FileDataSource(object):
         if not annotation == None:
             annotation = annotation.astype(int)
 
-        data_source = DataSource(signal=signal, annotation=annotation,
+        data_source = DataVector(signal=signal, annotation=annotation,
                                  time=time)
         data_source.filename = self.__file__  # set up an additional property
         return data_source
