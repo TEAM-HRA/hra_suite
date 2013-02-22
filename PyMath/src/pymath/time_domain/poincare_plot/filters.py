@@ -134,7 +134,7 @@ class AnnotationFilter(DataVectorFilter):
         signal = _data_vector.signal
         annotation = _data_vector.annotation
 
-        #wykrywanie i usuwanie nonsinus na poczatku i na koncu
+        #removing nonsinus beats from the beginning
         while (annotation[0] != 0
                 and (_excluded_annotations == ALL_ANNOTATIONS
                      or annotation[0] in _excluded_annotations)):
