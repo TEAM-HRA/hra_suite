@@ -116,7 +116,7 @@ def __s(_list):
     return ".".join(_list)
 
 
-def create_class_object_with_suffix(_class_package, _class_name, _suffix):
+def create_class_object_with_suffix(_class_package, _class_name, _suffix=None):
     """
     method creates class object using passed _class_package, _class_name
     and with _suffix if it is present
@@ -124,7 +124,7 @@ def create_class_object_with_suffix(_class_package, _class_name, _suffix):
     #check if a name is not in dot format
     if not _class_name.rfind('.') >= 0:
         #append a _suffix suffix if not present already
-        if not _class_name.endswith(_suffix):
+        if _suffix and not _class_name.endswith(_suffix):
             _class_name += _suffix
         #prefix with current package
         full_class_name = '.'.join([_class_package, _class_name])
@@ -139,7 +139,9 @@ def get_method_arguments_count(_method):
     """
     method returns number of parameters of passed _method
     """
-    return len(inspect.getargspec(_method).args) if hasattr(_method, '__call__') else -1 # @IgnorePep8
+    return len(inspect.getargspec(_method).args) \
+        if hasattr(_method, '__func__') or hasattr(_method, 'func_name') \
+        else -1
 
 
 def get_subclasses_short_names(_class, remove_base_classname=True):
@@ -147,6 +149,12 @@ def get_subclasses_short_names(_class, remove_base_classname=True):
     get all class _class subclasses names, with ability to remove
     a baseclass name in the outcome
     """
-    return [_sub_class.__name__[:(_sub_class.__name__.rfind(_class.__name__)
-                                  if remove_base_classname else None)]
-                                  for _sub_class in _class.__subclasses__()]
+    names = []
+    for _sub_class in _class.__subclasses__():
+        name = _sub_class.__name__
+        if remove_base_classname:
+            idx = _sub_class.__name__.rfind(_class.__name__)
+            if idx >= 0:
+                name = name[:idx]
+        names.append(name)
+    return names
