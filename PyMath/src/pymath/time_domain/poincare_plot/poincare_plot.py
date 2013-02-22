@@ -34,11 +34,12 @@ try:
     from pymath.datasources import FileDataSource
     from pymath.interpolation import Interpolation
     from pymath.time_domain.poincare_plot.filters import FilterManager
-    from pymath.time_domain.poincare_plot.filters import Filter
+    #from pymath.time_domain.poincare_plot.filters import Filter
+    from pymath.time_domain.poincare_plot.filters import DataVectorFilter
     from pycore.collections_utils import commas
-    from pycore.collections_utils import get_as_list
-    from pymath.frequency_domain.fourier import FourierTransformManager
-    from pymath.frequency_domain.fourier import FastFourierTransform
+    #from pycore.collections_utils import get_as_list
+    #from pymath.frequency_domain.fourier import FourierTransformManager
+    #from pymath.frequency_domain.fourier import FastFourierTransform
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -51,7 +52,7 @@ def getDefaultStatisticsNames():
 
 
 def getFiltersNames():
-    return commas(Filter.getSubclassesShortNames())
+    return commas(DataVectorFilter.getSubclassesShortNames())
 
 
 def getInterpolationNames():
@@ -63,6 +64,7 @@ class PoincarePlotManager(object):
         self.__data_dir__ = os.getcwd()
         self.__extension__ = '*'
         self.__window_shift__ = 1
+        self.__filter_manager__ = FilterManager()
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
@@ -169,6 +171,7 @@ class PoincarePlotManager(object):
     @window_shift.setter
     def window_shift(self, _window_shift):
         self.__window_shift__ = _window_shift
+        self.__filter_manager__.shift = _window_shift
 
     @property
     def output_precision(self):
@@ -184,27 +187,11 @@ class PoincarePlotManager(object):
 
     @use_filters.setter
     def use_filters(self, _filters_names):
-        if _filters_names is None:
-            return
-        #ZeroAnnotation[1-2-3],RemoveAnnotation[1-3],FIlter[ALL]
-        for filter_part in map(str.strip, _filters_names.split(',')):
-            idx_start = filter_part.find('[')
-            idx_stop = filter_part.find(']')
-            filter_name = \
-                filter_part[:(None if idx_start == -1 else idx_start)]
-            annotations = get_as_list(
-                        filter_part[idx_start + 1:idx_stop], separator='-') \
-                        if idx_start >= 0 and idx_stop > idx_start else None
-            if 'all' == str(annotations).lower():
-                self.addFilter(filter_name)
-            else:
-                self.addFilter(filter_name, annotations)
+        self.__filter_manager__.addFiltersByNames(_filters_names)
 
-    def addFilter(self, name_or_object, annotations=None):
-        if len(str(name_or_object)) > 0:
-            if self.__filter_manager__ == None:
-                self.__filter_manager__ = FilterManager()
-            self.__filter_manager__.addFilter(name_or_object, annotations)
+    def addFilter(self, name_or_object, _excluded_annotations=None):
+        self.__filter_manager__.addFilter(name_or_object,
+                                          _excluded_annotations)
 
     @property
     def use_fft_interpolation(self):
@@ -263,10 +250,10 @@ class PoincarePlotManager(object):
                                time_index=self.time_index)
         data = file_data_source.getData()
         parameters = {}
-        if self.__use_fft_interpolation__:
-            fourierManager = FourierTransformManager(FastFourierTransform,
-                                    self.__use_fft_interpolation__)
-            parameters.update(fourierManager.calculate(data))
+#        if self.__use_fft_interpolation__:
+#            fourierManager = FourierTransformManager(FastFourierTransform,
+#                                    self.__use_fft_interpolation__)
+#            parameters.update(fourierManager.calculate(data))
         with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=_file,
                          output_precision=self.output_precision) as csv:
@@ -276,6 +263,7 @@ class PoincarePlotManager(object):
                                     self.window_size,
                                     shift=self.window_shift,
                                     window_size_unit=self.window_size_unit):
+                data_segment = self.__filter_manager__.filter(data_segment)
                 statistics = statisticsFactory.statistics(data_segment)
                 parameters.update(statistics)
                 csv.write(parameters)
@@ -425,7 +413,8 @@ class PoincarePlotSegmenter(object):
             return DataVector(signal=signal,
                               signal_plus=signal_plus,
                               signal_minus=signal_minus,
-                              annotation=annotation)
+                              annotation=annotation,
+                              signal_unit=self.__data__.signal_unit)
         else:
             raise StopIteration
 
@@ -486,8 +475,9 @@ if __name__ == '__main__':
                 help="display list of available filters [True|False]",
                 type=to_bool, default=False)
     parser.add_argument("-uf", "--use_filters",
-                help="""use filters in a form: <filter_name>[list of annotation
-                     values separated by '-'|ALL]""")
+                help="""use filters in a form: <filter_name>[<annotations
+                    values separated by '-']; available filters: """
+                    + getFiltersNames())
     parser.add_argument("-ff", "--use_fft_interpolation",
                 help="""use Fast Fourier Transform with interpolation: """ +
                         getInterpolationNames())

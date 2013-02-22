@@ -6,29 +6,32 @@ Created on 27-07-2012
 from pymath.utils.utils import print_import_error
 try:
     from numpy import array
+    from numpy import logical_not
+    from numpy import where
+    from numpy import sum
     from pylab import find
     from pylab import arange
     from pylab import r_
     from pylab import in1d
-    from pymath.utils.utils import USE_NUMPY_EQUIVALENT
+    from pycore.collections_utils import get_as_list
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_method_arguments_count
     from pycore.introspection import get_subclasses_short_names
     from pymath.datasources import DataVector
-    from pymath.statistics.statistics import StatisticsFactory
-    from pymath.statistics.statistics import MeanStatistic
-    from pymath.statistics.statistics import SDRRStatistic
-    from pymath.statistics.statistics import NtotStatistic
-    from pymath.statistics.statistics import TotTimeStatistic
 except ImportError as error:
     print_import_error(__name__, error)
+
+
+ALL_ANNOTATIONS = 1
 
 
 class FilterManager(object):
     def __init__(self):
         self.__filters__ = []
+        self.__shift__ = 1
 
-    def addFilter(self, _filter_object_or_handler_or_name, annotations=None):
+    def addFilter(self, _filter_object_or_handler_or_name,
+                  _excluded_annotations=ALL_ANNOTATIONS):
         """
         filter entity could be passed as filter object itself, handler method
         or a name of filter class
@@ -36,157 +39,149 @@ class FilterManager(object):
         if isinstance(_filter_object_or_handler_or_name, str):
             _filter_object_or_handler_or_name = \
                 create_class_object_with_suffix(
-                                'pymath.time_domain.poincare_plot.filters',
-                                _filter_object_or_handler_or_name, 'Filter')
+                        'pymath.time_domain.poincare_plot.filters',
+                        _filter_object_or_handler_or_name)
         _filter_object_or_handler_or_name.arg_count = \
             get_method_arguments_count(_filter_object_or_handler_or_name)
+
+        # means this is a object
+        if _filter_object_or_handler_or_name.arg_count == -1:
+            _filter_object_or_handler_or_name = \
+                _filter_object_or_handler_or_name(_excluded_annotations,
+                                                  _shift=self.__shift__)
+        else:
+            _filter_object_or_handler_or_name.excluded_annotations = \
+                                _excluded_annotations
+
         self.__filters__.append(_filter_object_or_handler_or_name)
 
-    def run(self, _data):
+    def filter(self, _data_vector):
         """
         method which runs all filters as objects or as methods;
         when a method has two parameters it returns two values also
         when has a one parameter it returns one value
         when none parameters none value has to be returned
         """
-        self.__statistics__ = {}
-        data = _data
+        data_vector = _data_vector
         for _filter in self.__filters__:
             if _filter.arg_count == -1:
-                _filter.data = data
-                data = _filter.filter()
-                self.__statistics__.update(_filter.statistics)
-            elif _filter.arg_count == 2:
-                (data.signal, data.annotation) = _filter(data.signal,
-                                                         data.annotation)
-            elif _filter.arg_count == 1:
-                data.signal = _filter(data.signal)
-            elif _filter.arg_count == 0:
-                _filter()
-        return data
+                data_vector = _filter.filter(data_vector)
+            else:
+                data_vector = _filter(data_vector,
+                                      _filter.excluded_annotations)
+        return data_vector
 
-    def statistics(self):
-        return getattr(self, '__statistics__', None)
+    def addFiltersByNames(self, _filters_names):
+        if _filters_names is None:
+            return
+        #an example: AnnotationFilter[1-2-3] or AnnotationFilter
+        for filter_part in map(str.strip, _filters_names.split(',')):
+            idx_start = filter_part.find('[')
+            idx_stop = filter_part.find(']')
+            filter_name = \
+                filter_part[:(None if idx_start == -1 else idx_start)]
+            excluded_annotations = get_as_list(
+                        filter_part[idx_start + 1:idx_stop], separator='-') \
+                        if idx_start >= 0 and idx_stop > idx_start else None
+            if excluded_annotations == None or \
+                excluded_annotations == ALL_ANNOTATIONS:
+                self.addFilter(filter_name)
+            else:
+                self.addFilter(filter_name, excluded_annotations)
+
+    def shift(self, _shift):
+        self.__shift__ = _shift
 
 
-class Filter(DataVector):
+class DataVectorFilter(object):
     '''
     classdocs
     '''
 
-    def __init__(self, **data):
+    def __init__(self, _excluded_annotations=ALL_ANNOTATIONS, _shift=1):
         '''
         Constructor
         '''
-        DataVector.__init__(self, **data)
-        self.statisticsClasses = None
-        self.keepAnnotation = False
+        self.__excluded_annotations__ = _excluded_annotations
+        self.__shift__ = _shift
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
         return None
 
-    @property
-    def filter(self):
-        filteredData = None
-        if not self.signal == None:
-            filteredData = self.__filter__(self.signal, self.annotation)
-            if not self.statisticsClasses == None:
-                factory = StatisticsFactory(self.statisticsClasses)
-                self.__statistics__ = factory.statistics(filteredData)
-        if self.keepAnnotation:
-            filteredData.annotation = self.annotation
-        return filteredData
+    def filter(self, _data_vector):
+        if self.__excluded_annotations__ == None:
+            self.__excluded_annotations__ = ALL_ANNOTATIONS
+        return self.__filter__(_data_vector,
+                               self.__excluded_annotations__)
 
-    def __filter__(self, _signal, _annotation=None):
+    def __filter__(self, _data_vector, _excluded_annotations):
         pass
-
-    @property
-    def statistics(self):
-        return self.__statistics__
-
-    @statistics.setter
-    def statistics(self, statistics):
-        self.__statistics__ = statistics
-
-    @property
-    def statisticsClasses(self):
-        return self.__statistics_classes__
-
-    @statisticsClasses.setter
-    def statisticsClasses(self, statistics_classes):
-        self.__statistics_classes__ = statistics_classes
-
-    @property
-    def keepAnnotation(self):
-        return self.__keepAnnotation__
-
-    @keepAnnotation.setter
-    def keepAnnotation(self, _keepAnnotation):
-        self.__keepAnnotation__ = _keepAnnotation
 
     @staticmethod
     def getSubclassesShortNames():
-        return get_subclasses_short_names(Filter)
+        return get_subclasses_short_names(DataVectorFilter,
+                                          remove_base_classname=False)
 
 
-class RemoveAnnotationFilter(Filter):
-    def __init__(self, data_source):
-        Filter.__init__(self, data_source)
-        self.statisticsClasses = (MeanStatistic, SDRRStatistic,
-                              NtotStatistic, TotTimeStatistic)
+class AnnotationFilter(DataVectorFilter):
+    def __filter__(self, _data_vector, _excluded_annotations):
 
-    def __filter__(self, _signal, _annotation):
-        if USE_NUMPY_EQUIVALENT:
-            return DataVector(signal=_signal[_annotation == 0])
+        if _data_vector.annotation == None or \
+            sum(_data_vector.annotation, dtype=int) == 0:
+            return _data_vector
 
-        indexy = array(find(_annotation == 0))
-        return DataVector(signal=_signal[indexy],
-                          annotation=_annotation[indexy])
+        signal = _data_vector.signal
+        annotation = _data_vector.annotation
 
-
-class AnnotationShiftedPartsFilter(Filter):
-    def __filter__(self, _signal, _annotation):
         #wykrywanie i usuwanie nonsinus na poczatku i na koncu
-        while _annotation[0] != 0:
-            _signal = _signal[1:-1]
-            _annotation = _annotation[1:-1]
+        while (annotation[0] != 0
+                and (_excluded_annotations == ALL_ANNOTATIONS
+                     or annotation[0] in _excluded_annotations)):
+            signal = signal[1:]
+            annotation = annotation[1:]
+
         #removing nonsinus beats from the end
-        while _annotation[-1] != 0:
-            _signal = _signal[0:-2]
-            _annotation = _annotation[0:-2]
-        indexy_p = array(find(_annotation != 0))
+        while (annotation[-1] != 0
+                and (_excluded_annotations == ALL_ANNOTATIONS
+                    or annotation[-1] in _excluded_annotations)):
+            signal = signal[0:-1]
+            annotation = annotation[0:-1]
+
+        if _excluded_annotations == ALL_ANNOTATIONS:
+            indexy_p = array(find(annotation != 0))
+        else:
+            #find indexes of annotation array where values are in
+            #_excluded_annotations list
+            indexy_p = array(
+                where(in1d(annotation, _excluded_annotations))[0], dtype=int)
+
         indexy_m = indexy_p - 1
         indexy = r_[indexy_p, indexy_m]
-        x_p = _signal[arange(0, len(_signal) - 1)]
-        x_pp = _signal[arange(1, len(_signal))]
+        x_p = signal[arange(0, len(signal) - self.__shift__)]
+        x_pp = signal[arange(self.__shift__, len(signal))]
         x_p[indexy] = -1
         indexy = array(find(x_p != -1))
         x_p = x_p[indexy]
         x_pp = x_pp[indexy]
-        return DataVector(signal_plus=x_p, signal_minus=x_pp)
 
+        not_annotation_indexes = self.__not_annotation_indexes__(
+                            _data_vector.annotation, _excluded_annotations)
+        signal = _data_vector.signal[not_annotation_indexes]
+        time = _data_vector.time[not_annotation_indexes] \
+                if _data_vector.time else None
 
-class ZeroAnnotationFilter(Filter):
-    def __init__(self, data_source, leave_annotations=(0,)):
-        '''
-        Constructor
-        '''
-        Filter.__init__(self, data_source)
-        self.__leave_annotations__ = leave_annotations
+        return DataVector(signal=signal, signal_plus=x_p, signal_minus=x_pp,
+                          time=time, annotation=annotation,
+                          signal_unit=_data_vector.signal_unit)
 
-    def __filter__(self, _signal, _annotation):
-        if USE_NUMPY_EQUIVALENT:
-            return self.__numpy_filter__(_signal, _annotation)
+    def __not_annotation_indexes__(self, _annotation, _excluded_annotations):
+        if _excluded_annotations == ALL_ANNOTATIONS:
+            indexes = array(find(_annotation == 0))
+        else:
+            #find indexes of an annotation array which are NOT included
+            #in _excluded_annotations list
+            indexes = array(where(logical_not(in1d(_annotation,
+                                    _excluded_annotations)))[0], dtype=int)
 
-        for pobudzenie in self.__leave_annotations__:
-            index_pobudzenie = find(_annotation == pobudzenie)
-            index_pobudzenie = array(index_pobudzenie)
-            if sum(index_pobudzenie != 0):
-                _annotation[index_pobudzenie] = 0
-        return DataVector(signal=_signal, annotation=_annotation)
-
-    def __numpy_filter__(self, _signal, _annotation):
-        if not self.__leave_annotations__ == (0,):
-            _annotation[in1d(_annotation, self.__leave_annotations__)] = 0
-        return DataVector(signal=_signal, annotation=_annotation)
+        return indexes
