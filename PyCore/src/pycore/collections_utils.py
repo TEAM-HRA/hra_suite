@@ -132,7 +132,8 @@ def get_as_list(_string, separator=',', strip_characters=' '):
     """
     convert a string into a list divided by a specified separator
     """
-    return [name.strip(strip_characters)
+    if not _string == None:
+        return [name.strip(strip_characters)
             if not strip_characters == None else name
                 for name in _string.split(separator)]
 
