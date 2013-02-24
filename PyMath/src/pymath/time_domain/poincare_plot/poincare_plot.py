@@ -56,8 +56,8 @@ class PoincarePlotManager(object):
         self.__data_dir__ = os.getcwd()
         self.__extension__ = '*'
         self.__window_shift__ = 1
-        self.__filter_manager__ = FilterManager()
         self.__excluded_annotations__ = ALL_ANNOTATIONS
+        self.__filters__ = []
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
@@ -164,7 +164,6 @@ class PoincarePlotManager(object):
     @window_shift.setter
     def window_shift(self, _window_shift):
         self.__window_shift__ = _window_shift
-        self.__filter_manager__.shift = _window_shift
 
     @property
     def output_precision(self):
@@ -175,16 +174,20 @@ class PoincarePlotManager(object):
         self.__output_precision__ = _output_precision
 
     @property
-    def use_filters(self):
-        return self.__use_filters__
+    def filters_names(self):
+        return self.__filters_names__
 
-    @use_filters.setter
-    def use_filters(self, _filters_names):
-        self.__filter_manager__.addFiltersByNames(_filters_names)
+    @filters_names.setter
+    def filters_names(self, _filters_names):
+        if _filters_names is not None:
+            self.__filters_names__ = _filters_names
+            map(self.addFilter, get_as_list(_filters_names))
 
-    def addFilter(self, name_or_object, _excluded_annotations=None):
-        self.__filter_manager__.addFilter(name_or_object,
-                                          _excluded_annotations)
+    def addFilter(self, name_or_object, _excluded_annotations=ALL_ANNOTATIONS):
+        self.__filters__.append((name_or_object, _excluded_annotations,))
+
+    def filters(self):
+        return self.__filters__
 
     @property
     def fourier_transformation(self):
@@ -209,7 +212,10 @@ class PoincarePlotManager(object):
 
     @excluded_annotations.setter
     def excluded_annotations(self, _excluded_annotations):
-        self.__excluded_annotations__ = get_as_list(_excluded_annotations)
+        if isinstance(_excluded_annotations, str):
+            self.__excluded_annotations__ = get_as_list(_excluded_annotations)
+        else:
+            self.__excluded_annotations__ = _excluded_annotations
 
     def generate(self):
         """
@@ -260,8 +266,11 @@ class PoincarePlotManager(object):
                                time_index=self.time_index)
         data = file_data_source.getData()
         parameters = {}
-        fourier = FourierTransformationManager(self.__fourier_transformation__,
-                                    self.__fourier_transform_interpolation__)
+        fourier = FourierTransformationManager(self.fourier_transformation,
+                                    self.fourier_transform_interpolation)
+        filter_manager = FilterManager(_shift=self.window_shift,
+                        _excluded_annotations=self.excluded_annotations,
+                        _filters=self.filters())
         with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=_file,
                          output_precision=self.output_precision) as csv:
@@ -271,10 +280,10 @@ class PoincarePlotManager(object):
                                     self.window_size,
                                     shift=self.window_shift,
                                     window_size_unit=self.window_size_unit):
-                data_segment = self.__filter_manager__.filter(data_segment)
+                data_segment = filter_manager.filter(data_segment)
 
                 fourier_params = fourier.calculate(data_segment,
-                                                self.__excluded_annotations__)
+                                                   self.excluded_annotations)
                 parameters.update(fourier_params)
 
                 statistics = statisticsFactory.statistics(data_segment)
@@ -424,17 +433,15 @@ if __name__ == '__main__':
     parser.add_argument("-df", "--display_filters",
                 help="display list of available filters [True|False]",
                 type=to_bool, default=False)
-    parser.add_argument("-uf", "--use_filters",
-                help="""use filters in a form: <filter_name>[annotations
-                    values separated by '-']; available filters: """
+    parser.add_argument("-fn", "--filters_names",
+                help="""use filters; available filters: """
                     + getFiltersNames())
     parser.add_argument("-ft", "--fourier_transformation",
                 help="""use fourier transformation; available: """ +
                         getFourierTransformationNames())
     parser.add_argument("-fti", "--fourier_transform_interpolation",
                 help="""used interpolation method during fourier transformation
-                in a form: <filter_name>[annotations values separated by '-'];
-                available: """ + getInterpolationNames())
+                    ; available interpolations: """ + getInterpolationNames())
     parser.add_argument("-ea", "--excluded_annotations",
                 help="""specifies which values (separated by a comma) have to
                          be interpreted as true annotations values;
@@ -454,7 +461,7 @@ if __name__ == '__main__':
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
     ppManager.output_precision = __args.output_precision
-    ppManager.use_filters = __args.use_filters
+    ppManager.filters_names = __args.filters_names
     ppManager.fourier_transformation = \
                     __args.fourier_transformation
     ppManager.fourier_transform_interpolation = \
