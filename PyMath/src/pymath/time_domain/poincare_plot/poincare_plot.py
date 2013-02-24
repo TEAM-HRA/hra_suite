@@ -227,9 +227,9 @@ class PoincarePlotManager(object):
         """
         the method which starts to generate Poincare Plot parameters
         """
-
         sign_multiplicator = 80
         file_counter = 0
+        print('*' * sign_multiplicator)
         if self.data_file:  # data_file parameter is superior to data_dir parameter @IgnorePep8
             if os.path.exists(self.data_file) == False:
                 if disp:
@@ -250,8 +250,6 @@ class PoincarePlotManager(object):
                         print('Processing file: ' + _file)
                     _file_handler(_file, **params)
         if disp:
-            for _ in range(3):
-                print('*' * sign_multiplicator)
             print('Processing finished')
             if file_counter == 0:
                 print('No files to process [' + self.data_dir
@@ -273,7 +271,8 @@ class PoincarePlotManager(object):
                         _filters=self.filters())
         with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=_file,
-                         output_precision=self.output_precision) as csv:
+                         output_precision=self.output_precision,
+                         print_output_file=True) as csv:
             statisticsFactory = StatisticsFactory(self.statistics_names,
                             statistics_handlers=self.__statistics_handlers__)
             for data_segment in PoincarePlotSegmenter(data,

@@ -17,11 +17,12 @@ except ImportError as error:
 class NumpyCSVFile(CSVFile):
     def __init__(self,  output_file=None, output_dir=None, output_suffix=None,
                  reference_filename=None, sort_headers=True,
-                 output_precision="10,5"):
+                 output_precision="10,5", print_output_file=False):
         super(NumpyCSVFile, self).__init__(output_file, output_dir,
                     output_suffix, reference_filename, sort_headers)
         self.array_data = None
         self.__output_precision__ = get_as_tuple(output_precision, convert=int)
+        self.__print_output_file__ = print_output_file
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self.output_file == None:
@@ -37,6 +38,8 @@ class NumpyCSVFile(CSVFile):
             _file.write(contents)
             _file.close()
             memory_file.close()
+            if self.__print_output_file__:
+                print('Data saved into the file: ' + self.output_file)
 
         self.array_data = None
 
