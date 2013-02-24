@@ -144,7 +144,7 @@ def get_method_arguments_count(_method):
         else -1
 
 
-def get_subclasses_short_names(_class, remove_base_classname=True):
+def get_subclasses_short_names(_class, remove_base_classname=False):
     """
     get all class _class subclasses names, with ability to remove
     a baseclass name in the outcome

@@ -160,4 +160,4 @@ def commas(*iterable, **params):
     method used to join iterable by comma
     """
     c = map(str, *iterable)
-    return params.get('_default', None) if len(c) == 0 else ','.join(c)
+    return params.get('_default', None) if len(c) == 0 else ', '.join(c)

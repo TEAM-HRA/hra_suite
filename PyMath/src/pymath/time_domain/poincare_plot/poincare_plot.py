@@ -51,6 +51,10 @@ def getFourierTransformationNames():
     return commas(FourierTransformation.getSubclassesShortNames())
 
 
+def getSeparatorLabels():
+    return commas(Separator.getSeparatorsLabels())
+
+
 class PoincarePlotManager(object):
     def __init__(self):
         self.__data_dir__ = os.getcwd()
@@ -399,7 +403,8 @@ if __name__ == '__main__':
                 help="alternative option to set one data source file")
     parser.add_argument("-w", "--window_size",
                 help="""data window size expressed in number of data items or
-                in time units by suffix: s - second, m - minute, h - hour""")
+                in time units by suffix: s - second, m - minute, h - hour;
+                examples: 100, 5m""")
     parser.add_argument("-ws", "--window_shift", type=int,
                 help="window data shift between two sets of signals",
                 default=1)
@@ -418,20 +423,26 @@ if __name__ == '__main__':
     #            help="display lines of headers (not implemented yet)",
     #            default="")
     parser.add_argument("-si", "--signal_index", type=int,
-                help="index of a signal column", default=-1)
+                help="index of a signal column in a data source file (0 based)", # @IgnorePep8
+                default=-1)
     parser.add_argument("-ai", "--annotation_index", type=int,
-                help="index of an annotation column", default=-1)
+                help="index of an annotation column in a data source file (0 based)", # @IgnorePep8
+                default=-1)
     parser.add_argument("-ti", "--time_index", type=int,
-                help="index of a time column", default=-1)
+                help="index of a time column in a data source file (0 based)" +
+                    " [for future use]",
+                default=-1)
     parser.add_argument("-p", "--separator",
                 help="a separator used between columns, one from the set: " +
-                     ", ".join(Separator.getSeparatorsLabels()) + ", <custom>")
+                     getSeparatorLabels() + ", <custom>; note: the " +
+                     "application tries to discover a separator itself")
     parser.add_argument("-dav", "--display_annotation_values",
-                help="display unique annotations values [True|False]",
+                help="display unique annotations values presented in " +
+                    "data source files [True|False]",
                 type=to_bool, default=False)
-    parser.add_argument("-df", "--display_filters",
-                help="display list of available filters [True|False]",
-                type=to_bool, default=False)
+#    parser.add_argument("-df", "--display_filters",
+#                help="display list of available filters [True|False]",
+#                type=to_bool, default=False)
     parser.add_argument("-fn", "--filters_names",
                 help="""use filters; available filters: """
                     + getFiltersNames())
@@ -439,12 +450,12 @@ if __name__ == '__main__':
                 help="""use fourier transformation; available: """ +
                         getFourierTransformationNames())
     parser.add_argument("-fti", "--fourier_transform_interpolation",
-                help="""used interpolation method during fourier transformation
+                help="""use interpolation method during fourier transformation
                     ; available interpolations: """ + getInterpolationNames())
     parser.add_argument("-ea", "--excluded_annotations",
                 help="""specifies which values (separated by a comma) have to
                          be interpreted as true annotations values;
-                         if not specified all not 0 values in annotation
+                         if not specified then all non-0 values in a annotation
                          column are such entities""")
     __args = parser.parse_args()
 
@@ -472,8 +483,8 @@ if __name__ == '__main__':
         _disp = True
         print('Annotations: ' + commas(ppManager.getUniqueAnnotations(),
                                        _default='none'))
-    if __args.display_filters == True:
-        _disp = True
-        print('Filters: ' + getFiltersNames())
+#    if __args.display_filters == True:
+#        _disp = True
+#        print('Filters: ' + getFiltersNames())
     if _disp == False:
         ppManager.generate()
