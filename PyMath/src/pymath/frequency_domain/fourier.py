@@ -5,66 +5,66 @@ Created on 16-08-2012
 '''
 from pymath.utils.utils import print_import_error
 try:
-    import numpy as np
-    from pylab import convolve
-    from pylab import array
-    from pylab import fft
-    from pylab import arange
-    from pylab import mean
-    from pylab import find
-    import pymath.interpolation as interpolation_module
+    import pylab as pl
+    from pycore.introspection import get_subclasses_short_names
     from pymath.sampling import LinearInterpolatedSampling
+    from pymath.interpolation import InterpolationManager
     from pymath.integrals import DefiniteIntegral
-    from pymath.datasources import DataVector
     from pymath.utils.utils import get_values_as_map
 except ImportError as error:
     print_import_error(__name__, error)
 
 
-class FourierTransformManager(object):
-    def __init__(self, _fourier_transform_class, _interpolation_type=None):
-        self.__fourier_transform_class__ = _fourier_transform_class
-        self.__interpolation_type__ = _interpolation_type
-
-    def calculate(self, _data):
-        fourier_transform = self.__fourier_transform_class__(_data)
-        if len(self.__interpolation_type__) > 0:
-            signal = self.__get_interpolated_value__(_data)
-            fourier_transform.data = DataVector(signal=signal)
-        return fourier_transform.calculate()
-
-    def __get_interpolated_value__(self, _data):
-        _class_name = self.__interpolation_type__ + 'Interpolation'
-        interpolation_class = interpolation_module.__dict__.get(_class_name, None) #@IgnorePep8
-        if interpolation_class:
-            interpolation_object = interpolation_class()
-            interpolation_object.signal = _data.signal
-            interpolation_object.annotation = _data.annotation
-            return interpolation_object.interpolate()
-        raise AttributeError('Unknown interpolation: ' + _class_name)
+def get_fourier_transform(_fourier_transform_class_name):
+    """
+    returns fourier transform object based on _fourier_transform_class_name
+    parameter
+    """
+    if _fourier_transform_class_name:
+        try:
+            return eval(_fourier_transform_class_name + '()')
+        except NameError:
+            print('Warning !!! Fourier transform ' + _fourier_transform_class_name + ' not defined !')  # @IgnorePep8
+    return FourierTransformation()
 
 
-class FourierTransform(DataVector):
-    def __init__(self, data_source):
-        '''
-        Constructor
-        '''
-        DataVector.__init__(self, data_source)
+class FourierTransformationManager(object):
+    def __init__(self, _fourier_transform_name_or_class,
+                 _interpolation_name_or_class=None):
+        if isinstance(_fourier_transform_name_or_class, str):
+            self.__fourier_transform__ = get_fourier_transform(
+                                            _fourier_transform_name_or_class)
+        elif not _fourier_transform_name_or_class == None:
+            self.__fourier_transform__ = _fourier_transform_name_or_class()
+        else:
+            self.__fourier_transform__ = FourierTransformation()
+        self.__interpolation_name_or_class__ = _interpolation_name_or_class
 
-    def calculate(self):
-        return self.__calculate__(self.signal)
+    def calculate(self, _data_vector, _excluded_annotations):
+        if not self.__interpolation_name_or_class__ == None:
+            interpolation = \
+                InterpolationManager(self.__interpolation_name_or_class__)
+            signal = interpolation.interpolate(_data_vector,
+                                               _excluded_annotations)
+        else:
+            signal = _data_vector.signal
+
+        return self.__fourier_transform__.calculate(signal)
+
+
+class FourierTransformation(object):
+    def calculate(self, _signal):
+        return self.__calculate__(_signal)
 
     def __calculate__(self, _signal):
-        pass
+        return {}
+
+    @staticmethod
+    def getSubclassesShortNames():
+        return get_subclasses_short_names(FourierTransformation)
 
 
-class FastFourierTransform(FourierTransform):
-    def __init__(self, data_source):
-        '''
-        Constructor
-        '''
-        FourierTransform.__init__(self, data_source)
-
+class FastFourierTransformation(FourierTransformation):
     def __calculate__(self, _signal):
         """This function accepts three results. The first is the the name of
          the .rea file, the second is the column number for which the spectral
@@ -90,23 +90,23 @@ class FastFourierTransform(FourierTransform):
         #if nonsin_out == 2:
         #    __signal__ = imputuj(__signal__, annotation)
         #the filter
-        boxcar = array([1., 1., 1.0, 1.0]) * .25
+        boxcar = pl.array([1., 1., 1.0, 1.0]) * .25
 
         #resampling
         signal_resampled = LinearInterpolatedSampling(_signal, 250).sampling
 
         #filtering
-        RR_resampled = convolve(signal_resampled[1], boxcar)
+        RR_resampled = pl.convolve(signal_resampled[1], boxcar)
 
         #preparing the resampled __signal__ for the fft routine
         t_resampled = signal_resampled[0]
-        RR_resampled = RR_resampled - mean(RR_resampled)
+        RR_resampled = RR_resampled - pl.mean(RR_resampled)
 
         results = FourierResults()
 
         #fast fourier transform calculation
         #moc = ((abs(fft(RR_resampled / len(RR_resampled - 1)))) ** 2) * 2
-        results.moc = ((abs(fft(RR_resampled
+        results.moc = ((abs(pl.fft(RR_resampled
                                 / len(RR_resampled - 1)))) ** 2) * 2
 
         #now we will calculate the frequencies
@@ -115,10 +115,10 @@ class FastFourierTransform(FourierTransform):
 
         time_total = t_resampled[-1] / 1000.0
         frequency = 1 / time_total
-        freq = arange(0, len(t_resampled)) * (frequency)
-        results.frequency = arange(0, len(t_resampled)) * (frequency)
+        freq = pl.arange(0, len(t_resampled)) * (frequency)
+        results.frequency = pl.arange(0, len(t_resampled)) * (frequency)
 
-        indexy = find(freq < .5)
+        indexy = pl.find(freq < .5)
 
         results.HF = DefiniteIntegral.integration(results.frequency, results.moc, 0.15, 0.4) #@IgnorePep8
         results.LF = DefiniteIntegral.integration(results.frequency, results.moc, 0.04, 0.15) #@IgnorePep8
@@ -135,7 +135,7 @@ class FastFourierTransform(FourierTransform):
         #rezultaty.append(moc)
         #rezultaty.append(freq)
         #just to be on the safe side
-        variancja = np.var(_signal)
+        variancja = pl.var(_signal)
         #return rezultaty
         return get_values_as_map(results)
 

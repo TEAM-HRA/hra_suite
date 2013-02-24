@@ -5,24 +5,17 @@ Created on 27-07-2012
 '''
 from pymath.utils.utils import print_import_error
 try:
-    from numpy import array
-    from numpy import logical_not
-    from numpy import where
-    from numpy import sum
-    from pylab import find
-    from pylab import arange
-    from pylab import r_
-    from pylab import in1d
+    import pylab as pl
     from pycore.collections_utils import get_as_list
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_method_arguments_count
     from pycore.introspection import get_subclasses_short_names
     from pymath.datasources import DataVector
+    from pymath.datasources import ALL_ANNOTATIONS
+    from pymath.datasources import exclude_boundary_annotations
+    from pymath.datasources import get_not_annotation_indexes
 except ImportError as error:
     print_import_error(__name__, error)
-
-
-ALL_ANNOTATIONS = 1
 
 
 class FilterManager(object):
@@ -127,45 +120,28 @@ class DataVectorFilter(object):
 class AnnotationFilter(DataVectorFilter):
     def __filter__(self, _data_vector, _excluded_annotations):
 
-        if _data_vector.annotation == None or \
-            sum(_data_vector.annotation, dtype=int) == 0:
+        signal_no_boundary_annotations = \
+            exclude_boundary_annotations(_data_vector.signal,
+                                         _data_vector.annotation,
+                                         _excluded_annotations)
+        #there is no annotations or all are 0's so nothing changed
+        if signal_no_boundary_annotations.annotation_indexes == None:
             return _data_vector
 
-        signal = _data_vector.signal
-        annotation = _data_vector.annotation
+        signal = signal_no_boundary_annotations.signal
+        annotation = signal_no_boundary_annotations.annotation
 
-        #removing nonsinus beats from the beginning
-        while (annotation[0] != 0
-                and (_excluded_annotations == ALL_ANNOTATIONS
-                     or annotation[0] in _excluded_annotations)):
-            signal = signal[1:]
-            annotation = annotation[1:]
-
-        #removing nonsinus beats from the end
-        while (annotation[-1] != 0
-                and (_excluded_annotations == ALL_ANNOTATIONS
-                    or annotation[-1] in _excluded_annotations)):
-            signal = signal[0:-1]
-            annotation = annotation[0:-1]
-
-        if _excluded_annotations == ALL_ANNOTATIONS:
-            indexy_p = array(find(annotation != 0))
-        else:
-            #find indexes of annotation array where values are in
-            #_excluded_annotations list
-            indexy_p = array(
-                where(in1d(annotation, _excluded_annotations))[0], dtype=int)
-
+        indexy_p = signal_no_boundary_annotations.annotation_indexes
         indexy_m = indexy_p - 1
-        indexy = r_[indexy_p, indexy_m]
-        x_p = signal[arange(0, len(signal) - self.__shift__)]
-        x_pp = signal[arange(self.__shift__, len(signal))]
+        indexy = pl.r_[indexy_p, indexy_m]
+        x_p = signal[pl.arange(0, len(signal) - self.__shift__)]
+        x_pp = signal[pl.arange(self.__shift__, len(signal))]
         x_p[indexy] = -1
-        indexy = array(find(x_p != -1))
+        indexy = pl.array(pl.find(x_p != -1))
         x_p = x_p[indexy]
         x_pp = x_pp[indexy]
 
-        not_annotation_indexes = self.__not_annotation_indexes__(
+        not_annotation_indexes = get_not_annotation_indexes(
                             _data_vector.annotation, _excluded_annotations)
         signal = _data_vector.signal[not_annotation_indexes]
         time = _data_vector.time[not_annotation_indexes] \
@@ -174,14 +150,3 @@ class AnnotationFilter(DataVectorFilter):
         return DataVector(signal=signal, signal_plus=x_p, signal_minus=x_pp,
                           time=time, annotation=annotation,
                           signal_unit=_data_vector.signal_unit)
-
-    def __not_annotation_indexes__(self, _annotation, _excluded_annotations):
-        if _excluded_annotations == ALL_ANNOTATIONS:
-            indexes = array(find(_annotation == 0))
-        else:
-            #find indexes of an annotation array which are NOT included
-            #in _excluded_annotations list
-            indexes = array(where(logical_not(in1d(_annotation,
-                                    _excluded_annotations)))[0], dtype=int)
-
-        return indexes

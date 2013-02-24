@@ -13,6 +13,8 @@ try:
     from pycore.misc import extract_number
     from pycore.misc import extract_alphabetic
     from pycore.units import get_time_unit
+    from pycore.collections_utils import commas
+    from pycore.collections_utils import get_as_list
     from pymath.utils.array_utils import \
         get_max_index_for_cumulative_sum_greater_then_value
     from pymath.utils.io_utils import NumpyCSVFile
@@ -20,13 +22,12 @@ try:
     from pymath.statistics.statistics import Statistic
     from pymath.datasources import DataVector
     from pymath.datasources import FileDataSource
+    from pymath.datasources import ALL_ANNOTATIONS
     from pymath.interpolation import Interpolation
     from pymath.time_domain.poincare_plot.filters import FilterManager
     from pymath.time_domain.poincare_plot.filters import DataVectorFilter
-    from pycore.collections_utils import commas
-    #from pycore.collections_utils import get_as_list
-    #from pymath.frequency_domain.fourier import FourierTransformManager
-    #from pymath.frequency_domain.fourier import FastFourierTransform
+    from pymath.frequency_domain.fourier import FourierTransformationManager
+    from pymath.frequency_domain.fourier import FourierTransformation
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -46,12 +47,17 @@ def getInterpolationNames():
     return commas(Interpolation.getSubclassesShortNames())
 
 
+def getFourierTransformationNames():
+    return commas(FourierTransformation.getSubclassesShortNames())
+
+
 class PoincarePlotManager(object):
     def __init__(self):
         self.__data_dir__ = os.getcwd()
         self.__extension__ = '*'
         self.__window_shift__ = 1
         self.__filter_manager__ = FilterManager()
+        self.__excluded_annotations__ = ALL_ANNOTATIONS
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
@@ -181,12 +187,29 @@ class PoincarePlotManager(object):
                                           _excluded_annotations)
 
     @property
-    def use_fft_interpolation(self):
-        return self.__use_fft_interpolation__
+    def fourier_transformation(self):
+        return self.__fourier_transformation__
 
-    @use_fft_interpolation.setter
-    def use_fft_interpolation(self, _use_fft_interpolation):
-        self.__use_fft_interpolation__ = _use_fft_interpolation
+    @fourier_transformation.setter
+    def fourier_transformation(self, _fourier_transformation):
+        self.__fourier_transformation__ = _fourier_transformation
+
+    @property
+    def fourier_transform_interpolation(self):
+        return self.__fourier_transform_interpolation__
+
+    @fourier_transform_interpolation.setter
+    def fourier_transform_interpolation(self, _fourier_transform_interpolation):  # @IgnorePep8
+        self.__fourier_transform_interpolation__ = \
+                _fourier_transform_interpolation
+
+    @property
+    def excluded_annotations(self):
+        return self.__excluded_annotations__
+
+    @excluded_annotations.setter
+    def excluded_annotations(self, _excluded_annotations):
+        self.__excluded_annotations__ = get_as_list(_excluded_annotations)
 
     def generate(self):
         """
@@ -237,10 +260,8 @@ class PoincarePlotManager(object):
                                time_index=self.time_index)
         data = file_data_source.getData()
         parameters = {}
-#        if self.__use_fft_interpolation__:
-#            fourierManager = FourierTransformManager(FastFourierTransform,
-#                                    self.__use_fft_interpolation__)
-#            parameters.update(fourierManager.calculate(data))
+        fourier = FourierTransformationManager(self.__fourier_transformation__,
+                                    self.__fourier_transform_interpolation__)
         with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=_file,
                          output_precision=self.output_precision) as csv:
@@ -251,8 +272,14 @@ class PoincarePlotManager(object):
                                     shift=self.window_shift,
                                     window_size_unit=self.window_size_unit):
                 data_segment = self.__filter_manager__.filter(data_segment)
+
+                fourier_params = fourier.calculate(data_segment,
+                                                self.__excluded_annotations__)
+                parameters.update(fourier_params)
+
                 statistics = statisticsFactory.statistics(data_segment)
                 parameters.update(statistics)
+
                 csv.write(parameters)
                 #print(str(statistics))
 
@@ -398,12 +425,21 @@ if __name__ == '__main__':
                 help="display list of available filters [True|False]",
                 type=to_bool, default=False)
     parser.add_argument("-uf", "--use_filters",
-                help="""use filters in a form: <filter_name>[<annotations
+                help="""use filters in a form: <filter_name>[annotations
                     values separated by '-']; available filters: """
                     + getFiltersNames())
-    parser.add_argument("-ff", "--use_fft_interpolation",
-                help="""use Fast Fourier Transform with interpolation: """ +
-                        getInterpolationNames())
+    parser.add_argument("-ft", "--fourier_transformation",
+                help="""use fourier transformation; available: """ +
+                        getFourierTransformationNames())
+    parser.add_argument("-fti", "--fourier_transform_interpolation",
+                help="""used interpolation method during fourier transformation
+                in a form: <filter_name>[annotations values separated by '-'];
+                available: """ + getInterpolationNames())
+    parser.add_argument("-ea", "--excluded_annotations",
+                help="""specifies which values (separated by a comma) have to
+                         be interpreted as true annotations values;
+                         if not specified all not 0 values in annotation
+                         column are such entities""")
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -419,7 +455,11 @@ if __name__ == '__main__':
     ppManager.time_index = __args.time_index
     ppManager.output_precision = __args.output_precision
     ppManager.use_filters = __args.use_filters
-    ppManager.use_fft_interpolation = __args.use_fft_interpolation
+    ppManager.fourier_transformation = \
+                    __args.fourier_transformation
+    ppManager.fourier_transform_interpolation = \
+                    __args.fourier_transform_interpolation
+    ppManager.excluded_annotations = __args.excluded_annotations
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:
