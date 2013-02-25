@@ -234,10 +234,7 @@ class FileDataSource(object):
 
     @property
     def headers_with_col_index(self):
-        headers = []
-        for header in self.headers:
-            headers.append(list(enumerate(header)))
-        return headers
+        return [list(enumerate(header)) for header in self.headers]
 
     def getData(self):
         return self.__getNumPyData__() if USE_NUMPY_EQUIVALENT else \
