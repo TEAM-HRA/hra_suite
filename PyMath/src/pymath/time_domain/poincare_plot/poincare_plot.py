@@ -233,7 +233,8 @@ class PoincarePlotManager(object):
         """
         sign_multiplicator = 80
         file_counter = 0
-        print('*' * sign_multiplicator)
+        if disp:
+            print('*' * sign_multiplicator)
         if self.data_file:  # data_file parameter is superior to data_dir parameter @IgnorePep8
             if os.path.exists(self.data_file) == False:
                 if disp:
@@ -311,6 +312,17 @@ class PoincarePlotManager(object):
                                 annotation_index=self.annotation_index)
         _unique_annotations[len(_unique_annotations):] = \
                     file_data_source.getUniqueAnnotations()
+
+    def getHeaders(self, with_col_index=True):
+        headers = []
+        self.__process__(self.__process_headers__, disp=False,
+                         _headers=headers)
+        return headers
+
+    def __process_headers__(self, _file, _headers=None):
+        file_data_source = FileDataSource(_file=_file)
+        _headers.append('File: ' + str(_file))
+        _headers.append(file_data_source.headers_with_col_index)
 
 
 class PoincarePlotSegmenter(object):
@@ -419,9 +431,8 @@ if __name__ == '__main__':
                 help="list of statistics names to calculate, defaults to: " +
                         getDefaultStatisticsNames(),
                 default=getDefaultStatisticsNames())
-    #parser.add_argument("-r", "--headers",
-    #            help="display lines of headers (not implemented yet)",
-    #            default="")
+    parser.add_argument("-he", "--headers", type=to_bool,
+                        help="display lines of headers [True|False]")
     parser.add_argument("-si", "--signal_index", type=int,
                 help="index of a signal column in a data source file (0 based)", # @IgnorePep8
                 default=-1)
@@ -486,5 +497,10 @@ if __name__ == '__main__':
 #    if __args.display_filters == True:
 #        _disp = True
 #        print('Filters: ' + getFiltersNames())
+    if __args.headers == True:
+        _disp = True
+        print('Headers:')
+        for header in ppManager.getHeaders():
+            print(header)
     if _disp == False:
         ppManager.generate()

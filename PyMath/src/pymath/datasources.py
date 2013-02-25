@@ -213,17 +213,31 @@ class FileDataSource(object):
         if self.__headers__ == None:
             self.__headers__ = []
             with open(self.__file__, 'r') as _file:
-                header_ok = False
                 for line in _file:
                     headers = line.rstrip('\n').split(self.params.separator)
+                    header_ok = False
                     for header in headers:
-                        if FileDataSource.HEADER_PATTERN.match(header):
+                        match = FileDataSource.HEADER_PATTERN.match(header)
+                        #to check if a header matches HEADER_PATTERN one
+                        #have to test not only whether match is None but
+                        #whether end() methods returns value > 0
+                        #it seems that such behaviour is not consistent
+                        #with API documentation of re.match method
+                        if match is not None and match.end() > 0:
                             header_ok = True
                             break
                     if header_ok == False:
                         break
-                self.__headers__.append(headers)
+                    else:
+                        self.__headers__.append(headers)
         return self.__headers__
+
+    @property
+    def headers_with_col_index(self):
+        headers = []
+        for header in self.headers:
+            headers.append(list(enumerate(header)))
+        return headers
 
     def getData(self):
         return self.__getNumPyData__() if USE_NUMPY_EQUIVALENT else \
