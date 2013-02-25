@@ -8,20 +8,6 @@ Created on 20-10-2012
 from os import system
 import curses
 
-from numpy import array
-from pylab import find
-
-from pycore.globals import GLOBALS
-from pymath.datasources import FilesDataSources, DataSource
-from pymath.datasources import SignalColumnSpec
-from pymath.datasources import AnnotationColumnSpec
-from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlot
-from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlotSegmenter #@IgnorePep8
-from pymath.time_domain.poincare_plot.filters import RemoveAnnotatedSignalFilter #@IgnorePep8
-from pymath.time_domain.poincare_plot.filters import ZeroAnnotationFilter
-from pymath.time_domain.poincare_plot.filters import AnnotationShiftedPartsFilter #@IgnorePep8
-from pymath.frequency_domain.fourier import FastFourierTransform
-
 
 def get_param(prompt_string):
     screen.clear()
