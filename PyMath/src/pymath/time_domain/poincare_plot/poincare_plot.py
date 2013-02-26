@@ -303,8 +303,7 @@ class PoincarePlotManager(object):
                 statistics = statisticsFactory.statistics(data_segment)
                 parameters.update(statistics)
 
-                ordinal_value = segmenter.data_index
-                csv.write(parameters, ordinal_value=ordinal_value)
+                csv.write(parameters, ordinal_value=segmenter.ordinal_value)
                 #print(str(statistics))
 
     def addStatisticHandler(self, _handler=None):
@@ -344,16 +343,17 @@ class PoincarePlotSegmenter(object):
         self.__shift__ = shift
         self.__index__ = 0
         self.__window_size_unit__ = window_size_unit
+        self.__window_unit__ = None
 
         #this means a user put window size in some unit
         if self.__window_size_unit__:
-
             #get time unit of window size
-            unit = get_time_unit(self.__window_size_unit__)
+            self.__window_unit__ = get_time_unit(self.__window_size_unit__)
 
             #convert signal unit into window size unit,
             #for example express milliseconds in minutes
-            multiplier = unit.expressInUnit(self.__data__.signal_unit)
+            multiplier = self.__window_unit__.expressInUnit(
+                                                    self.__data__.signal_unit)
 
             #express window size in units of a signal
             self.__window_size__ = multiplier * window_size
@@ -408,6 +408,15 @@ class PoincarePlotSegmenter(object):
         #self.__shift have to be subtracted because it was added in next()
         #method
         return self.__index__ - self.__shift__
+
+    @property
+    def ordinal_value(self):
+        if self.__window_size_unit__:
+            multiplier = self.__data__.signal_unit.expressInUnit(
+                                                    self.__window_unit__)
+            return multiplier * np.sum(self.__data__.signal[:self.data_index])
+        else:
+            return self.data_index
 
 #an example of statistic handler
 #def stat_double(signal_plus, signal_minus):
