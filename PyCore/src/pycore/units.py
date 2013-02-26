@@ -58,7 +58,7 @@ class __Unit__(object):
             raise TypeError('Incompatible types: ' + self + ' <=> ' + other)
 
     def expressInUnit(self, unit):
-        value = 1
+        value = 1.0
         if self.ordinal == unit.ordinal:
             pass
         elif self.ordinal < unit.ordinal:
@@ -81,7 +81,7 @@ class __Unit__(object):
 class __Millisecond__(__Unit__):
     def __init__(self):
         super(__Millisecond__, self).__init__('Millisecond', -1, 'ms',
-            TIME_UNIT_TYPE, _id='i', upper_multiplier=1000)
+            TIME_UNIT_TYPE, _id='i', upper_multiplier=1.0 / 1000)
 
 Millisecond = __Millisecond__()
 
@@ -133,3 +133,5 @@ if __name__ == '__main__':
     print(Hour.expressInUnit(Hour))
     print(Hour.expressInUnit(Minute))
     print(Minute.expressInUnit(Hour))
+    print(Millisecond.expressInUnit(Minute))
+    print(Minute.expressInUnit(Millisecond))
