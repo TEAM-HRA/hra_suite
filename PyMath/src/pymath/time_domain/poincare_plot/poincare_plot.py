@@ -221,6 +221,14 @@ class PoincarePlotManager(object):
         else:
             self.__excluded_annotations__ = _excluded_annotations
 
+    @property
+    def ordinal_column_name(self):
+        return self.__ordinal_column_name__
+
+    @ordinal_column_name.setter
+    def ordinal_column_name(self, _ordinal_column_name):
+        self.__ordinal_column_name__ = _ordinal_column_name
+
     def generate(self):
         """
         the method which starts to generate Poincare Plot parameters
@@ -267,7 +275,7 @@ class PoincarePlotManager(object):
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
                                time_index=self.time_index)
-        data = file_data_source.getData()
+        data_vector = file_data_source.getData()
         parameters = {}
         fourier = FourierTransformationManager(self.fourier_transformation,
                                     self.fourier_transform_interpolation)
@@ -277,13 +285,15 @@ class PoincarePlotManager(object):
         with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=_file,
                          output_precision=self.output_precision,
-                         print_output_file=True) as csv:
+                         print_output_file=True,
+                         ordinal_column_name=self.ordinal_column_name) as csv:
             statisticsFactory = StatisticsFactory(self.statistics_names,
                             statistics_handlers=self.__statistics_handlers__)
-            for data_segment in PoincarePlotSegmenter(data,
+            segmenter = PoincarePlotSegmenter(data_vector,
                                     self.window_size,
                                     shift=self.window_shift,
-                                    window_size_unit=self.window_size_unit):
+                                    window_size_unit=self.window_size_unit)
+            for data_segment in segmenter:
                 data_segment = filter_manager.filter(data_segment)
 
                 fourier_params = fourier.calculate(data_segment,
@@ -293,7 +303,8 @@ class PoincarePlotManager(object):
                 statistics = statisticsFactory.statistics(data_segment)
                 parameters.update(statistics)
 
-                csv.write(parameters)
+                ordinal_value = segmenter.data_index
+                csv.write(parameters, ordinal_value=ordinal_value)
                 #print(str(statistics))
 
     def addStatisticHandler(self, _handler=None):
@@ -392,6 +403,11 @@ class PoincarePlotSegmenter(object):
         else:
             raise StopIteration
 
+    @property
+    def data_index(self):
+        #self.__shift have to be subtracted because it was added in next()
+        #method
+        return self.__index__ - self.__shift__
 
 #an example of statistic handler
 #def stat_double(signal_plus, signal_minus):
@@ -468,6 +484,8 @@ if __name__ == '__main__':
                          be interpreted as true annotations values;
                          if not specified then all non-0 values in a annotation
                          column are such entities""")
+    parser.add_argument("-ordinal", "--ordinal_column_name",
+                help="name of the ordinal column which will be the first column")  # @IgnorePep8
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -488,6 +506,7 @@ if __name__ == '__main__':
     ppManager.fourier_transform_interpolation = \
                     __args.fourier_transform_interpolation
     ppManager.excluded_annotations = __args.excluded_annotations
+    ppManager.ordinal_column_name = __args.ordinal_column_name
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:

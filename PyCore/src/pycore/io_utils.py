@@ -164,13 +164,17 @@ class CSVFile(object):
     reference_filename - a file used as a base to create output_file name
     output_suffix - a suffix appended to output_file
     sort_headers - whether to sort columns
+    ordinal_column_name - name of the ordinal column,
+                        this column will be the first one
     """
     def __init__(self, output_file=None, output_dir=None, output_suffix=None,
-                 reference_filename=None, sort_headers=True):
+                 reference_filename=None, sort_headers=True,
+                 ordinal_column_name=None):
         self.__output_file__ = None
         self.__file__ = None  # means file descriptor
         self.__headers__ = None
         self.__sort_headers__ = sort_headers
+        self.__ordinal_column_name__ = ordinal_column_name
 
         if not output_file == None:
             self.__output_file__ = output_file
@@ -197,14 +201,27 @@ class CSVFile(object):
     def output_file(self):
         return self.__output_file__
 
-    def get_values(self, _data):
+    def get_values(self, _data, _ordinal_value=None):
         values = None
         if isinstance(_data, dict):
             if self.__headers__ == None:
                 self.__headers__ = _data.keys()
                 if self.__sort_headers__:
                     self.__headers__ = sorted(self.__headers__)
-            values = [_data.get(header, '') for header in self.__headers__]
+
+                # move the ordinal column to the first position
+                if self.ordinal_column_name:
+                    if self.headers.count(self.ordinal_column_name) == 0:
+                        self.headers.insert(0, self.ordinal_column_name)
+                    else:
+                        raise NameError('Ordinal column ' +
+                                        self.ordinal_column_name +
+                                        ' already exists in headers !')
+
+            values = [_data.get(header, '') for header in self.headers]
+            #replace value of the first ordinal position
+            if self.ordinal_column_name and _ordinal_value is not None:
+                values[0] = _ordinal_value
         return values
 
     def write(self, _data):
@@ -217,3 +234,7 @@ class CSVFile(object):
     @property
     def headers(self):
         return self.__headers__
+
+    @property
+    def ordinal_column_name(self):
+        return self.__ordinal_column_name__
