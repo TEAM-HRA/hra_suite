@@ -494,7 +494,9 @@ if __name__ == '__main__':
                          if not specified then all non-0 values in a annotation
                          column are such entities""")
     parser.add_argument("-ordinal", "--ordinal_column_name",
-                help="name of the ordinal column which will be the first column")  # @IgnorePep8
+                help="""name of the ordinal column, index or time it depends
+                 on window size unit, which will be the first column
+                 in outcomes""")  # @IgnorePep8
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
