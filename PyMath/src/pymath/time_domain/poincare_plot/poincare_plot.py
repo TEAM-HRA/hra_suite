@@ -35,23 +35,39 @@ except ImportError as error:
 DEFAULT_OUTCOME_DIRECTORY = os.path.join(os.getcwd(), 'pp_outcomes')
 
 
-def getDefaultStatisticsNames():
+def getStatisticsNames():
+    """
+    to get default statistics names; subclasses of Statistic class
+    """
     return commas(Statistic.getSubclassesShortNames())
 
 
 def getFiltersNames():
+    """
+    to get default filter names; subclasses of DataVectorFilter class
+    """
     return commas(DataVectorFilter.getSubclassesShortNames())
 
 
 def getInterpolationNames():
+    """
+    to get default interpolations names; subclasses of DataVectorFilter class
+    """
     return commas(Interpolation.getSubclassesShortNames())
 
 
 def getFourierTransformationNames():
+    """
+    to get default fourier transformation names; subclasses of
+    FourierTransformation class
+    """
     return commas(FourierTransformation.getSubclassesShortNames())
 
 
 def getSeparatorLabels():
+    """
+    to get default separator label names
+    """
     return commas(Separator.getSeparatorsLabels())
 
 
@@ -69,6 +85,10 @@ class PoincarePlotManager(object):
 
     @property
     def data_dir(self):
+        """
+        [obligatory if data_file is NOT specified]
+        directory where input data files are located
+        """
         return self.__data_dir__
 
     @data_dir.setter
@@ -77,6 +97,11 @@ class PoincarePlotManager(object):
 
     @property
     def extension(self):
+        """
+        [obligatory if data_dir is specified]
+        extension of data input files in the form '*.ext'
+        example: *.rea
+        """
         return self.__extension__
 
     @extension.setter
@@ -85,6 +110,12 @@ class PoincarePlotManager(object):
 
     @property
     def window_size(self):
+        """
+        [obligatory]
+        data window size expressed in number of data items or
+        in time units by suffix: s - second, m - minute, h - hour;
+        examples: 100, 5m
+        """
         return self.__window_size__
 
     @window_size.setter
@@ -94,11 +125,11 @@ class PoincarePlotManager(object):
                                                        convert=str.lower)
 
     @property
-    def window_size_unit(self):
-        return self.__window_size_unit__
-
-    @property
     def output_dir(self):
+        """
+        [obligatory]
+        a directory for outcomes files
+        """
         return self.__output_dir__
 
     @output_dir.setter
@@ -107,6 +138,15 @@ class PoincarePlotManager(object):
 
     @property
     def statistics_names(self):
+        """
+        [optional]
+        names of statistics to be calculated (separated by ',') in the form:
+        <name>Statistic
+        for example: MeanStatistic
+        to get a list of available statistics call a function:
+        getStatisticsNames()
+        [module: pymath.time_domain.poincare_plot.poincare_plot]
+        """
         return self.__statistics_names__
 
     @statistics_names.setter
@@ -114,15 +154,11 @@ class PoincarePlotManager(object):
         self.__statistics_names__ = _statistics_names
 
     @property
-    def headers(self):
-        return self.__headers__
-
-    @headers.setter
-    def headers(self, _headers):
-        self.__headers__ = _headers
-
-    @property
     def signal_index(self):
+        """
+        [obligatory]
+        an index of a signal column (0 - based)
+        """
         return self.__signal_index__
 
     @signal_index.setter
@@ -131,6 +167,10 @@ class PoincarePlotManager(object):
 
     @property
     def annotation_index(self):
+        """
+        [optional if annotations are not present in input files]
+        an index of an annotation column (0 - based)
+        """
         return self.__annotation_index__
 
     @annotation_index.setter
@@ -139,6 +179,10 @@ class PoincarePlotManager(object):
 
     @property
     def time_index(self):
+        """
+        [optional]
+        an index of a time column (0 - based) [for future use]
+        """
         return self.__time_index__
 
     @time_index.setter
@@ -147,6 +191,14 @@ class PoincarePlotManager(object):
 
     @property
     def separator(self):
+        """
+        [optional]
+        a separator used between data columns;
+        to get list of standard separators call a function:
+        getSeparatorLabels()
+        [module: pymath.time_domain.poincare_plot.poincare_plot]
+        note: the application tries to discover a separator itself
+        """
         return self.__separator__
 
     @separator.setter
@@ -155,6 +207,11 @@ class PoincarePlotManager(object):
 
     @property
     def data_file(self):
+        """
+        [obligatory if data_dir is NOT specified]
+        this is an alternative option to set up one file
+        (with full path) as data source
+        """
         return self.__data_file__
 
     @data_file.setter
@@ -163,6 +220,11 @@ class PoincarePlotManager(object):
 
     @property
     def window_shift(self):
+        """
+        [optional]
+        a data window shift between two sets of signals which constitute
+        a poincare plot, default value 1
+        """
         return self.__window_shift__
 
     @window_shift.setter
@@ -171,6 +233,10 @@ class PoincarePlotManager(object):
 
     @property
     def output_precision(self):
+        """
+        [optional]
+        precision for output data [default: 10,5]
+        """
         return self.__output_precision__
 
     @output_precision.setter
@@ -179,6 +245,13 @@ class PoincarePlotManager(object):
 
     @property
     def filters_names(self):
+        """
+        [optional]
+        use filters names (separated by comma)
+        to get list of standard filters names call a function:
+        getFiltersNames()
+        [module: pymath.time_domain.poincare_plot.poincare_plot]
+        """
         return self.__filters_names__
 
     @filters_names.setter
@@ -188,13 +261,40 @@ class PoincarePlotManager(object):
             map(self.addFilter, get_as_list(_filters_names))
 
     def addFilter(self, name_or_object, _excluded_annotations=ALL_ANNOTATIONS):
-        self.__filters__.append((name_or_object, _excluded_annotations,))
+        """
+        [optional]
+        add a filter function
+        the filter function have to have the following signature:
+            <name>(data_vector, excluded_annotations)
+        -----------------------------------------------------------------------
+        commentary:
+        data_vector - parameter of type pymath.datasources.DataVector
+          DataVector has the following members (fields):
+           signal (numpy array) - the whole data signal (or part of the signal)
+           annotation (numpy array) - annotation data correspond to signal data
+           signal_plus (numpy array) - part of the signal data which
+                                       corresponds to RRi(n)
+           signal_minus (numpy array) - part of the signal data which
+                                       corresponds to RRi(n+1)
+           signal_unit (numpy array) - unit of signal column
+                                       (defaults to millisecond - ms)
+           time - time data column (for future use)
+        excluded_annotations - which values of annotation column are real
+                                annotations values
 
-    def filters(self):
-        return self.__filters__
+        a custom filter function have to return an object of type DataVector
+        """
+        self.__filters__.append((name_or_object, _excluded_annotations,))
 
     @property
     def fourier_transformation(self):
+        """
+        [optional]
+        use fourier transformation
+        to get list of fourier transformations call a function:
+        getFourierTransformationNames()
+        [module: pymath.time_domain.poincare_plot.poincare_plot]
+        """
         return self.__fourier_transformation__
 
     @fourier_transformation.setter
@@ -203,6 +303,13 @@ class PoincarePlotManager(object):
 
     @property
     def fourier_transform_interpolation(self):
+        """
+        [optional]
+        use interpolation method during fourier transformation
+        to get list of fourier transformations interpolations call a function:
+        getInterpolationNames()
+        [module: pymath.time_domain.poincare_plot.poincare_plot]
+        """
         return self.__fourier_transform_interpolation__
 
     @fourier_transform_interpolation.setter
@@ -212,6 +319,13 @@ class PoincarePlotManager(object):
 
     @property
     def excluded_annotations(self):
+        """
+        [optional]
+        specifies, as a string separated by comma or as a list,
+        which values (separated by a comma) have to be interpreted
+        as true annotations values; if not specified then all non-0 values are
+        annotation values
+        """
         return self.__excluded_annotations__
 
     @excluded_annotations.setter
@@ -223,6 +337,12 @@ class PoincarePlotManager(object):
 
     @property
     def ordinal_column_name(self):
+        """
+        [optional]
+        name of the ordinal column (values of an ordinal column is index
+        or time what depends on window size unit);
+        this column will be the first column in outcome data files
+        """
         return self.__ordinal_column_name__
 
     @ordinal_column_name.setter
@@ -231,7 +351,8 @@ class PoincarePlotManager(object):
 
     def generate(self):
         """
-        the method which starts to generate Poincare Plot parameters
+        the method which starts to generate Poincare Plot parameters into
+        output files
         """
         self.__process__(self.__process_file__)
 
@@ -281,7 +402,7 @@ class PoincarePlotManager(object):
                                     self.fourier_transform_interpolation)
         filter_manager = FilterManager(_shift=self.window_shift,
                         _excluded_annotations=self.excluded_annotations,
-                        _filters=self.filters())
+                        _filters=self.__filters__)
         with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=_file,
                          output_precision=self.output_precision,
@@ -292,7 +413,7 @@ class PoincarePlotManager(object):
             segmenter = PoincarePlotSegmenter(data_vector,
                                     self.window_size,
                                     shift=self.window_shift,
-                                    window_size_unit=self.window_size_unit)
+                                    window_size_unit=self.__window_size_unit__)
             for data_segment in segmenter:
                 data_segment = filter_manager.filter(data_segment)
 
@@ -306,12 +427,37 @@ class PoincarePlotManager(object):
                 csv.write(parameters, ordinal_value=segmenter.ordinal_value)
                 #print(str(statistics))
 
-    def addStatisticHandler(self, _handler=None):
+    def addStatistic(self, _handler, _name=None):
+        """
+        [optional]
+        add a statistic function (or handler) with optional _name
+        all parameters of this function are type of numpy.array;
+        parameter _name is a name of a column in an outcome file associated
+        with this statistic function,
+        the function could have the following signatures:
+            <function name>(signal)
+            <function name>(signal, annotation)
+            <function name>(signal, signal_plus, signal_minus)
+            <function name>(signal, signal_plus, signal_minus, annotation)
+        -----------------------------------------------------------------------
+        commentary:
+        signal - the whole data signal (or part of it)
+        annotation - annotation data correspond to signal data
+        signal_plus - part of the signal data which corresponds to RRi(n)
+        signal_minus - part of the signal data which corresponds to RRi(n+1)
+        """
         if self.__statistics_handlers__ == None:
             self.__statistics_handlers__ = []
+        if _name:
+            _handler.name = _name
         self.__statistics_handlers__.append(_handler)
 
     def getUniqueAnnotations(self):
+        """
+        [optional]
+        display unique annotation values included in input files;
+        warning: data_dir or data_file and annotation_index have to be set up
+        """
         unique_annotations = []
         self.__process__(self.__process_annotations__, disp=False,
                          _unique_annotations=unique_annotations)
@@ -324,6 +470,11 @@ class PoincarePlotManager(object):
                     file_data_source.getUniqueAnnotations()
 
     def getHeaders(self, with_col_index=True):
+        """
+        [optional]
+        display lines of headers of input files;
+        warning: data_dir or data_file has to be set up
+        """
         headers = []
         self.__process__(self.__process_headers__, disp=False,
                          _headers=headers)
@@ -446,7 +597,7 @@ if __name__ == '__main__':
                 help="window data shift between two sets of signals",
                 default=1)
     parser.add_argument("-o", "--output_dir",
-                help="directory for outcomes [default: " +
+                help="directory for outcomes files [default: " +
                         DEFAULT_OUTCOME_DIRECTORY + "]",
                 default=DEFAULT_OUTCOME_DIRECTORY)
     parser.add_argument("-out_prec", "--output_precision",
@@ -454,8 +605,8 @@ if __name__ == '__main__':
                 default="10,5")
     parser.add_argument("-s", "--statistics_names",
                 help="list of statistics names to calculate, defaults to: " +
-                        getDefaultStatisticsNames(),
-                default=getDefaultStatisticsNames())
+                        getStatisticsNames(),
+                default=getStatisticsNames())
     parser.add_argument("-he", "--headers", type=to_bool,
                         help="display lines of headers [True|False]")
     parser.add_argument("-si", "--signal_index", type=int,

@@ -94,7 +94,9 @@ class Statistic(DataVector):
     def handler(self, _handler):
         if _handler:
             #name of a handler is a name of statistic
-            self.name = locals().get('_handler').__name__
+            self.name = getattr(_handler, 'name', None)
+            if self.name is None:
+                self.name = locals().get('_handler').__name__
             self.__handler__ = _handler
             #add number of arguments of a handler
             self.__handler__.arg_count = \
