@@ -3,6 +3,8 @@ Created on 27-07-2012
 
 @author: jurek
 '''
+#to use print as a function not as a statement
+from __future__ import print_function
 from pymath.utils.utils import print_import_error
 try:
     import os
@@ -73,11 +75,13 @@ def getSeparatorLabels():
 
 class PoincarePlotManager(object):
     def __init__(self):
-        self.__data_dir__ = os.getcwd()
         self.__extension__ = '*'
         self.__window_shift__ = 1
         self.__excluded_annotations__ = ALL_ANNOTATIONS
         self.__filters__ = []
+        self.__progress_mark__ = False
+        self.__progress_mark_counter__ = 0
+        self.__progress_mark_signs__ = ['|', '/', '-', '\\']
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
@@ -147,7 +151,8 @@ class PoincarePlotManager(object):
         getStatisticsNames()
         [module: pymath.time_domain.poincare_plot.poincare_plot]
         """
-        return self.__statistics_names__
+        return getStatisticsNames() if self.__statistics_names__ == None \
+                else self.__statistics_names__
 
     @statistics_names.setter
     def statistics_names(self, _statistics_names):
@@ -237,7 +242,8 @@ class PoincarePlotManager(object):
         [optional]
         precision for output data [default: 10,5]
         """
-        return self.__output_precision__
+        return '10,5' if self.__output_precision__ == None \
+                else self.__output_precision__
 
     @output_precision.setter
     def output_precision(self, _output_precision):
@@ -276,9 +282,9 @@ class PoincarePlotManager(object):
                                        corresponds to RRi(n)
            signal_minus (numpy array) - part of the signal data which
                                        corresponds to RRi(n+1)
-           signal_unit (numpy array) - unit of signal column
+           signal_unit - unit of signal column
                                        (defaults to millisecond - ms)
-           time - time data column (for future use)
+           time - (numpy array) time data column (for future use)
         excluded_annotations - which values of annotation column are real
                                 annotations values
 
@@ -352,9 +358,18 @@ class PoincarePlotManager(object):
     def generate(self):
         """
         the method which starts to generate Poincare Plot parameters into
-        output files
+        output files, names of the output files are the same as input files
+        plus '_out' suffix
         """
-        self.__process__(self.__process_file__)
+        if self.__check__():
+            self.__progress_mark_counter__ = -1
+            print('Using statistics: ' + self.statistics_names)
+            if self.__statistics_handlers__:
+                print('Using statistics handlers/functions:')
+                for _handler in self.__statistics_handlers__:
+                    print('   name: ' + _handler.name)
+            print('Using output precision: ' + self.output_precision)
+            self.__process__(self.__process_file__)
 
     def __process__(self, _file_handler, disp=True, **params):
         """
@@ -371,7 +386,10 @@ class PoincarePlotManager(object):
             else:
                 file_counter = 1
                 if disp:
-                    print('Processing file: ' + self.data_file)
+                    if self.progress_mark:
+                        print('   Processing file: ' + self.data_file, end=' ')
+                    else:
+                        print('   Processing file: ' + self.data_file)
                 _file_handler(self.data_file, **params)
         else:
             path = self.data_dir + ('*.*'
@@ -381,7 +399,7 @@ class PoincarePlotManager(object):
                     file_counter = file_counter + 1
                     if disp:
                         print('=' * sign_multiplicator)
-                        print('Processing file: ' + _file)
+                        print('   Processing file: ' + _file)
                     _file_handler(_file, **params)
         if disp:
             print('Processing finished')
@@ -415,6 +433,8 @@ class PoincarePlotManager(object):
                                     shift=self.window_shift,
                                     window_size_unit=self.__window_size_unit__)
             for data_segment in segmenter:
+                self.__print_progress_mark__()
+
                 data_segment = filter_manager.filter(data_segment)
 
                 fourier_params = fourier.calculate(data_segment,
@@ -427,7 +447,7 @@ class PoincarePlotManager(object):
                 csv.write(parameters, ordinal_value=segmenter.ordinal_value)
                 #print(str(statistics))
 
-    def addStatistic(self, _handler, _name=None):
+    def addStatistic(self, _handler, _name):
         """
         [optional]
         add a statistic function (or handler) with optional _name
@@ -448,9 +468,18 @@ class PoincarePlotManager(object):
         """
         if self.__statistics_handlers__ == None:
             self.__statistics_handlers__ = []
-        if _name:
-            _handler.name = _name
+        _handler.name = _name
         self.__statistics_handlers__.append(_handler)
+
+    def removeStatistic(self, _name):
+        """
+        [optional]
+        remove statistic handler/function associated with a _name
+        """
+        for idx, _handler in enumerate(self.__statistics_handlers__):
+            if _handler.name == _name:
+                del self.__statistics_handlers__[idx]
+                return
 
     def getUniqueAnnotations(self):
         """
@@ -484,6 +513,49 @@ class PoincarePlotManager(object):
         file_data_source = FileDataSource(_file=_file)
         _headers.append('File: ' + str(_file))
         _headers.append(file_data_source.headers_with_col_index)
+
+    def __check__(self):
+        if self.data_file is None and self.data_dir is None:
+            print('data_file or data_dir have to be set')
+        elif self.output_dir is None:
+            print('output_dir has to be set')
+        elif self.window_size is None:
+            print('window size has to be set')
+        elif self.signal_index is None:
+            print('signal index has to be set')
+        else:
+            return True
+        return False
+
+    @property
+    def progress_mark(self):
+        """
+        [optional]
+        whether a progress mark have to be displayed during processing files
+        default False
+        """
+        return self.__progress_mark__
+
+    @progress_mark.setter
+    def progress_mark(self, _progress_mark):
+        self.__progress_mark__ = _progress_mark
+
+    def __print_progress_mark__(self):
+        if not self.progress_mark:
+            return
+        if self.__progress_mark_counter__ is None or \
+            self.__progress_mark_counter__ == -1:
+            self.__progress_mark_counter__ = 0
+
+        print('\r', end='')
+
+        if self.__progress_mark_counter__ >= len(self.__progress_mark_signs__):
+            self.__progress_mark_counter__ = 0
+
+        print('[' +
+              self.__progress_mark_signs__[self.__progress_mark_counter__] +
+              ']', end='')
+        self.__progress_mark_counter__ = self.__progress_mark_counter__ + 1
 
 
 class PoincarePlotSegmenter(object):
