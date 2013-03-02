@@ -3,8 +3,6 @@ Created on 27-07-2012
 
 @author: jurek
 '''
-#to use print as a function not as a statement
-from __future__ import print_function
 from pymath.utils.utils import print_import_error
 try:
     import os
@@ -15,10 +13,13 @@ try:
     from pycore.misc import extract_number
     from pycore.misc import extract_alphabetic
     from pycore.units import get_time_unit
+    from pycore.utils import ProgressMark
     from pycore.collections_utils import commas
     from pycore.collections_utils import get_as_list
     from pymath.utils.array_utils import \
         get_max_index_for_cumulative_sum_greater_then_value
+    from pymath.utils.array_utils import \
+        get_max_index_for_cumulative_sum_of_means_greater_then_value
     from pymath.utils.io_utils import NumpyCSVFile
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.statistics import Statistic
@@ -79,9 +80,7 @@ class PoincarePlotManager(object):
         self.__window_shift__ = 1
         self.__excluded_annotations__ = ALL_ANNOTATIONS
         self.__filters__ = []
-        self.__progress_mark__ = False
-        self.__progress_mark_counter__ = 0
-        self.__progress_mark_signs__ = ['|', '/', '-', '\\']
+        self.__progress_mark__ = None
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
@@ -362,7 +361,6 @@ class PoincarePlotManager(object):
         plus '_out' suffix
         """
         if self.__check__():
-            self.__progress_mark_counter__ = -1
             print('Using statistics: ' + self.statistics_names)
             if self.__statistics_handlers__:
                 print('Using statistics handlers/functions:')
@@ -385,12 +383,7 @@ class PoincarePlotManager(object):
                     print('The file: ' + self.data_file + " doesn't exist")
             else:
                 file_counter = 1
-                if disp:
-                    if self.progress_mark:
-                        print('   Processing file: ' + self.data_file, end=' ')
-                    else:
-                        print('   Processing file: ' + self.data_file)
-                _file_handler(self.data_file, **params)
+                _file_handler(self.data_file, disp=disp, **params)
         else:
             path = self.data_dir + ('*.*'
                             if self.extension == None else self.extension)
@@ -399,8 +392,7 @@ class PoincarePlotManager(object):
                     file_counter = file_counter + 1
                     if disp:
                         print('=' * sign_multiplicator)
-                        print('   Processing file: ' + _file)
-                    _file_handler(_file, **params)
+                    _file_handler(_file, disp=disp, **params)
         if disp:
             print('Processing finished')
             if file_counter == 0:
@@ -409,7 +401,7 @@ class PoincarePlotManager(object):
             else:
                 print('Number of processed files: ' + str(file_counter))
 
-    def __process_file__(self, _file):
+    def __process_file__(self, _file, disp=False):
         file_data_source = FileDataSource(_file=_file,
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
@@ -432,8 +424,21 @@ class PoincarePlotManager(object):
                                     self.window_size,
                                     shift=self.window_shift,
                                     window_size_unit=self.__window_size_unit__)
+            progress = None
+            segment_count = segmenter.segment_count()
+            if disp:
+                if self.progress_mark:
+                    progress = ProgressMark(_label='Processing file ' + _file
+                                             + ' ...',
+                                        _max_count=segment_count)
+                else:
+                    print('Processing file: ' + _file)
+                if segment_count == 0:
+                    print("Window size can't be greater then data size !!!")
+
             for data_segment in segmenter:
-                self.__print_progress_mark__()
+                if progress:
+                    progress.tick
 
                 data_segment = filter_manager.filter(data_segment)
 
@@ -446,6 +451,9 @@ class PoincarePlotManager(object):
 
                 csv.write(parameters, ordinal_value=segmenter.ordinal_value)
                 #print(str(statistics))
+
+            if progress:
+                progress.close
 
     def addStatistic(self, _handler, _name):
         """
@@ -540,23 +548,6 @@ class PoincarePlotManager(object):
     def progress_mark(self, _progress_mark):
         self.__progress_mark__ = _progress_mark
 
-    def __print_progress_mark__(self):
-        if not self.progress_mark:
-            return
-        if self.__progress_mark_counter__ is None or \
-            self.__progress_mark_counter__ == -1:
-            self.__progress_mark_counter__ = 0
-
-        print('\r', end='')
-
-        if self.__progress_mark_counter__ >= len(self.__progress_mark_signs__):
-            self.__progress_mark_counter__ = 0
-
-        print('[' +
-              self.__progress_mark_signs__[self.__progress_mark_counter__] +
-              ']', end='')
-        self.__progress_mark_counter__ = self.__progress_mark_counter__ + 1
-
 
 class PoincarePlotSegmenter(object):
 
@@ -641,6 +632,20 @@ class PoincarePlotSegmenter(object):
         else:
             return self.data_index
 
+    def segment_count(self):
+        """
+        the method calculates number of segments, if a window size is put in
+        time units a number of segments is an approximation value to avoid
+        costly (in time) calculations
+        """
+        if self.__window_size_unit__:
+            size = get_max_index_for_cumulative_sum_of_means_greater_then_value(  # @IgnorePep8
+                                                    self.__data__.signal,
+                                                    self.__window_size__)
+        else:
+            size = self.__window_size__
+        return ((len(self.__data__.signal) - size) / self.__shift__) + 1 \
+                if size > 0 else 0
 #an example of statistic handler
 #def stat_double(signal_plus, signal_minus):
 #    print('stat double: ' + str(signal_plus.sum() * 2))
