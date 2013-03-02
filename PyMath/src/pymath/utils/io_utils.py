@@ -28,21 +28,24 @@ class NumpyCSVFile(CSVFile):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self.output_file == None:
-            memory_file = StringIO.StringIO()
-            #write outcome to a file in memory
-            np.savetxt(memory_file, self.array_data,
-                fmt='%{0}.{1}f'.format(self.__output_precision__[0],
-                                       self.__output_precision__[1]),
-                delimiter=',  ')
-            contents = memory_file.getvalue()
-            _file = open(self.output_file, 'w')
-            _file.write(self.__format_headers__(contents[:contents.find('\n')])) # @IgnorePep8
-            _file.write(contents)
-            _file.close()
-            memory_file.close()
-            if self.__print_output_file__:
-                print('Data saved into the file: ' + self.output_file)
-
+            if not self.array_data == None:
+                #write outcome to a file in memory
+                memory_file = StringIO.StringIO()
+                np.savetxt(memory_file, self.array_data,
+                           fmt='%{0}.{1}f'.format(self.__output_precision__[0],
+                                                self.__output_precision__[1]),
+                           delimiter=',  ')
+                contents = memory_file.getvalue()
+                _file = open(self.output_file, 'w')
+                _file.write(self.__format_headers__(contents[:contents.find('\n')])) # @IgnorePep8
+                _file.write(contents)
+                _file.close()
+                memory_file.close()
+                if self.__print_output_file__:
+                    print('Data saved into the file: ' + self.output_file)
+            else:
+                if self.__print_output_file__:
+                    print('No data saved !!!')
         self.array_data = None
 
     def write(self, _data, ordinal_value=None):
