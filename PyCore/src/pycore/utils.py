@@ -31,7 +31,7 @@ class ProgressMark(object):
         if self.__max_count__ == 0.0:
             percent = " [0]"
         else:
-            percent = " [{0:6.2f}]".format(((self.__counter__ / self.__max_count__) * 100)) # @IgnorePep8
+            percent = " [{0:6.2f} %]".format(((self.__counter__ / self.__max_count__) * 100)) # @IgnorePep8
         print(percent, end='')
         self.__counter__ = self.__counter__ + 1
 
