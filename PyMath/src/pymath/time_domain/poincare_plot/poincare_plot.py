@@ -14,6 +14,7 @@ try:
     from pycore.misc import extract_alphabetic
     from pycore.units import get_time_unit
     from pycore.utils import ProgressMark
+    from pycore.introspection import copy_object
     from pycore.collections_utils import commas
     from pycore.collections_utils import get_as_list
     from pymath.utils.array_utils import \
@@ -75,12 +76,14 @@ def getSeparatorLabels():
 
 
 class PoincarePlotManager(object):
-    def __init__(self):
+    def __init__(self, other=None):
         self.__extension__ = '*'
         self.__window_shift__ = 1
         self.__excluded_annotations__ = ALL_ANNOTATIONS
         self.__filters__ = []
         self.__progress_mark__ = None
+        if not other == None:
+            copy_object(other, self)
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
