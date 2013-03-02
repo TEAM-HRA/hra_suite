@@ -158,3 +158,12 @@ def get_subclasses_short_names(_class, remove_base_classname=False):
                 name = name[:idx]
         names.append(name)
     return names
+
+
+def copy_object(source, target):
+    """
+    method to copy not private properties from one object to another
+    """
+    names = [name for name in dir(source) if not name[:2] == "__" and hasattr(target, name)]  # @IgnorePep8
+    for name in names:
+        setattr(target, name, getattr(source, name))
