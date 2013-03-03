@@ -133,6 +133,13 @@ class PoincarePlotManager(object):
                                                        convert=str.lower)
 
     @property
+    def window_size_unit(self):
+        """
+        window size unit, could be None
+        """
+        return self.__window_size_unit__
+
+    @property
     def output_dir(self):
         """
         [obligatory]
@@ -430,7 +437,7 @@ class PoincarePlotManager(object):
             segmenter = PoincarePlotSegmenter(data_vector,
                                     self.window_size,
                                     shift=self.window_shift,
-                                    window_size_unit=self.__window_size_unit__)
+                                    window_size_unit=self.window_size_unit)
             progress = None
             segment_count = segmenter.segment_count()
             if disp:
