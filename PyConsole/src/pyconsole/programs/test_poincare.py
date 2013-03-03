@@ -14,7 +14,7 @@ from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlotSegmenter
 #from pymath.time_domain.poincare_plot.filters import RemoveAnnotationFilter #@IgnorePep8
 #from pymath.time_domain.poincare_plot.filters import ZeroAnnotationFilter
 #from pymath.time_domain.poincare_plot.filters import AnnotationShiftedPartsFilter #@IgnorePep8
-from pymath.frequency_domain.fourier import FastFourierTransform
+#from pymath.frequency_domain.fourier import FastFourierTransform
 
 
 #s = [
@@ -146,7 +146,7 @@ def test_poincare():
             pp = None  # PoincarePlot(anno).statistics
             print(pp)
 
-            ff = FastFourierTransform(d2).interpolation_linear.calculate
+            ff = None  # FastFourierTransform(d2).interpolation_linear.calculate @IgnorePep8
             print(5)
             print(ff)
 
