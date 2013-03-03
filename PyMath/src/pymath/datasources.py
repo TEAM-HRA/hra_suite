@@ -221,8 +221,6 @@ class FileDataSource(object):
                         #to check if a header matches HEADER_PATTERN one
                         #have to test not only whether match is None but
                         #whether end() methods returns value > 0
-                        #it seems that such behaviour is not consistent
-                        #with API documentation of re.match method
                         if match is not None and match.end() > 0:
                             header_ok = True
                             break
