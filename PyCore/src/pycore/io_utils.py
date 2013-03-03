@@ -166,15 +166,19 @@ class CSVFile(object):
     sort_headers - whether to sort columns
     ordinal_column_name - name of the ordinal column,
                         this column will be the first one
+    output_separator - a separator between output column data
     """
     def __init__(self, output_file=None, output_dir=None, output_suffix=None,
                  reference_filename=None, sort_headers=True,
-                 ordinal_column_name=None):
+                 ordinal_column_name=None, output_separator=None):
         self.__output_file__ = None
         self.__file__ = None  # means file descriptor
         self.__headers__ = None
         self.__sort_headers__ = sort_headers
         self.__ordinal_column_name__ = ordinal_column_name
+        #force to take some output separator
+        self.__output_separator__ = ',  ' \
+                            if output_separator == None else output_separator
 
         if not output_file == None:
             self.__output_file__ = output_file
@@ -229,7 +233,7 @@ class CSVFile(object):
         if not values == None:
             if self.__file__ == None and self.__output_file__:
                 self.__file__ = open(self.__output_file__, "w")
-            self.__file__.write(','.join(values) + '\n')
+            self.__file__.write(self.output_separator.join(values) + '\n')
 
     @property
     def headers(self):
@@ -238,3 +242,7 @@ class CSVFile(object):
     @property
     def ordinal_column_name(self):
         return self.__ordinal_column_name__
+
+    @property
+    def output_separator(self):
+        return self.__output_separator__

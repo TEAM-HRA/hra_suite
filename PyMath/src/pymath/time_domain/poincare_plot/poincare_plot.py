@@ -422,7 +422,8 @@ class PoincarePlotManager(object):
                          reference_filename=_file,
                          output_precision=self.output_precision,
                          print_output_file=True,
-                         ordinal_column_name=self.ordinal_column_name) as csv:
+                         ordinal_column_name=self.ordinal_column_name,
+                         output_separator=self.output_separator) as csv:
             statisticsFactory = StatisticsFactory(self.statistics_names,
                             statistics_handlers=self.__statistics_handlers__)
             segmenter = PoincarePlotSegmenter(data_vector,
@@ -565,6 +566,19 @@ class PoincarePlotManager(object):
         prints members values
         """
         print_private_properties(self)
+
+    @property
+    def output_separator(self):
+        """
+        [optional]
+        output separator between data columns
+        default: ',' (comma)
+        """
+        return self.__output_separator__
+
+    @output_separator.setter
+    def output_separator(self, _output_separator):
+        self.__output_separator__ = _output_separator
 
 
 class PoincarePlotSegmenter(object):
@@ -743,6 +757,9 @@ if __name__ == '__main__':
                 help="""name of the ordinal column, index or time it depends
                  on window size unit, which will be the first column
                  in outcomes""")  # @IgnorePep8
+    parser.add_argument("-out_sep", "--output_separator",
+                help="a separator for output data [default: ',']",
+                default=",")
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -764,6 +781,7 @@ if __name__ == '__main__':
                     __args.fourier_transform_interpolation
     ppManager.excluded_annotations = __args.excluded_annotations
     ppManager.ordinal_column_name = __args.ordinal_column_name
+    ppManager.output_separator = __args.output_separator
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:
