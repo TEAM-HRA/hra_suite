@@ -167,10 +167,12 @@ class CSVFile(object):
     ordinal_column_name - name of the ordinal column,
                         this column will be the first one
     output_separator - a separator between output column data
+    output_headers - if there will be output headers
     """
     def __init__(self, output_file=None, output_dir=None, output_suffix=None,
                  reference_filename=None, sort_headers=True,
-                 ordinal_column_name=None, output_separator=None):
+                 ordinal_column_name=None, output_separator=None,
+                 output_headers=None):
         self.__output_file__ = None
         self.__file__ = None  # means file descriptor
         self.__headers__ = None
@@ -179,6 +181,9 @@ class CSVFile(object):
         #force to take some output separator
         self.__output_separator__ = ',  ' \
                             if output_separator == None else output_separator
+        #force to display headers
+        self.__output_headers__ = True if output_headers == None else \
+                                        output_headers
 
         if not output_file == None:
             self.__output_file__ = output_file
@@ -246,3 +251,7 @@ class CSVFile(object):
     @property
     def output_separator(self):
         return self.__output_separator__
+
+    @property
+    def output_headers(self):
+        return self.__output_headers__

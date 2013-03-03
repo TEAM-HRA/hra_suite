@@ -18,12 +18,13 @@ class NumpyCSVFile(CSVFile):
     def __init__(self,  output_file=None, output_dir=None, output_suffix=None,
                  reference_filename=None, sort_headers=True,
                  output_precision=None, print_output_file=False,
-                 ordinal_column_name=None,
-                 output_separator=None):
+                 ordinal_column_name=None, output_separator=None,
+                 output_headers=None):
         super(NumpyCSVFile, self).__init__(output_file, output_dir,
                     output_suffix, reference_filename, sort_headers,
                     ordinal_column_name=ordinal_column_name,
-                    output_separator=output_separator)
+                    output_separator=output_separator,
+                    output_headers=output_headers)
         self.array_data = None
         self.__output_precision__ = get_as_tuple(output_precision, convert=int)
         self.__print_output_file__ = print_output_file
@@ -43,7 +44,8 @@ class NumpyCSVFile(CSVFile):
                            delimiter=self.output_separator)
                 contents = memory_file.getvalue()
                 _file = open(self.output_file, 'w')
-                _file.write(self.__format_headers__(contents[:contents.find('\n')])) # @IgnorePep8
+                if self.output_headers:
+                    _file.write(self.__format_headers__(contents[:contents.find('\n')])) # @IgnorePep8
                 _file.write(contents)
                 _file.close()
                 memory_file.close()

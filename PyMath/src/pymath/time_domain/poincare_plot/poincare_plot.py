@@ -423,7 +423,8 @@ class PoincarePlotManager(object):
                          output_precision=self.output_precision,
                          print_output_file=True,
                          ordinal_column_name=self.ordinal_column_name,
-                         output_separator=self.output_separator) as csv:
+                         output_separator=self.output_separator,
+                         output_headers=self.output_headers) as csv:
             statisticsFactory = StatisticsFactory(self.statistics_names,
                             statistics_handlers=self.__statistics_handlers__)
             segmenter = PoincarePlotSegmenter(data_vector,
@@ -579,6 +580,19 @@ class PoincarePlotManager(object):
     @output_separator.setter
     def output_separator(self, _output_separator):
         self.__output_separator__ = _output_separator
+
+    @property
+    def output_headers(self):
+        """
+        [optional]
+        headers in the output files
+        default: True
+        """
+        return self.__output_headers__
+
+    @output_headers.setter
+    def output_headers(self, _output_headers):
+        self.__output_headers__ = _output_headers
 
 
 class PoincarePlotSegmenter(object):
@@ -760,6 +774,9 @@ if __name__ == '__main__':
     parser.add_argument("-out_sep", "--output_separator",
                 help="a separator for output data [default: ',']",
                 default=",")
+    parser.add_argument("-out_headers", "--output_headers",
+                help="headers in the output files [default: True]",
+                type=to_bool, default=True)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -782,6 +799,7 @@ if __name__ == '__main__':
     ppManager.excluded_annotations = __args.excluded_annotations
     ppManager.ordinal_column_name = __args.ordinal_column_name
     ppManager.output_separator = __args.output_separator
+    ppManager.output_headers = __args.output_headers
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:
