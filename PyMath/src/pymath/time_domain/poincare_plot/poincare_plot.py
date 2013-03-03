@@ -407,7 +407,6 @@ class PoincarePlotManager(object):
                 print('Number of processed files: ' + str(file_counter))
 
     def __process_file__(self, _file, disp=False):
-        interrupter = ControlInterruptHandler()
         file_data_source = FileDataSource(_file=_file,
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
@@ -439,9 +438,12 @@ class PoincarePlotManager(object):
                                         _max_count=segment_count)
                 else:
                     print('Processing file: ' + _file)
-                if segment_count == 0:
+            if segment_count == -1:
+                if disp:
                     print("Window size can't be greater then data size !!!")
+                return
 
+            interrupter = ControlInterruptHandler()
             for data_segment in segmenter:
                 if interrupter.isInterrupted():
                     break
@@ -462,7 +464,7 @@ class PoincarePlotManager(object):
 
             if progress:
                 progress.close
-        interrupter.clean()
+            interrupter.clean()
 
     def addStatistic(self, _handler, _name):
         """
@@ -661,7 +663,7 @@ class PoincarePlotSegmenter(object):
         else:
             size = self.__window_size__
         return ((len(self.__data__.signal) - size) / self.__shift__) + 1 \
-                if size > 0 else 0
+                if size > 0 else size
 #an example of statistic handler
 #def stat_double(signal_plus, signal_minus):
 #    print('stat double: ' + str(signal_plus.sum() * 2))
