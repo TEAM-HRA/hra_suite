@@ -6,6 +6,7 @@ Created on 02-03-2013
 #to use print as a function not as a statement,
 #it has to be the first statement in a module
 from __future__ import print_function
+import signal
 
 
 class ProgressMark(object):
@@ -57,3 +58,35 @@ class ProgressMark(object):
         force of outcome of the next print statement in the next line
         """
         print('')
+
+
+class ControlInterruptHandler(object):
+    """
+    class used to catch Ctrl+C interrupt signal in a gentle way,
+    that is without displaying stack trace,
+    give ability to outer code be aware and take proper action when
+    this event happened
+    """
+    def __init__(self):
+        self.interrupted = False
+        self.__oryginal__ = signal.getsignal(signal.SIGINT)
+
+        def signal_handler(signal, frame):
+            print('\nCtrl+C was pressed !')
+            signal_handler.handler()
+
+        signal_handler.handler = self.interrupt
+        signal.signal(signal.SIGINT, signal_handler)
+
+    def interrupt(self):
+        self.interrupted = True
+
+    def isInterrupted(self):
+        return self.interrupted
+
+    def clean(self):
+        """
+        set up previous original handler
+        """
+        signal.signal(signal.SIGINT, self.__oryginal__)
+        self.__oryginal__ = None

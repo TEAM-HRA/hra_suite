@@ -14,6 +14,7 @@ try:
     from pycore.misc import extract_alphabetic
     from pycore.units import get_time_unit
     from pycore.utils import ProgressMark
+    from pycore.utils import ControlInterruptHandler
     from pycore.introspection import copy_private_properties
     from pycore.introspection import print_private_properties
     from pycore.collections_utils import commas
@@ -406,6 +407,7 @@ class PoincarePlotManager(object):
                 print('Number of processed files: ' + str(file_counter))
 
     def __process_file__(self, _file, disp=False):
+        interrupter = ControlInterruptHandler()
         file_data_source = FileDataSource(_file=_file,
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
@@ -441,6 +443,8 @@ class PoincarePlotManager(object):
                     print("Window size can't be greater then data size !!!")
 
             for data_segment in segmenter:
+                if interrupter.isInterrupted():
+                    break
                 if progress:
                     progress.tick
 
@@ -458,6 +462,7 @@ class PoincarePlotManager(object):
 
             if progress:
                 progress.close
+        interrupter.clean()
 
     def addStatistic(self, _handler, _name):
         """
