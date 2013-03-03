@@ -135,9 +135,15 @@ class PoincarePlotManager(object):
     @property
     def window_size_unit(self):
         """
-        window size unit, could be None
+        [optional]
+        window size unit, as a separate property,
+        acceptable values: s - second, m - minute, h - hour
         """
         return self.__window_size_unit__
+
+    @window_size_unit.setter
+    def window_size_unit(self, _window_size_unit):
+        self.__window_size_unit__ = _window_size_unit
 
     @property
     def output_dir(self):
