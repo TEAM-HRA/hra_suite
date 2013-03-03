@@ -202,7 +202,7 @@ class PoincarePlotManager(object):
     def separator(self):
         """
         [optional]
-        a separator used between data columns;
+        a separator used between input data columns;
         to get list of standard separators call a function:
         getSeparatorLabels()
         [module: pymath.time_domain.poincare_plot.poincare_plot]
