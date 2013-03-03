@@ -160,10 +160,46 @@ def get_subclasses_short_names(_class, remove_base_classname=False):
     return names
 
 
-def copy_object(source, target):
+def __private_properties_accessor__(source, _handler, target=None):
     """
-    method to copy not private properties from one object to another
+    method to get access to private source object properties,
+    proper action is delegated to specified handler
     """
-    names = [name for name in dir(source) if not name[:2] == "__" and hasattr(target, name)]  # @IgnorePep8
-    for name in names:
+    members = inspect.getmembers(source)
+    for (name, member) in members:
+        if inspect.ismethod(member):
+            continue
+        if inspect.isfunction(member):
+            continue
+        if inspect.isclass(member):
+            continue
+        if inspect.isroutine(member):
+            continue
+        if inspect.isgeneratorfunction(member):
+            continue
+        if str(type(member)) == "<type 'method-wrapper'>":
+            continue
+        if name.startswith('__'):
+            continue
+        if target is not None:
+            _handler(source, target, name)
+        else:
+            _handler(source, name)
+
+
+def copy_private_properties(source, target):
+    """
+    method to copy private properties from one object to another
+    """
+    def handler(source, target, name):
         setattr(target, name, getattr(source, name))
+    __private_properties_accessor__(source, handler, target=target)
+
+
+def print_private_properties(source):
+    """
+    method to print source's object private properties
+    """
+    def handler(source, name):
+        print(name + ' = ' + str(getattr(source, name)))
+    __private_properties_accessor__(source, handler)

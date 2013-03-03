@@ -14,7 +14,8 @@ try:
     from pycore.misc import extract_alphabetic
     from pycore.units import get_time_unit
     from pycore.utils import ProgressMark
-    from pycore.introspection import copy_object
+    from pycore.introspection import copy_private_properties
+    from pycore.introspection import print_private_properties
     from pycore.collections_utils import commas
     from pycore.collections_utils import get_as_list
     from pymath.utils.array_utils import \
@@ -83,7 +84,7 @@ class PoincarePlotManager(object):
         self.__filters__ = []
         self.__progress_mark__ = None
         if not other == None:
-            copy_object(other, self)
+            copy_private_properties(other, self)
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
@@ -550,6 +551,13 @@ class PoincarePlotManager(object):
     @progress_mark.setter
     def progress_mark(self, _progress_mark):
         self.__progress_mark__ = _progress_mark
+
+    def print_members(self):
+        """
+        [optional]
+        prints members values
+        """
+        print_private_properties(self)
 
 
 class PoincarePlotSegmenter(object):
