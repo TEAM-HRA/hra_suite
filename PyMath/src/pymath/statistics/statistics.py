@@ -324,13 +324,22 @@ class SD21Statistic(Statistic):
         return sd2 / sd1
 
 
-class SymmetryStatistic(Statistic):
+class ShortAsymmetryStatistic(Statistic):
     def __calculate__(self):
-        SD1a = SD1aStatistic(signal_plus=self.signal_plus,
+        C1a = C1aStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus).compute()
-        SD1d = SD1dStatistic(signal_plus=self.signal_plus,
+        C1d = C1dStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus).compute()
-        return 1 if SD1a > SD1d else 0
+        return 1 if C1d > C1a else 0
+
+
+class LongAsymmetryStatistic(Statistic):
+    def __calculate__(self):
+        C2a = C2aStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus).compute()
+        C2d = C2dStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus).compute()
+        return 1 if C2d < C2a else 0
 
 
 class StatisticsFactory(object):
@@ -403,6 +412,14 @@ class StatisticsFactory(object):
             #calculate for next level subclasses
             #Warning: this functionality is deactivated
             #self.__generate_statistics_objects__(class__)
+
+#class SymmetryStatistic(Statistic):
+#    def __calculate__(self):
+#        SD1a = SD1aStatistic(signal_plus=self.signal_plus,
+#                            signal_minus=self.signal_minus).compute()
+#        SD1d = SD1dStatistic(signal_plus=self.signal_plus,
+#                            signal_minus=self.signal_minus).compute()
+#        return 1 if SD1a > SD1d else 0
 
 #class TotTimeStatistic(Statistic):
 #    '''
