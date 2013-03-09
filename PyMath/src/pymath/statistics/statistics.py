@@ -187,6 +187,37 @@ class SD2downStatistic(SD2InnerStatistic):
         return pl.find(sd2 < 0)
 
 
+class SDNNStatistic(Statistic):
+    def __calculate__(self):
+        global USE_IDENTITY_LINE
+        if USE_IDENTITY_LINE:
+            SDNNup = SDNNupStatistic(signal_plus=self.signal_plus,
+                                    signal_minus=self.signal_minus).compute()
+            SDNNdown = SDNNupStatistic(signal_plus=self.signal_plus,
+                                    signal_minus=self.signal_minus).compute()
+            return pl.sqrt(SDNNup ** 2 + SDNNdown ** 2)
+        else:
+            return pl.sqrt(pl.var(self.signal))
+
+
+class SDNNupStatistic(Statistic):
+    def __calculate__(self):
+        SD1up = SD1upStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        SD2up = SD2upStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        return pl.sqrt((SD1up ** 2 + SD2up ** 2) / 2)
+
+
+class SDNNdownStatistic(Statistic):
+    def __calculate__(self):
+        SD1down = SD1downStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        SD2down = SD2downStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        return pl.sqrt((SD1down ** 2 + SD2down ** 2) / 2)
+
+
 class TotTimeStatistic(Statistic):
     '''
     classdocs
