@@ -17,6 +17,7 @@ try:
     from pycore.utils import ControlInterruptHandler
     from pycore.introspection import copy_private_properties
     from pycore.introspection import print_private_properties
+    from pycore.collections_utils import nvl
     from pycore.collections_utils import commas
     from pycore.collections_utils import get_as_list
     from pymath.utils.array_utils import \
@@ -439,7 +440,8 @@ class PoincarePlotManager(object):
                          output_separator=self.output_separator,
                          output_headers=self.output_headers) as csv:
             statisticsFactory = StatisticsFactory(self.statistics_names,
-                            statistics_handlers=self.__statistics_handlers__)
+                            statistics_handlers=self.__statistics_handlers__,
+                            _use_identity_line=self.use_identity_line)
             segmenter = PoincarePlotSegmenter(data_vector,
                                     self.window_size,
                                     shift=self.window_shift,
@@ -606,6 +608,19 @@ class PoincarePlotManager(object):
     @output_headers.setter
     def output_headers(self, _output_headers):
         self.__output_headers__ = _output_headers
+
+    @property
+    def use_identity_line(self):
+        """
+        [optional]
+        in calculation of sd1 use line of identity
+        default: True
+        """
+        return nvl(self.__use_identity_line__, True)
+
+    @use_identity_line.setter
+    def use_identity_line(self, _use_identity_line):
+        self.__use_identity_line__ = _use_identity_line
 
 
 class PoincarePlotSegmenter(object):
@@ -790,6 +805,9 @@ if __name__ == '__main__':
     parser.add_argument("-out_headers", "--output_headers",
                 help="headers in the output files [default: True]",
                 type=to_bool, default=True)
+    parser.add_argument("-uil", "--use_identity_line",
+                help="during calculations use identity line [True|False]",
+                type=to_bool, default=True)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -813,6 +831,7 @@ if __name__ == '__main__':
     ppManager.ordinal_column_name = __args.ordinal_column_name
     ppManager.output_separator = __args.output_separator
     ppManager.output_headers = __args.output_headers
+    ppManager.use_identity_line = __args.use_identity_line
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:

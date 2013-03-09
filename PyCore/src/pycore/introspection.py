@@ -150,7 +150,7 @@ def get_subclasses_short_names(_class, remove_base_classname=False):
     a baseclass name in the outcome
     """
     names = []
-    for _sub_class in _class.__subclasses__():
+    for _sub_class in get_subclasses(_class):
         name = _sub_class.__name__
         if remove_base_classname:
             idx = _sub_class.__name__.rfind(_class.__name__)
@@ -203,3 +203,30 @@ def print_private_properties(source):
     def handler(source, name):
         print(name + ' = ' + str(getattr(source, name)))
     __private_properties_accessor__(source, handler)
+
+
+def get_subclasses_iter(_class, seen=None, depth=-1):
+    """
+    method returns iterator of all subclasses of a class _class
+    """
+    if depth == 0:
+        return
+    depth -= 1
+    if not isinstance(_class, type):
+        raise TypeError('Parameter _class ' + str(_class) + ' has to be a type') # @IgnorePep8
+    if seen == None:
+        seen = []
+    try:
+        subs = _class.__subclasses__()
+    except TypeError:  # fails only when cls is type
+        subs = _class.__subclasses__(_class)
+    for sub in subs:
+        if sub not in seen:
+            seen.append(sub)
+            yield sub
+            for sub in get_subclasses_iter(sub, seen, depth):
+                yield sub
+
+
+def get_subclasses(_class, depth=-1):
+    return list(get_subclasses_iter(_class, depth=depth))

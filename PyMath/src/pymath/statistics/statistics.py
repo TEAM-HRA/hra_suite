@@ -10,10 +10,13 @@ try:
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_method_arguments_count
     from pycore.introspection import get_subclasses_short_names
+    from pycore.introspection import get_subclasses
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
     from pymath.datasources import DataVector
 except ImportError as error:
     print_import_error(__name__, error)
+
+USE_IDENTITY_LINE = True
 
 
 ## Base class for all specific statitistics,
@@ -97,11 +100,13 @@ class Statistic(DataVector):
 
     @staticmethod
     def getSubclasses():
-        return Statistic.__subclasses__()
+        return [subclass for subclass in get_subclasses(Statistic)
+                if str(subclass).find('InnerStatistic') == -1]
 
     @staticmethod
     def getSubclassesShortNames():
-        return get_subclasses_short_names(Statistic)
+        return [name for name in get_subclasses_short_names(Statistic)
+                if name.find('InnerStatistic') == -1]
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
@@ -145,9 +150,14 @@ class NtotStatistic(Statistic):
         return pl.size(self.signal) - 1
 
 
-class SD1Statistic(SDStatistic):
-    def __pre_calculate__(self):
-        self.signal = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
+class SD1Statistic(Statistic):
+    def __calculate__(self):
+        global USE_IDENTITY_LINE
+        sd1_vector = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
+        if USE_IDENTITY_LINE:
+            return pl.sqrt(pl.sum((sd1_vector ** 2)) / len(self.signal_plus))
+        else:
+            return pl.sqrt(pl.var(sd1_vector))
 
 
 class SD2Statistic(SDStatistic):
@@ -189,20 +199,30 @@ class RMSSDStatistic(Statistic):
         return pl.sqrt(mean)
 
 
-class SD1upStatistic(Statistic):
+class SD1InnerStatistic(Statistic):
     def __calculate__(self):
-        xrzut = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
-        nad = pl.compress(pl.greater(0, xrzut), xrzut)
-        value = pl.sqrt(sum(nad ** 2) / (pl.size(xrzut) - 1))
-        return value
+        global USE_IDENTITY_LINE
+        if USE_IDENTITY_LINE:
+            sd1 = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
+        else:
+            mean_plus = MeanStatistic(signal=self.signal_plus).compute()
+            mean_minus = MeanStatistic(signal=self.signal_minus).compute()
+            sd1 = (self.signal_plus - mean_plus
+                   - self.signal_minus + mean_minus) / pl.sqrt(2)
+        return pl.sqrt(pl.sum(sd1[self.indexes(sd1)] ** 2) / pl.size(sd1))
+
+    def indexes(self, sd1):
+        return None
 
 
-class SD1downStatistic(Statistic):
-    def __calculate__(self):
-        xrzut = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
-        pod = pl.compress(pl.greater(xrzut, 0), xrzut)
-        value = pl.sqrt(sum(pod ** 2) / (pl.size(xrzut) - 1))
-        return value
+class SD1upStatistic(SD1InnerStatistic):
+    def indexes(self, sd1):
+        return pl.find(sd1 > 0)
+
+
+class SD1downStatistic(SD1InnerStatistic):
+    def indexes(self, sd1):
+        return pl.find(sd1 < 0)
 
 
 class NupStatistic(Statistic):
@@ -236,12 +256,16 @@ class SymmetryStatistic(Statistic):
 
 class StatisticsFactory(object):
 
-    def __init__(self, statistics_classes_or_names, statistics_handlers=None):
+    def __init__(self, statistics_classes_or_names, statistics_handlers=None,
+                 _use_identity_line=True):
         '''
         Constructor
         '''
         self.__statistics_classes__ = []
         self.__statistics_handlers__ = statistics_handlers
+        self.__use_identity_line__ = _use_identity_line
+        global USE_IDENTITY_LINE
+        USE_IDENTITY_LINE = self.__use_identity_line__
 
         #if statistics_classes_or_names is a string object which included
         #names of statistics separater by comma we change it into list of names
@@ -263,7 +287,8 @@ class StatisticsFactory(object):
     def statistics(self, _data):
         __statistics = {}
         with StatisticsFactory(self.statistics_classes,
-                statistics_handlers=self.__statistics_handlers__) as factory:
+                statistics_handlers=self.__statistics_handlers__,
+                _use_identity_line=self.__use_identity_line__) as factory:
             for statistic in factory.statistics_objects:
                 statistic.data = _data
                 __statistics[statistic._id] = statistic.compute()
