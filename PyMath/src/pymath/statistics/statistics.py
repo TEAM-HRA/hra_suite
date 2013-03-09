@@ -272,6 +272,32 @@ class CdownStatistic(Statistic):
         return (SDNNdown / SDNN) ** 2
 
 
+class SsStatistic(Statistic):
+    def __calculate__(self):
+        sd1 = SD1Statistic(signal_plus=self.signal_plus,
+                           signal_minus=self.signal_minus).compute()
+        sd2 = SD2Statistic(signal_plus=self.signal_plus,
+                           signal_minus=self.signal_minus).compute()
+        return pl.pi * sd1 * sd2
+
+
+class SD21Statistic(Statistic):
+    def __calculate__(self):
+        sd1 = SD1Statistic(signal_plus=self.signal_plus,
+                           signal_minus=self.signal_minus).compute()
+        sd2 = SD2Statistic(signal_plus=self.signal_plus,
+                           signal_minus=self.signal_minus).compute()
+        return sd2 / sd1
+
+
+class SymmetryStatistic(Statistic):
+    def __calculate__(self):
+        return 1 if SD1upStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus).compute() > \
+                SD1downStatistic(signal_plus=self.signal_plus, \
+                        signal_minus=self.signal_minus).compute() else 0
+
+
 class TotTimeStatistic(Statistic):
     '''
     classdocs
@@ -299,24 +325,6 @@ class SDRRStatistic(SDStatistic):
 class NtotStatistic(Statistic):
     def __calculate__(self):
         return pl.size(self.signal) - 1
-
-
-class SsStatistic(Statistic):
-    def __calculate__(self):
-        sd1 = SD1Statistic(signal_plus=self.signal_plus,
-                           signal_minus=self.signal_minus).compute()
-        sd2 = SD2Statistic(signal_plus=self.signal_plus,
-                           signal_minus=self.signal_minus).compute()
-        return pl.pi * sd1 * sd2
-
-
-class SD21Statistic(Statistic):
-    def __calculate__(self):
-        sd1 = SD1Statistic(signal_plus=self.signal_plus,
-                           signal_minus=self.signal_minus).compute()
-        sd2 = SD2Statistic(signal_plus=self.signal_plus,
-                           signal_minus=self.signal_minus).compute()
-        return sd2 / sd1
 
 
 class RStatistic(Statistic):
@@ -354,14 +362,6 @@ class NonStatistic(Statistic):
         xrzut = self.signal_plus - self.signal_minus
         na = pl.compress(pl.equal(xrzut, 0), xrzut)
         return (pl.size(na))
-
-
-class SymmetryStatistic(Statistic):
-    def __calculate__(self):
-        return 1 if SD1upStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute() > \
-                SD1downStatistic(signal_plus=self.signal_plus, \
-                        signal_minus=self.signal_minus).compute() else 0
 
 
 class StatisticsFactory(object):
