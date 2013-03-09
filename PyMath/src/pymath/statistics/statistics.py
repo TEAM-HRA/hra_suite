@@ -193,7 +193,7 @@ class SDNNStatistic(Statistic):
         if USE_IDENTITY_LINE:
             SDNNup = SDNNupStatistic(signal_plus=self.signal_plus,
                                     signal_minus=self.signal_minus).compute()
-            SDNNdown = SDNNupStatistic(signal_plus=self.signal_plus,
+            SDNNdown = SDNNdownStatistic(signal_plus=self.signal_plus,
                                     signal_minus=self.signal_minus).compute()
             return pl.sqrt(SDNNup ** 2 + SDNNdown ** 2)
         else:
@@ -216,6 +216,60 @@ class SDNNdownStatistic(Statistic):
         SD2down = SD2downStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
         return pl.sqrt((SD1down ** 2 + SD2down ** 2) / 2)
+
+
+class C1upStatistic(Statistic):
+    def __calculate__(self):
+        SD1up = SD1upStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        SD1 = SD1Statistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        return (SD1up / SD1) ** 2
+
+
+class C1downStatistic(Statistic):
+    def __calculate__(self):
+        SD1down = SD1downStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        SD1 = SD1Statistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        return (SD1down / SD1) ** 2
+
+
+class C2upStatistic(Statistic):
+    def __calculate__(self):
+        SD2up = SD2upStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        SD2 = SD2Statistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        return (SD2up / SD2) ** 2
+
+
+class C2downStatistic(Statistic):
+    def __calculate__(self):
+        SD2down = SD2downStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        SD2 = SD2Statistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        return (SD2down / SD2) ** 2
+
+
+class CupStatistic(Statistic):
+    def __calculate__(self):
+        SDNNup = SDNNupStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        SDNN = SDNNStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        return (SDNNup / SDNN) ** 2
+
+
+class CdownStatistic(Statistic):
+    def __calculate__(self):
+        SDNNdown = SDNNdownStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        SDNN = SDNNStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus).compute()
+        return (SDNNdown / SDNN) ** 2
 
 
 class TotTimeStatistic(Statistic):
