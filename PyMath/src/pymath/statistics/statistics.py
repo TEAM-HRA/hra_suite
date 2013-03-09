@@ -118,7 +118,7 @@ class MeanStatistic(Statistic):
     classdocs
     '''
     def __calculate__(self):
-        return sum(self.signal) / float(pl.size(self.signal))
+        return pl.mean(self.signal)
 
 
 class TotTimeStatistic(Statistic):
@@ -153,16 +153,67 @@ class NtotStatistic(Statistic):
 class SD1Statistic(Statistic):
     def __calculate__(self):
         global USE_IDENTITY_LINE
-        sd1_vector = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
+        sd1 = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
         if USE_IDENTITY_LINE:
-            return pl.sqrt(pl.sum((sd1_vector ** 2)) / len(self.signal_plus))
+            return pl.sqrt(pl.sum((sd1 ** 2)) / len(self.signal_plus))
         else:
-            return pl.sqrt(pl.var(sd1_vector))
+            return pl.sqrt(pl.var(sd1))
 
 
-class SD2Statistic(SDStatistic):
-    def __pre_calculate__(self):
-        self.signal = (self.signal_plus + self.signal_minus) / pl.sqrt(2)
+class SD1InnerStatistic(Statistic):
+    def __calculate__(self):
+        global USE_IDENTITY_LINE
+        if USE_IDENTITY_LINE:
+            sd1 = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
+        else:
+            mean_plus = MeanStatistic(signal=self.signal_plus).compute()
+            mean_minus = MeanStatistic(signal=self.signal_minus).compute()
+            sd1 = (self.signal_plus - mean_plus
+                   - self.signal_minus + mean_minus) / pl.sqrt(2)
+        return pl.sqrt(pl.sum(sd1[self.indexes(sd1)] ** 2) / pl.size(sd1))
+
+    def indexes(self, sd1):
+        return None
+
+
+class SD1upStatistic(SD1InnerStatistic):
+    def indexes(self, sd1):
+        return pl.find(sd1 > 0)
+
+
+class SD1downStatistic(SD1InnerStatistic):
+    def indexes(self, sd1):
+        return pl.find(sd1 < 0)
+
+
+class SD2Statistic(Statistic):
+    def __calculate__(self):
+        sd2 = (self.signal_plus + self.signal_minus) / pl.sqrt(2)
+        return pl.sqrt(pl.var(sd2))
+
+
+class SD2InnerStatistic(Statistic):
+    def __calculate__(self):
+        nochange_indexes = pl.find(self.signal_minus == self.signal_plus)
+        mean_plus = MeanStatistic(signal=self.signal_plus).compute()
+        mean_minus = MeanStatistic(signal=self.signal_minus).compute()
+        sd2 = (self.signal_plus - mean_plus
+                   + self.signal_minus - mean_minus) / pl.sqrt(2)
+        return pl.sqrt((pl.sum(sd2[self.indexes(sd2)] ** 2)
+                + (pl.sum(sd2[nochange_indexes] ** 2) / 2)) / pl.size(sd2))
+
+    def indexes(self, sd2):
+        return None
+
+
+class SD2upStatistic(SD2InnerStatistic):
+    def indexes(self, sd2):
+        return pl.find(sd2 > 0)
+
+
+class SD2downStatistic(SD2InnerStatistic):
+    def indexes(self, sd2):
+        return pl.find(sd2 < 0)
 
 
 class SsStatistic(Statistic):
@@ -197,32 +248,6 @@ class RMSSDStatistic(Statistic):
         mean = MeanStatistic(
                 signal=(self.signal_plus - self.signal_minus) ** 2).compute()
         return pl.sqrt(mean)
-
-
-class SD1InnerStatistic(Statistic):
-    def __calculate__(self):
-        global USE_IDENTITY_LINE
-        if USE_IDENTITY_LINE:
-            sd1 = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
-        else:
-            mean_plus = MeanStatistic(signal=self.signal_plus).compute()
-            mean_minus = MeanStatistic(signal=self.signal_minus).compute()
-            sd1 = (self.signal_plus - mean_plus
-                   - self.signal_minus + mean_minus) / pl.sqrt(2)
-        return pl.sqrt(pl.sum(sd1[self.indexes(sd1)] ** 2) / pl.size(sd1))
-
-    def indexes(self, sd1):
-        return None
-
-
-class SD1upStatistic(SD1InnerStatistic):
-    def indexes(self, sd1):
-        return pl.find(sd1 > 0)
-
-
-class SD1downStatistic(SD1InnerStatistic):
-    def indexes(self, sd1):
-        return pl.find(sd1 < 0)
 
 
 class NupStatistic(Statistic):
