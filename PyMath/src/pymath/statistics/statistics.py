@@ -292,76 +292,77 @@ class SD21Statistic(Statistic):
 
 class SymmetryStatistic(Statistic):
     def __calculate__(self):
-        return 1 if SD1upStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute() > \
-                SD1downStatistic(signal_plus=self.signal_plus, \
-                        signal_minus=self.signal_minus).compute() else 0
+        SD1up = SD1upStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus).compute()
+        SD1down = SD1downStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus).compute()
+        return 1 if SD1up > SD1down else 0
 
 
-class TotTimeStatistic(Statistic):
-    '''
-    classdocs
-    '''
-    def __calculate__(self):
-        # total time in minute unit (1000 * 60)
-        return sum(self.signal) / Minute.expressInUnit(self.signal_unit)
-
-
-class SDStatistic(Statistic):
-    def __calculate__(self):
-        if USE_NUMPY_EQUIVALENT:
-            # ddof=1 means divide by size-1
-            return pl.sqrt(pl.var(self.signal, ddof=1))
-        else:
-            meanValue = MeanStatistic(signal=self.signal).compute()
-            return pl.sqrt(pl.sum(((self.signal - meanValue) ** 2))
-                        / (pl.size(self.signal) - 1))
-
-
-class SDRRStatistic(SDStatistic):
-    pass
-
-
-class NtotStatistic(Statistic):
-    def __calculate__(self):
-        return pl.size(self.signal) - 1
-
-
-class RStatistic(Statistic):
-    def __calculate__(self):
-        x_pn = (self.signal_plus
-                    - MeanStatistic(signal=self.signal_plus).compute())
-        x_ppn = (self.signal_minus
-                    - MeanStatistic(signal=self.signal_minus).compute())
-        return pl.dot(x_pn, x_ppn) / (pl.sqrt(pl.dot(x_pn, x_pn) * pl.dot(x_ppn, x_ppn))) # @IgnorePep8
-
-
-class RMSSDStatistic(Statistic):
-    def __calculate__(self):
-        mean = MeanStatistic(
-                signal=(self.signal_plus - self.signal_minus) ** 2).compute()
-        return pl.sqrt(mean)
-
-
-class NupStatistic(Statistic):
-    def __calculate__(self):
-        xrzut = self.signal_plus - self.signal_minus
-        nad = pl.compress(pl.greater(0, xrzut), xrzut)
-        return (pl.size(nad))
-
-
-class NdownStatistic(Statistic):
-    def __calculate__(self):
-        xrzut = self.signal_plus - self.signal_minus
-        pod = pl.compress(pl.greater(xrzut, 0), xrzut)
-        return (pl.size(pod))
-
-
-class NonStatistic(Statistic):
-    def __calculate__(self):
-        xrzut = self.signal_plus - self.signal_minus
-        na = pl.compress(pl.equal(xrzut, 0), xrzut)
-        return (pl.size(na))
+#class TotTimeStatistic(Statistic):
+#    '''
+#    classdocs
+#    '''
+#    def __calculate__(self):
+#        # total time in minute unit (1000 * 60)
+#        return sum(self.signal) / Minute.expressInUnit(self.signal_unit)
+#
+#
+#class SDStatistic(Statistic):
+#    def __calculate__(self):
+#        if USE_NUMPY_EQUIVALENT:
+#            # ddof=1 means divide by size-1
+#            return pl.sqrt(pl.var(self.signal, ddof=1))
+#        else:
+#            meanValue = MeanStatistic(signal=self.signal).compute()
+#            return pl.sqrt(pl.sum(((self.signal - meanValue) ** 2))
+#                        / (pl.size(self.signal) - 1))
+#
+#
+#class SDRRStatistic(SDStatistic):
+#    pass
+#
+#
+#class NtotStatistic(Statistic):
+#    def __calculate__(self):
+#        return pl.size(self.signal) - 1
+#
+#
+#class RStatistic(Statistic):
+#    def __calculate__(self):
+#        x_pn = (self.signal_plus
+#                    - MeanStatistic(signal=self.signal_plus).compute())
+#        x_ppn = (self.signal_minus
+#                    - MeanStatistic(signal=self.signal_minus).compute())
+#        return pl.dot(x_pn, x_ppn) / (pl.sqrt(pl.dot(x_pn, x_pn) * pl.dot(x_ppn, x_ppn))) # @IgnorePep8
+#
+#
+#class RMSSDStatistic(Statistic):
+#    def __calculate__(self):
+#        mean = MeanStatistic(
+#                signal=(self.signal_plus - self.signal_minus) ** 2).compute()
+#        return pl.sqrt(mean)
+#
+#
+#class NupStatistic(Statistic):
+#    def __calculate__(self):
+#        xrzut = self.signal_plus - self.signal_minus
+#        nad = pl.compress(pl.greater(0, xrzut), xrzut)
+#        return (pl.size(nad))
+#
+#
+#class NdownStatistic(Statistic):
+#    def __calculate__(self):
+#        xrzut = self.signal_plus - self.signal_minus
+#        pod = pl.compress(pl.greater(xrzut, 0), xrzut)
+#        return (pl.size(pod))
+#
+#
+#class NonStatistic(Statistic):
+#    def __calculate__(self):
+#        xrzut = self.signal_plus - self.signal_minus
+#        na = pl.compress(pl.equal(xrzut, 0), xrzut)
+#        return (pl.size(na))
 
 
 class StatisticsFactory(object):
