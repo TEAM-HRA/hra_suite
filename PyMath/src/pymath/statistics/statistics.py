@@ -121,35 +121,6 @@ class MeanStatistic(Statistic):
         return pl.mean(self.signal)
 
 
-class TotTimeStatistic(Statistic):
-    '''
-    classdocs
-    '''
-    def __calculate__(self):
-        # total time in minute unit (1000 * 60)
-        return sum(self.signal) / Minute.expressInUnit(self.signal_unit)
-
-
-class SDStatistic(Statistic):
-    def __calculate__(self):
-        if USE_NUMPY_EQUIVALENT:
-            # ddof=1 means divide by size-1
-            return pl.sqrt(pl.var(self.signal, ddof=1))
-        else:
-            meanValue = MeanStatistic(signal=self.signal).compute()
-            return pl.sqrt(pl.sum(((self.signal - meanValue) ** 2))
-                        / (pl.size(self.signal) - 1))
-
-
-class SDRRStatistic(SDStatistic):
-    pass
-
-
-class NtotStatistic(Statistic):
-    def __calculate__(self):
-        return pl.size(self.signal) - 1
-
-
 class SD1Statistic(Statistic):
     def __calculate__(self):
         global USE_IDENTITY_LINE
@@ -214,6 +185,35 @@ class SD2upStatistic(SD2InnerStatistic):
 class SD2downStatistic(SD2InnerStatistic):
     def indexes(self, sd2):
         return pl.find(sd2 < 0)
+
+
+class TotTimeStatistic(Statistic):
+    '''
+    classdocs
+    '''
+    def __calculate__(self):
+        # total time in minute unit (1000 * 60)
+        return sum(self.signal) / Minute.expressInUnit(self.signal_unit)
+
+
+class SDStatistic(Statistic):
+    def __calculate__(self):
+        if USE_NUMPY_EQUIVALENT:
+            # ddof=1 means divide by size-1
+            return pl.sqrt(pl.var(self.signal, ddof=1))
+        else:
+            meanValue = MeanStatistic(signal=self.signal).compute()
+            return pl.sqrt(pl.sum(((self.signal - meanValue) ** 2))
+                        / (pl.size(self.signal) - 1))
+
+
+class SDRRStatistic(SDStatistic):
+    pass
+
+
+class NtotStatistic(Statistic):
+    def __calculate__(self):
+        return pl.size(self.signal) - 1
 
 
 class SsStatistic(Statistic):
