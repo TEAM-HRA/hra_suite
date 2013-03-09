@@ -5,13 +5,11 @@
 from pymath.utils.utils import print_import_error
 try:
     import pylab as pl
-    from pycore.units import Minute
     from pycore.collections_utils import get_as_list
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_method_arguments_count
     from pycore.introspection import get_subclasses_short_names
     from pycore.introspection import get_subclasses
-    from pymath.utils.utils import USE_NUMPY_EQUIVALENT
     from pymath.datasources import DataVector
 except ImportError as error:
     print_import_error(__name__, error)
@@ -147,12 +145,18 @@ class SD1InnerStatistic(Statistic):
         return None
 
 
-class SD1upStatistic(SD1InnerStatistic):
+class SD1aStatistic(SD1InnerStatistic):
+    """
+    for accelerations
+    """
     def indexes(self, sd1):
         return pl.find(sd1 > 0)
 
 
-class SD1downStatistic(SD1InnerStatistic):
+class SD1dStatistic(SD1InnerStatistic):
+    """
+    for decelerations
+    """
     def indexes(self, sd1):
         return pl.find(sd1 < 0)
 
@@ -177,12 +181,18 @@ class SD2InnerStatistic(Statistic):
         return None
 
 
-class SD2upStatistic(SD2InnerStatistic):
+class SD2aStatistic(SD2InnerStatistic):
+    """
+    for accelerations
+    """
     def indexes(self, sd2):
         return pl.find(sd2 > 0)
 
 
-class SD2downStatistic(SD2InnerStatistic):
+class SD2dStatistic(SD2InnerStatistic):
+    """
+    for decelerations
+    """
     def indexes(self, sd2):
         return pl.find(sd2 < 0)
 
@@ -191,85 +201,109 @@ class SDNNStatistic(Statistic):
     def __calculate__(self):
         global USE_IDENTITY_LINE
         if USE_IDENTITY_LINE:
-            SDNNup = SDNNupStatistic(signal_plus=self.signal_plus,
+            SDNNa = SDNNaStatistic(signal_plus=self.signal_plus,
                                     signal_minus=self.signal_minus).compute()
-            SDNNdown = SDNNdownStatistic(signal_plus=self.signal_plus,
+            SDNNd = SDNNdStatistic(signal_plus=self.signal_plus,
                                     signal_minus=self.signal_minus).compute()
-            return pl.sqrt(SDNNup ** 2 + SDNNdown ** 2)
+            return pl.sqrt(SDNNa ** 2 + SDNNd ** 2)
         else:
             return pl.sqrt(pl.var(self.signal))
 
 
-class SDNNupStatistic(Statistic):
+class SDNNaStatistic(Statistic):
+    """
+    for accelerations
+    """
     def __calculate__(self):
-        SD1up = SD1upStatistic(signal_plus=self.signal_plus,
+        SD1a = SD1aStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
-        SD2up = SD2upStatistic(signal_plus=self.signal_plus,
+        SD2a = SD2aStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
-        return pl.sqrt((SD1up ** 2 + SD2up ** 2) / 2)
+        return pl.sqrt((SD1a ** 2 + SD2a ** 2) / 2)
 
 
-class SDNNdownStatistic(Statistic):
+class SDNNdStatistic(Statistic):
+    """
+    for decelerations
+    """
     def __calculate__(self):
-        SD1down = SD1downStatistic(signal_plus=self.signal_plus,
+        SD1d = SD1dStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
-        SD2down = SD2downStatistic(signal_plus=self.signal_plus,
+        SD2d = SD2dStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
-        return pl.sqrt((SD1down ** 2 + SD2down ** 2) / 2)
+        return pl.sqrt((SD1d ** 2 + SD2d ** 2) / 2)
 
 
-class C1upStatistic(Statistic):
+class C1aStatistic(Statistic):
+    """
+    for accelerations
+    """
     def __calculate__(self):
-        SD1up = SD1upStatistic(signal_plus=self.signal_plus,
+        SD1a = SD1aStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
         SD1 = SD1Statistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
-        return (SD1up / SD1) ** 2
+        return (SD1a / SD1) ** 2
 
 
-class C1downStatistic(Statistic):
+class C1dStatistic(Statistic):
+    """
+    for decelerations
+    """
     def __calculate__(self):
-        SD1down = SD1downStatistic(signal_plus=self.signal_plus,
+        SD1d = SD1dStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
         SD1 = SD1Statistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
-        return (SD1down / SD1) ** 2
+        return (SD1d / SD1) ** 2
 
 
-class C2upStatistic(Statistic):
+class C2aStatistic(Statistic):
+    """
+    for accelerations
+    """
     def __calculate__(self):
-        SD2up = SD2upStatistic(signal_plus=self.signal_plus,
+        SD2a = SD2aStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
         SD2 = SD2Statistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
-        return (SD2up / SD2) ** 2
+        return (SD2a / SD2) ** 2
 
 
-class C2downStatistic(Statistic):
+class C2dStatistic(Statistic):
+    """
+    for decelerations
+    """
     def __calculate__(self):
-        SD2down = SD2downStatistic(signal_plus=self.signal_plus,
+        SD2d = SD2dStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
         SD2 = SD2Statistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
-        return (SD2down / SD2) ** 2
+        return (SD2d / SD2) ** 2
 
 
-class CupStatistic(Statistic):
+class CaStatistic(Statistic):
+    """
+    for accelerations
+    """
     def __calculate__(self):
-        SDNNup = SDNNupStatistic(signal_plus=self.signal_plus,
+        SDNNa = SDNNaStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
         SDNN = SDNNStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
-        return (SDNNup / SDNN) ** 2
+        return (SDNNa / SDNN) ** 2
 
 
-class CdownStatistic(Statistic):
+class CdStatistic(Statistic):
+    """
+    for decelerations
+    """
     def __calculate__(self):
-        SDNNdown = SDNNdownStatistic(signal_plus=self.signal_plus,
+        SDNNd = SDNNdStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
         SDNN = SDNNStatistic(signal_plus=self.signal_plus,
                                signal_minus=self.signal_minus).compute()
-        return (SDNNdown / SDNN) ** 2
+        return (SDNNd / SDNN) ** 2
 
 
 class SsStatistic(Statistic):
@@ -292,77 +326,11 @@ class SD21Statistic(Statistic):
 
 class SymmetryStatistic(Statistic):
     def __calculate__(self):
-        SD1up = SD1upStatistic(signal_plus=self.signal_plus,
+        SD1a = SD1aStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus).compute()
-        SD1down = SD1downStatistic(signal_plus=self.signal_plus,
+        SD1d = SD1dStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus).compute()
-        return 1 if SD1up > SD1down else 0
-
-
-#class TotTimeStatistic(Statistic):
-#    '''
-#    classdocs
-#    '''
-#    def __calculate__(self):
-#        # total time in minute unit (1000 * 60)
-#        return sum(self.signal) / Minute.expressInUnit(self.signal_unit)
-#
-#
-#class SDStatistic(Statistic):
-#    def __calculate__(self):
-#        if USE_NUMPY_EQUIVALENT:
-#            # ddof=1 means divide by size-1
-#            return pl.sqrt(pl.var(self.signal, ddof=1))
-#        else:
-#            meanValue = MeanStatistic(signal=self.signal).compute()
-#            return pl.sqrt(pl.sum(((self.signal - meanValue) ** 2))
-#                        / (pl.size(self.signal) - 1))
-#
-#
-#class SDRRStatistic(SDStatistic):
-#    pass
-#
-#
-#class NtotStatistic(Statistic):
-#    def __calculate__(self):
-#        return pl.size(self.signal) - 1
-#
-#
-#class RStatistic(Statistic):
-#    def __calculate__(self):
-#        x_pn = (self.signal_plus
-#                    - MeanStatistic(signal=self.signal_plus).compute())
-#        x_ppn = (self.signal_minus
-#                    - MeanStatistic(signal=self.signal_minus).compute())
-#        return pl.dot(x_pn, x_ppn) / (pl.sqrt(pl.dot(x_pn, x_pn) * pl.dot(x_ppn, x_ppn))) # @IgnorePep8
-#
-#
-#class RMSSDStatistic(Statistic):
-#    def __calculate__(self):
-#        mean = MeanStatistic(
-#                signal=(self.signal_plus - self.signal_minus) ** 2).compute()
-#        return pl.sqrt(mean)
-#
-#
-#class NupStatistic(Statistic):
-#    def __calculate__(self):
-#        xrzut = self.signal_plus - self.signal_minus
-#        nad = pl.compress(pl.greater(0, xrzut), xrzut)
-#        return (pl.size(nad))
-#
-#
-#class NdownStatistic(Statistic):
-#    def __calculate__(self):
-#        xrzut = self.signal_plus - self.signal_minus
-#        pod = pl.compress(pl.greater(xrzut, 0), xrzut)
-#        return (pl.size(pod))
-#
-#
-#class NonStatistic(Statistic):
-#    def __calculate__(self):
-#        xrzut = self.signal_plus - self.signal_minus
-#        na = pl.compress(pl.equal(xrzut, 0), xrzut)
-#        return (pl.size(na))
+        return 1 if SD1a > SD1d else 0
 
 
 class StatisticsFactory(object):
@@ -435,6 +403,71 @@ class StatisticsFactory(object):
             #calculate for next level subclasses
             #Warning: this functionality is deactivated
             #self.__generate_statistics_objects__(class__)
+
+#class TotTimeStatistic(Statistic):
+#    '''
+#    classdocs
+#    '''
+#    def __calculate__(self):
+#        # total time in minute unit (1000 * 60)
+#        return sum(self.signal) / Minute.expressInUnit(self.signal_unit)
+#
+#
+#class SDStatistic(Statistic):
+#    def __calculate__(self):
+#        if USE_NUMPY_EQUIVALENT:
+#            # ddof=1 means divide by size-1
+#            return pl.sqrt(pl.var(self.signal, ddof=1))
+#        else:
+#            meanValue = MeanStatistic(signal=self.signal).compute()
+#            return pl.sqrt(pl.sum(((self.signal - meanValue) ** 2))
+#                        / (pl.size(self.signal) - 1))
+#
+#
+#class SDRRStatistic(SDStatistic):
+#    pass
+#
+#
+#class NtotStatistic(Statistic):
+#    def __calculate__(self):
+#        return pl.size(self.signal) - 1
+#
+#
+#class RStatistic(Statistic):
+#    def __calculate__(self):
+#        x_pn = (self.signal_plus
+#                    - MeanStatistic(signal=self.signal_plus).compute())
+#        x_ppn = (self.signal_minus
+#                    - MeanStatistic(signal=self.signal_minus).compute())
+#        return pl.dot(x_pn, x_ppn) / (pl.sqrt(pl.dot(x_pn, x_pn) * pl.dot(x_ppn, x_ppn))) # @IgnorePep8
+#
+#
+#class RMSSDStatistic(Statistic):
+#    def __calculate__(self):
+#        mean = MeanStatistic(
+#                signal=(self.signal_plus - self.signal_minus) ** 2).compute()
+#        return pl.sqrt(mean)
+#
+#
+#class NupStatistic(Statistic):
+#    def __calculate__(self):
+#        xrzut = self.signal_plus - self.signal_minus
+#        nad = pl.compress(pl.greater(0, xrzut), xrzut)
+#        return (pl.size(nad))
+#
+#
+#class NdownStatistic(Statistic):
+#    def __calculate__(self):
+#        xrzut = self.signal_plus - self.signal_minus
+#        pod = pl.compress(pl.greater(xrzut, 0), xrzut)
+#        return (pl.size(pod))
+#
+#
+#class NonStatistic(Statistic):
+#    def __calculate__(self):
+#        xrzut = self.signal_plus - self.signal_minus
+#        na = pl.compress(pl.equal(xrzut, 0), xrzut)
+#        return (pl.size(na))
 
 #def Mean(__signal__):
 #    return sum(__signal__) / float(size(__signal__))
