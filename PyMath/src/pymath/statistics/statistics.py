@@ -15,6 +15,30 @@ except ImportError as error:
     print_import_error(__name__, error)
 
 USE_IDENTITY_LINE = True
+ALL_STATISTICS = 'ALL'
+
+
+def expand_to_real_statistics_names(statistics_names):
+    """
+    method converts user's inputed statistics names into
+    real statistics class names
+    """
+    if statistics_names == ALL_STATISTICS:
+        return Statistic.getSubclassesLongNames()
+    real_statistics_names = []
+    real_names = [(real_name, real_name.lower(), ) \
+                  for real_name in Statistic.getSubclassesLongNames()]
+    lower_names = [(name.lower(), name.lower() + 'statistic', ) \
+                   for name in get_as_list(statistics_names)]
+    for (statistic_lower_name, statistic_base_name) in lower_names:
+        for (real_name, real_lower_name) in real_names:
+            if  real_lower_name in (statistic_lower_name, statistic_base_name):
+                real_statistics_names.append(real_name)
+                break
+        else:
+            print('Uknown statistic: ' + statistic_lower_name)
+            return []
+    return real_statistics_names
 
 
 ## Base class for all specific statitistics,
@@ -99,12 +123,18 @@ class Statistic(DataVector):
     @staticmethod
     def getSubclasses():
         return [subclass for subclass in get_subclasses(Statistic)
-                if str(subclass).find('InnerStatistic') == -1]
+                if not subclass.__name__.endswith('InnerStatistic')]
 
     @staticmethod
     def getSubclassesShortNames():
+        return [name for name in get_subclasses_short_names(Statistic,
+                                                    remove_base_classname=True)
+                if not name.endswith('Inner')]
+
+    @staticmethod
+    def getSubclassesLongNames():
         return [name for name in get_subclasses_short_names(Statistic)
-                if name.find('InnerStatistic') == -1]
+                if not name.endswith('Inner')]
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
@@ -358,8 +388,8 @@ class StatisticsFactory(object):
         #if statistics_classes_or_names is a string object which included
         #names of statistics separater by comma we change it into list of names
         if isinstance(statistics_classes_or_names, str):
-            statistics_classes_or_names = get_as_list(
-                                                statistics_classes_or_names)
+            statistics_classes_or_names = expand_to_real_statistics_names(
+                                            statistics_classes_or_names)
 
         for type_or_name in statistics_classes_or_names:
             #if type_or_name is a string
@@ -396,6 +426,14 @@ class StatisticsFactory(object):
     @property
     def statistics_objects(self):
         return self.__statistics_objects__
+
+    @property
+    def has_statistics(self):
+        """
+        methods returns True if any statistic is set up for use
+        by statistics factory
+        """
+        return len(self.statistics_classes) > 0
 
     def __generate_statistics_objects__(self, classes__):
         for class__ in classes__:

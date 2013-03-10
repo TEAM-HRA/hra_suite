@@ -162,15 +162,13 @@ class PoincarePlotManager(object):
     def statistics_names(self):
         """
         [optional]
-        names of statistics to be calculated (separated by ',') in the form:
-        <name>Statistic
-        for example: MeanStatistic
-        to get a list of available statistics call a function:
+        names of statistics to be calculated (separated by ','),
+        or ALL for all statistics, an example: 'mean, sd1, sd2a'
+        to get a list of available statistics names call a function:
         getStatisticsNames()
         [module: pymath.time_domain.poincare_plot.poincare_plot]
         """
-        return getStatisticsNames() if self.__statistics_names__ == None \
-                else self.__statistics_names__
+        return self.__statistics_names__
 
     @statistics_names.setter
     def statistics_names(self, _statistics_names):
@@ -442,6 +440,8 @@ class PoincarePlotManager(object):
             statisticsFactory = StatisticsFactory(self.statistics_names,
                             statistics_handlers=self.__statistics_handlers__,
                             _use_identity_line=self.use_identity_line)
+            if not statisticsFactory.has_statistics:
+                return
             segmenter = PoincarePlotSegmenter(data_vector,
                                     self.window_size,
                                     shift=self.window_shift,
@@ -551,7 +551,12 @@ class PoincarePlotManager(object):
         _headers.append(file_data_source.headers_with_col_index)
 
     def __check__(self):
-        if self.data_file is None and self.data_dir is None:
+        if self.statistics_names == None or len(self.statistics_names) == 0:
+            print('no statistics were been chosen [attribute statistics_names];')  # @IgnorePep8
+            print('available statistics [to check call function getStatisticsNames()]:')  # @IgnorePep8
+            print(getStatisticsNames())
+            print('or ALL means use all statistics')
+        elif self.data_file is None and self.data_dir is None:
             print('data_file or data_dir have to be set')
         elif self.output_dir is None:
             print('output_dir has to be set')
