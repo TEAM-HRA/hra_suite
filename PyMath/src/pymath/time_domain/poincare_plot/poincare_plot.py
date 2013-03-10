@@ -87,6 +87,7 @@ class PoincarePlotManager(object):
         self.__excluded_annotations__ = ALL_ANNOTATIONS
         self.__filters__ = []
         self.__progress_mark__ = None
+        self.__use_buffer__ = True
         if not other == None:
             copy_private_properties(other, self)
 
@@ -393,6 +394,7 @@ class PoincarePlotManager(object):
                 for _handler in self.__statistics_handlers__:
                     print('   name: ' + _handler.name)
             print('Using output precision: ' + self.output_precision)
+            print('Using buffer: ' + str(self.use_buffer))
             self.__process__(self.__process_file__)
 
     def __process__(self, _file_handler, disp=True, **params):
@@ -450,7 +452,8 @@ class PoincarePlotManager(object):
                          ordered_headers=self.statistics) as csv:
             statisticsFactory = StatisticsFactory(self.statistics,
                             statistics_handlers=self.__statistics_handlers__,
-                            _use_identity_line=self.use_identity_line)
+                            _use_identity_line=self.use_identity_line,
+                            use_buffer=self.use_buffer)
             if not statisticsFactory.has_statistics:
                 return
             segmenter = PoincarePlotSegmenter(data_vector,
@@ -641,6 +644,19 @@ class PoincarePlotManager(object):
     def use_identity_line(self, _use_identity_line):
         self.__use_identity_line__ = _use_identity_line
 
+    @property
+    def use_buffer(self):
+        """
+        [optional]
+        in calculation of statistics use buffer
+        default: True
+        """
+        return nvl(self.__use_buffer__, True)
+
+    @use_buffer.setter
+    def use_buffer(self, _use_buffer):
+        self.__use_buffer__ = _use_buffer
+
 
 class PoincarePlotSegmenter(object):
 
@@ -827,6 +843,9 @@ if __name__ == '__main__':
     parser.add_argument("-uil", "--use_identity_line",
                 help="during calculations use identity line [True|False]",
                 type=to_bool, default=True)
+    parser.add_argument("-ub", "--use_buffer",
+            help="use buffer during statistics calculations [default: True]",
+            type=to_bool, default=True)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -851,6 +870,7 @@ if __name__ == '__main__':
     ppManager.output_separator = __args.output_separator
     ppManager.output_headers = __args.output_headers
     ppManager.use_identity_line = __args.use_identity_line
+    ppManager.use_buffer = __args.use_buffer
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:

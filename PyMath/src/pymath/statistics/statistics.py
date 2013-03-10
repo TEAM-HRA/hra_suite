@@ -5,6 +5,7 @@
 from pymath.utils.utils import print_import_error
 try:
     import pylab as pl
+    from pycore.collections_utils import nvl
     from pycore.collections_utils import get_as_list
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_method_arguments_count
@@ -53,6 +54,8 @@ class Statistic(DataVector):
     #  @param **data
     def __init__(self, **data):
         DataVector.__init__(self, **data)
+        self.__buffer__ = data.get('buffer')
+        self.__buffer_name__ = data.get('buffer_name', '')
 
     ## Method (optional) to put pre calculations done before proper
     #  calculations
@@ -80,8 +83,15 @@ class Statistic(DataVector):
                                     self.signal_minus, self.annotation)
             return self.handler()
         else:
-            self.__pre_calculate__()
-            value = self.__calculate__()
+            value = self.buffer.get(self.__class__.__name__
+                                    + self.buffer_name) \
+                    if not self.buffer == None else None
+            if value == None:
+                self.__pre_calculate__()
+                value = self.__calculate__()
+                if not self.buffer == None:
+                    self.buffer[self.__class__.__name__
+                                + self.buffer_name] = value
             return value
 
     ## Method used to get a name of a statistic based on derived statistic's
@@ -144,6 +154,22 @@ class Statistic(DataVector):
     def __getattr__(self, name):
         return None
 
+    @property
+    def buffer(self):
+        return self.__buffer__
+
+    @buffer.setter
+    def buffer(self, _buffer):
+        self.__buffer__ = _buffer
+
+    @property
+    def buffer_name(self):
+        return self.__buffer_name__
+
+    @buffer_name.setter
+    def buffer_name(self, _buffer_name):
+        self.__buffer_name__ = _buffer_name
+
 
 class MeanStatistic(Statistic):
     '''
@@ -169,8 +195,12 @@ class SD1InnerStatistic(Statistic):
         if USE_IDENTITY_LINE:
             sd1 = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
         else:
-            mean_plus = MeanStatistic(signal=self.signal_plus).compute()
-            mean_minus = MeanStatistic(signal=self.signal_minus).compute()
+            mean_plus = MeanStatistic(signal=self.signal_plus,
+                                      buffer=self.buffer,
+                                      buffer_name='plus').compute()
+            mean_minus = MeanStatistic(signal=self.signal_minus,
+                                       buffer=self.buffer,
+                                       buffer_name='minus').compute()
             sd1 = (self.signal_plus - mean_plus
                    - self.signal_minus + mean_minus) / pl.sqrt(2)
         return pl.sqrt(pl.sum(sd1[self.indexes(sd1)] ** 2) / pl.size(sd1))
@@ -209,8 +239,12 @@ class SD2InnerStatistic(Statistic):
         sd1 = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
         nochange_indexes = pl.find(sd1 == 0)
 
-        mean_plus = MeanStatistic(signal=self.signal_plus).compute()
-        mean_minus = MeanStatistic(signal=self.signal_minus).compute()
+        mean_plus = MeanStatistic(signal=self.signal_plus,
+                                  buffer=self.buffer,
+                                  buffer_name='plus').compute()
+        mean_minus = MeanStatistic(signal=self.signal_minus,
+                                  buffer=self.buffer,
+                                  buffer_name='minus').compute()
         sd2 = (self.signal_plus - mean_plus
                    + self.signal_minus - mean_minus) / pl.sqrt(2)
         return pl.sqrt((pl.sum(sd2[self.indexes(sd1)] ** 2)
@@ -241,9 +275,11 @@ class SDNNStatistic(Statistic):
         global USE_IDENTITY_LINE
         if USE_IDENTITY_LINE:
             SDNNa = SDNNaStatistic(signal_plus=self.signal_plus,
-                                    signal_minus=self.signal_minus).compute()
+                                    signal_minus=self.signal_minus,
+                                    buffer=self.buffer).compute()
             SDNNd = SDNNdStatistic(signal_plus=self.signal_plus,
-                                    signal_minus=self.signal_minus).compute()
+                                    signal_minus=self.signal_minus,
+                                    buffer=self.buffer).compute()
             return pl.sqrt(SDNNa ** 2 + SDNNd ** 2)
         else:
             return pl.sqrt(pl.var(self.signal))
@@ -255,9 +291,11 @@ class SDNNaStatistic(Statistic):
     """
     def __calculate__(self):
         SD1a = SD1aStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         SD2a = SD2aStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         return pl.sqrt((SD1a ** 2 + SD2a ** 2) / 2)
 
 
@@ -267,9 +305,11 @@ class SDNNdStatistic(Statistic):
     """
     def __calculate__(self):
         SD1d = SD1dStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         SD2d = SD2dStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         return pl.sqrt((SD1d ** 2 + SD2d ** 2) / 2)
 
 
@@ -279,9 +319,11 @@ class C1aStatistic(Statistic):
     """
     def __calculate__(self):
         SD1a = SD1aStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         SD1 = SD1Statistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         return (SD1a / SD1) ** 2
 
 
@@ -291,9 +333,11 @@ class C1dStatistic(Statistic):
     """
     def __calculate__(self):
         SD1d = SD1dStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         SD1 = SD1Statistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         return (SD1d / SD1) ** 2
 
 
@@ -303,9 +347,11 @@ class C2aStatistic(Statistic):
     """
     def __calculate__(self):
         SD2a = SD2aStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         SD2 = SD2Statistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         return (SD2a / SD2) ** 2
 
 
@@ -315,9 +361,11 @@ class C2dStatistic(Statistic):
     """
     def __calculate__(self):
         SD2d = SD2dStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         SD2 = SD2Statistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         return (SD2d / SD2) ** 2
 
 
@@ -327,9 +375,11 @@ class CaStatistic(Statistic):
     """
     def __calculate__(self):
         SDNNa = SDNNaStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         SDNN = SDNNStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         return (SDNNa / SDNN) ** 2
 
 
@@ -339,45 +389,55 @@ class CdStatistic(Statistic):
     """
     def __calculate__(self):
         SDNNd = SDNNdStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         SDNN = SDNNStatistic(signal_plus=self.signal_plus,
-                               signal_minus=self.signal_minus).compute()
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
         return (SDNNd / SDNN) ** 2
 
 
 class SsStatistic(Statistic):
     def __calculate__(self):
         sd1 = SD1Statistic(signal_plus=self.signal_plus,
-                           signal_minus=self.signal_minus).compute()
+                           signal_minus=self.signal_minus,
+                           buffer=self.buffer).compute()
         sd2 = SD2Statistic(signal_plus=self.signal_plus,
-                           signal_minus=self.signal_minus).compute()
+                           signal_minus=self.signal_minus,
+                           buffer=self.buffer).compute()
         return pl.pi * sd1 * sd2
 
 
 class SD21Statistic(Statistic):
     def __calculate__(self):
         sd1 = SD1Statistic(signal_plus=self.signal_plus,
-                           signal_minus=self.signal_minus).compute()
+                           signal_minus=self.signal_minus,
+                           buffer=self.buffer).compute()
         sd2 = SD2Statistic(signal_plus=self.signal_plus,
-                           signal_minus=self.signal_minus).compute()
+                           signal_minus=self.signal_minus,
+                           buffer=self.buffer).compute()
         return sd2 / sd1
 
 
 class ShortAsymmetryStatistic(Statistic):
     def __calculate__(self):
         C1a = C1aStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         C1d = C1dStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         return 1 if C1d > C1a else 0
 
 
 class LongAsymmetryStatistic(Statistic):
     def __calculate__(self):
         C2a = C2aStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         C2d = C2dStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         return 1 if C2d < C2a else 0
 
 
@@ -387,9 +447,11 @@ class CCheckStatistic(Statistic):
     """
     def __calculate__(self):
         Ca = CaStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         Cd = CdStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         return Cd + Ca - 1
 
 
@@ -399,9 +461,11 @@ class C1CheckStatistic(Statistic):
     """
     def __calculate__(self):
         C1a = C1aStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         C1d = C1dStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         return C1d + C1a - 1
 
 
@@ -411,9 +475,11 @@ class C2CheckStatistic(Statistic):
     """
     def __calculate__(self):
         C2a = C2aStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         C2d = C2dStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         return C2d + C2a - 1
 
 
@@ -423,11 +489,14 @@ class SD1CheckStatistic(Statistic):
     """
     def __calculate__(self):
         SD1 = SD1Statistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         SD1a = SD1aStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         SD1d = SD1dStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         return SD1 ** 2 - SD1a ** 2 - SD1d ** 2
 
 
@@ -437,11 +506,14 @@ class SD2CheckStatistic(Statistic):
     """
     def __calculate__(self):
         SD2 = SD2Statistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         SD2a = SD2aStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         SD2d = SD2dStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         return SD2 ** 2 - SD2a ** 2 - SD2d ** 2
 
 
@@ -451,11 +523,14 @@ class SDNNCheckStatistic(Statistic):
     """
     def __calculate__(self):
         SDNN = SDNNStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         SDNNa = SDNNaStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         SDNNd = SDNNdStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         return SDNN ** 2 - SDNNa ** 2 - SDNNd ** 2
 
 
@@ -465,11 +540,14 @@ class SDNNaCheckStatistic(Statistic):
     """
     def __calculate__(self):
         SDNNa = SDNNaStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         SD1a = SD1aStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         SD2a = SD2aStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         return SDNNa ** 2 - (SD1a ** 2 + SD2a ** 2) / 2
 
 
@@ -479,24 +557,28 @@ class SDNNdCheckStatistic(Statistic):
     """
     def __calculate__(self):
         SDNNd = SDNNdStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         SD1d = SD1dStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         SD2d = SD2dStatistic(signal_plus=self.signal_plus,
-                            signal_minus=self.signal_minus).compute()
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
         return SDNNd ** 2 - (SD1d ** 2 + SD2d ** 2) / 2
 
 
 class StatisticsFactory(object):
 
     def __init__(self, statistics_classes_or_names, statistics_handlers=None,
-                 _use_identity_line=True):
+                 _use_identity_line=True, use_buffer=True):
         '''
         Constructor
         '''
         self.__statistics_classes__ = []
         self.__statistics_handlers__ = statistics_handlers
         self.__use_identity_line__ = _use_identity_line
+        self.__use_buffer__ = nvl(use_buffer, True)
         global USE_IDENTITY_LINE
         USE_IDENTITY_LINE = self.__use_identity_line__
 
@@ -519,11 +601,14 @@ class StatisticsFactory(object):
 
     def statistics(self, _data):
         __statistics = {}
+        _buffer = {} if self.__use_buffer__ else None
         with StatisticsFactory(self.statistics_classes,
                 statistics_handlers=self.__statistics_handlers__,
-                _use_identity_line=self.__use_identity_line__) as factory:
+                _use_identity_line=self.__use_identity_line__,
+                use_buffer=self.__use_buffer__) as factory:
             for statistic in factory.statistics_objects:
                 statistic.data = _data
+                statistic.buffer = _buffer
                 __statistics[statistic._id] = statistic.compute()
         return __statistics
 
