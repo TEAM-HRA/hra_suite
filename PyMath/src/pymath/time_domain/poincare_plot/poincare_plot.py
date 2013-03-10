@@ -27,6 +27,7 @@ try:
     from pymath.utils.io_utils import NumpyCSVFile
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.statistics import Statistic
+    from pymath.statistics.statistics import ALL_STATISTICS
     from pymath.datasources import DataVector
     from pymath.datasources import FileDataSource
     from pymath.datasources import ALL_ANNOTATIONS
@@ -159,20 +160,26 @@ class PoincarePlotManager(object):
         self.__output_dir__ = _output_dir
 
     @property
-    def statistics_names(self):
+    def statistics(self):
         """
         [optional]
         names of statistics to be calculated (separated by ','),
         or ALL for all statistics, an example: 'mean, sd1, sd2a'
-        to get a list of available statistics names call a function:
-        getStatisticsNames()
-        [module: pymath.time_domain.poincare_plot.poincare_plot]
+        to get a list of available statistics names call a method:
+        available_statistics()
         """
         return self.__statistics_names__
 
-    @statistics_names.setter
-    def statistics_names(self, _statistics_names):
+    @statistics.setter
+    def statistics(self, _statistics_names):
         self.__statistics_names__ = _statistics_names
+
+    def available_statistics(self):
+        """
+        [optional]
+        print all available statistics names
+        """
+        print(getStatisticsNames() + ' or ' + ALL_STATISTICS)
 
     @property
     def signal_index(self):
@@ -378,7 +385,7 @@ class PoincarePlotManager(object):
         plus '_out' suffix
         """
         if self.__check__():
-            print('Using statistics: ' + self.statistics_names)
+            print('Using statistics: ' + self.statistics)
             if self.__statistics_handlers__:
                 print('Using statistics handlers/functions:')
                 for _handler in self.__statistics_handlers__:
@@ -437,7 +444,7 @@ class PoincarePlotManager(object):
                          ordinal_column_name=self.ordinal_column_name,
                          output_separator=self.output_separator,
                          output_headers=self.output_headers) as csv:
-            statisticsFactory = StatisticsFactory(self.statistics_names,
+            statisticsFactory = StatisticsFactory(self.statistics,
                             statistics_handlers=self.__statistics_handlers__,
                             _use_identity_line=self.use_identity_line)
             if not statisticsFactory.has_statistics:
@@ -551,11 +558,11 @@ class PoincarePlotManager(object):
         _headers.append(file_data_source.headers_with_col_index)
 
     def __check__(self):
-        if self.statistics_names == None or len(self.statistics_names) == 0:
-            print('no statistics were been chosen [attribute statistics_names];')  # @IgnorePep8
-            print('available statistics [to check call function getStatisticsNames()]:')  # @IgnorePep8
-            print(getStatisticsNames())
-            print('or ALL means use all statistics')
+        if self.statistics == None or len(self.statistics) == 0:
+            print('no statistics were been chosen [attribute statistics];')  # @IgnorePep8
+            print('available statistics [call method available_statistics()]:')
+            self.available_statistics()
+            print('or ' + ALL_STATISTICS + ' this means use all statistics')
         elif self.data_file is None and self.data_dir is None:
             print('data_file or data_dir have to be set')
         elif self.output_dir is None:
@@ -587,6 +594,8 @@ class PoincarePlotManager(object):
         prints members values
         """
         print_private_properties(self)
+        print('\n available statistics:')
+        self.available_statistics()
 
     @property
     def output_separator(self):
@@ -759,7 +768,7 @@ if __name__ == '__main__':
     parser.add_argument("-out_prec", "--output_precision",
                 help="precision for output data [default: 10,5]",
                 default="10,5")
-    parser.add_argument("-s", "--statistics_names",
+    parser.add_argument("-s", "--statistics",
                 help="list of statistics names to calculate, defaults to: " +
                         getStatisticsNames(),
                 default=getStatisticsNames())
@@ -822,7 +831,7 @@ if __name__ == '__main__':
     ppManager.window_size = __args.window_size
     ppManager.window_shift = __args.window_shift
     ppManager.output_dir = __args.output_dir
-    ppManager.statistics_names = __args.statistics_names
+    ppManager.statistics = __args.statistics
     ppManager.signal_index = __args.signal_index
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
