@@ -13,6 +13,7 @@ from tailer import head  # @UnresolvedImport
 from pycore.misc import contains_letter
 from pycore.misc import get_separator_between_numbers
 from pycore.collections_utils import not_empty_nvl
+from pycore.collections_utils import get_ordered_list_of_strings
 
 
 def get_filenames(path, depth=1):
@@ -168,11 +169,12 @@ class CSVFile(object):
                         this column will be the first one
     output_separator - a separator between output column data
     output_headers - if there will be output headers
+    headers_order - includes ordered header names
     """
     def __init__(self, output_file=None, output_dir=None, output_suffix=None,
                  reference_filename=None, sort_headers=True,
                  ordinal_column_name=None, output_separator=None,
-                 output_headers=None):
+                 output_headers=None, ordered_headers=None):
         self.__output_file__ = None
         self.__file__ = None  # means file descriptor
         self.__headers__ = None
@@ -184,7 +186,7 @@ class CSVFile(object):
         #force to display headers
         self.__output_headers__ = True if output_headers == None else \
                                         output_headers
-
+        self.__ordered_headers__ = ordered_headers
         if not output_file == None:
             self.__output_file__ = output_file
         elif not reference_filename == None:
@@ -215,7 +217,11 @@ class CSVFile(object):
         if isinstance(_data, dict):
             if self.__headers__ == None:
                 self.__headers__ = _data.keys()
-                if self.__sort_headers__:
+                if not self.__ordered_headers__ == None:
+                    self.__headers__ = get_ordered_list_of_strings(
+                                            self.__ordered_headers__,
+                                            self.__headers__)
+                elif self.__sort_headers__:
                     self.__headers__ = sorted(self.__headers__)
 
                 # move the ordinal column to the first position

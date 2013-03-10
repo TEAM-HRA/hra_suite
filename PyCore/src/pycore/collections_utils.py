@@ -162,3 +162,31 @@ def commas(*iterable, **params):
     """
     c = map(str, *iterable)
     return params.get('_default', None) if len(c) == 0 else ', '.join(c)
+
+
+def get_ordered_list_of_strings(order_identifiers, list_to_order,
+                        order_identifier_separator=',', case_sensitive=False):
+    """
+    functions sorts a list of string items according to sorted
+    strings included in order_identifiers parameter;
+    this function returns a new list object
+    """
+    if order_identifiers == None or list_to_order == None \
+        or len(order_identifiers) == 0 or len(list_to_order) == 0:
+        return list_to_order
+    if case_sensitive is False:
+        order_identifiers = order_identifiers.lower()
+    list_ordered = []
+    for ordered_name in get_as_list(order_identifiers,
+                                    separator=order_identifier_separator):
+        for name in list_to_order:
+            if (case_sensitive is False and name.lower() == ordered_name) \
+                or (case_sensitive is True and name == ordered_name):
+                list_ordered.append(name)
+                break
+    #append to the end items not founded in order_identifiers
+    list_ordered[len(list_ordered):] = \
+                [name for name in list_to_order if name not in list_ordered]
+    if not len(list_ordered) == len(list_to_order):
+        raise RuntimeError("size if ordered list doesn't equal source list")
+    return list_ordered

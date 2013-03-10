@@ -443,7 +443,9 @@ class PoincarePlotManager(object):
                          print_output_file=True,
                          ordinal_column_name=self.ordinal_column_name,
                          output_separator=self.output_separator,
-                         output_headers=self.output_headers) as csv:
+                         sort_headers=False,
+                         output_headers=self.output_headers,
+                         ordered_headers=self.statistics) as csv:
             statisticsFactory = StatisticsFactory(self.statistics,
                             statistics_handlers=self.__statistics_handlers__,
                             _use_identity_line=self.use_identity_line)

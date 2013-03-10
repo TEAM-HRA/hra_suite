@@ -19,12 +19,13 @@ class NumpyCSVFile(CSVFile):
                  reference_filename=None, sort_headers=True,
                  output_precision=None, print_output_file=False,
                  ordinal_column_name=None, output_separator=None,
-                 output_headers=None):
+                 output_headers=None, ordered_headers=None):
         super(NumpyCSVFile, self).__init__(output_file, output_dir,
                     output_suffix, reference_filename, sort_headers,
                     ordinal_column_name=ordinal_column_name,
                     output_separator=output_separator,
-                    output_headers=output_headers)
+                    output_headers=output_headers,
+                    ordered_headers=ordered_headers)
         self.array_data = None
         self.__output_precision__ = get_as_tuple(output_precision, convert=int)
         self.__print_output_file__ = print_output_file
