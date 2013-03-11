@@ -234,17 +234,23 @@ class SD2Statistic(Statistic):
 class SD2InnerStatistic(Statistic):
     def __calculate__(self):
 
-        #division for acceleration, deceleration or no change points
-        #have to be done using sd1 vector
-        sd1 = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
-        nochange_indexes = pl.find(sd1 == 0)
-
         mean_plus = MeanStatistic(signal=self.signal_plus,
                                   buffer=self.buffer,
                                   buffer_name='plus').compute()
         mean_minus = MeanStatistic(signal=self.signal_minus,
                                   buffer=self.buffer,
                                   buffer_name='minus').compute()
+
+        #division for acceleration, deceleration or no change points
+        #have to be done using sd1 vector
+        global USE_IDENTITY_LINE
+        if USE_IDENTITY_LINE:
+            sd1 = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
+        else:
+            sd1 = (self.signal_plus - self.signal_minus
+                    - mean_plus + mean_minus) / pl.sqrt(2)
+        nochange_indexes = pl.find(sd1 == 0)
+
         sd2 = (self.signal_plus - mean_plus
                    + self.signal_minus - mean_minus) / pl.sqrt(2)
         return pl.sqrt((pl.sum(sd2[self.indexes(sd1)] ** 2)
@@ -272,17 +278,13 @@ class SD2dStatistic(SD2InnerStatistic):
 
 class SDNNStatistic(Statistic):
     def __calculate__(self):
-        global USE_IDENTITY_LINE
-        if USE_IDENTITY_LINE:
-            SDNNa = SDNNaStatistic(signal_plus=self.signal_plus,
+        SDNNa = SDNNaStatistic(signal_plus=self.signal_plus,
                                     signal_minus=self.signal_minus,
                                     buffer=self.buffer).compute()
-            SDNNd = SDNNdStatistic(signal_plus=self.signal_plus,
+        SDNNd = SDNNdStatistic(signal_plus=self.signal_plus,
                                     signal_minus=self.signal_minus,
                                     buffer=self.buffer).compute()
-            return pl.sqrt(SDNNa ** 2 + SDNNd ** 2)
-        else:
-            return pl.sqrt(pl.var(self.signal))
+        return pl.sqrt(SDNNa ** 2 + SDNNd ** 2)
 
 
 class SDNNaStatistic(Statistic):
