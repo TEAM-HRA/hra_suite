@@ -29,6 +29,8 @@ try:
     from pymath.statistics.statistics import Statistic
     from pymath.statistics.statistics import ALL_STATISTICS
     from pymath.statistics.statistics import CHECK_STATISTICS
+    from pymath.statistics.statistics import ASYMMETRY_STATISTICS
+    from pymath.statistics.statistics import get_asymmetry_statistics_names
     from pymath.datasources import DataVector
     from pymath.datasources import FileDataSource
     from pymath.datasources import ALL_ANNOTATIONS
@@ -159,7 +161,8 @@ class PoincarePlotManager(object):
         """
         [optional]
         names of statistics to be calculated (separated by ','),
-        or ALL for all statistics or CHECK for check statistics,
+        or ALL for all statistics or CHECK for check statistics
+        or ASYMMETRY for asymmetry statistics;
         an example: 'mean, sd1, sd2a'
         to get a list of available statistics names call a method:
         available_statistics()
@@ -175,7 +178,10 @@ class PoincarePlotManager(object):
         [optional]
         print all available statistics names
         """
-        print(" or ".join((getStatisticsNames(), ALL_STATISTICS, CHECK_STATISTICS))) # @IgnorePep8
+        print(" or ".join((getStatisticsNames(), ALL_STATISTICS,
+                           CHECK_STATISTICS, ASYMMETRY_STATISTICS)))
+        print(' ' + ASYMMETRY_STATISTICS + ' means: ' +
+              commas(get_asymmetry_statistics_names()))
 
     def available_filters(self):
         """
@@ -575,6 +581,8 @@ class PoincarePlotManager(object):
             self.available_statistics()
             print('or ' + ALL_STATISTICS + ' this means use all statistics')
             print('or ' + CHECK_STATISTICS + ' this means use check statistics')  # @IgnorePep8
+            print('or ' + ASYMMETRY_STATISTICS + ' this means asymmetry statistics: ' +  # @IgnorePep8
+                   commas(get_asymmetry_statistics_names()))
         elif self.data_file is None and self.data_dir is None:
             print('data_file or data_dir have to be set')
         elif self.output_dir is None:

@@ -18,6 +18,7 @@ except ImportError as error:
 USE_IDENTITY_LINE = True
 ALL_STATISTICS = 'ALL'
 CHECK_STATISTICS = 'CHECK'
+ASYMMETRY_STATISTICS = 'ASYMMETRY'
 
 
 def expand_to_real_statistics_names(statistics_names):
@@ -30,6 +31,8 @@ def expand_to_real_statistics_names(statistics_names):
     elif statistics_names == CHECK_STATISTICS:
         return [name for name in Statistic.getSubclassesLongNames()
                 if name.endswith('CheckStatistic')]
+    elif statistics_names == ASYMMETRY_STATISTICS:
+        return get_asymmetry_statistics_names(short_names=False)
     real_statistics_names = []
     real_names = [(real_name, real_name.lower(), ) \
                   for real_name in Statistic.getSubclassesLongNames()]
@@ -171,6 +174,26 @@ class Statistic(DataVector):
         self.__buffer_name__ = _buffer_name
 
 
+class Asymmetry(object):
+    """
+    marker class to mark asymmetry statistic
+    """
+    pass
+
+
+def get_asymmetry_statistics_names(short_names=True):
+    """
+    method returns names of statistics classes which are marked as asymmetric:
+    that means poincare plot parameters for accelerations or decelerations
+    """
+    names = sorted([subclass.__name__
+            for subclass in get_subclasses(Asymmetry)])
+    if short_names:
+        return [name[:name.rfind('Statistic')] for name in names]
+    else:
+        return names
+
+
 class MeanStatistic(Statistic):
     '''
     classdocs
@@ -209,7 +232,7 @@ class SD1InnerStatistic(Statistic):
         return None
 
 
-class SD1aStatistic(SD1InnerStatistic):
+class SD1aStatistic(SD1InnerStatistic, Asymmetry):
     """
     for accelerations
     """
@@ -217,7 +240,7 @@ class SD1aStatistic(SD1InnerStatistic):
         return pl.find(sd1 > 0)
 
 
-class SD1dStatistic(SD1InnerStatistic):
+class SD1dStatistic(SD1InnerStatistic, Asymmetry):
     """
     for decelerations
     """
@@ -260,7 +283,7 @@ class SD2InnerStatistic(Statistic):
         return None
 
 
-class SD2aStatistic(SD2InnerStatistic):
+class SD2aStatistic(SD2InnerStatistic, Asymmetry):
     """
     for accelerations
     """
@@ -268,7 +291,7 @@ class SD2aStatistic(SD2InnerStatistic):
         return pl.find(sd > 0)
 
 
-class SD2dStatistic(SD2InnerStatistic):
+class SD2dStatistic(SD2InnerStatistic, Asymmetry):
     """
     for decelerations
     """
@@ -287,7 +310,7 @@ class SDNNStatistic(Statistic):
         return pl.sqrt(SDNNa ** 2 + SDNNd ** 2)
 
 
-class SDNNaStatistic(Statistic):
+class SDNNaStatistic(Statistic, Asymmetry):
     """
     for accelerations
     """
@@ -301,7 +324,7 @@ class SDNNaStatistic(Statistic):
         return pl.sqrt((SD1a ** 2 + SD2a ** 2) / 2)
 
 
-class SDNNdStatistic(Statistic):
+class SDNNdStatistic(Statistic, Asymmetry):
     """
     for decelerations
     """
@@ -315,7 +338,7 @@ class SDNNdStatistic(Statistic):
         return pl.sqrt((SD1d ** 2 + SD2d ** 2) / 2)
 
 
-class C1aStatistic(Statistic):
+class C1aStatistic(Statistic, Asymmetry):
     """
     for accelerations
     """
@@ -329,7 +352,7 @@ class C1aStatistic(Statistic):
         return (SD1a / SD1) ** 2
 
 
-class C1dStatistic(Statistic):
+class C1dStatistic(Statistic, Asymmetry):
     """
     for decelerations
     """
@@ -343,7 +366,7 @@ class C1dStatistic(Statistic):
         return (SD1d / SD1) ** 2
 
 
-class C2aStatistic(Statistic):
+class C2aStatistic(Statistic, Asymmetry):
     """
     for accelerations
     """
@@ -357,7 +380,7 @@ class C2aStatistic(Statistic):
         return (SD2a / SD2) ** 2
 
 
-class C2dStatistic(Statistic):
+class C2dStatistic(Statistic, Asymmetry):
     """
     for decelerations
     """
@@ -371,7 +394,7 @@ class C2dStatistic(Statistic):
         return (SD2d / SD2) ** 2
 
 
-class CaStatistic(Statistic):
+class CaStatistic(Statistic, Asymmetry):
     """
     for accelerations
     """
@@ -385,7 +408,7 @@ class CaStatistic(Statistic):
         return (SDNNa / SDNN) ** 2
 
 
-class CdStatistic(Statistic):
+class CdStatistic(Statistic, Asymmetry):
     """
     for decelerations
     """
@@ -421,7 +444,7 @@ class SD21Statistic(Statistic):
         return sd2 / sd1
 
 
-class ShortAsymmetryStatistic(Statistic):
+class ShortAsymmetryStatistic(Statistic, Asymmetry):
     def __calculate__(self):
         C1a = C1aStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus,
@@ -432,7 +455,7 @@ class ShortAsymmetryStatistic(Statistic):
         return 1 if C1d > C1a else 0
 
 
-class LongAsymmetryStatistic(Statistic):
+class LongAsymmetryStatistic(Statistic, Asymmetry):
     def __calculate__(self):
         C2a = C2aStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus,
