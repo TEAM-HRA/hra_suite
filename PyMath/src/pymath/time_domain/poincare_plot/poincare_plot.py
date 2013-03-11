@@ -34,7 +34,7 @@ try:
     from pymath.datasources import ALL_ANNOTATIONS
     from pymath.interpolation import Interpolation
     from pymath.time_domain.poincare_plot.filters import FilterManager
-    from pymath.time_domain.poincare_plot.filters import DataVectorFilter
+    from pymath.time_domain.poincare_plot.filters import getFiltersShortNames
     from pymath.frequency_domain.fourier import FourierTransformationManager
     from pymath.frequency_domain.fourier import FourierTransformation
 except ImportError as error:
@@ -49,13 +49,6 @@ def getStatisticsNames():
     to get default statistics names; subclasses of Statistic class
     """
     return commas(Statistic.getSubclassesShortNames())
-
-
-def getFiltersNames():
-    """
-    to get default filter names; subclasses of DataVectorFilter class
-    """
-    return commas(DataVectorFilter.getSubclassesShortNames())
 
 
 def getInterpolationNames():
@@ -184,6 +177,13 @@ class PoincarePlotManager(object):
         """
         print(" or ".join((getStatisticsNames(), ALL_STATISTICS, CHECK_STATISTICS))) # @IgnorePep8
 
+    def available_filters(self):
+        """
+        [optional]
+        print all available filters names
+        """
+        print(getFiltersShortNames())
+
     @property
     def signal_index(self):
         """
@@ -276,21 +276,23 @@ class PoincarePlotManager(object):
         self.__output_precision__ = _output_precision
 
     @property
-    def filters_names(self):
+    def filters(self):
         """
         [optional]
         use filters names (separated by comma)
         to get list of standard filters names call a function:
-        getFiltersNames()
+        getFiltersShortNames()
         [module: pymath.time_domain.poincare_plot.poincare_plot]
         """
         return self.__filters_names__
 
-    @filters_names.setter
-    def filters_names(self, _filters_names):
+    @filters.setter
+    def filters(self, _filters_names):
+        self.__filters_names__ = _filters_names
         if _filters_names is not None:
-            self.__filters_names__ = _filters_names
             map(self.addFilter, get_as_list(_filters_names))
+        else:
+            self.__filters__ = []
 
     def addFilter(self, name_or_object, _excluded_annotations=ALL_ANNOTATIONS):
         """
@@ -395,6 +397,8 @@ class PoincarePlotManager(object):
                     print('   name: ' + _handler.name)
             print('Using output precision: ' + self.output_precision)
             print('Using buffer: ' + str(self.use_buffer))
+            if not self.filters == None:
+                print('Using filters: ' + str(self.filters))
             self.__process__(self.__process_file__)
 
     def __process__(self, _file_handler, disp=True, **params):
@@ -816,9 +820,9 @@ if __name__ == '__main__':
 #    parser.add_argument("-df", "--display_filters",
 #                help="display list of available filters [True|False]",
 #                type=to_bool, default=False)
-    parser.add_argument("-fn", "--filters_names",
+    parser.add_argument("-fts", "--filters",
                 help="""use filters; available filters: """
-                    + getFiltersNames())
+                    + getFiltersShortNames())
     parser.add_argument("-ft", "--fourier_transformation",
                 help="""use fourier transformation; available: """ +
                         getFourierTransformationNames())
@@ -860,7 +864,7 @@ if __name__ == '__main__':
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
     ppManager.output_precision = __args.output_precision
-    ppManager.filters_names = __args.filters_names
+    ppManager.filters = __args.filters
     ppManager.fourier_transformation = \
                     __args.fourier_transformation
     ppManager.fourier_transform_interpolation = \
@@ -879,7 +883,7 @@ if __name__ == '__main__':
                                        _default='none'))
 #    if __args.display_filters == True:
 #        _disp = True
-#        print('Filters: ' + getFiltersNames())
+#        print('Filters: ' + getFiltersShortNames())
     if __args.headers == True:
         _disp = True
         print('Headers:')

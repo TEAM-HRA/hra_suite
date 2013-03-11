@@ -11,7 +11,7 @@ try:
     from pymath.datasources import exclude_boundary_annotations
     from pymath.datasources import get_annotation_indexes
     from pymath.datasources import get_not_annotation_indexes
-    from pycore.introspection import get_subclasses_short_names
+    from pycore.introspection import get_subclasses_names
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -55,7 +55,7 @@ class Interpolation(object):
 
     @staticmethod
     def getSubclassesShortNames():
-        return get_subclasses_short_names(Interpolation)
+        return get_subclasses_names(Interpolation)
 
 
 class LinearInterpolation(Interpolation):

@@ -6,7 +6,7 @@ Created on 16-08-2012
 from pymath.utils.utils import print_import_error
 try:
     import pylab as pl
-    from pycore.introspection import get_subclasses_short_names
+    from pycore.introspection import get_subclasses_names
     from pymath.sampling import LinearInterpolatedSampling
     from pymath.interpolation import InterpolationManager
     from pymath.integrals import DefiniteIntegral
@@ -61,7 +61,7 @@ class FourierTransformation(object):
 
     @staticmethod
     def getSubclassesShortNames():
-        return get_subclasses_short_names(FourierTransformation)
+        return get_subclasses_names(FourierTransformation)
 
 
 class FastFourierTransformation(FourierTransformation):

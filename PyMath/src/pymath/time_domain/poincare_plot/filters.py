@@ -7,15 +7,49 @@ from pymath.utils.utils import print_import_error
 try:
     import pylab as pl
     from pycore.collections_utils import nvl
+    from pycore.collections_utils import commas
+    from pycore.collections_utils import get_as_list
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_method_arguments_count
-    from pycore.introspection import get_subclasses_short_names
+    from pycore.introspection import get_subclasses_names
     from pymath.datasources import DataVector
     from pymath.datasources import ALL_ANNOTATIONS
     from pymath.datasources import exclude_boundary_annotations
     from pymath.datasources import get_not_annotation_indexes
 except ImportError as error:
     print_import_error(__name__, error)
+
+ALL_FILTERS = 'ALL'
+
+
+def getFiltersShortNames():
+    """
+    to get default filter names; subclasses of DataVectorFilter class
+    """
+    return commas(DataVectorFilter.getSubclassesShortNames())
+
+
+def expand_to_real_filters_names(filters_names):
+    """
+    method converts user's inputed filters names into
+    real filters class names
+    """
+    if filters_names[0] == ALL_FILTERS or filters_names == ALL_FILTERS:
+        return DataVectorFilter.getSubclassesLongNames()
+    real_filters_names = []
+    real_names = [(real_name, real_name.lower(), ) \
+                  for real_name in DataVectorFilter.getSubclassesLongNames()]
+    lower_names = [(name.lower(), name.lower() + 'filter', ) \
+                   for name in get_as_list(filters_names)]
+    for (filter_lower_name, filter_base_name) in lower_names:
+        for (real_name, real_lower_name) in real_names:
+            if  real_lower_name in (filter_lower_name, filter_base_name):
+                real_filters_names.append(real_name)
+                break
+        else:
+            print('Uknown filter: ' + filter_lower_name)
+            return []
+    return real_filters_names
 
 
 class FilterManager(object):
@@ -48,7 +82,7 @@ class FilterManager(object):
                 data_vector = _filter(data_vector, excluded_annotations)
         return data_vector
 
-    def addFilter(self, _filter_object_or_handler_or_name,
+    def addFilter(self, _filter_object_or_handler_or_names,
                                         _excluded_annotations=ALL_ANNOTATIONS):
         """
         filter entity could be passed as filter object itself, handler method
@@ -56,25 +90,30 @@ class FilterManager(object):
         """
         if _excluded_annotations == None:
             _excluded_annotations = ALL_ANNOTATIONS
-        arg_count = get_method_arguments_count(_filter_object_or_handler_or_name) # @IgnorePep8
+        arg_count = get_method_arguments_count(_filter_object_or_handler_or_names) # @IgnorePep8
 
         # filter as a string
-        if isinstance(_filter_object_or_handler_or_name, str):
-            filter_object = create_class_object_with_suffix(
+        if isinstance(_filter_object_or_handler_or_names, str):
+            for filter_name in expand_to_real_filters_names(
+                                        _filter_object_or_handler_or_names):
+                if filter_name == None:
+                    return
+                filter_object = create_class_object_with_suffix(
                                     'pymath.time_domain.poincare_plot.filters',
-                                    _filter_object_or_handler_or_name)
-            filter_object = filter_object(_shift=self.__shift__)
-            filter_object.arg_count = -1
-            filter_object.excluded_annotations = _excluded_annotations
-            self.__filters__.append(filter_object)
+                                    filter_name,
+                                    _suffix='Filter')
+                filter_object = filter_object(_shift=self.__shift__)
+                filter_object.arg_count = -1
+                filter_object.excluded_annotations = _excluded_annotations
+                self.__filters__.append(filter_object)
         # filter as a function
         elif arg_count > -1:
-            filter_method = _filter_object_or_handler_or_name
+            filter_method = _filter_object_or_handler_or_names
             filter_method.arg_count = arg_count
             self.__filters__.append(filter_method)
         # filter as an object
         else:
-            filter_object = _filter_object_or_handler_or_name
+            filter_object = _filter_object_or_handler_or_names
             filter_object.arg_count = -1
             filter_object.excluded_annotations = _excluded_annotations
             self.__filters__.append(filter_object)
@@ -103,8 +142,12 @@ class DataVectorFilter(object):
 
     @staticmethod
     def getSubclassesShortNames():
-        return get_subclasses_short_names(DataVectorFilter,
-                                          remove_base_classname=False)
+        return get_subclasses_names(DataVectorFilter,
+                                          remove_name='Filter')
+
+    @staticmethod
+    def getSubclassesLongNames():
+        return get_subclasses_names(DataVectorFilter)
 
 
 class AnnotationFilter(DataVectorFilter):

@@ -144,7 +144,8 @@ def get_method_arguments_count(_method):
         else -1
 
 
-def get_subclasses_short_names(_class, remove_base_classname=False):
+def get_subclasses_names(_class, remove_base_classname=False,
+                                remove_name=None):
     """
     get all class _class subclasses names, with ability to remove
     a baseclass name in the outcome
@@ -154,6 +155,10 @@ def get_subclasses_short_names(_class, remove_base_classname=False):
         name = _sub_class.__name__
         if remove_base_classname:
             idx = _sub_class.__name__.rfind(_class.__name__)
+            if idx >= 0:
+                name = name[:idx]
+        if remove_name:
+            idx = name.rfind(remove_name)
             if idx >= 0:
                 name = name[:idx]
         names.append(name)

@@ -9,7 +9,7 @@ try:
     from pycore.collections_utils import get_as_list
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_method_arguments_count
-    from pycore.introspection import get_subclasses_short_names
+    from pycore.introspection import get_subclasses_names
     from pycore.introspection import get_subclasses
     from pymath.datasources import DataVector
 except ImportError as error:
@@ -141,13 +141,13 @@ class Statistic(DataVector):
 
     @staticmethod
     def getSubclassesShortNames():
-        return [name for name in get_subclasses_short_names(Statistic,
+        return [name for name in get_subclasses_names(Statistic,
                                                     remove_base_classname=True)
                 if not name.endswith('Inner')]
 
     @staticmethod
     def getSubclassesLongNames():
-        return [name for name in get_subclasses_short_names(Statistic)
+        return [name for name in get_subclasses_names(Statistic)
                 if not name.endswith('Inner')]
 
     # if parameter is not set in the __init__() this method then returns None
