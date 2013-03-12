@@ -164,15 +164,15 @@ class AnnotationFilter(DataVectorFilter):
         signal = signal_no_boundary_annotations.signal
         annotation = signal_no_boundary_annotations.annotation
 
-        indexy_p = signal_no_boundary_annotations.annotation_indexes
-        indexy_m = indexy_p - 1
-        indexy = pl.r_[indexy_p, indexy_m]
-        x_p = signal[pl.arange(0, len(signal) - self.__shift__)]
-        x_pp = signal[pl.arange(self.__shift__, len(signal))]
-        x_p[indexy] = -1
-        indexy = pl.array(pl.find(x_p != -1))
-        x_p = x_p[indexy]
-        x_pp = x_pp[indexy]
+        indexes_plus = signal_no_boundary_annotations.annotation_indexes
+        indexes_minus = indexes_plus - 1
+        indexes = pl.r_[indexes_plus, indexes_minus]
+        signal_plus = signal[pl.arange(0, len(signal) - self.__shift__)]
+        signal_minus = signal[pl.arange(self.__shift__, len(signal))]
+        signal_plus[indexes] = -1
+        indexes = pl.array(pl.find(signal_plus != -1))
+        signal_plus = signal_plus[indexes]
+        signal_minus = signal_minus[indexes]
 
         not_annotation_indexes = get_not_annotation_indexes(
                             _data_vector.annotation, _excluded_annotations)
@@ -180,6 +180,7 @@ class AnnotationFilter(DataVectorFilter):
         time = _data_vector.time[not_annotation_indexes] \
                 if _data_vector.time else None
 
-        return DataVector(signal=signal, signal_plus=x_p, signal_minus=x_pp,
+        return DataVector(signal=signal, signal_plus=signal_plus,
+                          signal_minus=signal_minus,
                           time=time, annotation=annotation,
                           signal_unit=_data_vector.signal_unit)
