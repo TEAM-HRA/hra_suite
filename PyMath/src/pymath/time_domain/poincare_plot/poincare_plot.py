@@ -407,6 +407,7 @@ class PoincarePlotManager(object):
                 print('Using filters: ' + str(self.filters))
             print('Window size: ' + str(self.window_size) +
                   nvl(self.window_size_unit, ''))
+            print('Using buffer: ' + str(self.use_buffer))
             self.__process__(self.__process_file__)
 
     def __process__(self, _file_handler, disp=True, **params):
