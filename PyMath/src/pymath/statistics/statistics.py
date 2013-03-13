@@ -593,6 +593,22 @@ class SDNNdCheckStatistic(Statistic):
         return SDNNd ** 2 - (SD1d ** 2 + SD2d ** 2) / 2
 
 
+class MaxStatistic(Statistic):
+    '''
+    classdocs
+    '''
+    def __calculate__(self):
+        return pl.max(self.signal)
+
+
+class MinStatistic(Statistic):
+    '''
+    classdocs
+    '''
+    def __calculate__(self):
+        return pl.min(self.signal)
+
+
 class StatisticsFactory(object):
 
     def __init__(self, statistics_classes_or_names, statistics_handlers=None,
