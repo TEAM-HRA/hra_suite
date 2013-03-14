@@ -202,6 +202,16 @@ class MeanStatistic(Statistic):
         return pl.mean(self.signal)
 
 
+class MeanPlusStatistic(Statistic):
+    def __calculate__(self):
+        return MeanStatistic(signal=self.signal_plus).compute()
+
+
+class MeanMinusStatistic(Statistic):
+    def __calculate__(self):
+        return MeanStatistic(signal=self.signal_minus).compute()
+
+
 class SD1Statistic(Statistic):
     def __calculate__(self):
         global USE_IDENTITY_LINE
@@ -444,7 +454,7 @@ class SD21Statistic(Statistic):
         return sd2 / sd1
 
 
-class ShortAsymmetryStatistic(Statistic, Asymmetry):
+class SD1AsymmetryStatistic(Statistic, Asymmetry):
     def __calculate__(self):
         C1a = C1aStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus,
@@ -455,7 +465,7 @@ class ShortAsymmetryStatistic(Statistic, Asymmetry):
         return 1 if C1d > C1a else 0
 
 
-class LongAsymmetryStatistic(Statistic, Asymmetry):
+class SD2AsymmetryStatistic(Statistic, Asymmetry):
     def __calculate__(self):
         C2a = C2aStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus,
@@ -607,6 +617,14 @@ class MinStatistic(Statistic):
     '''
     def __calculate__(self):
         return pl.min(self.signal)
+
+
+class SDRRStatistic(Statistic):
+    """
+    calculate variance of the hole signal
+    """
+    def __calculate__(self):
+        return pl.sqrt(pl.var(self.signal, ddof=0)).compute()
 
 
 class StatisticsFactory(object):
