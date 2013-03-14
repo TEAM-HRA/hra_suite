@@ -5,6 +5,7 @@
 from pymath.utils.utils import print_import_error
 try:
     import pylab as pl
+    import numpy as np
     from pycore.collections_utils import nvl
     from pycore.collections_utils import get_as_list
     from pycore.introspection import create_class_object_with_suffix
@@ -16,9 +17,35 @@ except ImportError as error:
     print_import_error(__name__, error)
 
 USE_IDENTITY_LINE = True
+CORE_STATISTICS = 'CORE'
 ALL_STATISTICS = 'ALL'
 CHECK_STATISTICS = 'CHECK'
 ASYMMETRY_STATISTICS = 'ASYMMETRY'
+NON_CHECK_STATISTICS = 'NON_CHECK'
+
+
+def get_statistics_names(statistic_ident, only_short_names=True):
+    if statistic_ident == ALL_STATISTICS:  # means without Inner
+        names = []
+        for _class in [Core, Asymmetry, Check]:
+            names[len(names):] = get_statistics_class_names(_class,
+                                        only_short_names=only_short_names)
+        return names
+    if statistic_ident == NON_CHECK_STATISTICS:  # means without Inner, Check
+        names = []
+        for _class in [Core, Asymmetry]:
+            names[len(names):] = get_statistics_class_names(_class,
+                                        only_short_names=only_short_names)
+        return names
+    elif statistic_ident == CHECK_STATISTICS:
+        return get_statistics_class_names(Check,
+                                          only_short_names=only_short_names)
+    elif statistic_ident == ASYMMETRY_STATISTICS:
+        return get_statistics_class_names(Asymmetry,
+                                          only_short_names=only_short_names)
+    elif statistic_ident == CORE_STATISTICS:
+        return get_statistics_class_names(Core,
+                                          only_short_names=only_short_names)
 
 
 def expand_to_real_statistics_names(statistics_names):
@@ -26,13 +53,10 @@ def expand_to_real_statistics_names(statistics_names):
     method converts user's inputed statistics names into
     real statistics class names
     """
-    if statistics_names == ALL_STATISTICS:
-        return Statistic.getSubclassesLongNames()
-    elif statistics_names == CHECK_STATISTICS:
-        return [name for name in Statistic.getSubclassesLongNames()
-                if name.endswith('CheckStatistic')]
-    elif statistics_names == ASYMMETRY_STATISTICS:
-        return get_asymmetry_statistics_names(short_names=False)
+    names = get_statistics_names(statistics_names, False)
+    if not names == None:
+        return names
+
     real_statistics_names = []
     real_names = [(real_name, real_name.lower(), ) \
                   for real_name in Statistic.getSubclassesLongNames()]
@@ -138,20 +162,13 @@ class Statistic(DataVector):
                             get_method_arguments_count(self.__handler__)
 
     @staticmethod
-    def getSubclasses():
-        return [subclass for subclass in get_subclasses(Statistic)
-                if not subclass.__name__.endswith('InnerStatistic')]
-
-    @staticmethod
     def getSubclassesShortNames():
         return [name for name in get_subclasses_names(Statistic,
-                                                    remove_base_classname=True)
-                if not name.endswith('Inner')]
+                                                remove_base_classname=True)]
 
     @staticmethod
     def getSubclassesLongNames():
-        return [name for name in get_subclasses_names(Statistic)
-                if not name.endswith('Inner')]
+        return [name for name in get_subclasses_names(Statistic)]
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
@@ -181,20 +198,43 @@ class Asymmetry(object):
     pass
 
 
-def get_asymmetry_statistics_names(short_names=True):
+class Check(object):
+    """
+    marker class to mark check statistic
+    """
+    pass
+
+
+class Core(object):
+    """
+    marker class to mark core statistic
+    """
+    pass
+
+
+class Inner(object):
+    """
+    marker class to mark Inner statistic
+    """
+    pass
+
+
+def get_statistics_class_names(_class, only_short_names=False,
+                         short_name_suffix='Statistic'):
     """
     method returns names of statistics classes which are marked as asymmetric:
     that means poincare plot parameters for accelerations or decelerations
     """
-    names = sorted([subclass.__name__
-            for subclass in get_subclasses(Asymmetry)])
-    if short_names:
-        return [name[:name.rfind('Statistic')] for name in names]
+    names = sorted([subclass.__name__ for subclass in get_subclasses(_class)])
+    if short_name_suffix == None:
+        short_name_suffix = _class.__name__
+    if only_short_names:
+        return [name[:name.rfind(short_name_suffix)] for name in names]
     else:
         return names
 
 
-class MeanStatistic(Statistic):
+class MeanStatistic(Statistic, Core):
     '''
     classdocs
     '''
@@ -202,17 +242,17 @@ class MeanStatistic(Statistic):
         return pl.mean(self.signal)
 
 
-class MeanPlusStatistic(Statistic):
+class MeanPlusStatistic(Statistic, Core):
     def __calculate__(self):
         return MeanStatistic(signal=self.signal_plus).compute()
 
 
-class MeanMinusStatistic(Statistic):
+class MeanMinusStatistic(Statistic, Core):
     def __calculate__(self):
         return MeanStatistic(signal=self.signal_minus).compute()
 
 
-class SD1Statistic(Statistic):
+class SD1Statistic(Statistic, Asymmetry):
     def __calculate__(self):
         global USE_IDENTITY_LINE
         sd1 = (self.signal_plus - self.signal_minus) / pl.sqrt(2)
@@ -222,7 +262,7 @@ class SD1Statistic(Statistic):
             return pl.sqrt(pl.var(sd1))
 
 
-class SD1InnerStatistic(Statistic):
+class SD1InnerStatistic(Statistic, Inner):
     def __calculate__(self):
         global USE_IDENTITY_LINE
         if USE_IDENTITY_LINE:
@@ -258,13 +298,13 @@ class SD1dStatistic(SD1InnerStatistic, Asymmetry):
         return pl.find(sd1 < 0)
 
 
-class SD2Statistic(Statistic):
+class SD2Statistic(Statistic, Asymmetry):
     def __calculate__(self):
         sd2 = (self.signal_plus + self.signal_minus) / pl.sqrt(2)
         return pl.sqrt(pl.var(sd2))
 
 
-class SD2InnerStatistic(Statistic):
+class SD2InnerStatistic(Statistic, Inner):
     def __calculate__(self):
 
         mean_plus = MeanStatistic(signal=self.signal_plus,
@@ -309,7 +349,7 @@ class SD2dStatistic(SD2InnerStatistic, Asymmetry):
         return pl.find(sd < 0)
 
 
-class SDNNStatistic(Statistic):
+class SDNNStatistic(Statistic, Asymmetry):
     def __calculate__(self):
         SDNNa = SDNNaStatistic(signal_plus=self.signal_plus,
                                     signal_minus=self.signal_minus,
@@ -432,7 +472,7 @@ class CdStatistic(Statistic, Asymmetry):
         return (SDNNd / SDNN) ** 2
 
 
-class SsStatistic(Statistic):
+class SsStatistic(Statistic, Asymmetry):
     def __calculate__(self):
         sd1 = SD1Statistic(signal_plus=self.signal_plus,
                            signal_minus=self.signal_minus,
@@ -443,7 +483,7 @@ class SsStatistic(Statistic):
         return pl.pi * sd1 * sd2
 
 
-class SD21Statistic(Statistic):
+class SD21Statistic(Statistic, Asymmetry):
     def __calculate__(self):
         sd1 = SD1Statistic(signal_plus=self.signal_plus,
                            signal_minus=self.signal_minus,
@@ -476,7 +516,7 @@ class SD2AsymmetryStatistic(Statistic, Asymmetry):
         return 1 if C2d < C2a else 0
 
 
-class CCheckStatistic(Statistic):
+class CCheckStatistic(Statistic, Check):
     """
     statistic check if Ca + Cd == 1
     """
@@ -490,7 +530,7 @@ class CCheckStatistic(Statistic):
         return Cd + Ca - 1
 
 
-class C1CheckStatistic(Statistic):
+class C1CheckStatistic(Statistic, Check):
     """
     statistic check if C1a + C1d == 1
     """
@@ -504,7 +544,7 @@ class C1CheckStatistic(Statistic):
         return C1d + C1a - 1
 
 
-class C2CheckStatistic(Statistic):
+class C2CheckStatistic(Statistic, Check):
     """
     statistic check if C2a + C2d == 1
     """
@@ -518,7 +558,7 @@ class C2CheckStatistic(Statistic):
         return C2d + C2a - 1
 
 
-class SD1CheckStatistic(Statistic):
+class SD1CheckStatistic(Statistic, Check):
     """
     statistic check if SD1^2 == SD1a^2 + SD1d^2
     """
@@ -535,7 +575,7 @@ class SD1CheckStatistic(Statistic):
         return SD1 ** 2 - SD1a ** 2 - SD1d ** 2
 
 
-class SD2CheckStatistic(Statistic):
+class SD2CheckStatistic(Statistic, Check):
     """
     statistic check if SD2^2 == SD2a^2 + SD2d^2
     """
@@ -552,7 +592,7 @@ class SD2CheckStatistic(Statistic):
         return SD2 ** 2 - SD2a ** 2 - SD2d ** 2
 
 
-class SDNNCheckStatistic(Statistic):
+class SDNNCheckStatistic(Statistic, Check):
     """
     statistic check if SDNN^2 == SDNNa^2 + SDNNd^2
     """
@@ -569,7 +609,7 @@ class SDNNCheckStatistic(Statistic):
         return SDNN ** 2 - SDNNa ** 2 - SDNNd ** 2
 
 
-class SDNNaCheckStatistic(Statistic):
+class SDNNaCheckStatistic(Statistic, Check):
     """
     statistic check if SDNNa^2 == (SD1a^2 + SD2a^2)/2
     """
@@ -586,7 +626,7 @@ class SDNNaCheckStatistic(Statistic):
         return SDNNa ** 2 - (SD1a ** 2 + SD2a ** 2) / 2
 
 
-class SDNNdCheckStatistic(Statistic):
+class SDNNdCheckStatistic(Statistic, Check):
     """
     statistic check if SDNNd^2 == (SD1d^2 + SD2d^2)/2
     """
@@ -603,28 +643,28 @@ class SDNNdCheckStatistic(Statistic):
         return SDNNd ** 2 - (SD1d ** 2 + SD2d ** 2) / 2
 
 
-class MaxStatistic(Statistic):
+class MaxStatistic(Statistic, Core):
     '''
     classdocs
     '''
     def __calculate__(self):
-        return pl.max(self.signal)
+        return np.max(self.signal)
 
 
-class MinStatistic(Statistic):
+class MinStatistic(Statistic, Core):
     '''
     classdocs
     '''
     def __calculate__(self):
-        return pl.min(self.signal)
+        return np.min(self.signal)
 
 
-class SDRRStatistic(Statistic):
+class SDRRStatistic(Statistic, Core):
     """
     calculate variance of the hole signal
     """
     def __calculate__(self):
-        return pl.sqrt(pl.var(self.signal, ddof=0)).compute()
+        return pl.sqrt(pl.var(self.signal, ddof=0))
 
 
 class StatisticsFactory(object):

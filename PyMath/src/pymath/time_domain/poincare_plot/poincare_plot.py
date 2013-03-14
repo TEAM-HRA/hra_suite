@@ -26,11 +26,12 @@ try:
         get_max_index_for_cumulative_sum_of_means_greater_then_value
     from pymath.utils.io_utils import NumpyCSVFile
     from pymath.statistics.statistics import StatisticsFactory
-    from pymath.statistics.statistics import Statistic
+    from pymath.statistics.statistics import get_statistics_names
     from pymath.statistics.statistics import ALL_STATISTICS
     from pymath.statistics.statistics import CHECK_STATISTICS
+    from pymath.statistics.statistics import CORE_STATISTICS
     from pymath.statistics.statistics import ASYMMETRY_STATISTICS
-    from pymath.statistics.statistics import get_asymmetry_statistics_names
+    from pymath.statistics.statistics import NON_CHECK_STATISTICS
     from pymath.datasources import DataVector
     from pymath.datasources import FileDataSource
     from pymath.datasources import ALL_ANNOTATIONS
@@ -44,13 +45,6 @@ except ImportError as error:
 
 
 DEFAULT_OUTCOME_DIRECTORY = os.path.join(os.getcwd(), 'pp_outcomes')
-
-
-def getStatisticsNames():
-    """
-    to get default statistics names; subclasses of Statistic class
-    """
-    return commas(Statistic.getSubclassesShortNames())
 
 
 def getInterpolationNames():
@@ -178,10 +172,13 @@ class PoincarePlotManager(object):
         [optional]
         print all available statistics names
         """
-        print(" or ".join((getStatisticsNames(), ALL_STATISTICS,
-                           CHECK_STATISTICS, ASYMMETRY_STATISTICS)))
-        print(' ' + ASYMMETRY_STATISTICS + ' means: ' +
-              commas(get_asymmetry_statistics_names()))
+        for statistic_ident in [CORE_STATISTICS, ASYMMETRY_STATISTICS,
+                                CHECK_STATISTICS]:
+            print(statistic_ident + ': ' +
+                       commas(get_statistics_names(statistic_ident)))
+        print(ALL_STATISTICS + ': all above statistics')
+        print(NON_CHECK_STATISTICS + ': ' + CORE_STATISTICS + ', '
+               + ASYMMETRY_STATISTICS)
 
     def available_filters(self):
         """
@@ -579,13 +576,9 @@ class PoincarePlotManager(object):
 
     def __check__(self):
         if self.statistics == None or len(self.statistics) == 0:
-            print('no statistics were been chosen [attribute statistics];')  # @IgnorePep8
+            print('no statistics were been chosen [attribute statistics];')
             print('available statistics [call method available_statistics()]:')
             self.available_statistics()
-            print('or ' + ALL_STATISTICS + ' this means use all statistics')
-            print('or ' + CHECK_STATISTICS + ' this means use check statistics')  # @IgnorePep8
-            print('or ' + ASYMMETRY_STATISTICS + ' this means asymmetry statistics: ' +  # @IgnorePep8
-                   commas(get_asymmetry_statistics_names()))
         elif self.data_file is None and self.data_dir is None:
             print('data_file or data_dir have to be set')
         elif self.output_dir is None:
@@ -805,9 +798,8 @@ if __name__ == '__main__':
                 help="precision for output data [default: 10,5]",
                 default="10,5")
     parser.add_argument("-s", "--statistics",
-                help="list of statistics names to calculate, defaults to: " +
-                        getStatisticsNames(),
-                default=getStatisticsNames())
+                help="list of statistics names to calculate, available: " +
+                        commas(get_statistics_names(ALL_STATISTICS)))
     parser.add_argument("-he", "--headers", type=to_bool,
                         help="display lines of headers [True|False]")
     parser.add_argument("-si", "--signal_index", type=int,
