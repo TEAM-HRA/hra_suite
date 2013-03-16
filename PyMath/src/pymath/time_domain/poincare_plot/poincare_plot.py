@@ -6,6 +6,7 @@ Created on 27-07-2012
 from pymath.utils.utils import print_import_error
 try:
     import os
+    import gc
     import argparse
     import glob
     import numpy as np
@@ -259,7 +260,7 @@ class PoincarePlotManager(object):
         a data window shift between two sets of signals which constitute
         a poincare plot, default value 1
         """
-        return self.__window_shift__
+        return nvl(self.__window_shift__, 1)
 
     @window_shift.setter
     def window_shift(self, _window_shift):
@@ -493,6 +494,12 @@ class PoincarePlotManager(object):
 
                 data_segment = filter_manager.filter(data_segment)
 
+                #this could happened when for example annotation
+                #filter is used and all data are annotated that means
+                #all signal data are filtered out
+                if len(data_segment.signal) == 0:
+                    continue
+
                 fourier_params = fourier.calculate(data_segment,
                                                    self.excluded_annotations)
                 parameters.update(fourier_params)
@@ -506,6 +513,7 @@ class PoincarePlotManager(object):
             if progress:
                 progress.close
             interrupter.clean()
+            gc.collect()
 
     def addStatistic(self, _handler, _name):
         """

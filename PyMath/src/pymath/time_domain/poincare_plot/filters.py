@@ -16,6 +16,7 @@ try:
     from pymath.datasources import ALL_ANNOTATIONS
     from pymath.datasources import exclude_boundary_annotations
     from pymath.datasources import get_not_annotation_indexes
+    from pymath.datasources import EMPTY_DATA_VECTOR
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -161,26 +162,27 @@ class AnnotationFilter(DataVectorFilter):
         if signal_no_boundary_annotations.annotation_indexes == None:
             return _data_vector
 
-        signal = signal_no_boundary_annotations.signal
-        annotation = signal_no_boundary_annotations.annotation
+        if len(signal_no_boundary_annotations.signal) > 0:
+            signal = signal_no_boundary_annotations.signal
+            annotation = signal_no_boundary_annotations.annotation
+            indexes_plus = signal_no_boundary_annotations.annotation_indexes
+            indexes_minus = indexes_plus - 1
+            indexes = pl.r_[indexes_plus, indexes_minus]
+            signal_plus = signal[pl.arange(0, len(signal) - self.__shift__)]
+            signal_minus = signal[pl.arange(self.__shift__, len(signal))]
+            signal_plus[indexes] = -1
+            indexes = pl.array(pl.find(signal_plus != -1))
+            signal_plus = signal_plus[indexes]
+            signal_minus = signal_minus[indexes]
 
-        indexes_plus = signal_no_boundary_annotations.annotation_indexes
-        indexes_minus = indexes_plus - 1
-        indexes = pl.r_[indexes_plus, indexes_minus]
-        signal_plus = signal[pl.arange(0, len(signal) - self.__shift__)]
-        signal_minus = signal[pl.arange(self.__shift__, len(signal))]
-        signal_plus[indexes] = -1
-        indexes = pl.array(pl.find(signal_plus != -1))
-        signal_plus = signal_plus[indexes]
-        signal_minus = signal_minus[indexes]
-
-        not_annotation_indexes = get_not_annotation_indexes(
+            not_annotation_indexes = get_not_annotation_indexes(
                             _data_vector.annotation, _excluded_annotations)
-        signal = _data_vector.signal[not_annotation_indexes]
-        time = _data_vector.time[not_annotation_indexes] \
-                if _data_vector.time else None
-
-        return DataVector(signal=signal, signal_plus=signal_plus,
+            signal = _data_vector.signal[not_annotation_indexes]
+            time = _data_vector.time[not_annotation_indexes] \
+                    if _data_vector.time else None
+            return DataVector(signal=signal, signal_plus=signal_plus,
                           signal_minus=signal_minus,
                           time=time, annotation=annotation,
                           signal_unit=_data_vector.signal_unit)
+        else:  # this happens when all array's elements are filtered out
+            return EMPTY_DATA_VECTOR

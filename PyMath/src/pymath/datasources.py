@@ -15,6 +15,7 @@ try:
 except ImportError as error:
     print_import_error(__name__, error)
 
+EMPTY_ARRAY = pl.array([])
 
 ALL_ANNOTATIONS = -1
 
@@ -42,13 +43,18 @@ def exclude_boundary_annotations(_signal, _annotation, _excluded_annotations):
                  or _annotation[0] in _excluded_annotations)):
         _signal = _signal[1:]
         _annotation = _annotation[1:]
+        if len(_signal) == 0:
+            break
 
-    #removing nonsinus beats from the end
-    while (_annotation[-1] != 0
+    if len(_signal) > 0:
+        #removing nonsinus beats from the end
+        while (_annotation[-1] != 0
             and (_excluded_annotations == ALL_ANNOTATIONS
                 or _annotation[-1] in _excluded_annotations)):
-        _signal = _signal[:-1]
-        _annotation = _annotation[:-1]
+            _signal = _signal[:-1]
+            _annotation = _annotation[:-1]
+            if len(_signal) == 0:
+                break
 
     annotation_indexes = get_annotation_indexes(_annotation,
                                                 _excluded_annotations)
@@ -60,7 +66,9 @@ def get_annotation_indexes(_annotation, _excluded_annotations):
     method returns indexes of annotation's values in _annotation parameter
     according to annotations defined by _excluded_annotations parameter
     """
-    if _excluded_annotations == ALL_ANNOTATIONS:
+    if len(_annotation) == 0:
+        return EMPTY_ARRAY
+    elif _excluded_annotations == ALL_ANNOTATIONS:
         return pl.array(pl.find(_annotation != 0))
     else:
         #find indexes of annotation array where values are in
@@ -74,7 +82,9 @@ def get_not_annotation_indexes(_annotation, _excluded_annotations):
     method returns indexes of not annotation's values in _annotation parameter,
     annotation values are defined in _excluded_annotations parameter
     """
-    if _excluded_annotations == ALL_ANNOTATIONS:
+    if len(_annotation) == 0:
+        return EMPTY_ARRAY
+    elif _excluded_annotations == ALL_ANNOTATIONS:
         return pl.array(pl.find(_annotation == 0))
     else:
         #find indexes of an annotation array which are NOT included
@@ -176,6 +186,11 @@ class DataVector(object):
     # if parameter is not set in the __init__() method then returns None
     def __getattr__(self, name):
         return None
+
+
+EMPTY_DATA_VECTOR = DataVector(signal=EMPTY_ARRAY, signal_plus=EMPTY_ARRAY,
+                               signal_minus=EMPTY_ARRAY, time=EMPTY_ARRAY,
+                               annotation=EMPTY_ARRAY, signal_unit=None)
 
 
 class FileDataSource(object):
