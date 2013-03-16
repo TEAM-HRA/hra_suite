@@ -407,6 +407,8 @@ class PoincarePlotManager(object):
                   nvl(self.window_size_unit, ''))
             print('Using buffer: ' + str(self.use_buffer))
             self.__process__(self.__process_file__)
+            print('Skip for existing outcomes: '
+                  + str(self.skip_existing_outcomes))
 
     def __process__(self, _file_handler, disp=True, **params):
         """
@@ -461,6 +463,12 @@ class PoincarePlotManager(object):
                          sort_headers=False,
                          output_headers=self.output_headers,
                          ordered_headers=self.statistics) as csv:
+            if self.skip_existing_outcomes:
+                if os.path.exists(csv.output_file):
+                    if disp:
+                        print('Skipping processing, the outcome file '
+                              + str(csv.output_file) + ' exists !')
+                    return
             statisticsFactory = StatisticsFactory(self.statistics,
                             statistics_handlers=self.__statistics_handlers__,
                             _use_identity_line=self.use_identity_line,
@@ -673,6 +681,19 @@ class PoincarePlotManager(object):
     def use_buffer(self, _use_buffer):
         self.__use_buffer__ = _use_buffer
 
+    @property
+    def skip_existing_outcomes(self):
+        """
+        [optional]
+        skip processing data file for existing outcomes
+        default: False
+        """
+        return nvl(self.__skip_existing_outcomes__, False)
+
+    @skip_existing_outcomes.setter
+    def skip_existing_outcomes(self, _skip_existing_outcomes):
+        self.__skip_existing_outcomes__ = _skip_existing_outcomes
+
 
 class PoincarePlotSegmenter(object):
 
@@ -861,6 +882,10 @@ if __name__ == '__main__':
     parser.add_argument("-ub", "--use_buffer",
             help="use buffer during statistics calculations [default: True]",
             type=to_bool, default=True)
+    parser.add_argument("-seo", "--skip_existing_outcomes",
+                help="skip processing data file if there are corresponding \
+                        outcome files [True|False]",
+                type=to_bool, default=True)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -885,6 +910,7 @@ if __name__ == '__main__':
     ppManager.output_separator = __args.output_separator
     ppManager.output_headers = __args.output_headers
     ppManager.use_identity_line = __args.use_identity_line
+    ppManager.skip_existing_outcomes = __args.skip_existing_outcomes
     ppManager.use_buffer = __args.use_buffer
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
