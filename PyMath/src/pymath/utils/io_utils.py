@@ -5,6 +5,7 @@ Created on 10-02-2013
 '''
 from pymath.utils.utils import print_import_error
 try:
+    import gc
     import StringIO
     import numpy as np
     from pycore.io_utils import CSVFile
@@ -50,6 +51,7 @@ class NumpyCSVFile(CSVFile):
                 _file.write(contents)
                 _file.close()
                 memory_file.close()
+                gc.collect()
                 if self.__print_output_file__:
                     print('Data saved into the file: ' + self.output_file)
             else:
