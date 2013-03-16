@@ -668,6 +668,9 @@ class SDRRStatistic(Statistic, Core):
 
 
 class CSStatistic(Statistic, Asymmetry):
+    """
+    calculate statistic SD1^2/(2SDNN^2)
+    """
     def __calculate__(self):
         SD1 = SD1Statistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus,
@@ -679,6 +682,9 @@ class CSStatistic(Statistic, Asymmetry):
 
 
 class SD2SD1Statistic(Statistic, Asymmetry):
+    """
+    calculate statistic SD2/SD1
+    """
     def __calculate__(self):
         SD1 = SD1Statistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus,
@@ -690,6 +696,9 @@ class SD2SD1Statistic(Statistic, Asymmetry):
 
 
 class SD2dSD1dStatistic(Statistic, Asymmetry):
+    """
+    calculate statistic sd2d/sd1d
+    """
     def __calculate__(self):
         SD1d = SD1dStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus,
@@ -701,6 +710,9 @@ class SD2dSD1dStatistic(Statistic, Asymmetry):
 
 
 class SD2aSD1aStatistic(Statistic, Asymmetry):
+    """
+    calculate statistic sd2a/sd1a
+    """
     def __calculate__(self):
         SD1a = SD1aStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus,
@@ -712,6 +724,9 @@ class SD2aSD1aStatistic(Statistic, Asymmetry):
 
 
 class C1d50C2d50Statistic(Statistic, Asymmetry):
+    """
+    calculate statistic C1d > 50 and C2d < 50
+    """
     def __calculate__(self):
         C1d = C1dStatistic(signal_plus=self.signal_plus,
                             signal_minus=self.signal_minus,
