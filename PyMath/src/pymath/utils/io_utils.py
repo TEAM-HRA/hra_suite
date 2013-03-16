@@ -51,13 +51,14 @@ class NumpyCSVFile(CSVFile):
                 _file.write(contents)
                 _file.close()
                 memory_file.close()
-                gc.collect()
+                memory_file = None
                 if self.__print_output_file__:
                     print('Data saved into the file: ' + self.output_file)
             else:
                 if self.__print_output_file__:
                     print('No data saved !!!')
         self.array_data = None
+        gc.collect()
 
     def write(self, _data, ordinal_value=None):
         values = self.get_values(_data, ordinal_value)

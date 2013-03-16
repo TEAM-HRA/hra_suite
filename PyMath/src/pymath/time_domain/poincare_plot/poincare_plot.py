@@ -508,7 +508,6 @@ class PoincarePlotManager(object):
             if progress:
                 progress.close
             interrupter.clean()
-            gc.collect()
 
     def addStatistic(self, _handler, _name):
         """
