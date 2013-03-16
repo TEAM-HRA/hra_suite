@@ -394,21 +394,8 @@ class PoincarePlotManager(object):
         plus '_out' suffix
         """
         if self.__check__():
-            print('Using statistics: ' + self.statistics)
-            if self.__statistics_handlers__:
-                print('Using statistics handlers/functions:')
-                for _handler in self.__statistics_handlers__:
-                    print('   name: ' + _handler.name)
-            print('Using output precision: ' + self.output_precision)
-            print('Using buffer: ' + str(self.use_buffer))
-            if not self.filters == None:
-                print('Using filters: ' + str(self.filters))
-            print('Window size: ' + str(self.window_size) +
-                  nvl(self.window_size_unit, ''))
-            print('Using buffer: ' + str(self.use_buffer))
+            self.__print_information__()
             self.__process__(self.__process_file__)
-            print('Skip for existing outcomes: '
-                  + str(self.skip_existing_outcomes))
 
     def __process__(self, _file_handler, disp=True, **params):
         """
@@ -693,6 +680,22 @@ class PoincarePlotManager(object):
     @skip_existing_outcomes.setter
     def skip_existing_outcomes(self, _skip_existing_outcomes):
         self.__skip_existing_outcomes__ = _skip_existing_outcomes
+
+    def __print_information__(self):
+        print('Using statistics: ' + self.statistics)
+        if self.__statistics_handlers__:
+            print('Using statistics handlers/functions:')
+            for _handler in self.__statistics_handlers__:
+                print('   name: ' + _handler.name)
+        print('Using output precision: ' + self.output_precision)
+        print('Using buffer: ' + str(self.use_buffer))
+        if not self.filters == None:
+            print('Using filters: ' + str(self.filters))
+        print('Window size: ' + str(self.window_size) +
+              nvl(self.window_size_unit, ''))
+        print('Using buffer: ' + str(self.use_buffer))
+        print('Skip for existing outcomes: '
+              + str(self.skip_existing_outcomes))
 
 
 class PoincarePlotSegmenter(object):

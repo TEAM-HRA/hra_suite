@@ -667,6 +667,61 @@ class SDRRStatistic(Statistic, Core):
         return pl.sqrt(pl.var(self.signal, ddof=0))
 
 
+class CSStatistic(Statistic, Asymmetry):
+    def __calculate__(self):
+        SD1 = SD1Statistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
+        SDNN = SDNNStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
+        return (SD1 ** 2) / (2 * (SDNN ** 2))
+
+
+class SD2SD1Statistic(Statistic, Asymmetry):
+    def __calculate__(self):
+        SD1 = SD1Statistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
+        SD2 = SD2Statistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
+        return SD2 / SD1
+
+
+class SD2dSD1dStatistic(Statistic, Asymmetry):
+    def __calculate__(self):
+        SD1d = SD1dStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
+        SD2d = SD2dStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
+        return SD2d / SD1d
+
+
+class SD2aSD1aStatistic(Statistic, Asymmetry):
+    def __calculate__(self):
+        SD1a = SD1aStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
+        SD2a = SD2aStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
+        return SD2a / SD1a
+
+
+class C1d50C2d50Statistic(Statistic, Asymmetry):
+    def __calculate__(self):
+        C1d = C1dStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
+        C2d = C2dStatistic(signal_plus=self.signal_plus,
+                            signal_minus=self.signal_minus,
+                            buffer=self.buffer).compute()
+        return C1d > 0.5 and C2d < 0.5
+
+
 class StatisticsFactory(object):
 
     def __init__(self, statistics_classes_or_names, statistics_handlers=None,
