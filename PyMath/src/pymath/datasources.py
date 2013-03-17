@@ -229,7 +229,11 @@ class FileDataSource(object):
             self.__headers__ = []
             with open(self.__file__, 'r') as _file:
                 for line in _file:
-                    headers = line.rstrip('\n').split(self.params.separator)
+                    if not self.params.separator == None and \
+                        len(self.params.separator.strip()) == 0:
+                        headers = line.rstrip('\n').split()
+                    else:
+                        headers = line.rstrip('\n').split(self.params.separator)  # @IgnorePep8
                     header_ok = False
                     for header in headers:
                         match = FileDataSource.HEADER_PATTERN.match(header)
@@ -262,7 +266,11 @@ class FileDataSource(object):
 
             for line in _file:
                 #contents = findall(r'\b[0-9\.]+', line)
-                contents = line.split(self.params.separator)
+                if not self.params.separator == None and \
+                    len(self.params.separator.strip()) == 0:
+                    contents = line.split()
+                else:
+                    contents = line.split(self.params.separator)
                 for index in self.__cols__:
                     _data[index].append(contents[self.__cols__[index]])
 
@@ -270,11 +278,19 @@ class FileDataSource(object):
 
     def __getNumPyData__(self):
         _data = [None] * len(self.__cols__)
-        _data = pl.loadtxt(self.__file__,
-                        skiprows=len(self.headers),
-                        usecols=self.__cols__,
-                        unpack=True,
-                        delimiter=self.params.separator)
+        # check a separator is a white space
+        if not self.params.separator == None and \
+            len(self.params.separator.strip()) == 0:
+            _data = pl.loadtxt(self.__file__,
+                               skiprows=len(self.headers),
+                               usecols=self.__cols__,
+                               unpack=True)
+        else:
+            _data = pl.loadtxt(self.__file__,
+                               skiprows=len(self.headers),
+                               usecols=self.__cols__,
+                               unpack=True,
+                               delimiter=self.params.separator)
         #if only one column is pick up then _data variable contains only
         #one numpy array so it have to be enclosed as list type
         return self.__createData__([_data] if len(self.__cols__) == 1 \
