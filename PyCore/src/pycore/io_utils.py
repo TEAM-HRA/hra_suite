@@ -124,7 +124,13 @@ class DataFileHeader(object):
     def getHeadersCount(self):
         if self.headers_count == None:
             separator = self.getSeparator()
-            if len(self.headers) > 0 and not separator == None:
+            if len(self.headers) > 0 and not separator == None \
+                and len(separator.strip()) == 0:  # separator is a white space
+                self.headers_count = len(self.headers[0].split())
+            elif len(self.data) > 0 and not separator == None \
+                and len(separator.strip()) == 0:  # separator is a white space
+                self.headers_count = len(self.data[0].split())
+            elif len(self.headers) > 0 and not separator == None:
                 self.headers_count = len(self.headers[0].split(separator))
             elif len(self.data) > 0 and not separator == None:
                 self.headers_count = len(self.data[0].split(separator))
@@ -148,8 +154,12 @@ class DataFileHeader(object):
 
     def __get_splited_lines__(self, lines):
         separator = self.getSeparator()
-        splited_lines = lines if separator == None else \
-                        [line.split(separator) for line in lines]
+        if separator == None:
+            splited_lines = lines
+        elif len(separator.strip()) == 0:  # separator is a white space
+            splited_lines = [line.split() for line in lines]
+        else:
+            splited_lines = [line.split(separator) for line in lines]
         if splited_lines == None:
             splited_lines = [str(num)
                              for num in range(1, self.getHeadersCount())]

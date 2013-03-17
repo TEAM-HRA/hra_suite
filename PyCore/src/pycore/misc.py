@@ -23,7 +23,7 @@ class Params(object):
         return None
 
 
-def get_separator_between_numbers(_string):
+def get_separator_between_numbers(_string, _default=' '):
     """
     function get a separator between numbers in a string;
     at first step the function fetches all non number elements from the string
@@ -36,7 +36,7 @@ def get_separator_between_numbers(_string):
     return not_numbers[0] \
         if len(not_numbers) > 0 and \
             not_numbers[0] * len(not_numbers) == "".join(not_numbers) \
-        else None
+        else _default
 
 
 def contains_letter(_string):
@@ -140,11 +140,19 @@ class __SeparatorSpec__(SeparatorItem):
         __SeparatorSpec__.COUNTER = __SeparatorSpec__.COUNTER + 1
         self.counter = __SeparatorSpec__.COUNTER
 
+    @property
+    def counter(self):
+        return self.__counter__
+
+    @counter.setter
+    def counter(self, _counter):
+        self.__counter__ = _counter
+
 
 class Separator(object):
     NONE = __SeparatorSpec__('', '', '')
-    SPACE = __SeparatorSpec__(' ', 'separator.space', 'Space')
-    TAB = __SeparatorSpec__('\t', 'separator.tab', 'Tab')
+    #actually this means any white space not only a usual space
+    WHITE_SPACE = __SeparatorSpec__(' ', 'separator.white.space', 'White space')  # @IgnorePep8
     SEMICOLON = __SeparatorSpec__(';', 'separator.semicolon', 'Semicolon')
     DASH = __SeparatorSpec__('-', 'separator.dash', 'Dash')
     COMMA = __SeparatorSpec__(',', 'separator.comma', 'Comma')
@@ -168,9 +176,10 @@ class Separator(object):
             if isinstance(separator, __SeparatorSpec__):
                 if not separator == Separator.NONE:
                     if label_handler:
-                        separators_specs.append(
-                            __SeparatorSpec__(separator.counter,
-                                separator.sign, label_handler(separator)))
+                        separator_spec = __SeparatorSpec__(separator.sign,
+                                    separator.id_, label_handler(separator))
+                        separator_spec.counter = separator.counter
+                        separators_specs.append(separator_spec)
                     else:
                         separators_specs.append(separator)
         return sorted(separators_specs, key=lambda separator: separator.sign)
@@ -183,6 +192,8 @@ class Separator(object):
 
     @staticmethod
     def getSeparatorSign(sign):
+        if not sign == None and len(sign.strip()) == 0:
+            return Separator.WHITE_SPACE
         for member in dir(Separator):
             separator = getattr(Separator, member)
             if isinstance(separator, __SeparatorSpec__) \

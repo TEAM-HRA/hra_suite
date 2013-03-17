@@ -48,10 +48,14 @@ class DataSeparatorWidget(object):
 
         self.predefinedSeparatorsSpecs = Separator.getSeparatorsSpec(
                                                     separator_label_handler)
-        for (_, _, label) in self.predefinedSeparatorsSpecs:
+        for separatorSpec in self.predefinedSeparatorsSpecs:
+            label = separatorSpec.label
             if not label == Separator.CUSTOM.label:  # @UndefinedVariable
                 predefinedSeparatorCheckBox = CheckBoxCommon(
                                             self.predefinedSeparatorsComposite)
+                #attach artificially a separatorSpec object used later in
+                #def setSeparator(self, _separator) method
+                predefinedSeparatorCheckBox.separator_spec = separatorSpec
                 predefinedSeparatorCheckBox.setText(label)
                 self.predefinedSeparatorsButtonsGroup.addButton(
                                                 predefinedSeparatorCheckBox)
@@ -132,7 +136,7 @@ class DataSeparatorWidget(object):
     def __getPredefinedSeparatorSign__(self):
         button = self.predefinedSeparatorsButtonsGroup.checkedButton()
         if not button == None:
-            for (_, sign, label) in self.predefinedSeparatorsSpecs:
+            for (sign, _, label) in self.predefinedSeparatorsSpecs:
                 if button.text() == label:
                     return sign
 
@@ -147,7 +151,12 @@ class DataSeparatorWidget(object):
     def setSeparator(self, _separator):
         if _separator:
             separatorSign = Separator.getSeparatorSign(_separator)
-            if separatorSign == Separator.CUSTOM:
+            if separatorSign == Separator.WHITE_SPACE:
+                for button in self.predefinedSeparatorsButtonsGroup.buttons():
+                    if button.separator_spec.id_ == Separator.WHITE_SPACE.id_:  # @UndefinedVariable @IgnorePep8
+                        button.setChecked(True)
+                        return
+            elif separatorSign == Separator.CUSTOM:
                 self.customSeparatorEdit.setText(_separator)
                 self.__uncheckPredefinedButtons__()
             elif not separatorSign == Separator.NONE:
