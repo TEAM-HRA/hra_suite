@@ -3,47 +3,30 @@ Created on 04-02-2013
 
 @author: jurek
 '''
-from pycore.collections_utils import nvl
 
 __UNITS_TYPE_MAP__ = {}
 
 
-TIME_UNIT_TYPE = 'time'
-
-
 class __Unit__(object):
-    def __init__(self, name, ordinal, unit, unit_type, _id=None,
-                 lower_multiplier=1, upper_multiplier=1):
-        self.__name__ = name
+    def __init__(self, ordinal, name, label, lower_multiplier=1,
+                 upper_multiplier=1):
         self.__ordinal__ = ordinal
-        self.__unit__ = unit
-        self.__unit_type__ = unit_type
-        self.__id__ = nvl(_id, unit)
+        self.__name__ = name
+        self.__label__ = label
         self.__lower_multiplier__ = lower_multiplier
         self.__upper_multiplier__ = upper_multiplier
-        units = __UNITS_TYPE_MAP__.get(unit_type, [])
-        units.append(self)
-        __UNITS_TYPE_MAP__[unit_type] = units
-
-    @property
-    def _id(self):
-        return self.__id__
-
-    @property
-    def name(self):
-        return self.__name__
 
     @property
     def ordinal(self):
         return self.__ordinal__
 
     @property
-    def unit(self):
-        return self.__unit__
+    def name(self):
+        return self.__name__
 
     @property
-    def unit_type(self):
-        return self.__unit_type__
+    def label(self):
+        return self.__label__
 
     @property
     def upper_multiplier(self):
@@ -62,14 +45,14 @@ class __Unit__(object):
         if self.ordinal == unit.ordinal:
             pass
         elif self.ordinal < unit.ordinal:
-            for _unit in get_units_for_type(self.unit_type):
+            for _unit in get_units_for_type(self.get_unit_type()):
                 if _unit.ordinal < self.ordinal:
                     continue
                 elif _unit.ordinal >= unit.ordinal:
                     break
                 value *= _unit.upper_multiplier
         elif self.ordinal > unit.ordinal:
-            for _unit in get_units_for_type(self.unit_type):
+            for _unit in get_units_for_type(self.get_unit_type()):
                 if _unit.ordinal <= unit.ordinal:
                     continue
                 elif _unit.ordinal > self.ordinal:
@@ -77,37 +60,54 @@ class __Unit__(object):
                 value *= _unit.lower_multiplier
         return value
 
+    def get_unit_type(self):
+        pass
 
-class __Millisecond__(__Unit__):
+
+def __create_unit__(unit_type, unit_object):
+    units = __UNITS_TYPE_MAP__.get(unit_type, [])
+    units.append(unit_object)
+    __UNITS_TYPE_MAP__[unit_type] = units
+    return unit_object
+
+
+class TimeUnit(__Unit__):
+    """
+    class which represents time unit
+    """
+    def get_unit_type(self):
+        return TimeUnit
+
+
+class __Millisecond__(TimeUnit):
     def __init__(self):
-        super(__Millisecond__, self).__init__('Millisecond', -1, 'ms',
-            TIME_UNIT_TYPE, _id='i', upper_multiplier=1.0 / 1000)
+        super(__Millisecond__, self).__init__(-1, 'Millisecond', 'ms',
+                                              upper_multiplier=1.0 / 1000)
 
-Millisecond = __Millisecond__()
+Millisecond = __create_unit__(TimeUnit, __Millisecond__())
 
 
-class __Second__(__Unit__):
+class __Second__(TimeUnit):
     def __init__(self):
-        super(__Second__, self).__init__('Second', 0, 's',
-             TIME_UNIT_TYPE, lower_multiplier=1000, upper_multiplier=1.0 / 60)
+        super(__Second__, self).__init__(0, 'Second', 's',
+                            lower_multiplier=1000, upper_multiplier=1.0 / 60)
 
-Second = __Second__()
+Second = __create_unit__(TimeUnit, __Second__())
 
 
-class __Minute__(__Unit__):
+class __Minute__(TimeUnit):
     def __init__(self):
-        super(__Minute__, self).__init__('Minute', 1, 'm',
-            TIME_UNIT_TYPE, lower_multiplier=60, upper_multiplier=1.0 / 60)
+        super(__Minute__, self).__init__(1, 'Minute', 'm',
+                                lower_multiplier=60, upper_multiplier=1.0 / 60)
 
-Minute = __Minute__()
+Minute = __create_unit__(TimeUnit, __Minute__())
 
 
-class __Hour__(__Unit__):
+class __Hour__(TimeUnit):
     def __init__(self):
-        super(__Hour__, self).__init__('Hour', 2, 'h',
-            TIME_UNIT_TYPE, lower_multiplier=60)
+        super(__Hour__, self).__init__(2, 'Hour', 'h', lower_multiplier=60)
 
-Hour = __Hour__()
+Hour = __create_unit__(TimeUnit, __Hour__())
 
 
 #sorting units according to ordinal numbers
@@ -121,17 +121,18 @@ def get_units_for_type(_unit_type):
     return __UNITS_TYPE_MAP__.get(_unit_type)
 
 
-def get_time_unit(unit_name):
-    for unit in __UNITS_TYPE_MAP__.get(TIME_UNIT_TYPE):
-        if unit.unit == unit_name:
+def get_time_unit(label):
+    for unit in __UNITS_TYPE_MAP__.get(TimeUnit):
+        if unit.label == label:
             return unit
 
 
 if __name__ == '__main__':
-    print(Hour.expressInUnit(Second))
-    print(Second.expressInUnit(Hour))
-    print(Hour.expressInUnit(Hour))
-    print(Hour.expressInUnit(Minute))
-    print(Minute.expressInUnit(Hour))
-    print(Millisecond.expressInUnit(Minute))
-    print(Minute.expressInUnit(Millisecond))
+    print('Hour.expressInUnit(Second): ' + str(Hour.expressInUnit(Second)))
+    print('Second.expressInUnit(Hour): ' + str(Second.expressInUnit(Hour)))
+    print('Hour.expressInUnit(Hour): ' + str(Hour.expressInUnit(Hour)))
+    print('Hour.expressInUnit(Minute): ' + str(Hour.expressInUnit(Minute)))
+    print('Minute.expressInUnit(Hour): ' + str(Minute.expressInUnit(Hour)))
+    print('Millisecond.expressInUnit(Minute): ' + str(Millisecond.expressInUnit(Minute))) # @IgnorePep8
+    print('Minute.expressInUnit(Millisecond): ' + str(Minute.expressInUnit(Millisecond))) # @IgnorePep8
+    print("get_time_unit('m'): " + str(get_time_unit('m')))
