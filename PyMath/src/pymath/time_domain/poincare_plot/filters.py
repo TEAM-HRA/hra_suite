@@ -135,7 +135,7 @@ class DataVectorFilter(object):
     def __getattr__(self, name):
         return None
 
-    def filter(self, _data_vector, _excluded_annotations):
+    def filter(self, _data_vector, _excluded_annotations=ALL_ANNOTATIONS):
         return self.__filter__(_data_vector, _excluded_annotations)
 
     def __filter__(self, _data_vector, _excluded_annotations):
