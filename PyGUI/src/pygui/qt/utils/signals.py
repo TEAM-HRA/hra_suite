@@ -40,6 +40,9 @@ ADD_ACTIVITY_SIGNAL = SIGNAL('add_activity(PyQt_PyObject)')
 #signal emitted when clear of all activities is required
 CLEAR_ACTIVITIES_SIGNAL = SIGNAL('clear_activities()')
 
+#signal emitted for example when a position changed in QComboBox widget
+CURRENT_INDEX_CHANGED_SIGNAL = SIGNAL('currentIndexChanged(int)')
+
 
 class SignalDispatcher(QObject):
     """

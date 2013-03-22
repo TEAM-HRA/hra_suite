@@ -18,6 +18,7 @@ try:
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import LIST_ITEM_CLICKED_SIGNAL
     from pygui.qt.utils.signals import LIST_ITEM_DOUBLE_CLICKED_SIGNAL
+    from pygui.qt.utils.signals import CURRENT_INDEX_CHANGED_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -310,6 +311,15 @@ class ListWidgetItemCommon(QListWidgetItem):
         item = self.data(Qt.UserRole)
         if item:
             return item.toPyObject()
+
+
+class ComboBoxCommon(QComboBox, Common):
+    def __init__(self, parent, **params):
+        super(ComboBoxCommon, self).__init__(parent)
+        prepareWidget(parent=parent, widget=self, **params)
+        click_handler = params.get('clicked_handler', None)
+        if click_handler:
+            self.connect(self, CURRENT_INDEX_CHANGED_SIGNAL, click_handler)
 
 
 class ApplicationCommon(QApplication):
