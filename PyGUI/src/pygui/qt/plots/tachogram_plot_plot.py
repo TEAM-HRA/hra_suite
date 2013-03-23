@@ -16,6 +16,7 @@ try:
     from pymath.datasources import FileDataSource
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.actions.actions_utils import create_action
+    from pygui.qt.custom_widgets.filters import FiltersWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -52,18 +53,20 @@ class TachogramPlotCanvas(FigureCanvas):
         self.axes = self.fig.add_subplot(111)
         #self.x = np.arange(0.0, 3.0, 0.01)
         #self.y = np.cos(2 * np.pi * self.x)
-        self.x = np.arange(0.0, len(self.params.signal), 1)
-        self.y = self.params.signal
-        #print('SUM: ' + str(np.sum(self.y)))
-        self.axes.scatter(self.x, self.y)
-        #self.axes.plot(self.x, self.y)
-        #self.axes.plot(self.y)
+        #self.x = np.arange(0.0, len(self.params.signal), 1)
+        self.calculate(self.params.signal)
+        #self.x = np.arange(0, len(self.params.signal), 1)
+        #self.y = self.params.signal
         FigureCanvas.__init__(self, self.fig)
         self.setParent(parent)
 
         FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding,
                                     QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+
+    def calculate(self, _signal):
+        self.x = np.arange(0, len(_signal), 1)
+        self.y = _signal
 
 
 class TachogramNavigationToolbar(NavigationToolbar):
@@ -72,6 +75,7 @@ class TachogramNavigationToolbar(NavigationToolbar):
         # create the default toolbar
         NavigationToolbar.__init__(self, canvas, parent)
         self.canvas = canvas
+        self.__current_plot__ = None
         # add new toolbar buttons
 
         normal_plot_action = self.__createAction__(title="Normal plot",
@@ -80,28 +84,47 @@ class TachogramNavigationToolbar(NavigationToolbar):
         self.addAction(normal_plot_action)
 
         scatter_plot_action = self.__createAction__(title="Scatter plot",
-                                            handler=self.__scatterlPlot__,
+                                            handler=self.__scatterPlot__,
                                             iconId='scatter_plot_button')
         self.addAction(scatter_plot_action)
+        self.__normalPlot__()
 
-    def __normalPlot__(self):
-        self.canvas.axes.cla()
-        self.canvas.axes.plot(self.canvas.x, self.canvas.y)
-        self.canvas.draw()
+        #add a filters combo box widget
+        self.addWidget(FiltersWidget(parent,
+                                     self.canvas.params.signal,
+                                     self.canvas.params.annotation,
+                                     clicked_handler=self.__filter_handler__))
 
-    def __scatterlPlot__(self):
-        self.canvas.axes.cla()
-        self.canvas.axes.scatter(self.canvas.x, self.canvas.y)
-        self.canvas.draw()
+    def __normalPlot__(self, force_plot=False):
+        if self.__check_plot__(self.__normalPlot__, force_plot) == True:
+            self.canvas.axes.cla()
+            self.canvas.axes.plot(self.canvas.x, self.canvas.y)
+#        print('self.canvas.axes.get_xlim(): ' + str(self.canvas.axes.get_xlim())) # @IgnorePep8
+#        print('self.canvas.x.min(): ' + str(self.canvas.x.min())
+#               + ' self.canvas.x.max(): ' + str(self.canvas.x.max())) # @IgnorePep8
+            self.canvas.draw()
+
+    def __scatterPlot__(self, force_plot=False):
+        if self.__check_plot__(self.__scatterPlot__, force_plot) == True:
+            self.canvas.axes.cla()
+            #self.canvas.axes.xrange(0, self.canvas.x.max())
+            #self.canvas.axes.set_xlim((self.canvas.x.min(), self.canvas.x.max() + 10000)) # @IgnorePep8
+            #self.canvas.axes.set_ylim((self.canvas.y.min(), self.canvas.y.max() + 1000)) # @IgnorePep8
+            #ax.set_ylim((-2,2))
+            self.canvas.axes.plot(self.canvas.x, self.canvas.y, 'bo')
+            #self.canvas.axes.scatter(self.canvas.x, self.canvas.y)
+            self.canvas.draw()
 
     def __createAction__(self, **params):
         return create_action(self.parent(), ActionSpec(**params))
 
-#    def __init2__(self, **params):
-#        self.params = Params(**params)
-#        self.__iconId = self.params.iconId
-#        self.__tipId = self.params.tipId
-#        self.__signal = self.params.signal
-#        self.__slot = self.params.handler
-#        self.__title = self.params.title
-#        self.__checkable = ("True" == str(self.params.checkable))
+    def __filter_handler__(self, _signal, _annotation):
+        self._views.clear()  # clear all remembered view history
+        self.canvas.calculate(_signal)
+        self.__current_plot__(force_plot=True)
+
+    def __check_plot__(self, _plot, force_plot=False):
+        if force_plot == False and self.__current_plot__ == _plot:
+            return False
+        self.__current_plot__ = _plot
+        return True

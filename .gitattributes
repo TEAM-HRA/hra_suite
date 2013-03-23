@@ -58,6 +58,7 @@ PyGUI/src/pygui/qt/actions/actions_utils.py -text
 PyGUI/src/pygui/qt/activities/__init__.py -text
 PyGUI/src/pygui/qt/activities/activities.py -text
 PyGUI/src/pygui/qt/custom_widgets/__init__.py -text
+PyGUI/src/pygui/qt/custom_widgets/filters.py -text
 PyGUI/src/pygui/qt/custom_widgets/modelviews.py -text
 PyGUI/src/pygui/qt/custom_widgets/progress_bar.py -text
 PyGUI/src/pygui/qt/custom_widgets/separator.py -text
