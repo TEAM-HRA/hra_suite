@@ -58,6 +58,9 @@ class TachogramPlotCanvas(FigureCanvas):
         #self.x = np.arange(0, len(self.params.signal), 1)
         #self.y = self.params.signal
         FigureCanvas.__init__(self, self.fig)
+
+        # automatic layout adjustment to use available space more efficiently
+        self.fig.tight_layout()
         self.setParent(parent)
 
         FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding,
