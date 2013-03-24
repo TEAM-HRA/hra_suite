@@ -360,3 +360,30 @@ class ProgressDialogCommon(QProgressDialog, Common):
         self.counter = self.counter + step
         if self.counter > self.max_value:
             self.counter = 0
+
+
+def maximize_widget(widget):
+    """
+    function to maximize a widget
+    """
+    if hasattr(widget, 'parent'):
+        parent = widget.parent()
+        if hasattr(parent, 'children'):
+            for childWidget in parent.children():
+                if widget == childWidget:
+                    continue
+                if hasattr(childWidget, 'hide'):
+                    childWidget.hide()
+
+
+def restore_widget(widget):
+    """
+    function to restore a widget
+    """
+    if hasattr(widget, 'parent'):
+        parent = widget.parent()
+        if hasattr(parent, 'children'):
+            for childWidget in parent.children():
+                if not widget == childWidget:
+                    if hasattr(childWidget, 'show'):
+                        childWidget.show()

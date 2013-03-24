@@ -24,8 +24,12 @@ try:
     from pygui.qt.custom_widgets.toolbars import CheckUncheckToolBarWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetItemCommon
     from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
+    from pygui.qt.utils.widgets import maximize_widget
+    from pygui.qt.utils.widgets import restore_widget
     from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
     from pygui.qt.plots.tachogram_plot import TachogramPlotManager
+    from pygui.qt.plots.tachogram_plot import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
+    from pygui.qt.plots.tachogram_plot import RESTORE_TACHOGRAM_PLOT_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -74,6 +78,12 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
                                             self.__closeTachogramPlot__)
         SignalDispatcher.addSignalSubscriber(self, TAB_WIDGET_ADDED_SIGNAL,
                                             self.__tachogramPlotAdded__)
+        SignalDispatcher.addSignalSubscriber(self,
+                                             MAXIMIZE_TACHOGRAM_PLOT_SIGNAL,
+                                             self.__maximizeTachogramPlot__)
+        SignalDispatcher.addSignalSubscriber(self,
+                                             RESTORE_TACHOGRAM_PLOT_SIGNAL,
+                                             self.__restoreTachogramPlot__)
 
     def __addTachogramPlot__(self, files_specifications, allow_duplication,
                              first_focus):
@@ -100,6 +110,12 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
         if self.__tachogramsManager__.countNotCloseTabs() == 0:
             self.__datasourceListWidget__.enabledCloseAllTachogramsButton(False) #  @IgnorePep8
             self.__datasourceListWidget__.emit(ENABLEMEND_SIGNAL, False)
+
+    def __maximizeTachogramPlot__(self):
+        maximize_widget(self.__tachogramsManager__)
+
+    def __restoreTachogramPlot__(self):
+        restore_widget(self.__tachogramsManager__)
 
 
 class DatasourceListWidget(WidgetCommon):
@@ -208,6 +224,12 @@ class DatasourceListWidget(WidgetCommon):
     def toolbar_check_handler(self):
         self.__datasourceList__.selectAll()
         self.emit(ENABLEMEND_SIGNAL, True)
+
+    def toolbar_maximum_handler(self):
+        maximize_widget(self)
+
+    def toolbar_minimum_handler(self):
+        restore_widget(self)
 
     def enabledCloseAllTachogramsButton(self, enabled):
         self.__closeAllTachogramsButton__.setEnabled(enabled)

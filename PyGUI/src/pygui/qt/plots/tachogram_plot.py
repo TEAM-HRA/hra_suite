@@ -19,6 +19,11 @@ try:
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
+#signal emitted to maximize tachogram plot
+MAXIMIZE_TACHOGRAM_PLOT_SIGNAL = SIGNAL('maximize_tachogram_plot()')
+#signal emitted to restore tachogram plot
+RESTORE_TACHOGRAM_PLOT_SIGNAL = SIGNAL('restore_tachogram_plot()')
+
 
 class TachogramPlotManager(TabWidgetCommon):
     def __init__(self, parent, **params):
@@ -72,6 +77,12 @@ class TachogramPlotWindow(MainWindowCommon):
         self.tachogramPlot = TachogramPlotPlot(self,
                         file_specification=self.params.file_specification)
         self.setCentralWidget(self.tachogramPlot)
+
+    def toolbar_maximum_handler(self):
+        SignalDispatcher.broadcastSignal(MAXIMIZE_TACHOGRAM_PLOT_SIGNAL)
+
+    def toolbar_minimum_handler(self):
+        SignalDispatcher.broadcastSignal(RESTORE_TACHOGRAM_PLOT_SIGNAL)
 #        statusbar = StatusBarCommon(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)
 #        statusLabel = LabelCommon(statusbar,
