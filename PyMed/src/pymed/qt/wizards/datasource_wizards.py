@@ -28,6 +28,7 @@ try:
     from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
     from pygui.qt.custom_widgets.modelviews \
         import CheckStateProxySortFilterModel
+    from pygui.qt.custom_widgets.units import TimeUnitsWidget
     from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
     from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
     from pygui.qt.utils.plugins import PluginsManager
@@ -361,6 +362,12 @@ class ChooseColumnsDataPage(QWizardPage):
 
         self.__activity__ = ActivityWidget(self)
 
+        self.__timeUnitsGroup__ = self.__createTimeUnitsGroup__()
+
+    def __createTimeUnitsGroup__(self):
+        return TimeUnitsWidget(self.tableViewComposite,
+                               i18n_def='Signal time unit')
+
     def onClickedAction(self, idx):
         self.filePreviewButton.setEnabled(True)
         self.filesTableView.onClickedAction(
@@ -612,7 +619,8 @@ class ChooseColumnsDataPage(QWizardPage):
                                          % (_filename)))
                     return False
                 filesSpecificationModel.appendRow(_path, _filename,
-                    _signalIndex, _annotationIndex, _timeIndex, _separator)
+                    _signalIndex, _annotationIndex, _timeIndex, _separator,
+                    self.__timeUnitsGroup__.getUnit())
 
         PluginsManager.invokePlugin(PluginsNames.POINCARE_PLOT_PLUGIN_NAME,
                     inspect.stack(),

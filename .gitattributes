@@ -65,6 +65,7 @@ PyGUI/src/pygui/qt/custom_widgets/separator.py -text
 PyGUI/src/pygui/qt/custom_widgets/splitter.py -text
 PyGUI/src/pygui/qt/custom_widgets/tabwidget.py -text
 PyGUI/src/pygui/qt/custom_widgets/toolbars.py -text
+PyGUI/src/pygui/qt/custom_widgets/units.py -text
 PyGUI/src/pygui/qt/menu/__init__.py -text
 PyGUI/src/pygui/qt/menu/menus.py -text
 PyGUI/src/pygui/qt/models/__init__.py -text

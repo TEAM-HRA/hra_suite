@@ -12,7 +12,8 @@ except ImportError as error:
 
 FileSpecification = collections.namedtuple('FileSpecification',
     ["pathname", "filename",
-     "signal_index", "annotation_index", "time_index", "separator"])
+     "signal_index", "annotation_index", "time_index", "separator",
+     "signal_unit_class_name"])
 
 FilePath = collections.namedtuple('FilePath', ["pathname", "filename"])
 

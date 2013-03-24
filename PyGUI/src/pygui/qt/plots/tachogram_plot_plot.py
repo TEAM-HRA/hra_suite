@@ -12,6 +12,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
+    from pycore.units import get_unit_by_class_name
     from pycommon.actions import ActionSpec
     from pymath.datasources import FileDataSource
     from pygui.qt.utils.widgets import CompositeCommon
@@ -30,6 +31,8 @@ class TachogramPlotPlot(CompositeCommon):
                                         not_add_widget_to_parent_layout=True)
         self.params = Params(**params)
         file_data_source_params = self.params.file_specification._asdict()
+        self.signal_unit = get_unit_by_class_name(
+                        file_data_source_params.get('signal_unit_class_name'))
         file_data_source = FileDataSource(**file_data_source_params)
         data = file_data_source.getData()
         layout = QVBoxLayout()
@@ -79,6 +82,7 @@ class TachogramNavigationToolbar(NavigationToolbar):
         NavigationToolbar.__init__(self, canvas, parent)
         self.canvas = canvas
         self.__current_plot__ = None
+        self.__signal_unit__ = parent.signal_unit
         # add new toolbar buttons
 
         normal_plot_action = self.__createAction__(title="Normal plot",
@@ -105,6 +109,7 @@ class TachogramNavigationToolbar(NavigationToolbar):
 #        print('self.canvas.axes.get_xlim(): ' + str(self.canvas.axes.get_xlim())) # @IgnorePep8
 #        print('self.canvas.x.min(): ' + str(self.canvas.x.min())
 #               + ' self.canvas.x.max(): ' + str(self.canvas.x.max())) # @IgnorePep8
+            self.canvas.axes.set_ylabel(self.__signal_unit__.display_label)
             self.canvas.draw()
 
     def __scatterPlot__(self, force_plot=False):
@@ -116,6 +121,7 @@ class TachogramNavigationToolbar(NavigationToolbar):
             #ax.set_ylim((-2,2))
             self.canvas.axes.plot(self.canvas.x, self.canvas.y, 'bo')
             #self.canvas.axes.scatter(self.canvas.x, self.canvas.y)
+            self.canvas.axes.set_ylabel(self.__signal_unit__.display_label)
             self.canvas.draw()
 
     def __createAction__(self, **params):

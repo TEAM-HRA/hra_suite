@@ -3,6 +3,7 @@ Created on 04-02-2013
 
 @author: jurek
 '''
+from pycore.introspection import get_subclasses
 
 __UNITS_TYPE_MAP__ = {}
 
@@ -27,6 +28,10 @@ class __Unit__(object):
     @property
     def label(self):
         return self.__label__
+
+    @property
+    def display_label(self):
+        return '[%s]' % (self.name) if len(self.name) > 0  else ''
 
     @property
     def upper_multiplier(self):
@@ -62,6 +67,13 @@ class __Unit__(object):
 
     def get_unit_type(self):
         pass
+
+
+class __NoneUnit__(__Unit__):
+    def __init__(self):
+        super(__NoneUnit__, self).__init__(0, '', '')
+
+NoneUnit = __NoneUnit__()
 
 
 def __create_unit__(unit_type, unit_object):
@@ -126,6 +138,19 @@ def get_time_unit(label):
         if unit.label == label:
             return unit
 
+
+def get_unit_by_class_name(_class_name):
+    """
+    returns unit object based on unit class name
+    """
+    if _class_name:
+        for subclass_unit in get_subclasses(__Unit__):
+            if subclass_unit.__name__.endswith(_class_name):
+                for unit_type in __UNITS_TYPE_MAP__:
+                    for unit in __UNITS_TYPE_MAP__.get(unit_type):
+                        if isinstance(unit, subclass_unit):
+                            return unit
+    return NoneUnit
 
 if __name__ == '__main__':
     print('Hour.expressInUnit(Second): ' + str(Hour.expressInUnit(Second)))

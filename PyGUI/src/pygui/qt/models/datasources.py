@@ -23,10 +23,11 @@ class DatasourceFilesSpecificationModel(QStandardItemModel):
                             get_namedtuple_fields_as_list(FileSpecification))
 
     def appendRow(self, _path, _filename, _signal_index, _annotation_index,
-                  _time_index, _separator):
+                  _time_index, _separator, _signal_unit):
         row = [QStandardItem(QString(empty_string(item)))
                 for item in [_path, _filename, _signal_index,
                              _annotation_index, _time_index, _separator]]
+        row.append(QStandardItem(_signal_unit.__class__.__name__))
         super(DatasourceFilesSpecificationModel, self).appendRow(row)
 
     def fileSpecification(self, row):
