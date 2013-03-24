@@ -228,7 +228,7 @@ class DatasourceListWidget(WidgetCommon):
     def toolbar_maximum_handler(self):
         maximize_widget(self)
 
-    def toolbar_minimum_handler(self):
+    def toolbar_restore_handler(self):
         restore_widget(self)
 
     def enabledCloseAllTachogramsButton(self, enabled):

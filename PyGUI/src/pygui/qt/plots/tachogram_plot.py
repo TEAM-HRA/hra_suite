@@ -81,7 +81,7 @@ class TachogramPlotWindow(MainWindowCommon):
     def toolbar_maximum_handler(self):
         SignalDispatcher.broadcastSignal(MAXIMIZE_TACHOGRAM_PLOT_SIGNAL)
 
-    def toolbar_minimum_handler(self):
+    def toolbar_restore_handler(self):
         SignalDispatcher.broadcastSignal(RESTORE_TACHOGRAM_PLOT_SIGNAL)
 #        statusbar = StatusBarCommon(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)

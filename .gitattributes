@@ -144,7 +144,7 @@ PySettings/src/settings/icons/scatter_plot_button.ico -text
 PySettings/src/settings/icons/toolbar_check_button.ico -text
 PySettings/src/settings/icons/toolbar_close_button.ico -text
 PySettings/src/settings/icons/toolbar_maximum_button.ico -text
-PySettings/src/settings/icons/toolbar_minimum_button.ico -text
+PySettings/src/settings/icons/toolbar_restore_button.ico -text
 PySettings/src/settings/icons/toolbar_uncheck_button.ico -text
 PyUtils/.project -text
 PyUtils/.pydevproject -text

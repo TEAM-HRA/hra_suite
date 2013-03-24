@@ -150,12 +150,12 @@ class MaximumToolButton(ToolButtonType):
         super(MaximumToolButton, self).__init__(default, **params)
 
 
-class MinimumToolButton(ToolButtonType):
+class RestoreToolButton(ToolButtonType):
     def __init__(self, **params):
         default = DefaultToolButtonType(True, True, False,
-            'toolbar_minimum_handler', 'toolbar_minimum_button',
-            'Minimize', 'toolbar_minimum_handler_callable')
-        super(MinimumToolButton, self).__init__(default, **params)
+            'toolbar_restore_handler', 'toolbar_restore_button',
+            'Restore', 'toolbar_restore_handler_callable')
+        super(RestoreToolButton, self).__init__(default, **params)
 
 
 class CloseToolButton(ToolButtonType):
