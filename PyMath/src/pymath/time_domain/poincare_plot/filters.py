@@ -135,6 +135,13 @@ class DataVectorFilter(object):
     def __getattr__(self, name):
         return None
 
+    def check(self, _data_vector, _excluded_annotations=ALL_ANNOTATIONS):
+        """
+        method returns None if a filter will be used or a text message
+        if not be used due to specific data conditions
+        """
+        pass
+
     def filter(self, _data_vector, _excluded_annotations=ALL_ANNOTATIONS):
         return self.__filter__(_data_vector, _excluded_annotations)
 
@@ -152,6 +159,15 @@ class DataVectorFilter(object):
 
 
 class AnnotationFilter(DataVectorFilter):
+
+    def check(self, _data_vector, _excluded_annotations=ALL_ANNOTATIONS):
+        """
+        if there are no annotations, a message is returned
+        """
+        if _data_vector.annotation == None or \
+            pl.sum(_data_vector.annotation, dtype=int) == 0:
+            return "No annotations found in signal data !"
+
     def __filter__(self, _data_vector, _excluded_annotations):
 
         signal_no_boundary_annotations = \

@@ -4,6 +4,7 @@ Created on 23-03-2013
 @author: jurek
 '''
 from pycore.special import ImportErrorMessage
+from pygui.qt.utils.windows import InformationWindow
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
@@ -46,16 +47,21 @@ class FiltersWidget(ComboBoxCommon):
             self.__last_position__ = position
         if position == self.__last_position__:
             return
-        self.__last_position__ = position
         itemData = self.itemData(position, Qt.UserRole)
         if not itemData == None:
             filter_class = itemData.toPyObject()
             filter_object = filter_class()
 
+            filter_data = DataVector(signal=self.__signal__,
+                                     annotation=self.__annotation__)
+            #check if filtering has any sense
+            message = filter_object.check(filter_data)
+            if not message == None:
+                InformationWindow(self.parent(), message=message)
+                self.setCurrentIndex(self.__last_position__)
+                return
             #filtering data
-            filtered_data_vector = filter_object.filter(
-                            DataVector(signal=self.__signal__,
-                                       annotation=self.__annotation__))
+            filtered_data_vector = filter_object.filter(filter_data)
 
             self.__signal__ = filtered_data_vector.signal
             self.__annotation__ = filtered_data_vector.annotation
@@ -65,3 +71,4 @@ class FiltersWidget(ComboBoxCommon):
             self.__annotation__ = self.__annotation0__
         if self.__clicked_handler__:
             self.__clicked_handler__(self.__signal__, self.__annotation__)
+        self.__last_position__ = position
