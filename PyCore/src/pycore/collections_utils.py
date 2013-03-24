@@ -190,3 +190,16 @@ def get_ordered_list_of_strings(order_identifiers, list_to_order,
     if not len(list_ordered) == len(list_to_order):
         raise RuntimeError("size if ordered list doesn't equal source list")
     return list_ordered
+
+
+def get_or_put(_dict, _key, _default):
+    """
+    function which puts a default value for a key if value is not occurs
+    in dictionary
+    """
+    if not _dict == None:
+        value = _dict.get(_key, None)
+        if value == None:
+            value = _default
+            _dict[_key] = value
+        return value
