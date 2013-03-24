@@ -11,7 +11,6 @@ try:
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import LabelCommon
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
-    from pygui.qt.custom_widgets.tabwidget import TabWidgetCallableCloseHandler
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.plots.tachogram_plot_plot import TachogramPlotPlot
     from pygui.qt.utils.signals import SignalDispatcher
@@ -23,11 +22,16 @@ except ImportError as error:
 MAXIMIZE_TACHOGRAM_PLOT_SIGNAL = SIGNAL('maximize_tachogram_plot()')
 #signal emitted to restore tachogram plot
 RESTORE_TACHOGRAM_PLOT_SIGNAL = SIGNAL('restore_tachogram_plot()')
+#signal emitted to close tachogram plot
+CLOSE_TACHOGRAM_PLOT_SIGNAL = SIGNAL('close_tachogram_plot(PyQt_PyObject)')
 
 
 class TachogramPlotManager(TabWidgetCommon):
     def __init__(self, parent, **params):
         super(TachogramPlotManager, self).__init__(parent, **params)
+        SignalDispatcher.addSignalSubscriber(self,
+                                             CLOSE_TACHOGRAM_PLOT_SIGNAL,
+                                             self.__closeTachogramPlotTab__)
 
     def addTachogramPlot(self, file_specification, allow_duplication=False,
                          first_focus=False):
@@ -65,14 +69,17 @@ class TachogramPlotManager(TabWidgetCommon):
         return ".".join([file_specification.pathname,
                          file_specification.filename])
 
+    def __closeTachogramPlotTab__(self, _tachogram_plot_tab):
+        idx = self.indexOf(_tachogram_plot_tab)
+        self.removeTab(idx)
+
 
 class TachogramPlotWindow(MainWindowCommon):
     def __init__(self, parent, **params):
         super(TachogramPlotWindow, self).__init__(parent, **params)
         self.params = Params(**params)
-        close_handler = TabWidgetCallableCloseHandler(parent, self)
-        self.addToolBar(OperationalToolBarWidget(self,
-                             toolbar_close_handler_callable=close_handler))
+
+        self.addToolBar(OperationalToolBarWidget(self))
 
         self.tachogramPlot = TachogramPlotPlot(self,
                         file_specification=self.params.file_specification)
@@ -83,6 +90,9 @@ class TachogramPlotWindow(MainWindowCommon):
 
     def toolbar_restore_handler(self):
         SignalDispatcher.broadcastSignal(RESTORE_TACHOGRAM_PLOT_SIGNAL)
+
+    def toolbar_close_handler(self):
+        SignalDispatcher.broadcastSignal(CLOSE_TACHOGRAM_PLOT_SIGNAL, self)
 #        statusbar = StatusBarCommon(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)
 #        statusLabel = LabelCommon(statusbar,

@@ -9,10 +9,8 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pycore.misc import get_max_number_between_signs
-    from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.widgets import Common
     from pygui.qt.utils.widgets import prepareWidget
-    from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -25,20 +23,6 @@ def close_tab_widget(tab_widget_parent, tab_widget):
         tab_widget.beforeCloseTab()
     idx = tab_widget_parent.indexOf(tab_widget)
     tab_widget_parent.removeTab(idx)
-
-
-class TabWidgetCallableCloseHandler(QObject):
-    """
-    class used as a callable object to close tab widget item
-    """
-    def __init__(self, tab_widget_parent, tab_widget):
-        super(TabWidgetCallableCloseHandler, self).__init__()
-        self.tab_widget_parent = tab_widget_parent
-        self.tab_widget = tab_widget
-
-    def __call__(self):
-        close_tab_widget(self.tab_widget_parent, self.tab_widget)
-        SignalDispatcher.broadcastSignal(TAB_WIDGET_CLOSE_SIGNAL)
 
 
 class TabWidgetCommon(QTabWidget, Common):

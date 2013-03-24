@@ -14,7 +14,6 @@ try:
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
-    from pygui.qt.utils.signals import TAB_WIDGET_CLOSE_SIGNAL
     from pygui.qt.utils.signals import TAB_WIDGET_ADDED_SIGNAL
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.widgets import ListWidgetItemCommon
@@ -30,6 +29,7 @@ try:
     from pygui.qt.plots.tachogram_plot import TachogramPlotManager
     from pygui.qt.plots.tachogram_plot import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.tachogram_plot import RESTORE_TACHOGRAM_PLOT_SIGNAL
+    from pygui.qt.plots.tachogram_plot import CLOSE_TACHOGRAM_PLOT_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -74,7 +74,7 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
         if self.__splitter__.sizesLoaded() == False:
             idx = self.__splitter__.indexOf(self.__tachogramsManager__)
             self.__splitter__.setStretchFactor(idx, 20)
-        SignalDispatcher.addSignalSubscriber(self, TAB_WIDGET_CLOSE_SIGNAL,
+        SignalDispatcher.addSignalSubscriber(self, CLOSE_TACHOGRAM_PLOT_SIGNAL,
                                             self.__closeTachogramPlot__)
         SignalDispatcher.addSignalSubscriber(self, TAB_WIDGET_ADDED_SIGNAL,
                                             self.__tachogramPlotAdded__)
@@ -101,7 +101,7 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
     def __tachogramPlotAdded__(self):
         self.__datasourceListWidget__.enabledCloseAllTachogramsButton(True)
 
-    def __closeTachogramPlot__(self):
+    def __closeTachogramPlot__(self, _tachogram_plot_tab):
         """
         method invoked when tachogram plot is closed and then it checks
         there are any opened tachogram plots if this is not the case
