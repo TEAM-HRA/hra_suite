@@ -18,11 +18,8 @@ try:
     from pycommon.actions import ActionSpec
     from pymath.datasources import FileDataSource
     from pygui.qt.utils.widgets import CompositeCommon
-    from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.actions.actions_utils import create_action
     from pygui.qt.custom_widgets.filters import FiltersWidget
-    from pygui.qt.plots.plots_signals import SHOW_TACHOGRAM_PLOT_SETTINGS
-    from pygui.qt.plots.plots_signals import CHANGE_X_UNIT_TACHOGRAM_PLOT_SIGNAL # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -46,8 +43,12 @@ class TachogramPlotPlot(CompositeCommon):
                                           annotation=data.annotation,
                                           signal_unit=data.signal_unit)
         layout.addWidget(self.canvas)
-        self.navigation_toolbar = TachogramNavigationToolbar(self.canvas, self)
+        self.navigation_toolbar = TachogramNavigationToolbar(self.canvas, self,
+                            show_tachogram_plot_settings_handler=self.params.show_tachogram_plot_settings_handler) # @IgnorePep8
         layout.addWidget(self.navigation_toolbar)
+
+    def changeXUnit(self, _unit):
+        self.canvas.changeXUnit(_unit)
 
 
 class TachogramPlotCanvas(FigureCanvas):
@@ -76,10 +77,6 @@ class TachogramPlotCanvas(FigureCanvas):
                                     QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-        SignalDispatcher.addSignalSubscriber(self,
-                                        CHANGE_X_UNIT_TACHOGRAM_PLOT_SIGNAL,
-                                        self.__changeXUnit__)
-
     def calculate(self, _signal=None, _x_axis_unit=None):
         self.y = nvl(_signal, self.y)
         self.x_axis_unit = nvl(_x_axis_unit, self.x_axis_unit)
@@ -93,7 +90,7 @@ class TachogramPlotCanvas(FigureCanvas):
             multiplier = self.signal_unit.expressInUnit(self.x_axis_unit)
             self.x = np.cumsum(self.y) * multiplier
 
-    def __changeXUnit__(self, _unit):
+    def changeXUnit(self, _unit):
         self.plot(force_plot=True, _x_axis_unit=_unit)
 
     def plot(self, _plot_handler=None, force_plot=False, _signal=None,
@@ -119,7 +116,8 @@ class TachogramPlotCanvas(FigureCanvas):
 
 class TachogramNavigationToolbar(NavigationToolbar):
 
-    def __init__(self, canvas, parent):
+    def __init__(self, canvas, parent, **params):
+        self.params = Params(**params)
         # create the default toolbar
         NavigationToolbar.__init__(self, canvas, parent)
         self.canvas = canvas
@@ -136,9 +134,9 @@ class TachogramNavigationToolbar(NavigationToolbar):
         self.addAction(scatter_plot_action)
 
         tachogram_plot_settings_action = self.__createAction__(
-                                        title="Tachogram plot settings",
-                                        handler=self.__tachogramPlotSettings__,
-                                        iconId='tachogram_plot_settings')
+                                    title="Tachogram plot settings",
+                                    handler=self.__showTachogramPlotSettings__,
+                                    iconId='tachogram_plot_settings')
         self.addAction(tachogram_plot_settings_action)
 
         self.__normalPlot__()
@@ -166,6 +164,7 @@ class TachogramNavigationToolbar(NavigationToolbar):
         self._views.clear()  # clear all remembered view history
         self.canvas.plot(force_plot=True, _signal=_signal)
 
-    def __tachogramPlotSettings__(self):
-        SignalDispatcher.broadcastSignal(SHOW_TACHOGRAM_PLOT_SETTINGS,
-                                         self.canvas.x_axis_unit)
+    def __showTachogramPlotSettings__(self):
+        if not self.params.show_tachogram_plot_settings_handler == None:
+            self.params.show_tachogram_plot_settings_handler(
+                                                    self.canvas.x_axis_unit)

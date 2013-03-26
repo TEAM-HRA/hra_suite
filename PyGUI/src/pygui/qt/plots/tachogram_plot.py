@@ -23,8 +23,6 @@ try:
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import RESTORE_TACHOGRAM_PLOT_SIGNAL
-    from pygui.qt.plots.plots_signals import SHOW_TACHOGRAM_PLOT_SETTINGS
-    from pygui.qt.plots.plots_signals import CHANGE_X_UNIT_TACHOGRAM_PLOT_SIGNAL # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -85,12 +83,9 @@ class TachogramPlotWindow(MainWindowCommon):
         self.addToolBar(OperationalToolBarWidget(self))
 
         self.tachogramPlot = TachogramPlotPlot(self,
-                        file_specification=self.params.file_specification)
+                        file_specification=self.params.file_specification,
+                        show_tachogram_plot_settings_handler=self.__show_tachogram_plot_settings_handler__)  # @IgnorePep8
         self.setCentralWidget(self.tachogramPlot)
-
-        SignalDispatcher.addSignalSubscriber(self,
-                                        SHOW_TACHOGRAM_PLOT_SETTINGS,
-                                        self.__showTachogramPlotSettings__)
 
     def toolbar_maximum_handler(self):
         SignalDispatcher.broadcastSignal(MAXIMIZE_TACHOGRAM_PLOT_SIGNAL)
@@ -101,15 +96,17 @@ class TachogramPlotWindow(MainWindowCommon):
     def toolbar_close_handler(self):
         SignalDispatcher.broadcastSignal(CLOSE_TACHOGRAM_PLOT_SIGNAL, self)
 
-    def __showTachogramPlotSettings__(self, _x_unit):
+    def __show_tachogram_plot_settings_handler__(self, _x_unit):
         tachogram_plot_dock_widget = get_child_of_type(self,
                                              TachogramPlotSettingsDockWidget)
         if tachogram_plot_dock_widget == None:
             tachogram_plot_dock_widget = TachogramPlotSettingsDockWidget(self,
-                                                                x_unit=_x_unit)
-        #print('tachogram_plot_dock_widget id: ' + str(id(tachogram_plot_dock_widget))) # @IgnorePep8
+                            x_unit=_x_unit,
+                            change_unit_handler=self.__change_unit_handler__)
         tachogram_plot_dock_widget.show()
 
+    def __change_unit_handler__(self, _unit):
+        self.tachogramPlot.changeXUnit(_unit)
 #        statusbar = StatusBarCommon(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)
 #        statusLabel = LabelCommon(statusbar,
@@ -141,11 +138,8 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
 
         self.setWidget(self.dockComposite)
         parent.addDockWidget(Qt.BottomDockWidgetArea, self)
-
-#        SignalDispatcher.addSignalSubscriber(self,
-#                                             ADD_ACTIVITY_SIGNAL,
-#                                             self.__add_activity__)
+        self.change_unit_handler = params.get('change_unit_handler')
 
     def __changeUnit__(self, unit):
-        SignalDispatcher.broadcastSignal(CHANGE_X_UNIT_TACHOGRAM_PLOT_SIGNAL,
-                                         unit)
+        if not self.change_unit_handler == None:
+            self.change_unit_handler(unit)
