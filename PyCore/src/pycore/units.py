@@ -76,6 +76,13 @@ class __NoneUnit__(__Unit__):
 NoneUnit = __NoneUnit__()
 
 
+class __OrderUnit__(__Unit__):
+    def __init__(self):
+        super(__OrderUnit__, self).__init__(0, 'Order', '#')
+
+OrderUnit = __OrderUnit__()
+
+
 def __create_unit__(unit_type, unit_object):
     units = __UNITS_TYPE_MAP__.get(unit_type, [])
     units.append(unit_object)
