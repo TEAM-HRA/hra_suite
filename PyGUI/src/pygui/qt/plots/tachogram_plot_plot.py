@@ -13,11 +13,15 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pycore.units import get_unit_by_class_name
+    from pycore.units import OrderUnit
     from pycommon.actions import ActionSpec
     from pymath.datasources import FileDataSource
     from pygui.qt.utils.widgets import CompositeCommon
+    from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.actions.actions_utils import create_action
     from pygui.qt.custom_widgets.filters import FiltersWidget
+    from pygui.qt.plots.plots_signals import SHOW_TACHOGRAM_PLOT_SETTINGS
+    from pygui.qt.plots.plots_signals import CHANGE_X_UNIT_TACHOGRAM_PLOT_SIGNAL # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -38,7 +42,8 @@ class TachogramPlotPlot(CompositeCommon):
         layout = QVBoxLayout()
         self.setLayout(layout)
         self.canvas = TachogramPlotCanvas(self, signal=data.signal,
-                                          annotation=data.annotation)
+                                          annotation=data.annotation,
+                                          signal_unit=data.signal_unit)
         layout.addWidget(self.canvas)
         self.navigation_toolbar = TachogramNavigationToolbar(self.canvas, self)
         layout.addWidget(self.navigation_toolbar)
@@ -54,12 +59,9 @@ class TachogramPlotCanvas(FigureCanvas):
         self.params = Params(**params)
         self.fig = Figure()
         self.axes = self.fig.add_subplot(111)
-        #self.x = np.arange(0.0, 3.0, 0.01)
-        #self.y = np.cos(2 * np.pi * self.x)
-        #self.x = np.arange(0.0, len(self.params.signal), 1)
-        self.calculate(self.params.signal)
-        #self.x = np.arange(0, len(self.params.signal), 1)
-        #self.y = self.params.signal
+        self.x_axis_unit = OrderUnit  # mark defualt x axis unit as order unit
+        self.signal_unit = self.params.signal_unit
+        self.calculate()
         FigureCanvas.__init__(self, self.fig)
 
         # automatic layout adjustment to use available space more efficiently
@@ -70,8 +72,18 @@ class TachogramPlotCanvas(FigureCanvas):
                                     QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-    def calculate(self, _signal):
-        self.x = np.arange(0, len(_signal), 1)
+    def calculate(self, _signal=None):
+        if _signal == None:
+            _signal = self.params.signal
+        if self.x_axis_unit == OrderUnit:
+            self.x = np.arange(0, len(_signal), 1)
+        # x axis unit is the same as signal unit
+        elif self.x_axis_unit == self.signal_unit:
+            self.x = np.cumsum(_signal)
+        else:
+            #express signal unit in terms of x axis unit
+            multiplier = self.signal_unit.expressInUnit(self.x_axis_unit)
+            self.x = np.cumsum(_signal) * multiplier
         self.y = _signal
 
 
@@ -82,7 +94,6 @@ class TachogramNavigationToolbar(NavigationToolbar):
         NavigationToolbar.__init__(self, canvas, parent)
         self.canvas = canvas
         self.__current_plot__ = None
-        self.__signal_unit__ = parent.signal_unit
         # add new toolbar buttons
 
         normal_plot_action = self.__createAction__(title="Normal plot",
@@ -94,6 +105,13 @@ class TachogramNavigationToolbar(NavigationToolbar):
                                             handler=self.__scatterPlot__,
                                             iconId='scatter_plot_button')
         self.addAction(scatter_plot_action)
+
+        tachogram_plot_settings_action = self.__createAction__(
+                                        title="Tachogram plot settings",
+                                        handler=self.__tachogramPlotSettings__,
+                                        iconId='tachogram_plot_settings')
+        self.addAction(tachogram_plot_settings_action)
+
         self.__normalPlot__()
 
         #add a filters combo box widget
@@ -102,27 +120,19 @@ class TachogramNavigationToolbar(NavigationToolbar):
                                      self.canvas.params.annotation,
                                      clicked_handler=self.__filter_handler__))
 
+        SignalDispatcher.addSignalSubscriber(self,
+                                CHANGE_X_UNIT_TACHOGRAM_PLOT_SIGNAL,
+                                self.__changeXUnit__)
+
     def __normalPlot__(self, force_plot=False):
-        if self.__check_plot__(self.__normalPlot__, force_plot) == True:
-            self.canvas.axes.cla()
+        if self.__beforePlot__(self.__normalPlot__, force_plot):
             self.canvas.axes.plot(self.canvas.x, self.canvas.y)
-#        print('self.canvas.axes.get_xlim(): ' + str(self.canvas.axes.get_xlim())) # @IgnorePep8
-#        print('self.canvas.x.min(): ' + str(self.canvas.x.min())
-#               + ' self.canvas.x.max(): ' + str(self.canvas.x.max())) # @IgnorePep8
-            self.canvas.axes.set_ylabel(self.__signal_unit__.display_label)
-            self.canvas.draw()
+            self.__afterPlot__()
 
     def __scatterPlot__(self, force_plot=False):
-        if self.__check_plot__(self.__scatterPlot__, force_plot) == True:
-            self.canvas.axes.cla()
-            #self.canvas.axes.xrange(0, self.canvas.x.max())
-            #self.canvas.axes.set_xlim((self.canvas.x.min(), self.canvas.x.max() + 10000)) # @IgnorePep8
-            #self.canvas.axes.set_ylim((self.canvas.y.min(), self.canvas.y.max() + 1000)) # @IgnorePep8
-            #ax.set_ylim((-2,2))
+        if self.__beforePlot__(self.__scatterPlot__, force_plot):
             self.canvas.axes.plot(self.canvas.x, self.canvas.y, 'bo')
-            #self.canvas.axes.scatter(self.canvas.x, self.canvas.y)
-            self.canvas.axes.set_ylabel(self.__signal_unit__.display_label)
-            self.canvas.draw()
+            self.__afterPlot__()
 
     def __createAction__(self, **params):
         return create_action(self.parent(), ActionSpec(**params))
@@ -132,8 +142,24 @@ class TachogramNavigationToolbar(NavigationToolbar):
         self.canvas.calculate(_signal)
         self.__current_plot__(force_plot=True)
 
-    def __check_plot__(self, _plot, force_plot=False):
+    def __tachogramPlotSettings__(self):
+        SignalDispatcher.broadcastSignal(SHOW_TACHOGRAM_PLOT_SETTINGS,
+                                         self.canvas.x_axis_unit)
+
+    def __beforePlot__(self, _plot, force_plot):
         if force_plot == False and self.__current_plot__ == _plot:
             return False
-        self.__current_plot__ = _plot
-        return True
+        else:
+            self.__current_plot__ = _plot
+            self.canvas.axes.cla()
+            return True
+
+    def __afterPlot__(self):
+        self.canvas.axes.set_xlabel(self.canvas.x_axis_unit.display_label)
+        self.canvas.axes.set_ylabel(self.canvas.signal_unit.display_label)
+        self.canvas.draw()
+
+    def __changeXUnit__(self, _unit):
+        self.canvas.x_axis_unit = _unit
+        self.canvas.calculate()
+        self.__current_plot__(force_plot=True)

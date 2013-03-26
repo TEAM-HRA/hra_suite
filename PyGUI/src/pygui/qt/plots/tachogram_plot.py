@@ -8,22 +8,25 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
+    from pycore.introspection import get_child_of_type
+    from pycore.units import OrderUnit
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import LabelCommon
+    from pygui.qt.utils.widgets import DockWidgetCommon
+    from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
+    from pygui.qt.custom_widgets.units import TimeUnitsWidget
     from pygui.qt.plots.tachogram_plot_plot import TachogramPlotPlot
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import TAB_WIDGET_ADDED_SIGNAL
+    from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
+    from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
+    from pygui.qt.plots.plots_signals import RESTORE_TACHOGRAM_PLOT_SIGNAL
+    from pygui.qt.plots.plots_signals import SHOW_TACHOGRAM_PLOT_SETTINGS
+    from pygui.qt.plots.plots_signals import CHANGE_X_UNIT_TACHOGRAM_PLOT_SIGNAL # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
-
-#signal emitted to maximize tachogram plot
-MAXIMIZE_TACHOGRAM_PLOT_SIGNAL = SIGNAL('maximize_tachogram_plot()')
-#signal emitted to restore tachogram plot
-RESTORE_TACHOGRAM_PLOT_SIGNAL = SIGNAL('restore_tachogram_plot()')
-#signal emitted to close tachogram plot
-CLOSE_TACHOGRAM_PLOT_SIGNAL = SIGNAL('close_tachogram_plot(PyQt_PyObject)')
 
 
 class TachogramPlotManager(TabWidgetCommon):
@@ -85,6 +88,10 @@ class TachogramPlotWindow(MainWindowCommon):
                         file_specification=self.params.file_specification)
         self.setCentralWidget(self.tachogramPlot)
 
+        SignalDispatcher.addSignalSubscriber(self,
+                                        SHOW_TACHOGRAM_PLOT_SETTINGS,
+                                        self.__showTachogramPlotSettings__)
+
     def toolbar_maximum_handler(self):
         SignalDispatcher.broadcastSignal(MAXIMIZE_TACHOGRAM_PLOT_SIGNAL)
 
@@ -93,9 +100,52 @@ class TachogramPlotWindow(MainWindowCommon):
 
     def toolbar_close_handler(self):
         SignalDispatcher.broadcastSignal(CLOSE_TACHOGRAM_PLOT_SIGNAL, self)
+
+    def __showTachogramPlotSettings__(self, _x_unit):
+        tachogram_plot_dock_widget = get_child_of_type(self,
+                                             TachogramPlotSettingsDockWidget)
+        if tachogram_plot_dock_widget == None:
+            tachogram_plot_dock_widget = TachogramPlotSettingsDockWidget(self,
+                                                                x_unit=_x_unit)
+        #print('tachogram_plot_dock_widget id: ' + str(id(tachogram_plot_dock_widget))) # @IgnorePep8
+        tachogram_plot_dock_widget.show()
+
 #        statusbar = StatusBarCommon(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)
 #        statusLabel = LabelCommon(statusbar,
 #                    i18n_def="STATUS",
 #                    add_widget_to_parent=True)
 #
+
+
+class TachogramPlotSettingsDockWidget(DockWidgetCommon):
+    """
+    a dock widget for tachogram plot settings
+    """
+    def __init__(self, parent, **params):
+        super(TachogramPlotSettingsDockWidget, self).__init__(parent,
+                        title=params.get('title', 'Tachogram plot settings'),
+                        **params)
+        self.setObjectName("TachogramPlotSettingsDockWidget")
+        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea |
+                             Qt.TopDockWidgetArea | Qt.BottomDockWidgetArea)
+        layout = QVBoxLayout()
+        layout.setMargin(0)  # no margin for internal layout
+        self.dockComposite = CompositeCommon(self, layout=layout,
+                                        not_add_widget_to_parent_layout=True)
+        self.units = TimeUnitsWidget(self.dockComposite,
+                    i18n_def='X axis units',
+                    default_unit=params.get('x_unit', OrderUnit),
+                    change_unit_handler=self.__changeUnit__)
+        self.units.addUnit(OrderUnit)
+
+        self.setWidget(self.dockComposite)
+        parent.addDockWidget(Qt.BottomDockWidgetArea, self)
+
+#        SignalDispatcher.addSignalSubscriber(self,
+#                                             ADD_ACTIVITY_SIGNAL,
+#                                             self.__add_activity__)
+
+    def __changeUnit__(self, unit):
+        SignalDispatcher.broadcastSignal(CHANGE_X_UNIT_TACHOGRAM_PLOT_SIGNAL,
+                                         unit)

@@ -71,6 +71,7 @@ PyGUI/src/pygui/qt/menu/menus.py -text
 PyGUI/src/pygui/qt/models/__init__.py -text
 PyGUI/src/pygui/qt/models/datasources.py -text
 PyGUI/src/pygui/qt/plots/__init__.py -text
+PyGUI/src/pygui/qt/plots/plots_signals.py -text
 PyGUI/src/pygui/qt/plots/poincare_plot.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_plot.py -text
@@ -142,6 +143,7 @@ PySettings/src/settings/icons/User-Group.ico -text
 PySettings/src/settings/icons/__init__.py -text
 PySettings/src/settings/icons/graph_button.ico -text
 PySettings/src/settings/icons/scatter_plot_button.ico -text
+PySettings/src/settings/icons/tachogram_plot_settings.ico -text
 PySettings/src/settings/icons/toolbar_check_button.ico -text
 PySettings/src/settings/icons/toolbar_close_button.ico -text
 PySettings/src/settings/icons/toolbar_maximum_button.ico -text
