@@ -14,6 +14,7 @@ try:
     from pycore.misc import Params
     from pycore.units import get_unit_by_class_name
     from pycore.units import OrderUnit
+    from pycore.collections_utils import nvl
     from pycommon.actions import ActionSpec
     from pymath.datasources import FileDataSource
     from pygui.qt.utils.widgets import CompositeCommon
@@ -61,6 +62,9 @@ class TachogramPlotCanvas(FigureCanvas):
         self.axes = self.fig.add_subplot(111)
         self.x_axis_unit = OrderUnit  # mark defualt x axis unit as order unit
         self.signal_unit = self.params.signal_unit
+        self.y = self.params.signal
+        self.__current_plot__ = None
+        self.__current_plot_handler__ = None
         self.calculate()
         FigureCanvas.__init__(self, self.fig)
 
@@ -72,19 +76,45 @@ class TachogramPlotCanvas(FigureCanvas):
                                     QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-    def calculate(self, _signal=None):
-        if _signal == None:
-            _signal = self.params.signal
+        SignalDispatcher.addSignalSubscriber(self,
+                                        CHANGE_X_UNIT_TACHOGRAM_PLOT_SIGNAL,
+                                        self.__changeXUnit__)
+
+    def calculate(self, _signal=None, _x_axis_unit=None):
+        self.y = nvl(_signal, self.y)
+        self.x_axis_unit = nvl(_x_axis_unit, self.x_axis_unit)
         if self.x_axis_unit == OrderUnit:
-            self.x = np.arange(0, len(_signal), 1)
+            self.x = np.arange(0, len(self.y), 1)
         # x axis unit is the same as signal unit
         elif self.x_axis_unit == self.signal_unit:
-            self.x = np.cumsum(_signal)
+            self.x = np.cumsum(self.y)
         else:
             #express signal unit in terms of x axis unit
             multiplier = self.signal_unit.expressInUnit(self.x_axis_unit)
-            self.x = np.cumsum(_signal) * multiplier
-        self.y = _signal
+            self.x = np.cumsum(self.y) * multiplier
+
+    def __changeXUnit__(self, _unit):
+        self.plot(force_plot=True, _x_axis_unit=_unit)
+
+    def plot(self, _plot_handler=None, force_plot=False, _signal=None,
+             _x_axis_unit=None):
+        if _plot_handler == None:
+            _plot_handler = self.__current_plot_handler__
+        if force_plot == False and \
+            self.__current_plot_handler__ == _plot_handler:
+            return
+        else:
+            self.__current_plot_handler__ = _plot_handler
+            self.axes.cla()
+
+        if not _signal == None or not _x_axis_unit == None:
+            self.calculate(_signal=_signal, _x_axis_unit=_x_axis_unit)
+
+        _plot_handler(self)
+
+        self.axes.set_xlabel(self.x_axis_unit.display_label)
+        self.axes.set_ylabel(self.signal_unit.display_label)
+        self.draw()
 
 
 class TachogramNavigationToolbar(NavigationToolbar):
@@ -93,9 +123,8 @@ class TachogramNavigationToolbar(NavigationToolbar):
         # create the default toolbar
         NavigationToolbar.__init__(self, canvas, parent)
         self.canvas = canvas
-        self.__current_plot__ = None
-        # add new toolbar buttons
 
+        # add new toolbar buttons
         normal_plot_action = self.__createAction__(title="Normal plot",
                                             handler=self.__normalPlot__,
                                             iconId='graph_button')
@@ -120,46 +149,23 @@ class TachogramNavigationToolbar(NavigationToolbar):
                                      self.canvas.params.annotation,
                                      clicked_handler=self.__filter_handler__))
 
-        SignalDispatcher.addSignalSubscriber(self,
-                                CHANGE_X_UNIT_TACHOGRAM_PLOT_SIGNAL,
-                                self.__changeXUnit__)
-
-    def __normalPlot__(self, force_plot=False):
-        if self.__beforePlot__(self.__normalPlot__, force_plot):
-            self.canvas.axes.plot(self.canvas.x, self.canvas.y)
-            self.__afterPlot__()
-
-    def __scatterPlot__(self, force_plot=False):
-        if self.__beforePlot__(self.__scatterPlot__, force_plot):
-            self.canvas.axes.plot(self.canvas.x, self.canvas.y, 'bo')
-            self.__afterPlot__()
-
     def __createAction__(self, **params):
         return create_action(self.parent(), ActionSpec(**params))
 
+    def __normalPlot__(self):
+        def __inner__(canvas):
+            canvas.axes.plot(canvas.x, canvas.y)
+        self.canvas.plot(__inner__)
+
+    def __scatterPlot__(self):
+        def __inner__(canvas):
+            canvas.axes.plot(canvas.x, canvas.y, 'bo')
+        self.canvas.plot(__inner__)
+
     def __filter_handler__(self, _signal, _annotation):
         self._views.clear()  # clear all remembered view history
-        self.canvas.calculate(_signal)
-        self.__current_plot__(force_plot=True)
+        self.canvas.plot(force_plot=True, _signal=_signal)
 
     def __tachogramPlotSettings__(self):
         SignalDispatcher.broadcastSignal(SHOW_TACHOGRAM_PLOT_SETTINGS,
                                          self.canvas.x_axis_unit)
-
-    def __beforePlot__(self, _plot, force_plot):
-        if force_plot == False and self.__current_plot__ == _plot:
-            return False
-        else:
-            self.__current_plot__ = _plot
-            self.canvas.axes.cla()
-            return True
-
-    def __afterPlot__(self):
-        self.canvas.axes.set_xlabel(self.canvas.x_axis_unit.display_label)
-        self.canvas.axes.set_ylabel(self.canvas.signal_unit.display_label)
-        self.canvas.draw()
-
-    def __changeXUnit__(self, _unit):
-        self.canvas.x_axis_unit = _unit
-        self.canvas.calculate()
-        self.__current_plot__(force_plot=True)
