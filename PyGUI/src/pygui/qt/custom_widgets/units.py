@@ -24,9 +24,10 @@ class TimeUnitsWidget(GroupBoxCommon):
         get_or_put(params, 'i18n', 'time.units.group.title')
         get_or_put(params, 'i18n_def', 'Time units')
         get_or_put(params, 'layout', QHBoxLayout())
-        default_unit = params.get('default_unit', Millisecond)
+        self.default_unit = params.get('default_unit', Millisecond)
         super(TimeUnitsWidget, self).__init__(parent, **params)
-        self.unitsButtonsGroup = ButtonGroupCommon(self)
+        self.__unitsButtonsGroup__ = ButtonGroupCommon(self)
+        self.__change_unit_handler__ = params.get('change_unit_handler', None)
 
         for time_unit in get_units_for_type(TimeUnit):
             unitCheckBox = CheckBoxCommon(self,
@@ -35,11 +36,30 @@ class TimeUnitsWidget(GroupBoxCommon):
             #add artificially property unit for later use in getUnit method
             unitCheckBox.unit = time_unit
 
-            if time_unit == default_unit:
+            if time_unit == self.default_unit:
                 unitCheckBox.setChecked(True)
-            self.unitsButtonsGroup.addButton(unitCheckBox)
+            self.__unitsButtonsGroup__.addButton(unitCheckBox)
+
+        self.connect(self.__unitsButtonsGroup__,
+                    SIGNAL("buttonClicked(QAbstractButton *)"),
+                    self.__buttonClicked__)
+        self.__old_button_unit__ = None
 
     def getUnit(self):
-        unitCheckBox = self.unitsButtonsGroup.checkedButton()
+        unitCheckBox = self.__unitsButtonsGroup__.checkedButton()
         if unitCheckBox:
             return unitCheckBox.unit
+
+    def addUnit(self, unit):
+        unitCheckBox = CheckBoxCommon(self,
+                    i18n_def="%s [%s]" % (unit.name, unit.label))
+        unitCheckBox.unit = unit
+        if unit == self.default_unit:
+            unitCheckBox.setChecked(True)
+        self.__unitsButtonsGroup__.addButton(unitCheckBox)
+
+    def __buttonClicked__(self, button):
+        if not button.unit == self.__old_button_unit__:
+            if not self.__change_unit_handler__ == None:
+                self.__change_unit_handler__(button.unit)
+        self.__old_button_unit__ = button.unit
