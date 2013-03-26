@@ -235,3 +235,11 @@ def get_subclasses_iter(_class, seen=None, depth=-1):
 
 def get_subclasses(_class, depth=-1):
     return list(get_subclasses_iter(_class, depth=depth))
+
+
+def get_child_of_type(parent_object, child_type,
+                      children_method_name="children"):
+    children_method = getattr(parent_object, children_method_name)
+    for child in children_method():
+        if isinstance(child, child_type):
+            return child
