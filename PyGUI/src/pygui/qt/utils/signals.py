@@ -43,6 +43,9 @@ CLEAR_ACTIVITIES_SIGNAL = SIGNAL('clear_activities()')
 #signal emitted for example when a position changed in QComboBox widget
 CURRENT_INDEX_CHANGED_SIGNAL = SIGNAL('currentIndexChanged(int)')
 
+#signal emitted when dock widget location is changed
+DOCK_WIDGET_LOCATION_CHANGED_SIGNAL = SIGNAL('dockLocationChanged(Qt::DockWidgetArea)')  # @IgnorePep8
+
 
 class SignalDispatcher(QObject):
     """

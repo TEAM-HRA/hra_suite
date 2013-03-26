@@ -19,6 +19,7 @@ try:
     from pygui.qt.utils.signals import LIST_ITEM_CLICKED_SIGNAL
     from pygui.qt.utils.signals import LIST_ITEM_DOUBLE_CLICKED_SIGNAL
     from pygui.qt.utils.signals import CURRENT_INDEX_CHANGED_SIGNAL
+    from pygui.qt.utils.signals import DOCK_WIDGET_LOCATION_CHANGED_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -292,10 +293,16 @@ class DockWidgetCommon(QDockWidget, Common):
             params['not_add_widget_to_parent_layout'] = True
         prepareWidget(parent=parent, widget=self, **params)
         self.params = Params(**params)
+        self.connect(self, DOCK_WIDGET_LOCATION_CHANGED_SIGNAL,
+                     self.__dock_widget_location_changed__)
 
     def closeEvent(self, event):
         if self.params.not_closable:
             event.ignore()
+
+    def __dock_widget_location_changed__(self, dockWidgetArea):
+        if not self.params.dock_widget_location_changed == None:
+            self.params.dock_widget_location_changed(dockWidgetArea)
 
 
 class ListWidgetItemCommon(QListWidgetItem):
