@@ -17,11 +17,14 @@ try:
     from pycore.collections_utils import nvl
     from pycommon.actions import ActionSpec
     from pymath.datasources import FileDataSource
+    from pygui.qt.utils.dnd import CopyDropper
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.actions.actions_utils import create_action
     from pygui.qt.custom_widgets.filters import FiltersWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
+
+STATISTIC_MIME_ID = "application/x-statistic_name"
 
 
 class TachogramPlotPlot(CompositeCommon):
@@ -44,7 +47,8 @@ class TachogramPlotPlot(CompositeCommon):
                                           signal_unit=data.signal_unit)
         layout.addWidget(self.canvas)
         self.navigation_toolbar = TachogramNavigationToolbar(self.canvas, self,
-                            show_tachogram_plot_settings_handler=self.params.show_tachogram_plot_settings_handler) # @IgnorePep8
+                            show_tachogram_plot_settings_handler=self.params.show_tachogram_plot_settings_handler, # @IgnorePep8
+                            show_tachogram_plot_statistics_handler=self.params.show_tachogram_plot_statistics_handler) # @IgnorePep8
         layout.addWidget(self.navigation_toolbar)
 
     def changeXUnit(self, _unit):
@@ -76,6 +80,7 @@ class TachogramPlotCanvas(FigureCanvas):
         FigureCanvas.setSizePolicy(self, QSizePolicy.Expanding,
                                     QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
+        self.__dropper__ = CopyDropper(self, STATISTIC_MIME_ID)
 
     def calculate(self, _signal=None, _x_axis_unit=None):
         self.y = nvl(_signal, self.y)
@@ -113,6 +118,14 @@ class TachogramPlotCanvas(FigureCanvas):
         self.axes.set_ylabel(self.signal_unit.display_label)
         self.draw()
 
+    def dropEvent(self, event):
+        if self.__dropper__.dropEvent(event):
+            statistic = self.__dropper__.dropObject('statistic')
+            print('STATISTIC: ' + str(statistic))
+
+    def dragEnterEvent(self, event):
+        self.__dropper__.dragEnterEvent(event)
+
 
 class TachogramNavigationToolbar(NavigationToolbar):
 
@@ -147,6 +160,12 @@ class TachogramNavigationToolbar(NavigationToolbar):
                                      self.canvas.params.annotation,
                                      clicked_handler=self.__filter_handler__))
 
+        tachogram_plot_statistics_action = self.__createAction__(
+                                title="Tachogram plot statistics",
+                                handler=self.__showTachogramPlotStatistics__,
+                                iconId='tachogram_plot_statistics')
+        self.addAction(tachogram_plot_statistics_action)
+
     def __createAction__(self, **params):
         return create_action(self.parent(), ActionSpec(**params))
 
@@ -168,3 +187,7 @@ class TachogramNavigationToolbar(NavigationToolbar):
         if not self.params.show_tachogram_plot_settings_handler == None:
             self.params.show_tachogram_plot_settings_handler(
                                                     self.canvas.x_axis_unit)
+
+    def __showTachogramPlotStatistics__(self):
+        if not self.params.show_tachogram_plot_statistics_handler == None:
+            self.params.show_tachogram_plot_statistics_handler()

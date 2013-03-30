@@ -146,6 +146,7 @@ PySettings/src/settings/icons/__init__.py -text
 PySettings/src/settings/icons/graph_button.ico -text
 PySettings/src/settings/icons/scatter_plot_button.ico -text
 PySettings/src/settings/icons/tachogram_plot_settings.ico -text
+PySettings/src/settings/icons/tachogram_plot_statistics.ico -text
 PySettings/src/settings/icons/toolbar_check_button.ico -text
 PySettings/src/settings/icons/toolbar_close_button.ico -text
 PySettings/src/settings/icons/toolbar_maximum_button.ico -text
