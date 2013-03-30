@@ -190,6 +190,14 @@ class Statistic(DataVector):
     def buffer_name(self, _buffer_name):
         self.__buffer_name__ = _buffer_name
 
+    @property
+    def description(self):
+        """
+        method which gives ability to append additional statistic's
+        description for later use by client code
+        """
+        return self.__class__.__name__
+
 
 class Asymmetry(object):
     """
