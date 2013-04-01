@@ -7,11 +7,11 @@ try:
     import pylab as pl
     import numpy as np
     from pycore.collections_utils import nvl
-    from pycore.collections_utils import get_as_list
     from pycore.introspection import create_class_object_with_suffix
+    from pycore.introspection import get_subclasses_names_with_suffix
     from pycore.introspection import get_method_arguments_count
     from pycore.introspection import get_subclasses_names
-    from pycore.introspection import get_subclasses
+    from pycore.introspection import expand_to_real_class_names
     from pymath.datasources import DataVector
 except ImportError as error:
     print_import_error(__name__, error)
@@ -57,20 +57,8 @@ def expand_to_real_statistics_names(statistics_names):
     if not names == None:
         return names
 
-    real_statistics_names = []
-    real_names = [(real_name, real_name.lower(), ) \
-                  for real_name in Statistic.getSubclassesLongNames()]
-    lower_names = [(name.lower(), name.lower() + 'statistic', ) \
-                   for name in get_as_list(statistics_names)]
-    for (statistic_lower_name, statistic_base_name) in lower_names:
-        for (real_name, real_lower_name) in real_names:
-            if  real_lower_name in (statistic_lower_name, statistic_base_name):
-                real_statistics_names.append(real_name)
-                break
-        else:
-            print('Uknown statistic: ' + statistic_lower_name)
-            return []
-    return real_statistics_names
+    return expand_to_real_class_names(statistics_names, Statistic,
+                                      _class_suffix='statistic')
 
 
 ## Base class for all specific statitistics,
@@ -227,19 +215,12 @@ class Inner(object):
     pass
 
 
-def get_statistics_class_names(_class, only_short_names=False,
-                         short_name_suffix='Statistic'):
+def get_statistics_class_names(_class, only_short_names=False):
     """
-    method returns names of statistics classes which are marked as asymmetric:
-    that means poincare plot parameters for accelerations or decelerations
+    method returns names of statistics classes
     """
-    names = sorted([subclass.__name__ for subclass in get_subclasses(_class)])
-    if short_name_suffix == None:
-        short_name_suffix = _class.__name__
-    if only_short_names:
-        return [name[:name.rfind(short_name_suffix)] for name in names]
-    else:
-        return names
+    return get_subclasses_names_with_suffix(_class, only_short_names,
+                                     short_name_suffix='Statistic')
 
 
 class MeanStatistic(Statistic, Core):

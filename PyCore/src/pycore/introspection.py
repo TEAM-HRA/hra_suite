@@ -6,6 +6,7 @@ Created on 24-10-2012
 
 import inspect
 from types import MethodType
+from pycore.collections_utils import get_as_list
 
 
 def hasSuperclass(target, superclass_name):
@@ -243,3 +244,40 @@ def get_child_of_type(parent_object, child_type,
     for child in children_method():
         if isinstance(child, child_type):
             return child
+
+
+def expand_to_real_class_names(short_classes_names, _base_class,
+                               _class_suffix=''):
+    """
+    method converts user's inputed classes names into
+    real statistics class names
+    e.g. _class_suffix = 'statistic'
+    """
+    real_classes_names = []
+    real_names = [(name, name.lower(), )
+                    for name in get_subclasses_names(_base_class)]
+    lower_names = [(name.lower(), name.lower() + _class_suffix, )  # e.g. _class_suffix = 'statistic' @IgnorePep8
+                   for name in get_as_list(short_classes_names)]
+    for (class_lower_name, class_base_name) in lower_names:
+        for (real_name, real_lower_name) in real_names:
+            if real_lower_name in (class_lower_name, class_base_name):
+                real_classes_names.append(real_name)
+                break
+        else:
+            print('Uknown class: ' + class_lower_name)
+            return []
+    return real_classes_names
+
+
+def get_subclasses_names_with_suffix(_class, only_short_names=False,
+                                      short_name_suffix=None):
+    """
+    method returns names of subclasses without short name suffix
+    """
+    names = sorted([subclass.__name__ for subclass in get_subclasses(_class)])
+    if short_name_suffix == None:
+        short_name_suffix = _class.__name__
+    if only_short_names:
+        return [name[:name.rfind(short_name_suffix)] for name in names]
+    else:
+        return names
