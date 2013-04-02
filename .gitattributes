@@ -102,6 +102,7 @@ PyMath/src/pymath/interpolation.py -text
 PyMath/src/pymath/sampling.py -text
 PyMath/src/pymath/statistics/__init__.py -text
 PyMath/src/pymath/statistics/statistics.py -text
+PyMath/src/pymath/statistics/summary_statistics.py -text
 PyMath/src/pymath/statistics/tachogram_statistics.py -text
 PyMath/src/pymath/time_domain/__init__.py -text
 PyMath/src/pymath/time_domain/poincare_plot/__init__.py -text
