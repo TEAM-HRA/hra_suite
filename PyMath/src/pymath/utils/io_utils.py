@@ -11,6 +11,7 @@ try:
     from pycore.io_utils import CSVFile
     from pycore.misc import fixed_size_string
     from pycore.collections_utils import get_as_tuple
+    from pycore.collections_utils import nvl
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -20,7 +21,8 @@ class NumpyCSVFile(CSVFile):
                  reference_filename=None, sort_headers=True,
                  output_precision=None, print_output_file=False,
                  ordinal_column_name=None, output_separator=None,
-                 output_headers=None, ordered_headers=None):
+                 output_headers=None, ordered_headers=None,
+                 message=None):
         super(NumpyCSVFile, self).__init__(output_file, output_dir,
                     output_suffix, reference_filename, sort_headers,
                     ordinal_column_name=ordinal_column_name,
@@ -30,6 +32,7 @@ class NumpyCSVFile(CSVFile):
         self.array_data = None
         self.__output_precision__ = get_as_tuple(output_precision, convert=int)
         self.__print_output_file__ = print_output_file
+        self.__message__ = message
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         if not self.output_file == None:
@@ -53,7 +56,8 @@ class NumpyCSVFile(CSVFile):
                 memory_file.close()
                 memory_file = None
                 if self.__print_output_file__:
-                    print('Data saved into the file: ' + self.output_file)
+                    print(nvl(self.__message__, 'Data saved into the file: ')
+                          + self.output_file)
             else:
                 if self.__print_output_file__:
                     print('No data saved !!!')
