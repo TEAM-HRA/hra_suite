@@ -6,7 +6,6 @@ Created on 27-07-2012
 from pymath.utils.utils import print_import_error
 try:
     import os
-    import gc
     import argparse
     import glob
     import numpy as np
@@ -33,6 +32,9 @@ try:
     from pymath.statistics.statistics import CORE_STATISTICS
     from pymath.statistics.statistics import ASYMMETRY_STATISTICS
     from pymath.statistics.statistics import NON_CHECK_STATISTICS
+    from pymath.statistics.summary_statistics import get_summary_statistics_names # @IgnorePep8
+    from pymath.statistics.summary_statistics import ALL_SUMMARY_STATISTICS
+    from pymath.statistics.summary_statistics import SummaryStatisticsFactory
     from pymath.datasources import DataVector
     from pymath.datasources import FileDataSource
     from pymath.datasources import ALL_ANNOTATIONS
@@ -167,6 +169,21 @@ class PoincarePlotManager(object):
     @statistics.setter
     def statistics(self, _statistics_names):
         self.__statistics_names__ = _statistics_names
+
+    @property
+    def summary_statistics(self):
+        """
+        [optional]
+        names of summary_statistics to be calculated (separated by ','),
+        or ALL for all summary statistics
+        to get a list of available statistics names call a method:
+        available_statistics()
+        """
+        return self.__summary_statistics_names__
+
+    @summary_statistics.setter
+    def summary_statistics(self, _summary_statistics_names):
+        self.__summary_statistics_names__ = _summary_statistics_names
 
     def available_statistics(self):
         """
@@ -450,7 +467,20 @@ class PoincarePlotManager(object):
                          sort_headers=False,
                          output_headers=self.output_headers,
                          ordered_headers=self.statistics) as csv:
+            summaryStatisticsFactory = SummaryStatisticsFactory(
+                                                    self.summary_statistics)
             if self.skip_existing_outcomes:
+                #only used to check if summary output file exists
+                if summaryStatisticsFactory.has_summary_statistics > 0:
+                    summary_csv = NumpyCSVFile(output_dir=self.output_dir,
+                                           reference_filename=_file,
+                                           output_suffix='_sum')
+                    if os.path.exists(summary_csv.output_file):
+                        if disp:
+                            print('Skipping processing, the summary outcome file ' # @IgnorePep8
+                                  + str(summary_csv.output_file) + ' exists !')
+                            return
+
                 if os.path.exists(csv.output_file):
                     if disp:
                         print('Skipping processing, the outcome file '
@@ -503,7 +533,24 @@ class PoincarePlotManager(object):
                 parameters.update(statistics)
 
                 csv.write(parameters, ordinal_value=segmenter.ordinal_value)
+
+                summaryStatisticsFactory.update(statistics, data_segment)
                 #print(str(statistics))
+
+            if summaryStatisticsFactory.has_summary_statistics > 0:
+                summary_headers = \
+                            summaryStatisticsFactory.summary_statistics.keys()
+                #save summary statistics into a file
+                with NumpyCSVFile(output_dir=self.output_dir,
+                         reference_filename=_file,
+                         output_precision=self.output_precision,
+                         print_output_file=True,
+                         output_separator=self.output_separator,
+                         sort_headers=False,
+                         output_headers=summary_headers,
+                         output_suffix='_sum',
+                         message='\nSummary statistics saved into the file: ') as summary_csv: # @IgnorePep8 
+                    summary_csv.write(summaryStatisticsFactory.summary_statistics) # @IgnorePep8
 
             if progress:
                 progress.close
@@ -686,6 +733,8 @@ class PoincarePlotManager(object):
             print('Using statistics handlers/functions:')
             for _handler in self.__statistics_handlers__:
                 print('   name: ' + _handler.name)
+        if self.summary_statistics:
+            print('Using summary statistics: ' + self.summary_statistics)
         print('Using output precision: ' + self.output_precision)
         print('Using buffer: ' + str(self.use_buffer))
         if not self.filters == None:
@@ -831,6 +880,9 @@ if __name__ == '__main__':
     parser.add_argument("-s", "--statistics",
                 help="list of statistics names to calculate, available: " +
                         commas(get_statistics_names(ALL_STATISTICS)))
+    parser.add_argument("-ss", "--summary_statistics",
+                help="list of summary statistics names to calculate, available: " + # @IgnorePep8
+                commas(get_summary_statistics_names(ALL_SUMMARY_STATISTICS)))
     parser.add_argument("-he", "--headers", type=to_bool,
                         help="display lines of headers [True|False]")
     parser.add_argument("-si", "--signal_index", type=int,
@@ -898,6 +950,7 @@ if __name__ == '__main__':
     ppManager.window_shift = __args.window_shift
     ppManager.output_dir = __args.output_dir
     ppManager.statistics = __args.statistics
+    ppManager.summary_statistics = __args.summary_statistics
     ppManager.signal_index = __args.signal_index
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
