@@ -25,6 +25,7 @@ try:
     from pygui.qt.custom_widgets.units import TimeUnitsWidget
     from pygui.qt.plots.tachogram_plot_plot import TachogramPlotPlot
     from pygui.qt.plots.tachogram_plot_plot import STATISTIC_MIME_ID
+    from pygui.qt.plots.tachogram_plot_plot import STATISTIC_CLASS_NAME_ID
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import TAB_WIDGET_ADDED_SIGNAL
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
@@ -195,11 +196,12 @@ class TachogramStatisticsWidget(TableViewCommon):
         self.__dragger__ = CopyDragger(self, STATISTIC_MIME_ID, drag_only=True)
         self.setSelectionMode(QAbstractItemView.SingleSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setColumnHidden(0, True)  # "classname" columns is hidden
         self.__createModel__()
 
     def __createModel__(self):
         model = TachogramStatisticsModel(self)
-        labels = QStringList(["Statistic", "Value"])
+        labels = QStringList(["class_name", "Statistic", "Value"])
         model.setHorizontalHeaderLabels(labels)
         self.setModel(model)
 
@@ -208,15 +210,17 @@ class TachogramStatisticsWidget(TableViewCommon):
         model.removeRows(0, model.rowCount())
         values = _statistics[0]
         descriptions = _statistics[1]
-        self.statistics_names = sorted([name for name in values])
-        for name in self.statistics_names:
-            model.appendRow([QStandardItem(str(descriptions[name])),
+        self.class_names = sorted([name for name in values])
+        for name in sorted([name for name in self.class_names]):
+            model.appendRow([QStandardItem(str(name)),
+                             QStandardItem(str(descriptions[name])),
                              QStandardItem(str(values[name]))])
 
     def startDrag(self, dropActions):
         row = self.model().itemFromIndex(self.currentIndex()).row()
         self.__dragger__.clear()
-        self.__dragger__.dragObject("statistic", self.statistics_names[row])
+        self.__dragger__.dragObject(STATISTIC_CLASS_NAME_ID,
+                                    self.class_names[row])
         self.__dragger__.startDrag()
 
 

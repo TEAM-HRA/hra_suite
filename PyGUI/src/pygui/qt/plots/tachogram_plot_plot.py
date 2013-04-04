@@ -25,6 +25,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 STATISTIC_MIME_ID = "application/x-statistic_name"
+STATISTIC_CLASS_NAME_ID = "statistic_class_name"
 
 
 class TachogramPlotPlot(CompositeCommon):
@@ -120,7 +121,7 @@ class TachogramPlotCanvas(FigureCanvas):
 
     def dropEvent(self, event):
         if self.__dropper__.dropEvent(event):
-            statistic = self.__dropper__.dropObject('statistic')
+            statistic = self.__dropper__.dropObject(STATISTIC_CLASS_NAME_ID)
             print('STATISTIC: ' + str(statistic))
 
     def dragEnterEvent(self, event):

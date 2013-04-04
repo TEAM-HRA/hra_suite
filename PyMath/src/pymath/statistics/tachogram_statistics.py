@@ -77,7 +77,7 @@ def calculate_tachogram_statistics(**data):
     for tachogram_statistic_class in get_subclasses(TachogramStatistic):
         tachogram_statistic = tachogram_statistic_class(**data)
         #remove TachogramStatistic label
-        name = tachogram_statistic_class.__name__[:-len('TachogramStatistic')]
+        name = tachogram_statistic_class.__name__
         descriptions[name] = tachogram_statistic.description
         outcomes[name] = tachogram_statistic.compute()
     return (outcomes, descriptions, )
