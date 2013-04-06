@@ -33,7 +33,7 @@ class TachogramPlotWindow(MainWindowCommon):
 
         self.addToolBar(OperationalToolBarWidget(self))
 
-        self.tachogramPlot = TachogramPlot(self,
+        self.tachogramPlot = __TachogramPlot__(self,
             file_specification=self.params.file_specification,
             show_tachogram_plot_settings_handler=self.__show_tachogram_plot_settings_handler__,   # @IgnorePep8
             show_tachogram_plot_statistics_handler=self.__show_tachogram_plot_statistics_handler__)  # @IgnorePep8
@@ -74,12 +74,12 @@ class TachogramPlotWindow(MainWindowCommon):
 #
 
 
-class TachogramPlot(CompositeCommon):
+class __TachogramPlot__(CompositeCommon):
     """
     this class represents core of the tachogram plot that is a plot itself
     """
     def __init__(self, parent, **params):
-        super(TachogramPlot, self).__init__(parent,
+        super(__TachogramPlot__, self).__init__(parent,
                                         not_add_widget_to_parent_layout=True)
         self.params = Params(**params)
         file_data_source_params = self.params.file_specification._asdict()
