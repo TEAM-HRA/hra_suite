@@ -74,6 +74,7 @@ PyGUI/src/pygui/qt/plots/__init__.py -text
 PyGUI/src/pygui/qt/plots/plots_signals.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_canvas.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_const.py -text
+PyGUI/src/pygui/qt/plots/tachogram_plot_datasource_list_widget.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_manager.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_navigator_toolbar.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_settings_dock_widget.py -text
