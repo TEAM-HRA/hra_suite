@@ -26,10 +26,10 @@ try:
     from pygui.qt.utils.widgets import maximize_widget
     from pygui.qt.utils.widgets import restore_widget
     from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
-    from pygui.qt.plots.tachogram_plot import TachogramPlotManager
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import RESTORE_TACHOGRAM_PLOT_SIGNAL
+    from pygui.qt.plots.tachogram_plot_manager import TachogramPlotManager
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
