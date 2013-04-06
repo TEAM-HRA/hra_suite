@@ -13,9 +13,9 @@ try:
     from pygui.qt.utils.widgets import TableViewCommon
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import DockWidgetCommon
-    from pygui.qt.plots.tachogram_plot_plot import STATISTIC_MIME_ID
-    from pygui.qt.plots.tachogram_plot_plot import STATISTIC_CLASS_NAME_ID
     from pygui.qt.utils.dnd import CopyDragger
+    from pygui.qt.plots.tachogram_plot_const import STATISTIC_MIME_ID
+    from pygui.qt.plots.tachogram_plot_const import STATISTIC_CLASS_NAME_ID
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
