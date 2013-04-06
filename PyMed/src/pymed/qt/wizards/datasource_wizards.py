@@ -622,7 +622,7 @@ class ChooseColumnsDataPage(QWizardPage):
                     _signalIndex, _annotationIndex, _timeIndex, _separator,
                     self.__timeUnitsGroup__.getUnit())
 
-        PluginsManager.invokePlugin(PluginsNames.POINCARE_PLOT_PLUGIN_NAME,
+        PluginsManager.invokePlugin(PluginsNames.TACHOGRAM_PLOT_PLUGIN_NAME,
                     inspect.stack(),
                     model=filesSpecificationModel.getAsFilesSpecifications(),
                     activity_description=self.__activity__.description(),

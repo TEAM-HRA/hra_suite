@@ -18,7 +18,7 @@ except ImportError as error:
 
 
 class PluginsNames(object):
-    POINCARE_PLOT_PLUGIN_NAME = 'poincare'
+    TACHOGRAM_PLOT_PLUGIN_NAME = 'tachogram'
 
 
 class PluginsManager(object):

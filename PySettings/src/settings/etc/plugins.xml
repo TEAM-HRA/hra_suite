@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <plugins>
-	<plugin ident="pygui.qt.utils.plugins.PluginsNames.POINCARE_PLOT_PLUGIN_NAME" 
+	<plugin ident="pygui.qt.utils.plugins.PluginsNames.TACHOGRAM_PLOT_PLUGIN_NAME" 
 		host_object_name="pycore.globals.Globals.MAIN_WINDOW_NAME">
 		<signals>
 			<signal ident="pygui.qt.utils.signals.ADD_TAB_WIDGET_SIGNAL">
 				<params>
-					<param value="Poincare Plot" description="title of the tab"/>
-					<param value="pygui.qt.plots.poincare_plot.PoincarePlotTabWidget" description="implementation class"/>					
+					<param value="Tachogram Plot" description="title of the tab"/>
+					<param value="pygui.qt.plots.tachogram_plot_tab_widget.TachogramPlotTabWidget" description="implementation class"/>					
 					<param key="model" description="name of the key of model object used by implementattion class"/>
 					<param value="False" description="reuse flag"/>
 				</params>

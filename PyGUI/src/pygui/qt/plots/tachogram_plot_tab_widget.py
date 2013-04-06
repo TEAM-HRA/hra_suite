@@ -34,10 +34,10 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class PoincarePlotTabWidget(TabWidgetItemCommon):
+class TachogramPlotTabWidget(TabWidgetItemCommon):
 
     def __init__(self, **params):
-        super(PoincarePlotTabWidget, self).__init__(**params)
+        super(TachogramPlotTabWidget, self).__init__(**params)
         self.params = Params(**params)
         layout = QHBoxLayout()
         self.setLayout(layout)
@@ -48,12 +48,12 @@ class PoincarePlotTabWidget(TabWidgetItemCommon):
 
         #this method's call is very important, it sets up widgets sizes which
         #make up a splitter; it has to be the last operation in
-        #the PoincarePlotTabWidget's creation process
+        #the TachogramPlotTabWidget's creation process
         self.__splitter__.updateSizes()
 
     def beforeCloseTab(self):
         """
-        this method includes actions to be invoked when a PoincarePlotTabWidget is closing @IgnorePep8
+        this method includes actions to be invoked when a TachogramPlotTabWidget is closing @IgnorePep8
         """
         self.__splitter__.saveSettings()
 
