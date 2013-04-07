@@ -60,7 +60,6 @@ class TachogramStatisticsWidget(TableViewCommon):
         self.__dragger__ = CopyDragger(self, STATISTIC_MIME_ID, drag_only=True)
         self.setSelectionMode(QAbstractItemView.SingleSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
-        self.setColumnHidden(0, True)  # "classname" columns is hidden
         self.__createModel__()
 
     def __createModel__(self):
@@ -79,6 +78,7 @@ class TachogramStatisticsWidget(TableViewCommon):
             model.appendRow([QStandardItem(str(name)),
                              QStandardItem(str(descriptions[name])),
                              QStandardItem(str(values[name]))])
+        self.setColumnHidden(0, True)  # "class_name" columns is hidden
 
     def startDrag(self, dropActions):
         row = self.model().itemFromIndex(self.currentIndex()).row()
@@ -94,7 +94,7 @@ class TachogramStatisticsModel(QStandardItemModel):
 
     def data(self, _modelIndex, _role):
         #the first column (with index 0) is a name of statistic
-        if _modelIndex.column() == 1 and _role == Qt.TextAlignmentRole:
+        if _modelIndex.column() == 2 and _role == Qt.TextAlignmentRole:
             return Qt.AlignRight
         else:
             return super(TachogramStatisticsModel, self).data(_modelIndex,
