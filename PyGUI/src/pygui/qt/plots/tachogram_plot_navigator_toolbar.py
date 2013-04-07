@@ -15,6 +15,7 @@ try:
     from pygui.qt.plots.tachogram_plot_canvas import NormalTachogramPlotEngine
     from pygui.qt.plots.tachogram_plot_canvas import ScatterTachogramPlotEngine
     from pygui.qt.plots.tachogram_plot_settings_dock_widget import TachogramPlotSettingsDockWidget # @IgnorePep8
+    from pygui.qt.plots.tachogram_plot_statistics_dock_widget import TachogramPlotStatisticsDockWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -79,5 +80,9 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
         self.__tachogram_settings__.show()
 
     def __showTachogramPlotStatistics__(self):
-        if not self.params.show_tachogram_plot_statistics_handler == None:
-            self.params.show_tachogram_plot_statistics_handler()
+        if not hasattr(self, '__tachogram_statistics__'):
+            parent = self.params.dock_parent \
+                    if self.params.dock_parent else self.parent()
+            self.__tachogram_statistics__ = TachogramPlotStatisticsDockWidget(
+                                parent, data_accessor=self.data_accessor)
+        self.__tachogram_statistics__.show()

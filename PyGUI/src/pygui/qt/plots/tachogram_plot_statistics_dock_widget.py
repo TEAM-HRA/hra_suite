@@ -8,7 +8,6 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pymath.datasources import FileDataSource
     from pymath.statistics.tachogram_statistics import calculate_tachogram_statistics  # @IgnorePep8
     from pygui.qt.utils.widgets import TableViewCommon
     from pygui.qt.utils.widgets import CompositeCommon
@@ -29,9 +28,7 @@ class TachogramPlotStatisticsDockWidget(DockWidgetCommon):
         super(TachogramPlotStatisticsDockWidget, self).__init__(parent,
                         title=params.get('title', 'Tachogram plot statistics'),
                         **params)
-        file_data_source_params = self.params.file_specification._asdict()
-        file_data_source = FileDataSource(**file_data_source_params)
-        data_vector = file_data_source.getData()
+        self.data_accessor = self.params.data_accessor  # alias
 
         self.setObjectName("TachogramPlotStatisticsDockWidget")
         self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea |
@@ -40,16 +37,17 @@ class TachogramPlotStatisticsDockWidget(DockWidgetCommon):
         layout.setMargin(0)  # no margin for internal layout
         self.dockComposite = CompositeCommon(self, layout=layout,
                                         not_add_widget_to_parent_layout=True)
-        self.__createStatisticsWidget__(QVBoxLayout(), data_vector)
+        self.__createStatisticsWidget__(QVBoxLayout())
 
         self.setWidget(self.dockComposite)
         parent.addDockWidget(Qt.RightDockWidgetArea, self)
 
-    def __createStatisticsWidget__(self, _layout, _data_vector):
+    def __createStatisticsWidget__(self, _layout):
         self.statisticsWidget = TachogramStatisticsWidget(self.dockComposite,
                                                           layout=_layout)
-        statistics = calculate_tachogram_statistics(signal=_data_vector.signal,
-                                            annotation=_data_vector.annotation)
+        statistics = calculate_tachogram_statistics(
+                                            signal=self.data_accessor.signal,
+                                    annotation=self.data_accessor.annotation)
         self.statisticsWidget.setTachogramStatistics(statistics)
 
 

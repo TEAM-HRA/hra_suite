@@ -8,7 +8,6 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pycore.introspection import get_child_of_type
     from pycore.units import get_unit_by_class_name
     from pycore.units import OrderUnit
     from pymath.datasources import FileDataSource
@@ -20,7 +19,6 @@ try:
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import RESTORE_TACHOGRAM_PLOT_SIGNAL
-    from pygui.qt.plots.tachogram_plot_statistics_dock_widget import TachogramPlotStatisticsDockWidget  # @IgnorePep8
     from pygui.qt.plots.tachogram_plot_canvas import TachogramPlotCanvas
     from pygui.qt.plots.tachogram_plot_navigator_toolbar import TachogramPlotNavigationToolbar  # @IgnorePep8    
 except ImportError as error:
@@ -35,8 +33,7 @@ class TachogramPlotWindow(MainWindowCommon):
         self.addToolBar(OperationalToolBarWidget(self))
 
         self.tachogramPlot = __TachogramPlot__(self,
-            file_specification=self.params.file_specification,
-            show_tachogram_plot_statistics_handler=self.__show_tachogram_plot_statistics_handler__)  # @IgnorePep8
+                            file_specification=self.params.file_specification)
         self.setCentralWidget(self.tachogramPlot)
 
     def toolbar_maximum_handler(self):
@@ -47,13 +44,6 @@ class TachogramPlotWindow(MainWindowCommon):
 
     def toolbar_close_handler(self):
         SignalDispatcher.broadcastSignal(CLOSE_TACHOGRAM_PLOT_SIGNAL, self)
-
-    def __show_tachogram_plot_statistics_handler__(self):
-        dock_widget = get_child_of_type(self, TachogramPlotStatisticsDockWidget) # @IgnorePep8
-        if dock_widget == None:
-            dock_widget = TachogramPlotStatisticsDockWidget(self,
-                            file_specification=self.params.file_specification)
-        dock_widget.show()
 
 #    def __change_unit_handler__(self, _unit):
 #        self.tachogramPlot.changeXUnit(_unit)
@@ -84,9 +74,8 @@ class __TachogramPlot__(CompositeCommon):
         data_accessor.changeXSignalUnit(self, OrderUnit)
         self.canvas = TachogramPlotCanvas(self, data_accessor=data_accessor)
         layout.addWidget(self.canvas)
-        self.navigation_toolbar = TachogramPlotNavigationToolbar(self,
-                            self.canvas,
-                            dock_parent=parent,
-                            data_accessor=data_accessor,
-                            show_tachogram_plot_statistics_handler=self.params.show_tachogram_plot_statistics_handler) # @IgnorePep8
+        self.navigation_toolbar = TachogramPlotNavigationToolbar(
+                                                self, self.canvas,
+                                                dock_parent=parent,
+                                                data_accessor=data_accessor)
         layout.addWidget(self.navigation_toolbar)
