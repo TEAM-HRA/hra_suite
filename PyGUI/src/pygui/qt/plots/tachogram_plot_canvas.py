@@ -12,7 +12,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pycore.units import OrderUnit
-    from pycore.collections_utils import nvl
+    from pymath.datasources import DataVectorListener
     from pygui.qt.utils.dnd import CopyDropper
     from pygui.qt.plots.tachogram_plot_const import STATISTIC_MIME_ID
     from pygui.qt.plots.tachogram_plot_const import STATISTIC_CLASS_NAME_ID
@@ -28,15 +28,17 @@ class TachogramPlotCanvas(FigureCanvas):
         #super(TachogramPlotCanvas, self).__init__(parent,
         #                                not_add_widget_to_parent_layout=True)
         self.params = Params(**params)
+        self.data_accessor = self.params.data_accessor  # alias
+        self.data_accessor.addListener(self, __CanvasDataVectorListener__(self)) # @IgnorePep8
+
         self.fig = Figure()
         self.axes = self.fig.add_subplot(111)
-        self.x_axis_unit = OrderUnit  # mark defualt x axis unit as order unit
-        self.signal_unit = self.params.signal_unit
-        self.y = self.params.signal
-        self.__current_plot__ = None
-        self.__current_plot_handler__ = None
-        self.calculate()
+
+        self.__current_plot_engine__ = None
+
         FigureCanvas.__init__(self, self.fig)
+
+        self.plot(NormalTachogramPlotEngine)
 
         # automatic layout adjustment to use available space more efficiently
         self.fig.tight_layout()
@@ -47,40 +49,27 @@ class TachogramPlotCanvas(FigureCanvas):
         FigureCanvas.updateGeometry(self)
         self.__dropper__ = CopyDropper(self, STATISTIC_MIME_ID)
 
-    def calculate(self, _signal=None, _x_axis_unit=None):
-        self.y = nvl(_signal, self.y)
-        self.x_axis_unit = nvl(_x_axis_unit, self.x_axis_unit)
-        if self.x_axis_unit == OrderUnit:
-            self.x = np.arange(0, len(self.y), 1)
-        # x axis unit is the same as signal unit
-        elif self.x_axis_unit == self.signal_unit:
-            self.x = np.cumsum(self.y)
-        else:
-            #express signal unit in terms of x axis unit
-            multiplier = self.signal_unit.expressInUnit(self.x_axis_unit)
-            self.x = np.cumsum(self.y) * multiplier
+    def plot(self, _plot_engine_class=None, force_plot=False):
 
-    def changeXUnit(self, _unit):
-        self.plot(force_plot=True, _x_axis_unit=_unit)
+        if self.__current_plot_engine__ == None:
+            self.__current_plot_engine__ = NormalTachogramPlotEngine()
+        #plot engine not specified and doesn't have to plot
+        elif force_plot == False and (_plot_engine_class == None or \
+            _plot_engine_class.__name__ == \
+                self.__current_plot_engine__.__class__.__name__):
+                return
 
-    def plot(self, _plot_handler=None, force_plot=False, _signal=None,
-             _x_axis_unit=None):
-        if _plot_handler == None:
-            _plot_handler = self.__current_plot_handler__
-        if force_plot == False and \
-            self.__current_plot_handler__ == _plot_handler:
-            return
-        else:
-            self.__current_plot_handler__ = _plot_handler
-            self.axes.cla()
+        #plot engine class changed
+        if not _plot_engine_class == None and not _plot_engine_class.__name__ \
+            == self.__current_plot_engine__.__class__.__name__:
+            self.__current_plot_engine__ = _plot_engine_class()
+        self.axes.cla()
+        self.__calculate__()
+        self.__current_plot_engine__.plot(self)
+        print('PLOTTING')
 
-        if not _signal == None or not _x_axis_unit == None:
-            self.calculate(_signal=_signal, _x_axis_unit=_x_axis_unit)
-
-        _plot_handler(self)
-
-        self.axes.set_xlabel(self.x_axis_unit.display_label)
-        self.axes.set_ylabel(self.signal_unit.display_label)
+        self.axes.set_xlabel(self.data_accessor.signal_x_unit.display_label)
+        self.axes.set_ylabel(self.data_accessor.signal_unit.display_label)
         self.draw()
 
     def dropEvent(self, event):
@@ -90,3 +79,51 @@ class TachogramPlotCanvas(FigureCanvas):
 
     def dragEnterEvent(self, event):
         self.__dropper__.dragEnterEvent(event)
+
+    def __calculate__(self):
+        self.y = self.data_accessor.signal
+
+        if self.data_accessor.signal_x_unit == OrderUnit:
+            self.x = np.arange(0, len(self.y), 1)
+        # x axis unit is the same as signal unit
+        elif self.data_accessor.signal_x_unit == \
+                                    self.data_accessor.signal_unit:
+            self.x = np.cumsum(self.y)
+        else:
+            #express signal unit in terms of x axis unit
+            multiplier = self.data_accessor.signal_unit.expressInUnit(
+                                        self.data_accessor.signal_x_unit)
+            self.x = np.cumsum(self.y) * multiplier
+
+
+class __CanvasDataVectorListener__(DataVectorListener):
+    """
+    class to run plot when signal, x axis unit is about to change
+    """
+    def __init__(self, _canvas):
+        self.__canvas__ = _canvas
+
+    def changeSignal(self, _signal):
+        self.__canvas__.plot(force_plot=True)
+
+    def changeAnnotation(self, _annotation):
+        pass
+
+    def changeXSignalUnit(self, _x_signal_unit):
+        self.__canvas__.plot(force_plot=True)
+
+
+class NormalTachogramPlotEngine(object):
+    """
+    action invoked for 'normal' plot
+    """
+    def plot(self, _canvas):
+        _canvas.axes.plot(_canvas.x, _canvas.y)
+
+
+class ScatterTachogramPlotEngine(object):
+    """
+    action invoked for scatter plot
+    """
+    def plot(self, _canvas):
+        _canvas.axes.plot(_canvas.x, _canvas.y, 'bo')

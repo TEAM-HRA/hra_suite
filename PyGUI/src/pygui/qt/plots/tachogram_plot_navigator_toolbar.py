@@ -11,18 +11,22 @@ try:
     from pycore.misc import Params
     from pycommon.actions import ActionSpec
     from pygui.qt.actions.actions_utils import create_action
-    from pygui.qt.custom_widgets.filters import FiltersWidget
+    #from pygui.qt.custom_widgets.filters import FiltersWidget
+    from pygui.qt.plots.tachogram_plot_canvas import NormalTachogramPlotEngine
+    from pygui.qt.plots.tachogram_plot_canvas import ScatterTachogramPlotEngine
+    from pygui.qt.plots.tachogram_plot_settings_dock_widget import TachogramPlotSettingsDockWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
 class TachogramPlotNavigationToolbar(NavigationToolbar):
 
-    def __init__(self, canvas, parent, **params):
+    def __init__(self, parent, canvas, **params):
         self.params = Params(**params)
         # create the default toolbar
         NavigationToolbar.__init__(self, canvas, parent)
         self.canvas = canvas
+        self.data_accessor = self.params.data_accessor  # alias
 
         # add new toolbar buttons
         normal_plot_action = self.__createAction__(title="Normal plot",
@@ -41,13 +45,11 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
                                     iconId='tachogram_plot_settings')
         self.addAction(tachogram_plot_settings_action)
 
-        self.__normalPlot__()
-
         #add a filters combo box widget
-        self.addWidget(FiltersWidget(parent,
-                                     self.canvas.params.signal,
-                                     self.canvas.params.annotation,
-                                     clicked_handler=self.__filter_handler__))
+#        self.addWidget(FiltersWidget(parent,
+#                                     self.canvas.params.signal,
+#                                     self.canvas.params.annotation,
+#                                     clicked_handler=self.__filter_handler__))
 
         tachogram_plot_statistics_action = self.__createAction__(
                                 title="Tachogram plot statistics",
@@ -59,23 +61,22 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
         return create_action(self.parent(), ActionSpec(**params))
 
     def __normalPlot__(self):
-        def __inner__(canvas):
-            canvas.axes.plot(canvas.x, canvas.y)
-        self.canvas.plot(__inner__)
+        self.canvas.plot(NormalTachogramPlotEngine)
 
     def __scatterPlot__(self):
-        def __inner__(canvas):
-            canvas.axes.plot(canvas.x, canvas.y, 'bo')
-        self.canvas.plot(__inner__)
+        self.canvas.plot(ScatterTachogramPlotEngine)
 
-    def __filter_handler__(self, _signal, _annotation):
-        self._views.clear()  # clear all remembered view history
-        self.canvas.plot(force_plot=True, _signal=_signal)
+#    def __filter_handler__(self, _signal, _annotation):
+#        self._views.clear()  # clear all remembered view history
+#        self.canvas.plot(force_plot=True, _signal=_signal)
 
     def __showTachogramPlotSettings__(self):
-        if not self.params.show_tachogram_plot_settings_handler == None:
-            self.params.show_tachogram_plot_settings_handler(
-                                                    self.canvas.x_axis_unit)
+        if not hasattr(self, '__tachogram_settings__'):
+            parent = self.params.dock_parent \
+                    if self.params.dock_parent else self.parent()
+            self.__tachogram_settings__ = TachogramPlotSettingsDockWidget(
+                                parent, data_accessor=self.data_accessor)
+        self.__tachogram_settings__.show()
 
     def __showTachogramPlotStatistics__(self):
         if not self.params.show_tachogram_plot_statistics_handler == None:

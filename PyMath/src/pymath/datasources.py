@@ -315,7 +315,97 @@ class FileDataSource(object):
         return data_source
 
     def getUniqueAnnotations(self):
-        data = self.getData()
-        if data.annotation is not None:
-            unique_annotations = pl.unique(data.annotation)
-            return unique_annotations[pl.where(unique_annotations > 0)]
+        return get_unique_annotations(self, self.getData().annotation)
+
+
+def get_unique_annotations(self, _annotations):
+    if _annotations is not None:
+        unique_annotations = pl.unique(_annotations)
+        return unique_annotations[pl.where(unique_annotations > 0)]
+
+
+class DataVectorAccessor(object):
+    """
+    class used to check if there are any changes in data_vector object
+    and if this is the case all listeners are called
+    """
+    def __init__(self, _data_vector):
+        self.__data_vector0__ = _data_vector  # this is the first stage of data
+        self.__data_vector__ = self.__data_vector0__
+        self.__data_vector_listeners__ = {}
+        # this member represents signal unit for x axis of a plot
+        self.__x_signal_unit__ = None
+
+    @property
+    def signal(self):
+        return self.__data_vector__.signal
+
+    @property
+    def annotation(self):
+        return self.__data_vector__.annotation
+
+    @property
+    def signal_unit(self):
+        return self.__data_vector__.signal_unit
+
+    @property
+    def signal_x_unit(self):
+        return self.__x_signal_unit__
+
+    def addListener(self, _host, _data_vector_listener):
+        self.__data_vector_listeners__[_host] = _data_vector_listener
+
+    def changeSignal(self, _host, _signal):
+        if not self.__data_vector__.signal == _signal:
+            self.__data_vector__.signal = _signal
+            for host in self.__data_vector_listeners__:
+                if not _host == host:  # to avoid recurrence
+                    self.__data_vector_listeners__[host].changeSignal(_signal)
+
+    def changeAnnotation(self, _host, _annotation):
+        if not self.__data_vector__.annotation == _annotation:
+            self.__data_vector__.annotation = _annotation
+            for host in self.__data_vector_listeners__:
+                if not _host == host:  # to avoid recurrence
+                    self.__data_vector_listeners__[host].changeAnnotation(
+                                                                _annotation)
+
+    def changeXSignalUnit(self, _host, _unit):
+        if not self.__x_signal_unit__ == _unit:
+            self.__x_signal_unit__ = _unit
+            for host in self.__data_vector_listeners__:
+                if not _host == host:  # to avoid recurrence
+                    self.__data_vector_listeners__[host].changeXSignalUnit(
+                                                                _unit)
+
+    def restore(self):
+        """
+        method used to be invoked to restore original state of data vector
+        """
+        signal_changed = not self.__data_vector__.signal == self.__data_vector0__.signal # @IgnorePep8
+        annotation_changed = not self.__data_vector__.annotation == self.__data_vector0__.annotation # @IgnorePep8
+
+        if signal_changed or annotation_changed:
+            self.__data_vector__ = self.__data_vector0__
+            for host in self.__data_vector_listeners__:
+                if signal_changed:
+                    self.__data_vector_listeners__[host].changeSignal(
+                                            self.__data_vector__.signal)
+                if annotation_changed:
+                    self.__data_vector_listeners__[host].changeAnnotation(
+                                            self.__data_vector__.annotation)
+
+
+class DataVectorListener(object):
+    """
+    optional listener used when there are some changes in data vector
+    to do specific actions
+    """
+    def changeSignal(self, _signal):
+        pass
+
+    def changeAnnotation(self, _annotation):
+        pass
+
+    def changeXSignalUnit(self, _signal_unit):
+        pass

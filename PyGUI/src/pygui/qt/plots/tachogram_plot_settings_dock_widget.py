@@ -8,12 +8,12 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
-    from pycore.collections_utils import nvl
     from pycore.misc import Params
     from pycore.units import OrderUnit
     from pygui.qt.utils.widgets import DockWidgetCommon
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.custom_widgets.units import TimeUnitsWidget
+    #from pygui.qt.custom_widgets.filters import FiltersWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -24,6 +24,7 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
     """
     def __init__(self, parent, **params):
         self.params = Params(**params)
+        self.data_accessor = self.params.data_accessor  # alias
         get_or_put(params, 'dock_widget_location_changed',
                    self.__dock_widget_location_changed__)
         super(TachogramPlotSettingsDockWidget, self).__init__(parent,
@@ -37,17 +38,15 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
         self.dockComposite = CompositeCommon(self, layout=layout,
                                         not_add_widget_to_parent_layout=True)
 
-        self.__x_unit__ = OrderUnit
         self.__createUnitsWidget__(QHBoxLayout())
+        #self.__createFiltersWidget__()
 
         self.setWidget(self.dockComposite)
         parent.addDockWidget(Qt.BottomDockWidgetArea, self)
-        self.change_unit_handler = params.get('change_unit_handler')
 
     def __changeUnit__(self, unit):
-        if not self.change_unit_handler == None:
-            self.__x_unit__ = unit
-            self.change_unit_handler(unit)
+        if not self.data_accessor == None:
+            self.data_accessor.changeXSignalUnit(self, unit)
 
     def __dock_widget_location_changed__(self, dockWidgetArea):
         layout = self.layout()
@@ -66,9 +65,14 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
 
     def __createUnitsWidget__(self, layout):
         self.unitsWidget = TimeUnitsWidget(self.dockComposite,
-                    i18n_def='X axis units',
-                    default_unit=nvl(self.__x_unit__, self.params.x_unit,
-                                     OrderUnit),
-                    change_unit_handler=self.__changeUnit__,
-                    layout=layout)
+                                i18n_def='X axis units',
+                                default_unit=self.data_accessor.signal_x_unit,
+                                change_unit_handler=self.__changeUnit__,
+                                layout=layout)
         self.unitsWidget.addUnit(OrderUnit)
+
+#    def __createFiltersWidget__(self):
+#        FiltersWidget(self.dockComposite,
+#                                     self.canvas.params.signal,
+#                                     self.canvas.params.annotation,
+#                                     clicked_handler=self.__filter_handler__)
