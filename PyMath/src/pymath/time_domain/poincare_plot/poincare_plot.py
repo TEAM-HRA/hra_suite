@@ -52,7 +52,7 @@ DEFAULT_OUTCOME_DIRECTORY = os.path.join(os.getcwd(), 'pp_outcomes')
 
 def getInterpolationNames():
     """
-    to get default interpolations names; subclasses of DataVectorFilter class
+    to get default interpolations names; subclasses of Interpolation class
     """
     return commas(Interpolation.getSubclassesShortNames())
 

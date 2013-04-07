@@ -25,9 +25,9 @@ ALL_FILTERS = 'ALL'
 
 def getFiltersShortNames():
     """
-    to get default filter names; subclasses of DataVectorFilter class
+    to get default filter names; subclasses of Filter class
     """
-    return commas(DataVectorFilter.getSubclassesShortNames())
+    return commas(Filter.getSubclassesShortNames())
 
 
 def expand_to_real_filters_names(filters_names):
@@ -36,10 +36,10 @@ def expand_to_real_filters_names(filters_names):
     real filters class names
     """
     if filters_names[0] == ALL_FILTERS or filters_names == ALL_FILTERS:
-        return DataVectorFilter.getSubclassesLongNames()
+        return Filter.getSubclassesLongNames()
     real_filters_names = []
     real_names = [(real_name, real_name.lower(), ) \
-                  for real_name in DataVectorFilter.getSubclassesLongNames()]
+                  for real_name in Filter.getSubclassesLongNames()]
     lower_names = [(name.lower(), name.lower() + 'filter', ) \
                    for name in get_as_list(filters_names)]
     for (filter_lower_name, filter_base_name) in lower_names:
@@ -120,7 +120,7 @@ class FilterManager(object):
             self.__filters__.append(filter_object)
 
 
-class DataVectorFilter(object):
+class Filter(object):
     '''
     base class (in a role of abstract class) for filters
     '''
@@ -150,15 +150,15 @@ class DataVectorFilter(object):
 
     @staticmethod
     def getSubclassesShortNames():
-        return get_subclasses_names(DataVectorFilter,
+        return get_subclasses_names(Filter,
                                           remove_name='Filter')
 
     @staticmethod
     def getSubclassesLongNames():
-        return get_subclasses_names(DataVectorFilter)
+        return get_subclasses_names(Filter)
 
 
-class AnnotationFilter(DataVectorFilter):
+class AnnotationFilter(Filter):
 
     def check(self, _data_vector, _excluded_annotations=ALL_ANNOTATIONS):
         """

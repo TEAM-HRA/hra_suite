@@ -9,7 +9,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pymath.datasources import DataVector
-    from pymath.time_domain.poincare_plot.filters import DataVectorFilter
+    from pymath.time_domain.poincare_plot.filters import Filter
     from pycore.introspection import get_subclasses
     from pygui.qt.utils.widgets import ComboBoxCommon
 except ImportError as error:
@@ -19,7 +19,7 @@ except ImportError as error:
 class FiltersWidget(ComboBoxCommon):
     """
     a combo box widget to choose a filtering method based on
-    subclasses of DataVectorFilter class
+    subclasses of Filter class
     """
     def __init__(self, parent, _signal, _annotation, **params):
         #remember a filter handler as inner member
@@ -35,7 +35,7 @@ class FiltersWidget(ComboBoxCommon):
         self.__annotation__ = self.__annotation0__
         self.__last_position__ = None
         self.addItem("- Filters -")
-        for idx, filter_class in enumerate(get_subclasses(DataVectorFilter), 1): # @IgnorePep8
+        for idx, filter_class in enumerate(get_subclasses(Filter), 1):
             filter_name = filter_class.__name__
             self.addItem(filter_name)
             #store class of filter in item data member
