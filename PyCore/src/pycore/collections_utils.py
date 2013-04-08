@@ -203,3 +203,10 @@ def get_or_put(_dict, _key, _default):
             value = _default
             _dict[_key] = value
         return value
+
+
+def is_none_or_zero_length(iterable):
+    """
+    function returns true if collection is None or has length equal 0
+    """
+    return iterable == None or len(iterable) == 0
