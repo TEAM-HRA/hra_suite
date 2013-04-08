@@ -315,10 +315,10 @@ class FileDataSource(object):
         return data_source
 
     def getUniqueAnnotations(self):
-        return get_unique_annotations(self, self.getData().annotation)
+        return get_unique_annotations(self.getData().annotation)
 
 
-def get_unique_annotations(self, _annotations):
+def get_unique_annotations(_annotations):
     if _annotations is not None:
         unique_annotations = pl.unique(_annotations)
         return unique_annotations[pl.where(unique_annotations > 0)]
@@ -335,6 +335,10 @@ class DataVectorAccessor(object):
         self.__data_vector_listeners__ = {}
         # this member represents signal unit for x axis of a plot
         self.__x_signal_unit__ = None
+
+    @property
+    def data_vector(self):
+        return self.__data_vector__
 
     @property
     def signal(self):
