@@ -293,7 +293,16 @@ class ButtonGroupCommon(QButtonGroup, Common):
                 return False
         return True
 
-    def allChecked(self, _checked):
+    def isAllChecked(self):
+        """
+        returns True when all buttons in button's group are checked
+        """
+        for button in self.buttons():
+            if not button.isChecked():
+                return False
+        return True
+
+    def setAllChecked(self, _checked):
         """
         check/uncheck all butoons in button's group
         """
@@ -303,6 +312,10 @@ class ButtonGroupCommon(QButtonGroup, Common):
             button.setChecked(_checked)
         if exclusive:
             self.setExclusive(True)
+
+    def setEnabled(self, _enabled):
+        for button in self.buttons():
+            button.setEnabled(_enabled)
 
 
 class DockWidgetCommon(QDockWidget, Common):
