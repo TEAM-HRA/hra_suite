@@ -32,13 +32,16 @@ class FiltersWidget(CompositeCommon):
         super(FiltersWidget, self).__init__(parent, **params)
         self.data_accessor = self.params.data_accessor  # alias
         #self.addItem("- Filters -")
-        __AnnotationFilterWidget__(self, data_accessor=self.data_accessor)
+        self.__annotation_filter__ = __AnnotationFilterWidget__(self,
+                                    data_accessor=self.data_accessor)
 
         PushButtonCommon(self, i18n_def='Restore',
                         clicked_handler=self.__restore_handler__)
 
     def __restore_handler__(self):
         self.data_accessor.restore()
+        self.__annotation_filter__.check(False)
+        self.__annotation_filter__.setEnabled(True)
 
 
 class __AnnotationFilterWidget__(GroupBoxCommon):
@@ -69,6 +72,7 @@ class __AnnotationFilterWidget__(GroupBoxCommon):
 
             self.__button_apply__ = PushButtonCommon(parent, i18n_def='Apply',
                                 clicked_handler=self.__annotation_handler__)
+            self.__button_apply__.setEnabled(False)
 
     def __annotation_handler__(self):
         __filter__(self.parent(), AnnotationFilter(), self.data_accessor,
@@ -76,18 +80,24 @@ class __AnnotationFilterWidget__(GroupBoxCommon):
 
     def __excluded_annotations__(self):
         if self.__allCheckBox__.isChecked():
+            self.setEnabled(False)
+            self.__button_apply__.setEnabled(False)
             return ALL_ANNOTATIONS
         else:
             annotations = []
             for button in self.__button_group__.buttons():
                 if button.isChecked():
                     annotations.append(int(button.text()))
+                    button.setEnabled(False)
+            if self.__button_group__.isAllChecked():
+                self.setEnabled(False)
+                self.__button_apply__.setEnabled(False)
             return annotations
 
     def __all_handler__(self):
         if self.__allCheckBox__.isChecked():
-            self.__button_group__.allChecked(False)
             self.__button_apply__.setEnabled(True)
+            self.__button_group__.setAllChecked(False)
         else:
             self.__button_apply__.setEnabled(False)
 
@@ -98,6 +108,14 @@ class __AnnotationFilterWidget__(GroupBoxCommon):
         else:
             if self.__button_group__.isAllUnchecked():
                 self.__button_apply__.setEnabled(False)
+
+    def check(self, _check):
+        self.__button_group__.setAllChecked(_check)
+        self.__allCheckBox__.setChecked(_check)
+
+    def setEnabled(self, _enabled):
+        self.__button_group__.setEnabled(_enabled)
+        self.__allCheckBox__.setEnabled(_enabled)
 
 
 def __filter__(parent, _filter, _data_accessor, _excluded_annotations=None):
