@@ -284,6 +284,26 @@ class ButtonGroupCommon(QButtonGroup, Common):
         super(ButtonGroupCommon, self).__init__(parent)
         prepareWidget(parent=parent, widget=self, **params)
 
+    def isAllUnchecked(self):
+        """
+        return True when all buttons in button's group are unchecked
+        """
+        for button in self.buttons():
+            if button.isChecked():
+                return False
+        return True
+
+    def allChecked(self, _checked):
+        """
+        check/uncheck all butoons in button's group
+        """
+        exclusive = self.exclusive()
+        self.setExclusive(False)
+        for button in self.buttons():
+            button.setChecked(_checked)
+        if exclusive:
+            self.setExclusive(True)
+
 
 class DockWidgetCommon(QDockWidget, Common):
     def __init__(self, parent, **params):
