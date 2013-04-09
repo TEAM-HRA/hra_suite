@@ -194,8 +194,10 @@ class AnnotationFilter(Filter):
             not_annotation_indexes = get_not_annotation_indexes(
                             _data_vector.annotation, _excluded_annotations)
             signal = _data_vector.signal[not_annotation_indexes]
+            annotation = _data_vector.annotation[not_annotation_indexes]
             time = _data_vector.time[not_annotation_indexes] \
                     if _data_vector.time else None
+
             return DataVector(signal=signal, signal_plus=signal_plus,
                           signal_minus=signal_minus,
                           time=time, annotation=annotation,
