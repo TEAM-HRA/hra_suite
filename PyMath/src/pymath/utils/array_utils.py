@@ -34,3 +34,10 @@ def get_max_index_for_cumulative_sum_of_means_greater_then_value(_array, _value)
 if __name__ == '__main__':
     a = np.array([1, 2, 1, 3, 2, 1, 2, 3, 2, 1, 1, 2])
     print(str(get_max_index_for_cumulative_sum_of_means_greater_then_value(a, 7)))  # @IgnorePep8
+
+
+def arrays_equal(array1, array2):
+    """
+    function checks if two numpy arrays are equal
+    """
+    return len(array1) == len(array2) and not np.array_equal(array1, array2)
