@@ -6,12 +6,15 @@ Created on 15-08-2012
 from pymath.utils.utils import print_import_error
 try:
     import os
+    import gc
     import collections
     import pylab as pl
     from re import compile
     from pycore.misc import Params
     from pycore.units import Millisecond
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
+    from pymath.utils.array_utils import array_copy
+    from pymath.utils.array_utils import arrays_equal
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -187,6 +190,18 @@ class DataVector(object):
     def __getattr__(self, name):
         return None
 
+    def copy(self):
+        """
+        create copy of this DataVector object
+        """
+        return DataVector(
+            signal=array_copy(self.signal),
+            signal_plus=array_copy(self.signal_plus),
+            signal_minus=array_copy(self.signal_minus),
+            annotation=array_copy(self.annotation),
+            signal_unit=self.signal_unit,
+            time=array_copy(self.time))
+
 
 EMPTY_DATA_VECTOR = DataVector(signal=EMPTY_ARRAY, signal_plus=EMPTY_ARRAY,
                                signal_minus=EMPTY_ARRAY, time=EMPTY_ARRAY,
@@ -330,8 +345,9 @@ class DataVectorAccessor(object):
     and if this is the case all listeners are called
     """
     def __init__(self, _data_vector):
-        self.__data_vector0__ = _data_vector  # this is the first stage of data
-        self.__data_vector__ = self.__data_vector0__
+        # this is the first stage of data
+        self.__data_vector0__ = _data_vector
+        self.__data_vector__ = self.__data_vector0__.copy()
         self.__data_vector_listeners__ = {}
         # this member represents signal unit for x axis of a plot
         self.__x_signal_unit__ = None
@@ -360,14 +376,14 @@ class DataVectorAccessor(object):
         self.__data_vector_listeners__[_host] = _data_vector_listener
 
     def changeSignal(self, _host, _signal):
-        if not self.__data_vector__.signal == _signal:
+        if not arrays_equal(self.__data_vector__.signal, _signal):
             self.__data_vector__.signal = _signal
             for host in self.__data_vector_listeners__:
                 if not _host == host:  # to avoid recurrence
                     self.__data_vector_listeners__[host].changeSignal(_signal)
 
     def changeAnnotation(self, _host, _annotation):
-        if not self.__data_vector__.annotation == _annotation:
+        if not arrays_equal(self.__data_vector__.annotation, _annotation):
             self.__data_vector__.annotation = _annotation
             for host in self.__data_vector_listeners__:
                 if not _host == host:  # to avoid recurrence
@@ -386,17 +402,18 @@ class DataVectorAccessor(object):
         """
         method used to be invoked to restore original state of data vector
         """
-        signal_changed = not self.__data_vector__.signal == self.__data_vector0__.signal # @IgnorePep8
-        annotation_changed = not self.__data_vector__.annotation == self.__data_vector0__.annotation # @IgnorePep8
-
-        if signal_changed or annotation_changed:
-            self.__data_vector__ = self.__data_vector0__
-            for host in self.__data_vector_listeners__:
-                if signal_changed:
-                    self.__data_vector_listeners__[host].changeSignal(
+        if arrays_equal(self.__data_vector__.signal,
+                        self.__data_vector0__.signal) and \
+           arrays_equal(self.__data_vector__.annotation,
+                         self.__data_vector0__.annotation):
+            return
+        self.__data_vector__ = None
+        gc.collect()  # to force garbage collection
+        self.__data_vector__ = self.__data_vector0__.copy()
+        for host in self.__data_vector_listeners__:
+            self.__data_vector_listeners__[host].changeSignal(
                                             self.__data_vector__.signal)
-                if annotation_changed:
-                    self.__data_vector_listeners__[host].changeAnnotation(
+            self.__data_vector_listeners__[host].changeAnnotation(
                                             self.__data_vector__.annotation)
 
 

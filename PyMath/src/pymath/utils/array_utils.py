@@ -41,3 +41,10 @@ def arrays_equal(array1, array2):
     function checks if two numpy arrays are equal
     """
     return len(array1) == len(array2) and np.array_equal(array1, array2)
+
+
+def array_copy(_array):
+    """
+    returns copy of array parameter
+    """
+    return None if _array == None else _array.copy()
