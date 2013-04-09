@@ -30,9 +30,15 @@ class FiltersWidget(CompositeCommon):
     """
     def __init__(self, parent, **params):
         super(FiltersWidget, self).__init__(parent, **params)
-        data_accessor = self.params.data_accessor  # alias
+        self.data_accessor = self.params.data_accessor  # alias
         #self.addItem("- Filters -")
-        __AnnotationFilterWidget__(self, data_accessor=data_accessor)
+        __AnnotationFilterWidget__(self, data_accessor=self.data_accessor)
+
+        PushButtonCommon(self, i18n_def='Restore',
+                        clicked_handler=self.__restore_handler__)
+
+    def __restore_handler__(self):
+        self.data_accessor.restore()
 
 
 class __AnnotationFilterWidget__(GroupBoxCommon):
@@ -47,26 +53,51 @@ class __AnnotationFilterWidget__(GroupBoxCommon):
         if is_none_or_zero_length(unique_annotations):
             self.setEnabled(False)
         else:
-            button_group = ButtonGroupCommon(self)
+            self.__allCheckBox__ = CheckBoxCommon(self, i18n_def='ALL',
+                                        clicked_handler=self.__all_handler__)
 
-            self.__allCheckBox__ = CheckBoxCommon(self, i18n_def='ALL')
-            self.__allCheckBox__.setChecked(True)
-            button_group.addButton(self.__allCheckBox__)
+            self.__button_group__ = ButtonGroupCommon(self)
 
             for unique_annotation in unique_annotations:
                 annotationCheckBox = CheckBoxCommon(self,
                                     i18n_def=str(unique_annotation))
-                button_group.addButton(annotationCheckBox)
+                self.__button_group__.addButton(annotationCheckBox)
+            self.__button_group__.setExclusive(False)
+            self.__button_group__.connect(self.__button_group__,
+                                    SIGNAL("buttonClicked(QAbstractButton *)"),
+                                    self.__one_handler__)
 
-        PushButtonCommon(parent, i18n_def='Apply',
-                        clicked_handler=self.__annotation_handler__)
+            self.__button_apply__ = PushButtonCommon(parent, i18n_def='Apply',
+                                clicked_handler=self.__annotation_handler__)
 
     def __annotation_handler__(self):
         __filter__(self.parent(), AnnotationFilter(), self.data_accessor,
                    self.__excluded_annotations__())
 
     def __excluded_annotations__(self):
-        return ALL_ANNOTATIONS
+        if self.__allCheckBox__.isChecked():
+            return ALL_ANNOTATIONS
+        else:
+            annotations = []
+            for button in self.__button_group__.buttons():
+                if button.isChecked():
+                    annotations.append(int(button.text()))
+            return annotations
+
+    def __all_handler__(self):
+        if self.__allCheckBox__.isChecked():
+            self.__button_group__.allChecked(False)
+            self.__button_apply__.setEnabled(True)
+        else:
+            self.__button_apply__.setEnabled(False)
+
+    def __one_handler__(self, button):
+        if button.isChecked():
+            self.__allCheckBox__.setChecked(False)
+            self.__button_apply__.setEnabled(True)
+        else:
+            if self.__button_group__.isAllUnchecked():
+                self.__button_apply__.setEnabled(False)
 
 
 def __filter__(parent, _filter, _data_accessor, _excluded_annotations=None):
