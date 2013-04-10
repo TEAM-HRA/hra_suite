@@ -112,7 +112,10 @@ PyMath/src/pymath/statistics/summary_statistics.py -text
 PyMath/src/pymath/statistics/tachogram_statistics.py -text
 PyMath/src/pymath/time_domain/__init__.py -text
 PyMath/src/pymath/time_domain/poincare_plot/__init__.py -text
-PyMath/src/pymath/time_domain/poincare_plot/filters.py -text
+PyMath/src/pymath/time_domain/poincare_plot/filters/__init__.py -text
+PyMath/src/pymath/time_domain/poincare_plot/filters/annotation_filter.py -text
+PyMath/src/pymath/time_domain/poincare_plot/filters/filter_manager.py -text
+PyMath/src/pymath/time_domain/poincare_plot/filters/filter_utils.py -text
 PyMath/src/pymath/time_domain/poincare_plot/poincare_plot.py -text
 PyMath/src/pymath/utils/__init__.py -text
 PyMath/src/pymath/utils/array_utils.py -text

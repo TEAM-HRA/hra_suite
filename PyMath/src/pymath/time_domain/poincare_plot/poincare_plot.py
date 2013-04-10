@@ -39,10 +39,10 @@ try:
     from pymath.datasources import FileDataSource
     from pymath.datasources import ALL_ANNOTATIONS
     from pymath.interpolation import Interpolation
-    from pymath.time_domain.poincare_plot.filters import FilterManager
-    from pymath.time_domain.poincare_plot.filters import getFiltersShortNames
     from pymath.frequency_domain.fourier import FourierTransformationManager
     from pymath.frequency_domain.fourier import FourierTransformation
+    from pymath.time_domain.poincare_plot.filters.filter_utils import getFiltersShortNames # @IgnorePep8
+    from pymath.time_domain.poincare_plot.filters.filter_manager import FilterManager # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
 
