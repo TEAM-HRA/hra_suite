@@ -205,7 +205,7 @@ def get_or_put(_dict, _key, _default):
         return value
 
 
-def is_none_or_zero_length(iterable):
+def is_empty(iterable):
     """
     function returns true if collection is None or has length equal 0
     """

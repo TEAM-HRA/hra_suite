@@ -12,6 +12,9 @@ try:
     from pycore.misc import Params
     from pycore.introspection import get_object
     from pycore.collections_utils import nvl
+    from pygui.qt.utils.keys import digit_key
+    from pygui.qt.utils.keys import movement_key
+    from pygui.qt.utils.signals import TEXT_CHANGED_SIGNAL
     from pygui.qt.utils.qt_i18n import text_I18N
     from pygui.qt.utils.qt_i18n import title_I18N
     from pygui.qt.utils.logging import LoggingEventFilter
@@ -427,3 +430,26 @@ def restore_widget(widget):
                 if not widget == childWidget:
                     if hasattr(childWidget, 'show'):
                         childWidget.show()
+
+
+class NumberEditCommon(LineEditCommon):
+    """
+    input text widget which accepts only integer numbers
+    """
+    def __init__(self, parent, **params):
+        super(NumberEditCommon, self).__init__(parent)
+        prepareWidget(parent=parent, widget=self, **params)
+        self.__text_handler__ = params.get('text_handler')
+        if self.__text_handler__:
+            self.connect(self, TEXT_CHANGED_SIGNAL, self.__text_handler__)
+
+    def keyPressEvent(self, e):
+        key = e.key()
+        if movement_key(key) or digit_key(key):
+            e.accept()
+            QLineEdit.keyPressEvent(self, e)
+        else:
+            e.ignore()
+
+    def setText(self, text):
+        super(LineEditCommon, self).setText(str(text))

@@ -51,7 +51,7 @@ class Filter(object):
     base class (in a role of abstract class) for filters
     '''
 
-    def __init__(self, _shift=1):
+    def __init__(self, _shift=1, **params):
         '''
         Constructor
         '''

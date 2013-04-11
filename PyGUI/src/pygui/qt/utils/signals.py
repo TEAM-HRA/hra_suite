@@ -46,6 +46,12 @@ CURRENT_INDEX_CHANGED_SIGNAL = SIGNAL('currentIndexChanged(int)')
 #signal emitted when dock widget location is changed
 DOCK_WIDGET_LOCATION_CHANGED_SIGNAL = SIGNAL('dockLocationChanged(Qt::DockWidgetArea)')  # @IgnorePep8
 
+#signal emitted when text is changing in text input widget
+TEXT_CHANGED_SIGNAL = SIGNAL('textChanged(const QString&)')
+
+#signal emitted when a button is clicked
+BUTTON_CLICKED_SIGNAL = SIGNAL("buttonClicked(QAbstractButton *)")
+
 
 class SignalDispatcher(QObject):
     """

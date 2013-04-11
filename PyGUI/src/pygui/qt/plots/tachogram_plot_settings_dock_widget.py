@@ -39,7 +39,7 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
                                         not_add_widget_to_parent_layout=True)
 
         self.__createUnitsWidget__(QHBoxLayout())
-        self.__createFiltersWidget__(QHBoxLayout())
+        self.__createFiltersWidget__(QVBoxLayout())
 
         self.setWidget(self.dockComposite)
         parent.addDockWidget(Qt.BottomDockWidgetArea, self)
@@ -62,10 +62,10 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
         layout.removeWidget(self.__filtersWidget__)
         if dockWidgetArea in [Qt.TopDockWidgetArea, Qt.BottomDockWidgetArea]:
             self.__createUnitsWidget__(QHBoxLayout())
-            self.__createFiltersWidget__(QHBoxLayout())
+            self.__createFiltersWidget__(QVBoxLayout())
         else:
             self.__createUnitsWidget__(QVBoxLayout())
-            self.__createFiltersWidget__(QVBoxLayout())
+            self.__createFiltersWidget__(QHBoxLayout())
 
     def __createUnitsWidget__(self, layout):
         self.__unitsWidget__ = TimeUnitsWidget(self.dockComposite,

@@ -85,6 +85,7 @@ PyGUI/src/pygui/qt/utils/__init__.py -text
 PyGUI/src/pygui/qt/utils/context.py -text
 PyGUI/src/pygui/qt/utils/dnd.py -text
 PyGUI/src/pygui/qt/utils/graphics.py -text
+PyGUI/src/pygui/qt/utils/keys.py -text
 PyGUI/src/pygui/qt/utils/logging.py -text
 PyGUI/src/pygui/qt/utils/plugins.py -text
 PyGUI/src/pygui/qt/utils/qt_i18n.py -text
@@ -116,6 +117,7 @@ PyMath/src/pymath/time_domain/poincare_plot/filters/__init__.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/annotation_filter.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/filter_manager.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/filter_utils.py -text
+PyMath/src/pymath/time_domain/poincare_plot/filters/square_filter.py -text
 PyMath/src/pymath/time_domain/poincare_plot/poincare_plot.py -text
 PyMath/src/pymath/utils/__init__.py -text
 PyMath/src/pymath/utils/array_utils.py -text
