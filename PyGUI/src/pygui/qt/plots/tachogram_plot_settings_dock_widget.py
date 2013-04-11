@@ -13,7 +13,7 @@ try:
     from pygui.qt.utils.widgets import DockWidgetCommon
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.custom_widgets.units import TimeUnitsWidget
-    from pygui.qt.custom_widgets.filters import FiltersWidget
+    from pygui.qt.custom_widgets.filters.filters_widget import FiltersWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
