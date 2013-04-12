@@ -8,6 +8,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import Params
+    from pymath.datasources import DataVectorListener
     from pymath.statistics.tachogram_statistics import calculate_tachogram_statistics  # @IgnorePep8
     from pygui.qt.utils.widgets import TableViewCommon
     from pygui.qt.utils.widgets import CompositeCommon
@@ -29,6 +30,8 @@ class TachogramPlotStatisticsDockWidget(DockWidgetCommon):
                         title=params.get('title', 'Tachogram plot statistics'),
                         **params)
         self.data_accessor = self.params.data_accessor  # alias
+        self.data_accessor.addListener(self,
+                            __TachogramStatisticsDataVectorListener__(self))
 
         self.setObjectName("TachogramPlotStatisticsDockWidget")
         self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea |
@@ -45,6 +48,9 @@ class TachogramPlotStatisticsDockWidget(DockWidgetCommon):
     def __createStatisticsWidget__(self, _layout):
         self.statisticsWidget = TachogramStatisticsWidget(self.dockComposite,
                                                           layout=_layout)
+        self.fillStatisticsWidget()
+
+    def fillStatisticsWidget(self):
         statistics = calculate_tachogram_statistics(
                                             signal=self.data_accessor.signal,
                                     annotation=self.data_accessor.annotation)
@@ -78,7 +84,7 @@ class TachogramStatisticsWidget(TableViewCommon):
             model.appendRow([QStandardItem(str(name)),
                              QStandardItem(str(descriptions[name])),
                              QStandardItem(str(values[name]))])
-        self.setColumnHidden(0, True)  # "class_name" columns is hidden
+        self.setColumnHidden(0, True)  # "class_name" is a hidden column
 
     def startDrag(self, dropActions):
         row = self.model().itemFromIndex(self.currentIndex()).row()
@@ -93,9 +99,24 @@ class TachogramStatisticsModel(QStandardItemModel):
         QStandardItemModel.__init__(self, parent=parent)
 
     def data(self, _modelIndex, _role):
-        #the first column (with index 0) is a name of statistic
+        #the third column (indexing starts from 0) is a value of statistic
         if _modelIndex.column() == 2 and _role == Qt.TextAlignmentRole:
             return Qt.AlignRight
         else:
             return super(TachogramStatisticsModel, self).data(_modelIndex,
                                                               _role)
+
+
+class __TachogramStatisticsDataVectorListener__(DataVectorListener):
+    """
+    class used to recalculate tachogram statistics for tachogram
+    statistics widget when signal or annotation data is changing
+    """
+    def __init__(self, _dock_widget):
+        self.__dock_widget__ = _dock_widget
+
+    def changeSignal(self, _signal):
+        self.__dock_widget__.fillStatisticsWidget()
+
+    def changeAnnotation(self, _annotation):
+        self.__dock_widget__.fillStatisticsWidget()
