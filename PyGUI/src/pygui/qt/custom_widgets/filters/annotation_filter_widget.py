@@ -99,3 +99,4 @@ class AnnotationFilterWidget(GroupBoxCommon):
     def reset(self):
         self.setChecked(False)
         self.setEnabled(True)
+        self.__button_apply__.setEnabled(False)
