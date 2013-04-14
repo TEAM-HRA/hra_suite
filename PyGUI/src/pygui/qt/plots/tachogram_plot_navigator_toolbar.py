@@ -16,6 +16,7 @@ try:
     from pygui.qt.plots.tachogram_plot_canvas import ScatterTachogramPlotEngine
     from pygui.qt.plots.tachogram_plot_settings_dock_widget import TachogramPlotSettingsDockWidget # @IgnorePep8
     from pygui.qt.plots.tachogram_plot_statistics_dock_widget import TachogramPlotStatisticsDockWidget # @IgnorePep8
+    from pygui.qt.plots.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -58,6 +59,12 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
                                 iconId='tachogram_plot_statistics')
         self.addAction(tachogram_plot_statistics_action)
 
+        poincare_plot_settings_action = self.__createAction__(
+                                title="Poincare plot settings",
+                                handler=self.__showPoincarePlotStatistics__,
+                                iconId='poincare_plot_settings')
+        self.addAction(poincare_plot_settings_action)
+
     def __createAction__(self, **params):
         return create_action(self.parent(), ActionSpec(**params))
 
@@ -86,3 +93,11 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
             self.__tachogram_statistics__ = TachogramPlotStatisticsDockWidget(
                                 parent, data_accessor=self.data_accessor)
         self.__tachogram_statistics__.show()
+
+    def __showPoincarePlotStatistics__(self):
+        if not hasattr(self, '__poincare_settings__'):
+            parent = self.params.dock_parent \
+                    if self.params.dock_parent else self.parent()
+            self.__poincare_settings__ = PoincarePlotSettingsDockWidget(
+                                parent, data_accessor=self.data_accessor)
+        self.__poincare_settings__.show()

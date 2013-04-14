@@ -13,6 +13,7 @@ try:
     from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.utils.widgets import NumberEditCommon
     from pygui.qt.utils.widgets import LabelCommon
+    from pygui.qt.utils.widgets import CheckBoxCommon
     from pymath.time_domain.poincare_plot.filters.square_filter import SquareFilter # @IgnorePep8
     from pygui.qt.custom_widgets.filters.filter_utils import run_filter
 except ImportError as error:
@@ -40,7 +41,11 @@ class SquareFilterWidget(GroupBoxCommon):
         self.__max_value__ = NumberEditCommon(self,
                                         text_handler=self.__max_handler__)
 
-        self.__button_apply__ = PushButtonCommon(self, i18n_def='Apply',
+        if self.params.use_button_active:
+            self.__action_button__ = CheckBoxCommon(self,
+                                                     i18n_def='Use filter')
+        else:
+            self.__action_button__ = PushButtonCommon(self, i18n_def='Apply',
                                 clicked_handler=self.__filter_handler__)
         self.reset()
 
@@ -69,12 +74,21 @@ class SquareFilterWidget(GroupBoxCommon):
     def __check_range__(self, _widget):
         message = self.__filter__.check()
         if message == None:
-            self.__button_apply__.setEnabled(True)
+            self.__action_button__.setEnabled(True)
             _widget.setToolTip('')
-            self.__button_apply__.setToolTip('')
+            self.__action_button__.setToolTip('')
             return True
         else:
             _widget.setToolTip(message)
-            self.__button_apply__.setToolTip(message)
-            self.__button_apply__.setEnabled(False)
+            self.__action_button__.setToolTip(message)
+            self.__action_button__.setEnabled(False)
+            if self.params.use_button_active:
+                self.__action_button__.setChecked(False)
             return False
+
+    def useFilter(self):
+        return self.__use_button__.isChecked() \
+            if self.params.use_button_active else False
+
+    def getFilter(self):
+        return self.__filter__

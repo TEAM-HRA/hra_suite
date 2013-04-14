@@ -27,16 +27,21 @@ class FiltersWidget(CompositeCommon):
         get_or_put(params, 'layout', QVBoxLayout())
         super(FiltersWidget, self).__init__(parent, **params)
         self.data_accessor = self.params.data_accessor  # alias
-        self.data_accessor.addListener(self, __FilterActivatedDataVectorListener__(self)) # @IgnorePep8        
+        self.data_accessor.addListener(self,
+                                __FilterActivatedDataVectorListener__(self))
 
         filtersGroup = GroupBoxCommon(self, layout=QVBoxLayout(),
-                                      i18n_def='Filters')
+                                      i18n_def=params.get('title', 'Filters'))
+        use_button_active = params.get('use_button_active', False)
         self.__annotation_filter__ = AnnotationFilterWidget(filtersGroup,
-                                    data_accessor=self.data_accessor)
+                                    data_accessor=self.data_accessor,
+                                    use_button_active=use_button_active)
         self.__square_filter__ = SquareFilterWidget(filtersGroup,
-                                    data_accessor=self.data_accessor)
+                                    data_accessor=self.data_accessor,
+                                    use_button_active=use_button_active)
 
-        self.__restore_button__ = PushButtonCommon(filtersGroup,
+        if use_button_active == False:
+            self.__restore_button__ = PushButtonCommon(filtersGroup,
                                      i18n_def='Back to unfiltered data',
                                      clicked_handler=self.__restore_handler__,
                                      enabled=False)
@@ -45,10 +50,12 @@ class FiltersWidget(CompositeCommon):
         self.data_accessor.restore(remove_filter_names=True)
         self.__annotation_filter__.reset()
         self.__square_filter__.reset()
-        self.__restore_button__.setEnabled(False)
+        if hasattr(self, '__restore_button__'):
+            self.__restore_button__.setEnabled(False)
 
     def enableRestoreButton(self):
-        self.__restore_button__.setEnabled(True)
+        if hasattr(self, '__restore_button__'):
+            self.__restore_button__.setEnabled(True)
 
 
 class __FilterActivatedDataVectorListener__(DataVectorListener):
