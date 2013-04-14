@@ -315,7 +315,7 @@ class PoincarePlotManager(object):
         else:
             self.__filters__ = []
 
-    def addFilter(self, name_or_object, _excluded_annotations=ALL_ANNOTATIONS):
+    def addFilter(self, name_or_object):
         """
         [optional]
         add a filter function
@@ -334,12 +334,10 @@ class PoincarePlotManager(object):
            signal_unit - unit of signal column
                                        (defaults to millisecond - ms)
            time - (numpy array) time data column (for future use)
-        excluded_annotations - which values of annotation column are real
-                                annotations values
 
         a custom filter function have to return an object of type DataVector
         """
-        self.__filters__.append((name_or_object, _excluded_annotations,))
+        self.__filters__.append(name_or_object)
 
     @property
     def fourier_transformation(self):

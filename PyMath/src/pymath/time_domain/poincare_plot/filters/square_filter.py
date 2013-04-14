@@ -11,7 +11,6 @@ try:
     from pycore.misc import Params
     from pycore.units import Millisecond
     from pymath.datasources import DataVector
-    from pymath.datasources import ALL_ANNOTATIONS
     from pymath.time_domain.poincare_plot.filters.filter_utils import Filter
 except ImportError as error:
     print_import_error(__name__, error)
@@ -31,11 +30,11 @@ class SquareFilter(Filter):
         self.max_value = nvl(params.max_value, DEFAULT_MAX_VALUE)
         self.__value_unit__ = Millisecond
 
-    def check(self, _data_vector=None, _excluded_annotations=ALL_ANNOTATIONS):
+    def check(self, _data_vector=None):
         if self.min_value > self.max_value:
             return "Min value has to be smaller or equal to max value !"
 
-    def __filter__(self, _data_vector, _excluded_annotations):
+    def __filter__(self, _data_vector):
 
         indexes = pl.find(
             pl.logical_and(_data_vector.signal >= self.min_value,

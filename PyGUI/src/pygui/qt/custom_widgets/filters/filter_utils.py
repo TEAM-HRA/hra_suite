@@ -16,19 +16,10 @@ def run_filter(parent, _filter, _data_accessor, **params):
     """
     function run filter
     """
-    excluded_annotations = params.pop('_excluded_annotations', None)
-    if excluded_annotations:
-        message = _filter.check(_data_accessor.data_vector,
-                                excluded_annotations)
-    else:
-        message = _filter.check(_data_accessor.data_vector)
+    message = _filter.check(_data_accessor.data_vector)
     if not message == None:
         InformationWindow(parent, message=message)
         return
-    if excluded_annotations:
-        filtered_data = _filter.filter(_data_accessor.data_vector,
-                                       excluded_annotations)
-    else:
-        filtered_data = _filter.filter(_data_accessor.data_vector)
+    filtered_data = _filter.filter(_data_accessor.data_vector)
     _data_accessor.changeSignal(parent, filtered_data.signal, **params)
     _data_accessor.changeAnnotation(parent, filtered_data.annotation, **params)

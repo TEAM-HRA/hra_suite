@@ -17,8 +17,11 @@ except ImportError as error:
 
 
 class AnnotationFilter(Filter):
+    def __init__(self,  _excluded_annotations=ALL_ANNOTATIONS, shift=1):
+        super(AnnotationFilter, self).__init__(shift=shift)
+        self.__excluded_annotations__ = _excluded_annotations
 
-    def check(self, _data_vector, _excluded_annotations=ALL_ANNOTATIONS):
+    def check(self, _data_vector):
         """
         if there are no annotations, a message is returned
         """
@@ -26,12 +29,12 @@ class AnnotationFilter(Filter):
             pl.sum(_data_vector.annotation, dtype=int) == 0:
             return "No annotations found in signal data !"
 
-    def __filter__(self, _data_vector, _excluded_annotations):
+    def __filter__(self, _data_vector):
 
         signal_no_boundary_annotations = \
             exclude_boundary_annotations(_data_vector.signal,
                                          _data_vector.annotation,
-                                         _excluded_annotations)
+                                         self.excluded_annotations)
         #there is no annotations or all are 0's so nothing changed
         if signal_no_boundary_annotations.annotation_indexes == None:
             return _data_vector
@@ -50,7 +53,7 @@ class AnnotationFilter(Filter):
             signal_minus = signal_minus[indexes]
 
             not_annotation_indexes = get_not_annotation_indexes(
-                            _data_vector.annotation, _excluded_annotations)
+                            _data_vector.annotation, self.excluded_annotations)
             signal = _data_vector.signal[not_annotation_indexes]
             annotation = _data_vector.annotation[not_annotation_indexes]
             time = _data_vector.time[not_annotation_indexes] \
@@ -62,3 +65,11 @@ class AnnotationFilter(Filter):
                           signal_unit=_data_vector.signal_unit)
         else:  # this happens when all array's elements are filtered out
             return EMPTY_DATA_VECTOR
+
+    @property
+    def excluded_annotations(self):
+        return self.__excluded_annotations__
+
+    @excluded_annotations.setter
+    def excluded_annotations(self, _excluded_annotations):
+        self.__excluded_annotations__ = _excluded_annotations

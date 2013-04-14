@@ -9,7 +9,6 @@ try:
     from pycore.collections_utils import commas
     from pycore.collections_utils import get_as_list
     from pycore.introspection import get_subclasses_names
-    from pymath.datasources import ALL_ANNOTATIONS
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -61,17 +60,17 @@ class Filter(object):
     def __getattr__(self, name):
         return None
 
-    def check(self, _data_vector, _excluded_annotations=ALL_ANNOTATIONS):
+    def check(self, _data_vector):
         """
         method returns None if a filter will be used or a text message
         if not be used due to specific data conditions
         """
         pass
 
-    def filter(self, _data_vector, _excluded_annotations=ALL_ANNOTATIONS):
-        return self.__filter__(_data_vector, _excluded_annotations)
+    def filter(self, _data_vector):
+        return self.__filter__(_data_vector)
 
-    def __filter__(self, _data_vector, _excluded_annotations):
+    def __filter__(self, _data_vector):
         return _data_vector
 
     @staticmethod
