@@ -375,30 +375,31 @@ class DataVectorAccessor(object):
     def addListener(self, _host, _data_vector_listener):
         self.__data_vector_listeners__[_host] = _data_vector_listener
 
-    def changeSignal(self, _host, _signal):
+    def changeSignal(self, _host, _signal, **params):
         if not arrays_equal(self.__data_vector__.signal, _signal):
             self.__data_vector__.signal = _signal
             for host in self.__data_vector_listeners__:
                 if not _host == host:  # to avoid recurrence
-                    self.__data_vector_listeners__[host].changeSignal(_signal)
+                    self.__data_vector_listeners__[host].changeSignal(_signal,
+                                                                     **params)
 
-    def changeAnnotation(self, _host, _annotation):
+    def changeAnnotation(self, _host, _annotation, **params):
         if not arrays_equal(self.__data_vector__.annotation, _annotation):
             self.__data_vector__.annotation = _annotation
             for host in self.__data_vector_listeners__:
                 if not _host == host:  # to avoid recurrence
                     self.__data_vector_listeners__[host].changeAnnotation(
-                                                                _annotation)
+                                                        _annotation, **params)
 
-    def changeXSignalUnit(self, _host, _unit):
+    def changeXSignalUnit(self, _host, _unit, **params):
         if not self.__x_signal_unit__ == _unit:
             self.__x_signal_unit__ = _unit
             for host in self.__data_vector_listeners__:
                 if not _host == host:  # to avoid recurrence
                     self.__data_vector_listeners__[host].changeXSignalUnit(
-                                                                _unit)
+                                                            _unit, **params)
 
-    def restore(self):
+    def restore(self, **params):
         """
         method used to be invoked to restore original state of data vector
         """
@@ -412,9 +413,9 @@ class DataVectorAccessor(object):
         self.__data_vector__ = self.__data_vector0__.copy()
         for host in self.__data_vector_listeners__:
             self.__data_vector_listeners__[host].changeSignal(
-                                            self.__data_vector__.signal)
+                                    self.__data_vector__.signal, **params)
             self.__data_vector_listeners__[host].changeAnnotation(
-                                            self.__data_vector__.annotation)
+                                    self.__data_vector__.annotation, **params)
 
 
 class DataVectorListener(object):
@@ -422,11 +423,11 @@ class DataVectorListener(object):
     optional listener used when there are some changes in data vector
     to do specific actions
     """
-    def changeSignal(self, _signal):
+    def changeSignal(self, _signal, **params):
         pass
 
-    def changeAnnotation(self, _annotation):
+    def changeAnnotation(self, _annotation, **params):
         pass
 
-    def changeXSignalUnit(self, _signal_unit):
+    def changeXSignalUnit(self, _signal_unit, **params):
         pass

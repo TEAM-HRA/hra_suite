@@ -115,8 +115,8 @@ class __TachogramStatisticsDataVectorListener__(DataVectorListener):
     def __init__(self, _dock_widget):
         self.__dock_widget__ = _dock_widget
 
-    def changeSignal(self, _signal):
+    def changeSignal(self, _signal, **params):
         self.__dock_widget__.fillStatisticsWidget()
 
-    def changeAnnotation(self, _annotation):
+    def changeAnnotation(self, _annotation, **params):
         self.__dock_widget__.fillStatisticsWidget()

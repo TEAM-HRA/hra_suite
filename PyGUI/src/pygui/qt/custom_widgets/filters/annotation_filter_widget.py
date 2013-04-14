@@ -55,7 +55,8 @@ class AnnotationFilterWidget(GroupBoxCommon):
 
     def __annotation_handler__(self):
         run_filter(self.parent(), AnnotationFilter(), self.data_accessor,
-                   self.__excluded_annotations__())
+                   _excluded_annotations=self.__excluded_annotations__(),
+                   filter_name='annotation')
 
     def __excluded_annotations__(self):
         if self.__allCheckBox__.isChecked():

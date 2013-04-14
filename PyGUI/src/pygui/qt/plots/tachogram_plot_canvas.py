@@ -12,6 +12,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pycore.units import OrderUnit
+    from pycore.collections_utils import pop_from_list
     from pymath.datasources import DataVectorListener
     from pygui.qt.utils.dnd import CopyDropper
     from pygui.qt.plots.tachogram_plot_const import STATISTIC_MIME_ID
@@ -28,15 +29,17 @@ class TachogramPlotCanvas(FigureCanvas):
         #super(TachogramPlotCanvas, self).__init__(parent,
         #                                not_add_widget_to_parent_layout=True)
         self.params = Params(**params)
+        self.canvas_title = TachogramPlotCanvasTitle()
         self.data_accessor = self.params.data_accessor  # alias
         self.data_accessor.addListener(self, __CanvasDataVectorListener__(self)) # @IgnorePep8
-
         self.fig = Figure()
         self.axes = self.fig.add_subplot(111)
 
         self.__current_plot_engine__ = None
 
         FigureCanvas.__init__(self, self.fig)
+        self.title_text = self.fig.suptitle(self.canvas_title.title,
+                                            fontsize=12)
 
         self.plot(NormalTachogramPlotEngine)
 
@@ -70,6 +73,7 @@ class TachogramPlotCanvas(FigureCanvas):
 
         self.axes.set_xlabel(self.data_accessor.signal_x_unit.display_label)
         self.axes.set_ylabel(self.data_accessor.signal_unit.display_label)
+        self.title_text.set_text(self.canvas_title.title)
         self.draw()
 
     def dropEvent(self, event):
@@ -95,6 +99,14 @@ class TachogramPlotCanvas(FigureCanvas):
                                         self.data_accessor.signal_x_unit)
             self.x = np.cumsum(self.y) * multiplier
 
+    @property
+    def canvas_title(self):
+        return self.__canvas_title__
+
+    @canvas_title.setter
+    def canvas_title(self, _canvas_title):
+        self.__canvas_title__ = _canvas_title
+
 
 class __CanvasDataVectorListener__(DataVectorListener):
     """
@@ -103,14 +115,23 @@ class __CanvasDataVectorListener__(DataVectorListener):
     def __init__(self, _canvas):
         self.__canvas__ = _canvas
 
-    def changeSignal(self, _signal):
+    def changeSignal(self, _signal, **params):
+        self.__set_title__(**params)
         self.__canvas__.plot(force_plot=True)
 
-    def changeAnnotation(self, _annotation):
-        pass
+    def changeAnnotation(self, _annotation, **params):
+        self.__set_title__(**params)
 
-    def changeXSignalUnit(self, _x_signal_unit):
+    def changeXSignalUnit(self, _x_signal_unit, **params):
         self.__canvas__.plot(force_plot=True)
+
+    def __set_title__(self, **params):
+        params = Params(**params)
+        if params.filter_name:
+            self.__canvas__.canvas_title.addTitlePart('filtered',
+                                                    params.filter_name)
+        if params.remove_filter_names:
+            self.__canvas__.canvas_title.removeTitlePart('filtered')
 
 
 class NormalTachogramPlotEngine(object):
@@ -127,3 +148,36 @@ class ScatterTachogramPlotEngine(object):
     """
     def plot(self, _canvas):
         _canvas.axes.plot(_canvas.x, _canvas.y, 'bo')
+
+
+class TachogramPlotCanvasTitle(object):
+    """
+    class used to create tachogram plot title
+    """
+    def __init__(self):
+        self.__main_title__ = 'Tachogram plot'
+        self.__title_parts__ = {}
+
+    def addTitlePart(self, group, text):
+        self.removeTitlePart(group, text)
+        texts = self.__title_parts__.get(group, [])
+        texts.append(text)
+        self.__title_parts__[group] = texts
+
+    def removeTitlePart(self, group, text=None):
+        if text:
+            pop_from_list(self.__title_parts__.get(group), text)
+        else:
+            self.__title_parts__.pop(group, None)
+
+    @property
+    def title(self):
+        _title = self.__main_title__
+        if len(self.__title_parts__):
+            _title += ': '
+        for group in self.__title_parts__:
+            _title += "".join(['[', group, ':'])
+            for idx, part in enumerate(self.__title_parts__[group]):
+                _title += "".join([', ' if idx > 0 else '', part])
+            _title += ']'
+        return _title

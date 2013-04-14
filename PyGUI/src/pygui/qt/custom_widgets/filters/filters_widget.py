@@ -42,7 +42,7 @@ class FiltersWidget(CompositeCommon):
                                      enabled=False)
 
     def __restore_handler__(self):
-        self.data_accessor.restore()
+        self.data_accessor.restore(remove_filter_names=True)
         self.__annotation_filter__.reset()
         self.__square_filter__.reset()
         self.__restore_button__.setEnabled(False)
@@ -58,8 +58,8 @@ class __FilterActivatedDataVectorListener__(DataVectorListener):
     def __init__(self, _filter_widget):
         self.__filter_widget__ = _filter_widget
 
-    def changeSignal(self, _signal):
+    def changeSignal(self, _signal, **params):
         self.__filter_widget__.enableRestoreButton()
 
-    def changeAnnotation(self, _annotation):
+    def changeAnnotation(self, _annotation, **params):
         self.__filter_widget__.enableRestoreButton()

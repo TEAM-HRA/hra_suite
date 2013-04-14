@@ -45,7 +45,8 @@ class SquareFilterWidget(GroupBoxCommon):
         self.reset()
 
     def __filter_handler__(self):
-        run_filter(self.parent(), self.__filter__, self.data_accessor)
+        run_filter(self.parent(), self.__filter__, self.data_accessor,
+                   filter_name='square')
 
     def setEnabled(self, _enabled):
         self.__min_value__.setEnabled(_enabled)

@@ -210,3 +210,12 @@ def is_empty(iterable):
     function returns true if collection is None or has length equal 0
     """
     return iterable == None or len(iterable) == 0
+
+
+def pop_from_list(_list, _value):
+    """
+    function pop an element from a list;
+    it doesn't throw an exception if the element doesn't exist in the list
+    """
+    if not _list == None and _list.count(_value) > 0:
+        _list.pop(_list.index(_value))
