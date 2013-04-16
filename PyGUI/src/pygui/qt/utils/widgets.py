@@ -320,6 +320,15 @@ class ButtonGroupCommon(QButtonGroup, Common):
         for button in self.buttons():
             button.setEnabled(_enabled)
 
+    def isAnyChecked(self):
+        """
+        returns True when any button is checked
+        """
+        for button in self.buttons():
+            if button.isChecked():
+                return True
+        return False
+
 
 class DockWidgetCommon(QDockWidget, Common):
     def __init__(self, parent, **params):

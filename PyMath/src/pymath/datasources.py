@@ -365,6 +365,13 @@ class DataVectorAccessor(object):
         return self.__data_vector__.annotation
 
     @property
+    def annotation0(self):
+        """
+        returns annotations of original state of data
+        """
+        return self.__data_vector0__.annotation
+
+    @property
     def signal_unit(self):
         return self.__data_vector__.signal_unit
 

@@ -14,6 +14,7 @@ try:
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.custom_widgets.units import TimeUnitsWidget
     from pygui.qt.custom_widgets.filters.filters_widget import FiltersWidget
+    from pygui.qt.custom_widgets.filters.master_annotation_filter_widget import MasterAnnotationFilterWidget  # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -38,9 +39,6 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
         self.dockComposite = CompositeCommon(self, layout=layout,
                                         not_add_widget_to_parent_layout=True)
 
-        self.__createUnitsWidget__(QHBoxLayout())
-        self.__createFiltersWidget__(QVBoxLayout())
-
         self.setWidget(self.dockComposite)
         parent.addDockWidget(Qt.BottomDockWidgetArea, self)
 
@@ -56,10 +54,15 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
             and isinstance(layout, QVBoxLayout)):
             return
 
-        self.__unitsWidget__.hide()
-        self.__filtersWidget__.hide()
-        layout.removeWidget(self.__unitsWidget__)
-        layout.removeWidget(self.__filtersWidget__)
+        #in order to recreate widgets at first we have to remove
+        #previous version
+        if hasattr(self, '__unitsWidget__'):
+            self.__unitsWidget__.hide()
+            layout.removeWidget(self.__unitsWidget__)
+        if hasattr(self, '__filtersWidget__'):
+            self.__filtersWidget__.hide()
+            layout.removeWidget(self.__filtersWidget__)
+
         if dockWidgetArea in [Qt.TopDockWidgetArea, Qt.BottomDockWidgetArea]:
             self.__createUnitsWidget__(QHBoxLayout())
             self.__createFiltersWidget__(QVBoxLayout())
@@ -77,5 +80,6 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
 
     def __createFiltersWidget__(self, layout):
         self.__filtersWidget__ = FiltersWidget(self.dockComposite,
-                                            layout=layout,
-                                            data_accessor=self.data_accessor)
+                        layout=layout, data_accessor=self.data_accessor,
+                        annotation_widget_class=MasterAnnotationFilterWidget,
+                        restore_button=True)

@@ -12,6 +12,7 @@ try:
     from pygui.qt.utils.widgets import DockWidgetCommon
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.custom_widgets.filters.filters_widget import FiltersWidget
+    from pygui.qt.custom_widgets.filters.slave_annotation_filter_widget import SlaveAnnotationFilterWidget #  @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -36,8 +37,6 @@ class PoincarePlotSettingsDockWidget(DockWidgetCommon):
         self.dockComposite = CompositeCommon(self, layout=layout,
                                         not_add_widget_to_parent_layout=True)
 
-        self.__createFiltersWidget__(QVBoxLayout())
-
         self.setWidget(self.dockComposite)
         parent.addDockWidget(Qt.LeftDockWidgetArea, self)
 
@@ -53,8 +52,12 @@ class PoincarePlotSettingsDockWidget(DockWidgetCommon):
             and isinstance(layout, QVBoxLayout)):
             return
 
-        self.__filtersWidget__.hide()
-        layout.removeWidget(self.__filtersWidget__)
+        #in order to recreate filters widget at first we have to remove
+        #previous version
+        if hasattr(self, '__filtersWidget__'):
+            self.__filtersWidget__.hide()
+            layout.removeWidget(self.__filtersWidget__)
+
         if dockWidgetArea in [Qt.TopDockWidgetArea, Qt.BottomDockWidgetArea]:
             self.__createFiltersWidget__(QVBoxLayout())
         else:
@@ -62,7 +65,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetCommon):
 
     def __createFiltersWidget__(self, layout):
         self.__filtersWidget__ = FiltersWidget(self.dockComposite,
-                                    layout=layout,
-                                    data_accessor=self.data_accessor,
-                                    title='Active filters for tachogram plot',
-                                    use_button_active=True)
+                        layout=layout, data_accessor=self.data_accessor,
+                        title='Active filters for tachogram plot',
+                        use_button_active=True,
+                        annotation_widget_class=SlaveAnnotationFilterWidget)

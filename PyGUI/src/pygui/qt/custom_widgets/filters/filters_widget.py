@@ -12,8 +12,8 @@ try:
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.utils.widgets import GroupBoxCommon
-    from pygui.qt.custom_widgets.filters.annotation_filter_widget import AnnotationFilterWidget # @IgnorePep8
     from pygui.qt.custom_widgets.filters.square_filter_widget import SquareFilterWidget # @IgnorePep8
+    from pygui.qt.custom_widgets.filters.common_annotation_filter_widget import CommonAnnotationFilterWidget  # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -32,15 +32,20 @@ class FiltersWidget(CompositeCommon):
 
         filtersGroup = GroupBoxCommon(self, layout=QVBoxLayout(),
                                       i18n_def=params.get('title', 'Filters'))
+        annotation_widget_class = params.get('annotation_widget_class', False)
+        if annotation_widget_class:
+            self.__annotation_filter__ = annotation_widget_class(
+                                filtersGroup, data_accessor=self.data_accessor)
+        else:
+            self.__annotation_filter__ = CommonAnnotationFilterWidget(
+                                filtersGroup, data_accessor=self.data_accessor)
+
         use_button_active = params.get('use_button_active', False)
-        self.__annotation_filter__ = AnnotationFilterWidget(filtersGroup,
-                                    data_accessor=self.data_accessor,
-                                    use_button_active=use_button_active)
         self.__square_filter__ = SquareFilterWidget(filtersGroup,
                                     data_accessor=self.data_accessor,
                                     use_button_active=use_button_active)
 
-        if use_button_active == False:
+        if params.get('restore_button', False):
             self.__restore_button__ = PushButtonCommon(filtersGroup,
                                      i18n_def='Back to unfiltered data',
                                      clicked_handler=self.__restore_handler__,
