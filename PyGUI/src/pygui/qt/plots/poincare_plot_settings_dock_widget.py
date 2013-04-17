@@ -67,5 +67,5 @@ class PoincarePlotSettingsDockWidget(DockWidgetCommon):
         self.__filtersWidget__ = FiltersWidget(self.dockComposite,
                         layout=layout, data_accessor=self.data_accessor,
                         title='Active filters for tachogram plot',
-                        use_button_active=True,
+                        use_apply_button=False,
                         annotation_widget_class=SlaveAnnotationFilterWidget)

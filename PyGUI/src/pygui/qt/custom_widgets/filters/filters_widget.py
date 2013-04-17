@@ -40,10 +40,10 @@ class FiltersWidget(CompositeCommon):
             self.__annotation_filter__ = CommonAnnotationFilterWidget(
                                 filtersGroup, data_accessor=self.data_accessor)
 
-        use_button_active = params.get('use_button_active', False)
+        use_apply_button = params.get('use_apply_button', False)
         self.__square_filter__ = SquareFilterWidget(filtersGroup,
                                     data_accessor=self.data_accessor,
-                                    use_button_active=use_button_active)
+                                    use_apply_button=use_apply_button)
 
         if params.get('restore_button', False):
             self.__restore_button__ = PushButtonCommon(filtersGroup,

@@ -82,4 +82,5 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
         self.__filtersWidget__ = FiltersWidget(self.dockComposite,
                         layout=layout, data_accessor=self.data_accessor,
                         annotation_widget_class=MasterAnnotationFilterWidget,
+                        use_apply_button=True,
                         restore_button=True)
