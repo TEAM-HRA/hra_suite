@@ -74,6 +74,6 @@ class SquareFilter(Filter):
         else:
             self.__max_value__ = 0 if is_empty(_max_value) else int(_max_value)
 
-    def reset(self):
-        self.min_value = DEFAULT_MIN_VALUE
-        self.max_value = DEFAULT_MAX_VALUE
+    def reset(self, _min=None, _max=None):
+        self.min_value = nvl(_min, DEFAULT_MIN_VALUE)
+        self.max_value = nvl(_max, DEFAULT_MAX_VALUE)
