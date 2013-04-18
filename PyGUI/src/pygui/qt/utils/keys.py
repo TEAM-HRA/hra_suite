@@ -37,3 +37,10 @@ def digit_key(key):
     returns true if a key is type of a digit key
     """
     return key >= Qt.Key_0 and key <= Qt.Key_9
+
+
+def delete_key(key):
+    """
+    returns true if a key is DEL key
+    """
+    return key == Qt.Key_Delete

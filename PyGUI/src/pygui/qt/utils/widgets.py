@@ -14,6 +14,7 @@ try:
     from pycore.collections_utils import nvl
     from pygui.qt.utils.keys import digit_key
     from pygui.qt.utils.keys import movement_key
+    from pygui.qt.utils.keys import delete_key
     from pygui.qt.utils.signals import TEXT_CHANGED_SIGNAL
     from pygui.qt.utils.qt_i18n import text_I18N
     from pygui.qt.utils.qt_i18n import title_I18N
@@ -454,7 +455,7 @@ class NumberEditCommon(LineEditCommon):
 
     def keyPressEvent(self, e):
         key = e.key()
-        if movement_key(key) or digit_key(key):
+        if delete_key(key) or movement_key(key) or digit_key(key):
             e.accept()
             QLineEdit.keyPressEvent(self, e)
         else:
