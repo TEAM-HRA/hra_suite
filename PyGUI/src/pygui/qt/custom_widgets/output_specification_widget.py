@@ -31,5 +31,6 @@ class OutputSpecificationWidget(GroupBoxCommon):
         super(OutputSpecificationWidget, self).__init__(parent, **params)
         self.__output_dir__ = DirWidget(self)
         self.__precision__ = DecimalPrecisionWidget(self)
-        self.__separator__ = SeparatorWidget(self, i18n_def='Output separator')
+        self.__separator__ = SeparatorWidget(self, i18n_def='Output separator',
+                no_custom_separator=params.get('no_custom_separator', None))
         self.__skip_existing__ = CheckBoxCommon(self, i18n_def='Skip existing outcomes') # @IgnorePep8

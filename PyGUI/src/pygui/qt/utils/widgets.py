@@ -24,6 +24,7 @@ try:
     from pygui.qt.utils.signals import LIST_ITEM_DOUBLE_CLICKED_SIGNAL
     from pygui.qt.utils.signals import CURRENT_INDEX_CHANGED_SIGNAL
     from pygui.qt.utils.signals import DOCK_WIDGET_LOCATION_CHANGED_SIGNAL
+    from pygui.qt.utils.signals import VALUE_CHANGED_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -267,6 +268,9 @@ class SliderCommon(QSlider, Common):
     def __init__(self, parent, **params):
         super(SliderCommon, self).__init__(parent)
         prepareWidget(parent=parent, widget=self, **params)
+        value_changed_handler = params.get('value_changed_handler', None)
+        if value_changed_handler:
+            self.connect(self, VALUE_CHANGED_SIGNAL, value_changed_handler)
 
 
 class TextEditCommon(QTextEdit, Common):

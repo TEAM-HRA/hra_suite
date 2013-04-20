@@ -67,15 +67,16 @@ class SeparatorWidget(object):
                                     SIGNAL("buttonClicked(QAbstractButton *)"),
                                     self.predefinedSeparatorButtonClicked)
 
-        self.customSeparatorCheckBox = CheckBoxCommon(
+        if not self.params.no_custom_separator == True:
+            self.customSeparatorCheckBox = CheckBoxCommon(
                                         self.predefinedSeparatorsComposite,
                                         i18n="separator.custom.checkbox",
                                         i18n_def="Custom")
-        self.separatorsGroupBox.connect(self.customSeparatorCheckBox,
+            self.separatorsGroupBox.connect(self.customSeparatorCheckBox,
                                         SIGNAL("clicked()"),
                                         self.customSeparatorButtonClicked)
 
-        self.customSeparatorEdit = LineEditCommon(
+            self.customSeparatorEdit = LineEditCommon(
                         self.predefinedSeparatorsComposite,
                         maxLength=15,
                         width=get_width_of_n_letters(14),
@@ -88,10 +89,12 @@ class SeparatorWidget(object):
         sign = self.__getPredefinedSeparatorSign__()
         if sign:
             return sign
-        return self.__getCustomSeparatorSign__()
+        if not self.params.no_custom_separator == True:
+            return self.__getCustomSeparatorSign__()
 
     def predefinedSeparatorButtonClicked(self, button):
-        self.__customSeparatorClear__()
+        if not self.params.no_custom_separator == True:
+            self.__customSeparatorClear__()
         if self.params.separatorHandler and \
             not self.predefinedSeparatorsButtonsGroup.checkedButton() == None:
             self.params.separatorHandler(self.__getPredefinedSeparatorSign__())
@@ -135,7 +138,8 @@ class SeparatorWidget(object):
             elif not separatorSign == Separator.NONE:
                 for button in self.predefinedSeparatorsButtonsGroup.buttons():
                     if button.text() == separatorSign.label:
-                        self.__customSeparatorClear__()
+                        if not self.params.no_custom_separator == True:
+                            self.__customSeparatorClear__()
                         button.setChecked(True)
                         return
 

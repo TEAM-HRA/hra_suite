@@ -12,8 +12,9 @@ try:
     from pygui.qt.utils.widgets import DockWidgetCommon
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.custom_widgets.filters.filters_widget import FiltersWidget
-    from pygui.qt.custom_widgets.filters.slave_annotation_filter_widget import SlaveAnnotationFilterWidget #  @IgnorePep8
-    from pygui.qt.custom_widgets.output_specification_widget import OutputSpecificationWidget  #  @IgnorePep8
+    from pygui.qt.custom_widgets.filters.slave_annotation_filter_widget import SlaveAnnotationFilterWidget # @IgnorePep8
+    from pygui.qt.custom_widgets.output_specification_widget import OutputSpecificationWidget  # @IgnorePep8
+    from pygui.qt.plots.specific_widgets.miscellaneous_widget import MiscellaneousWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -64,6 +65,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetCommon):
         else:
             self.__createFiltersWidget__(QHBoxLayout())
         self.__createOutputSpecificationWidget__(QVBoxLayout())
+        self.__createMiscellaneousWidget__(QVBoxLayout())
 
     def __createFiltersWidget__(self, layout):
         self.__filtersWidget__ = FiltersWidget(self.dockComposite,
@@ -74,4 +76,11 @@ class PoincarePlotSettingsDockWidget(DockWidgetCommon):
 
     def __createOutputSpecificationWidget__(self, layout):
         self.__output_specification__ = OutputSpecificationWidget(
-                                            self.dockComposite, layout=layout)
+                                            self.dockComposite,
+                                            no_custom_separator=True,
+                                            layout=layout)
+
+    def __createMiscellaneousWidget__(self, layout):
+        self.__output_specification__ = MiscellaneousWidget(
+                                        self.dockComposite, layout=layout,
+                                        data_accessor=self.data_accessor)

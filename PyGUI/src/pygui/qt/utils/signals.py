@@ -52,6 +52,9 @@ TEXT_CHANGED_SIGNAL = SIGNAL('textChanged(const QString&)')
 #signal emitted when a button is clicked
 BUTTON_CLICKED_SIGNAL = SIGNAL("buttonClicked(QAbstractButton *)")
 
+#signal emitted for example by slider widget
+VALUE_CHANGED_SIGNAL = SIGNAL("valueChanged(int)")
+
 
 class SignalDispatcher(QObject):
     """
