@@ -30,7 +30,7 @@
 		<menuItem ident="datasource_import" title="Import datasource">
 			<actions>
 				<action title="Import datasource" iconId="users" 
-					slot="pymed.qt.wizards.datasource_wizards.DatasourceWizard.show_wizard"/>
+					slot="pygui.qt.wizards.datasource_wizard.DatasourceWizard.show_wizard"/>
 			</actions>
 		</menuItem>		
 	</menu>	

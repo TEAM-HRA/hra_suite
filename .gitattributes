@@ -106,6 +106,11 @@ PyGUI/src/pygui/qt/utils/specials.py -text
 PyGUI/src/pygui/qt/utils/threads.py -text
 PyGUI/src/pygui/qt/utils/widgets.py -text
 PyGUI/src/pygui/qt/utils/windows.py -text
+PyGUI/src/pygui/qt/wizards/__init__.py -text
+PyGUI/src/pygui/qt/wizards/datasource_wizard.py -text
+PyGUI/src/pygui/qt/wizards/pages/__init__.py -text
+PyGUI/src/pygui/qt/wizards/pages/choose_columns_data_page.py -text
+PyGUI/src/pygui/qt/wizards/pages/choose_datasource_page.py -text
 PyMath/.project -text
 PyMath/.pydevproject -text
 PyMath/build_pymath.properties -text
@@ -151,7 +156,6 @@ PyMed/src/pymed/qt/test01/__init__.py -text
 PyMed/src/pymed/qt/test01/small.py -text
 PyMed/src/pymed/qt/test01/tests.py -text
 PyMed/src/pymed/qt/wizards/__init__.py -text
-PyMed/src/pymed/qt/wizards/datasource_wizards.py -text
 PySettings/.project -text
 PySettings/.pydevproject -text
 PySettings/build_pysettings.properties -text
