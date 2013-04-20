@@ -57,29 +57,36 @@ class __DataWindowSizeWidget__(CompositeCommon):
     """
     def __init__(self, parent, data_accessor):
         super(__DataWindowSizeWidget__, self).__init__(parent,
-                                            layout=QHBoxLayout())
+                                            layout=QVBoxLayout())
 
         self.data_accessor = data_accessor
         self.data_accessor.addListener(self,
                     __DataWindowSizeDataVectorListener__(self))
 
-        LabelCommon(self, i18n_def='Data window size:')
+        info_group = CompositeCommon(self, layout=QHBoxLayout())
+        LabelCommon(info_group, i18n_def='Data window size:')
+        self.__size_value__ = LabelCommon(info_group, i18n_def='<value>')
+        self.__unit_value__ = LabelCommon(info_group, i18n_def='')
 
         self.__size_slider__ = SliderCommon(self, orientation=Qt.Horizontal,
                         sizePolicy=QSizePolicy(QSizePolicy.MinimumExpanding,
                                                QSizePolicy.Fixed),
                         value_changed_handler=self.__value_changed__)
         self.__size_slider__.setTickPosition(QSlider.TicksBelow)
-        self.changeValue(self.data_accessor.signal)
-        self.__size_slider__.setTickInterval(self.__size_slider__.maximum() / 10 ) # @IgnorePep8
-
-        self.__size_value__ = LabelCommon(self, i18n_def='<value>')
+        self.resetValue()
+        self.resetUnit()
 
     def __value_changed__(self, _value):
         self.__size_value__.setText(str(_value))
 
-    def changeValue(self, _signal):
-        self.__size_slider__.setMaximum(int(pl.amax(_signal)))
+    def resetValue(self):
+        signal = self.data_accessor.signal_in_x_unit
+        self.__size_slider__.setMaximum(int(pl.amax(signal)))
+        self.__size_slider__.setValue(0)
+        self.__size_slider__.setTickInterval(self.__size_slider__.maximum() / 10 ) # @IgnorePep8
+
+    def resetUnit(self):
+        self.__unit_value__.setText(self.data_accessor.signal_x_unit.name)
 
 
 class __DataWindowSizeDataVectorListener__(DataVectorListener):
@@ -90,12 +97,11 @@ class __DataWindowSizeDataVectorListener__(DataVectorListener):
         self.__data_window_widget__ = _data_window_widget
 
     def changeAnnotation(self, _annotation, **params):
-        self.__data_window_widget__.changeValue(
-                    self.__data_window_widget__.data_accessor.signal)
+        self.__data_window_widget__.resetValue()
 
     def changeSignal(self, _signal, **params):
-        self.__data_window_widget__.changeValue(_signal)
+        self.__data_window_widget__.resetValue()
 
     def changeXSignalUnit(self, _signal_unit, **params):
-        self.__data_window_widget__.changeValue(
-                    self.__data_window_widget__.data_accessor.signal)
+        self.__data_window_widget__.resetUnit()
+        self.__data_window_widget__.resetValue()
