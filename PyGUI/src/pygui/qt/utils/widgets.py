@@ -233,6 +233,10 @@ class LineEditCommon(QLineEdit, Common):
         self.focusEventHandler = params.get('focusEventHandler', None)
         prepareWidget(parent=parent, widget=self, **params)
 
+        text_changed_handler = params.get('text_changed_handler', None)
+        if text_changed_handler:
+            self.connect(self, TEXT_CHANGED_SIGNAL, text_changed_handler)
+
     def focusInEvent(self, qfocusevent):
         if not self.focusEventHandler == None:
             self.focusEventHandler()
@@ -447,11 +451,8 @@ class NumberEditCommon(LineEditCommon):
     input text widget which accepts only integer numbers
     """
     def __init__(self, parent, **params):
-        super(NumberEditCommon, self).__init__(parent)
+        super(NumberEditCommon, self).__init__(parent, **params)
         prepareWidget(parent=parent, widget=self, **params)
-        self.__text_handler__ = params.get('text_handler')
-        if self.__text_handler__:
-            self.connect(self, TEXT_CHANGED_SIGNAL, self.__text_handler__)
 
     def keyPressEvent(self, e):
         key = e.key()

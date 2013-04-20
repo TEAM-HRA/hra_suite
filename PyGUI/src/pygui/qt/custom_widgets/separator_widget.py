@@ -67,23 +67,20 @@ class SeparatorWidget(object):
                                     SIGNAL("buttonClicked(QAbstractButton *)"),
                                     self.predefinedSeparatorButtonClicked)
 
+        self.customSeparatorCheckBox = CheckBoxCommon(
+                                        self.predefinedSeparatorsComposite,
+                                        i18n="separator.custom.checkbox",
+                                        i18n_def="Custom")
+        self.separatorsGroupBox.connect(self.customSeparatorCheckBox,
+                                        SIGNAL("clicked()"),
+                                        self.customSeparatorButtonClicked)
+
         self.customSeparatorEdit = LineEditCommon(
                         self.predefinedSeparatorsComposite,
                         maxLength=15,
                         width=get_width_of_n_letters(14),
-                        focusEventHandler=self.customSeparatorButtonClicked)
-        self.separatorsGroupBox.connect(self.customSeparatorEdit,
-                                        SIGNAL("textChanged(const QString&)"),
-                                        self.customSeparatorEditChanged)
-
-        self.customSeparatorCheckBox = CheckBoxCommon(
-                                        self.predefinedSeparatorsComposite,
-                                        i18n="separator.custom.checkbox",
-                                        i18n_def="Custom",
-                                        enabled=False)
-        self.separatorsGroupBox.connect(self.customSeparatorCheckBox,
-                                        SIGNAL("clicked()"),
-                                        self.customSeparatorButtonClicked)
+                        text_changed_handler=self.customSeparatorButtonClicked,
+                        enabled=False)
 
         self.setEnabled(self.params.enabled)
 
@@ -99,16 +96,15 @@ class SeparatorWidget(object):
             not self.predefinedSeparatorsButtonsGroup.checkedButton() == None:
             self.params.separatorHandler(self.__getPredefinedSeparatorSign__())
 
-    def customSeparatorEditChanged(self, _text):
-        self.customSeparatorButtonClicked()
-        self.customSeparatorCheckBox.setEnabled(_text.size() > 0)
-
     def customSeparatorButtonClicked(self):
-        self.__uncheckPredefinedButtons__()
+        checked = self.customSeparatorCheckBox.isChecked()
         separator = self.__getCustomSeparatorSign__()
-        if self.customSeparatorCheckBox.isChecked() and \
-            self.params.separatorHandler and separator:
+        if checked and self.params.separatorHandler and separator:
             self.params.separatorHandler(separator)
+        self.customSeparatorEdit.setEnabled(checked)
+        if checked:
+            self.__uncheckPredefinedButtons__()
+            self.customSeparatorEdit.setFocus()
 
     def __getPredefinedSeparatorSign__(self):
         button = self.predefinedSeparatorsButtonsGroup.checkedButton()
@@ -119,7 +115,7 @@ class SeparatorWidget(object):
 
     def __getCustomSeparatorSign__(self):
         if self.customSeparatorCheckBox.isChecked():
-            return self.customSeparatorEdit.text()
+            return str(self.customSeparatorEdit.text())
 
     def setEnabled(self, enabled):
         if not enabled == None:
@@ -145,8 +141,8 @@ class SeparatorWidget(object):
 
     def __customSeparatorClear__(self):
         self.customSeparatorCheckBox.setChecked(False)
-        self.customSeparatorCheckBox.setEnabled(False)
         self.customSeparatorEdit.setText("")
+        self.customSeparatorEdit.setEnabled(False)
 
     def __uncheckPredefinedButtons__(self):
         #to uncheck button included in a button group one have to use a trick:

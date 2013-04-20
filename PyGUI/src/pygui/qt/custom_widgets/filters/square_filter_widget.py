@@ -39,10 +39,10 @@ class SquareFilterWidget(GroupBoxCommon):
 
         LabelCommon(self, i18n_def="Min value")
         self.__min_value__ = NumberEditCommon(self,
-                                        text_handler=self.__min_handler__)
+                                    text_changed_handler=self.__min_handler__)
         LabelCommon(self, i18n_def="Max value")
         self.__max_value__ = NumberEditCommon(self,
-                                        text_handler=self.__max_handler__)
+                                    text_changed_handler=self.__max_handler__)
 
         if self.params.use_apply_button:
             self.__action_button__ = PushButtonCommon(self, i18n_def='Apply',
