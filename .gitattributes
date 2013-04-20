@@ -67,10 +67,10 @@ PyGUI/src/pygui/qt/custom_widgets/filters/filters_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/master_annotation_filter_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/slave_annotation_filter_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/square_filter_widget.py -text
+PyGUI/src/pygui/qt/custom_widgets/global_separator_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/modelviews.py -text
 PyGUI/src/pygui/qt/custom_widgets/output_specification_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/progress_bar.py -text
-PyGUI/src/pygui/qt/custom_widgets/separator.py -text
 PyGUI/src/pygui/qt/custom_widgets/separator_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/splitter.py -text
 PyGUI/src/pygui/qt/custom_widgets/tabwidget.py -text

@@ -8,6 +8,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
+    from pycore.collections_utils import nvl
     from pycore.misc import Params
     from pycore.misc import Separator
     from pygui.qt.utils.widgets import GroupBoxCommon
@@ -38,9 +39,9 @@ class SeparatorWidget(object):
         get_or_put(params, 'i18n_def', 'Separator')
         self.params = Params(**params)
         self.separatorsGroupBox = GroupBoxCommon(parent,
-                                    i18n="separator.widget.group.title",
-                                    i18n_def=self.params.i18n_def,
-                                    layout=QVBoxLayout())
+                            i18n="separator.widget.group.title",
+                            i18n_def=nvl(self.params.i18n_def, "Separator"),
+                            layout=QVBoxLayout())
 
         self.predefinedSeparatorsComposite = CompositeCommon(
                                                     self.separatorsGroupBox,

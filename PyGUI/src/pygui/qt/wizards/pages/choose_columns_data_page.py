@@ -11,7 +11,6 @@ try:
     from pycore.collections_utils import create_list
     from pycore.io_utils import DataFileHeader
     from pygui.qt.utils.widgets import *  # @UnusedWildImport
-    from pygui.qt.custom_widgets.separator import DataSeparatorWidget
     from pygui.qt.activities.activities import ActivityWidget
     from pygui.qt.utils.windows import showFilesPreviewDialog
     from pygui.qt.utils.windows import InformationWindow
@@ -20,6 +19,7 @@ try:
     from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
     from pygui.qt.custom_widgets.modelviews \
         import CheckStateProxySortFilterModel
+    from pygui.qt.custom_widgets.global_separator_widget import GlobalSeparatorWidget # @IgnorePep8
     from pygui.qt.custom_widgets.units import TimeUnitsWidget
     from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
     from pygui.qt.utils.plugins import PluginsManager
@@ -82,7 +82,7 @@ class ChooseColumnsDataPage(QWizardPage):
                             enabled=False,
                             clicked_handler=self.filePreviewAction)
 
-        self.separatorWidget = DataSeparatorWidget(self.tableViewComposite,
+        self.separatorWidget = GlobalSeparatorWidget(self.tableViewComposite,
                                 separatorHandler=self.__separatorHandler__,
                                 globalHandler=self.__globalSeparatorHandler__,
                                 enabled=False)
