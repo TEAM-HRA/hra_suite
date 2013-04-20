@@ -13,6 +13,7 @@ try:
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.custom_widgets.filters.filters_widget import FiltersWidget
     from pygui.qt.custom_widgets.filters.slave_annotation_filter_widget import SlaveAnnotationFilterWidget #  @IgnorePep8
+    from pygui.qt.custom_widgets.output_specification_widget import OutputSpecificationWidget  #  @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -62,6 +63,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetCommon):
             self.__createFiltersWidget__(QVBoxLayout())
         else:
             self.__createFiltersWidget__(QHBoxLayout())
+        self.__createOutputSpecificationWidget__(QVBoxLayout())
 
     def __createFiltersWidget__(self, layout):
         self.__filtersWidget__ = FiltersWidget(self.dockComposite,
@@ -69,3 +71,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetCommon):
                         title='Active filters for tachogram plot',
                         use_apply_button=False,
                         annotation_widget_class=SlaveAnnotationFilterWidget)
+
+    def __createOutputSpecificationWidget__(self, layout):
+        self.__output_specification__ = OutputSpecificationWidget(
+                                            self.dockComposite, layout=layout)

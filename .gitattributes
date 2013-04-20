@@ -58,6 +58,8 @@ PyGUI/src/pygui/qt/actions/actions_utils.py -text
 PyGUI/src/pygui/qt/activities/__init__.py -text
 PyGUI/src/pygui/qt/activities/activities.py -text
 PyGUI/src/pygui/qt/custom_widgets/__init__.py -text
+PyGUI/src/pygui/qt/custom_widgets/decimal_precision_widget.py -text
+PyGUI/src/pygui/qt/custom_widgets/dir_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/__init__.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/common_annotation_filter_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/filter_utils.py -text
@@ -66,8 +68,10 @@ PyGUI/src/pygui/qt/custom_widgets/filters/master_annotation_filter_widget.py -te
 PyGUI/src/pygui/qt/custom_widgets/filters/slave_annotation_filter_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/square_filter_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/modelviews.py -text
+PyGUI/src/pygui/qt/custom_widgets/output_specification_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/progress_bar.py -text
 PyGUI/src/pygui/qt/custom_widgets/separator.py -text
+PyGUI/src/pygui/qt/custom_widgets/separator_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/splitter.py -text
 PyGUI/src/pygui/qt/custom_widgets/tabwidget.py -text
 PyGUI/src/pygui/qt/custom_widgets/toolbars.py -text
