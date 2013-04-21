@@ -13,7 +13,7 @@ try:
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
-    from pygui.qt.utils.widgets import LabelCommon
+    from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.utils.widgets import SliderCommon
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -31,7 +31,7 @@ class MiscellaneousWidget(GroupBoxCommon):
         get_or_put(params, 'i18n_def', 'Miscellaneous')
         super(MiscellaneousWidget, self).__init__(parent, **params)
 
-        LabelCommon(self, i18n_def='Data window shift: 1')
+        LabelWidget(self, i18n_def='Data window shift: 1')
         self.__window_size = __DataWindowSizeWidget__(self,
                                                 params.get('data_accessor'))
 
@@ -65,9 +65,9 @@ class __DataWindowSizeWidget__(CompositeCommon):
                     __DataWindowSizeDataVectorListener__(self))
 
         info_group = CompositeCommon(self, layout=QHBoxLayout())
-        LabelCommon(info_group, i18n_def='Data window size:')
-        self.__size_value__ = LabelCommon(info_group, i18n_def='<value>')
-        self.__unit_value__ = LabelCommon(info_group, i18n_def='')
+        LabelWidget(info_group, i18n_def='Data window size:')
+        self.__size_value__ = LabelWidget(info_group, i18n_def='<value>')
+        self.__unit_value__ = LabelWidget(info_group, i18n_def='')
 
         self.__size_slider__ = SliderCommon(self, orientation=Qt.Horizontal,
                         sizePolicy=QSizePolicy(QSizePolicy.MinimumExpanding,

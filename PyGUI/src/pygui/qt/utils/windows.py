@@ -14,7 +14,7 @@ try:
     from pycore.misc import get_max_number_between_signs
     from pygui.qt.utils.qt_i18n import QT_I18N
     from pygui.qt.utils.widgets import CompositeCommon
-    from pygui.qt.utils.widgets import LabelCommon
+    from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import PlainTextEditCommon
@@ -199,7 +199,7 @@ class FilesPreviewDialog(QDialog):
         composite = CompositeCommon(parent)
         layout = QVBoxLayout()
         composite.setLayout(layout)
-        informationLabel = LabelCommon(composite)
+        informationLabel = LabelWidget(composite)
         layout.addWidget(informationLabel)
         preview = PlainTextEditCommon(composite, readonly=True)
         layout.addWidget(preview)

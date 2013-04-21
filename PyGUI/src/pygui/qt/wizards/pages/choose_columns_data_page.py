@@ -24,6 +24,7 @@ try:
     from pygui.qt.models.datasources import DatasourceFilesSpecificationModel
     from pygui.qt.utils.plugins import PluginsManager
     from pygui.qt.utils.plugins import PluginsNames
+    from pygui.qt.widgets.label_widget import LabelWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -416,7 +417,7 @@ class HeaderWidget(QWidget):
         layout = QVBoxLayout(self)
         self.setLayout(layout)
 
-        LabelCommon(self, i18n_def=_header)
+        LabelWidget(self, i18n_def=_header)
 
         self.__buttons__ = {}
         self.__buttons__[ColumnType.signal] = CheckBoxCommon(self,

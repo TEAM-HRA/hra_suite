@@ -17,12 +17,12 @@ try:
     from pygui.qt.utils.settings import SettingsFactory
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
-    from pygui.qt.utils.widgets import LabelCommon
     from pygui.qt.utils.widgets import LineEditCommon
     from pygui.qt.utils.widgets import DockWidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import ListWidgetItemCommon
     from pygui.qt.utils.widgets import PushButtonCommon
+    from pygui.qt.widgets.label_widget import LabelWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -61,7 +61,7 @@ class ActivityWidget(CompositeCommon):
                             i18n_def="Save as activity",
                             clicked_handler=self.__clickedHandler__)
 
-        LabelCommon(self,
+        LabelWidget(self,
                      i18n="activity.description.label",
                      i18n_def="Activity description (optional):")
 

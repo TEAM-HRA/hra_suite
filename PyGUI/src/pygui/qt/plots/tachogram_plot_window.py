@@ -49,7 +49,7 @@ class TachogramPlotWindow(MainWindowCommon):
 #        self.tachogramPlot.changeXUnit(_unit)
 #        statusbar = StatusBarCommon(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)
-#        statusLabel = LabelCommon(statusbar,
+#        statusLabel = LabelWidget(statusbar,
 #                    i18n_def="STATUS",
 #                    add_widget_to_parent=True)
 #

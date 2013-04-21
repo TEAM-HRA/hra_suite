@@ -14,7 +14,7 @@ try:
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.utils.widgets import NumberEditCommon
-    from pygui.qt.utils.widgets import LabelCommon
+    from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.windows import InformationWindow
     from pymath.time_domain.poincare_plot.filters.square_filter import SquareFilter # @IgnorePep8
@@ -37,10 +37,10 @@ class SquareFilterWidget(GroupBoxCommon):
 
         self.__filter__ = SquareFilter()
 
-        LabelCommon(self, i18n_def="Min value")
+        LabelWidget(self, i18n_def="Min value")
         self.__min_value__ = NumberEditCommon(self,
                                     text_changed_handler=self.__min_handler__)
-        LabelCommon(self, i18n_def="Max value")
+        LabelWidget(self, i18n_def="Max value")
         self.__max_value__ = NumberEditCommon(self,
                                     text_changed_handler=self.__max_handler__)
 

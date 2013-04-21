@@ -8,7 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pygui.qt.utils.widgets import MainWindowCommon
-    from pygui.qt.utils.widgets import LabelCommon
+    from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import TAB_WIDGET_ADDED_SIGNAL
@@ -39,7 +39,7 @@ class TachogramPlotManager(TabWidgetCommon):
     def createInitialPlot(self):
         self.__initial_tab__ = MainWindowCommon(self)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        label = LabelCommon(self.__initial_tab__,
+        label = LabelWidget(self.__initial_tab__,
                             i18n="tachogram.initial.page.label",
                             i18n_def="Tachogram area",
                             sizePolicy=sizePolicy,

@@ -9,7 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import ComboBoxCommon
-    from pygui.qt.utils.widgets import LabelCommon
+    from pygui.qt.widgets.label_widget import LabelWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -22,7 +22,7 @@ class DecimalPrecisionWidget(CompositeCommon):
     def __init__(self, parent, **params):
         params['layout'] = QHBoxLayout()
         super(DecimalPrecisionWidget, self).__init__(parent, **params)
-        LabelCommon(self, i18n_def='Precision')
+        LabelWidget(self, i18n_def='Precision')
 
         self.__precision_choice__ = ComboBoxCommon(self,
                            clicked_handler=self.__precision_change_handler__,
@@ -34,7 +34,7 @@ class DecimalPrecisionWidget(CompositeCommon):
                                DecimalPrecisionWidget.MAX_PRECISION) - 1
         self.__precision_choice__.setCurrentIndex(precision)
 
-        LabelCommon(self, i18n_def='.',
+        LabelWidget(self, i18n_def='.',
                     sizePolicy=QSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed))
         self.__scale_choice__ = ComboBoxCommon(self,

@@ -18,6 +18,7 @@ try:
     from pygui.qt.utils.windows import showFilesPreviewDialog
     from pygui.qt.custom_widgets.modelviews import FilesTableView
     from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
+    from pygui.qt.widgets.label_widget import LabelWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -65,17 +66,17 @@ class ChooseDatasourcePage(QWizardPage):
                         i18n_def="Choose root dir",
                         clicked_handler=self.chooseRootDirAction)
 
-        LabelCommon(fileConstraintsComposite,
+        LabelWidget(fileConstraintsComposite,
                      i18n="datasource.root.dir.label",
                      i18n_def="Root dir:")
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        self.rootDirLabel = LabelCommon(fileConstraintsComposite,
+        self.rootDirLabel = LabelWidget(fileConstraintsComposite,
                                         i18n="datasource.root.dir.label",
                                         i18n_def="[Not set]",
                                         sizePolicy=sizePolicy,
                                         stretch_after_widget=1)
 
-        LabelCommon(fileConstraintsComposite,
+        LabelWidget(fileConstraintsComposite,
                     i18n="datasource.file.name.filter.label",
                     i18n_def="Files name filter")
 

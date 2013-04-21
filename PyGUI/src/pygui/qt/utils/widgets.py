@@ -178,15 +178,6 @@ class WidgetCommon(QWidget, Common):
         super(WidgetCommon, self).hideEvent(event)
 
 
-class LabelCommon(QLabel, Common):
-    def __init__(self, parent, **params):
-        super(LabelCommon, self).__init__(parent)
-        if params.get('sizePolicy', None) == None:
-            params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
-                                           QSizePolicy.Preferred)
-        prepareWidget(parent=parent, widget=self, textable=True, **params)
-
-
 class MainWindowCommon(QMainWindow, Common):
     def __init__(self, parent, **params):
         super(MainWindowCommon, self).__init__(parent)

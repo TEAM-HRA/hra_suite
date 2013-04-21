@@ -10,7 +10,7 @@ try:
     from pycore.collections_utils import get_or_put
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import PushButtonCommon
-    from pygui.qt.utils.widgets import LabelCommon
+    from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.utils.windows import ErrorWindow
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -26,9 +26,9 @@ class DirWidget(CompositeCommon):
         get_or_put(params, 'layout', layout)
         super(DirWidget, self).__init__(parent, **params)
 
-        LabelCommon(self, i18n_def='Directory:')
+        LabelWidget(self, i18n_def='Directory:')
 
-        self.__dir_label__ = LabelCommon(self, i18n_def='[not set]',
+        self.__dir_label__ = LabelWidget(self, i18n_def='[not set]',
                         sizePolicy=QSizePolicy(QSizePolicy.MinimumExpanding,
                                                QSizePolicy.Minimum))
 
