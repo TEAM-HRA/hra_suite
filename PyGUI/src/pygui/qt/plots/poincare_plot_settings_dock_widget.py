@@ -9,6 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
+    from pygui.qt.widgets.splitter_widget import SplitterWidget
     from pygui.qt.custom_widgets.filters.filters_widget import FiltersWidget
     from pygui.qt.custom_widgets.filters.slave_annotation_filter_widget import SlaveAnnotationFilterWidget # @IgnorePep8
     from pygui.qt.custom_widgets.output_specification_widget import OutputSpecificationWidget  # @IgnorePep8
@@ -29,6 +30,9 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
             title=params.get('title', 'Poincare plot settings'),
             dock_widget_location_changed=self.__dock_widget_location_changed__,
             **params)
+        self.__splitter__ = SplitterWidget(self.dockComposite,
+                                           orientation=Qt.Vertical)
+        self.__splitter__.setHandleWidth(5)
         parent.addDockWidget(Qt.LeftDockWidgetArea, self)
 
     def __changeUnit__(self, unit):
@@ -58,24 +62,35 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
         self.__createStatisticsSelectionWidget__(QVBoxLayout())
 
     def __createFiltersWidget__(self, layout):
-        self.__filtersWidget__ = FiltersWidget(self.dockComposite,
+        self.__filtersWidget__ = FiltersWidget(
+                        self.__splitter__,
                         layout=layout, data_accessor=self.data_accessor,
                         title='Active filters for tachogram plot',
                         use_apply_button=False,
                         annotation_widget_class=SlaveAnnotationFilterWidget)
+        self.__changeSplitterHandleColor__(0, Qt.red)
 
     def __createOutputSpecificationWidget__(self, layout):
         self.__output_specification__ = OutputSpecificationWidget(
-                                            self.dockComposite,
+                                            self.__splitter__,
                                             no_custom_separator=True,
                                             layout=layout)
+        self.__changeSplitterHandleColor__(1, Qt.blue)
 
     def __createMiscellaneousWidget__(self, layout):
         self.__output_specification__ = MiscellaneousWidget(
-                                        self.dockComposite, layout=layout,
+                                        self.__splitter__, layout=layout,
                                         data_accessor=self.data_accessor)
+        self.__changeSplitterHandleColor__(2, Qt.green)
 
     def __createStatisticsSelectionWidget__(self, layout):
         self.__output_specification__ = StatisticsSelectionWidget(
-                                        self.dockComposite,
-                                        layout=layout)
+                                            self.__splitter__, layout=layout)
+        self.__changeSplitterHandleColor__(3, Qt.black)
+
+    def __changeSplitterHandleColor__(self, idx, color):
+        handle = self.__splitter__.handle(idx)
+        p = handle.palette()
+        p.setColor(handle.backgroundRole(), color)
+        handle.setPalette(p)
+        handle.setAutoFillBackground(True)
