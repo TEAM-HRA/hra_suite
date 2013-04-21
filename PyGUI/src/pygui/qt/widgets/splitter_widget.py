@@ -8,6 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
+    from pycore.collections_utils import get_or_put
     from pygui.qt.utils.settings import SettingsFactory
     from pygui.qt.utils.settings import Setter
     from pygui.qt.widgets.commons import prepareWidget
@@ -18,9 +19,10 @@ except ImportError as error:
 
 class SplitterWidget(QSplitter, Common):
     def __init__(self, parent, **params):
-        QSplitter.__init__(self, parent)
-        prepareWidget(parent=parent, widget=self, **params)
+        get_or_put(params, 'orientation', Qt.Horizontal)
         self.params = Params(**params)
+        QSplitter.__init__(self, self.params.orientation, parent=parent)
+        prepareWidget(parent=parent, widget=self, **params)
         self.setHandleWidth(self.handleWidth() * 2)
         if self.params.save_state:
             SettingsFactory.loadSettings(self,
