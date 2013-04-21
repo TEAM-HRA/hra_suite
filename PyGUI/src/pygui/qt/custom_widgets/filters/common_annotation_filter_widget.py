@@ -14,7 +14,7 @@ try:
     from pymath.datasources import get_unique_annotations
     from pymath.datasources import ALL_ANNOTATIONS
     from pymath.time_domain.poincare_plot.filters.annotation_filter import AnnotationFilter # @IgnorePep8
-    from pygui.qt.utils.widgets import GroupBoxCommon
+    from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.utils.signals import BUTTON_CLICKED_SIGNAL
     from pygui.qt.widgets.button_group_widget import ButtonGroupWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
@@ -22,7 +22,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class CommonAnnotationFilterWidget(GroupBoxCommon):
+class CommonAnnotationFilterWidget(GroupBoxWidget):
     def __init__(self, parent, **params):
         get_or_put(params, 'layout', QHBoxLayout())
         super(CommonAnnotationFilterWidget, self).__init__(parent, **params)

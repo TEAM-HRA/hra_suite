@@ -11,7 +11,7 @@ try:
     from pycore.collections_utils import get_or_put
     from pymath.datasources import DataVectorListener
     from pygui.qt.widgets.composite_widget import CompositeWidget
-    from pygui.qt.utils.widgets import GroupBoxCommon
+    from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.utils.widgets import SliderCommon
@@ -19,7 +19,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class MiscellaneousWidget(GroupBoxCommon):
+class MiscellaneousWidget(GroupBoxWidget):
     """
     widget used to set up some specific properties like:
     window size,

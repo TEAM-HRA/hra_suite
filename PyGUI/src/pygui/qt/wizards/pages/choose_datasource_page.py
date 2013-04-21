@@ -23,6 +23,7 @@ try:
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.widgets.line_edit_widget import LineEditWidget
+    from pygui.qt.widgets.group_box_widget import GroupBoxWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -45,7 +46,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.rootDir = None
 
     def __createFilesGroupBox(self, pageLayout):
-        self.filesGroupBox = GroupBoxCommon(self,
+        self.filesGroupBox = GroupBoxWidget(self,
                                     i18n="datasource.files.group.title",
                                     i18n_def="Files",
                                     layout=QVBoxLayout())

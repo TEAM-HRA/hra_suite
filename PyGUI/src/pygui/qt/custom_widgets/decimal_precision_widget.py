@@ -8,7 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pygui.qt.widgets.composite_widget import CompositeWidget
-    from pygui.qt.utils.widgets import ComboBoxCommon
+    from pygui.qt.widgets.combo_box_widget import ComboBoxWidget
     from pygui.qt.widgets.label_widget import LabelWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -24,7 +24,7 @@ class DecimalPrecisionWidget(CompositeWidget):
         super(DecimalPrecisionWidget, self).__init__(parent, **params)
         LabelWidget(self, i18n_def='Precision')
 
-        self.__precision_choice__ = ComboBoxCommon(self,
+        self.__precision_choice__ = ComboBoxWidget(self,
                            clicked_handler=self.__precision_change_handler__,
                            sizePolicy=QSizePolicy(QSizePolicy.Fixed,
                                                   QSizePolicy.Fixed))
@@ -37,7 +37,7 @@ class DecimalPrecisionWidget(CompositeWidget):
         LabelWidget(self, i18n_def='.',
                     sizePolicy=QSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed))
-        self.__scale_choice__ = ComboBoxCommon(self,
+        self.__scale_choice__ = ComboBoxWidget(self,
                             sizePolicy=QSizePolicy(QSizePolicy.Fixed,
                                                   QSizePolicy.Fixed))
         self.__rescale__()

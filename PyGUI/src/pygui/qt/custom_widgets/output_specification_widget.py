@@ -8,7 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
-    from pygui.qt.utils.widgets import GroupBoxCommon
+    from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.custom_widgets.decimal_precision_widget import DecimalPrecisionWidget # @IgnorePep8
     from pygui.qt.custom_widgets.separator_widget import SeparatorWidget # @IgnorePep8
@@ -17,7 +17,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class OutputSpecificationWidget(GroupBoxCommon):
+class OutputSpecificationWidget(GroupBoxWidget):
     """
     widget used to specify output parameters like:
     output dir,

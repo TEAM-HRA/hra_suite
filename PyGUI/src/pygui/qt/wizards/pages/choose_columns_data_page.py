@@ -28,6 +28,7 @@ try:
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
+    from pygui.qt.widgets.group_box_widget import GroupBoxWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -331,7 +332,7 @@ class ChooseColumnsDataPage(QWizardPage):
     def __createHeaderPreviewGroup__(self):
         if hasattr(self, 'fileHeaderPreviewGroup'):
             self.fileHeaderPreviewGroup.deleteLater()
-        self.fileHeaderPreviewGroup = GroupBoxCommon(self.tableViewComposite,
+        self.fileHeaderPreviewGroup = GroupBoxWidget(self.tableViewComposite,
                                     i18n="datasource.file.header.preview",
                                     i18n_def="Header preview",
                                     layout=QVBoxLayout(),

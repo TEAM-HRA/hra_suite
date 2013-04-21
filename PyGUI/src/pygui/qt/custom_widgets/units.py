@@ -11,14 +11,14 @@ try:
     from pycore.units import get_units_for_type
     from pycore.units import TimeUnit
     from pycore.units import Millisecond
-    from pygui.qt.utils.widgets import GroupBoxCommon
+    from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.widgets.button_group_widget import ButtonGroupWidget
 except ImportError as error:
     print_import_error(__name__, error)
 
 
-class TimeUnitsWidget(GroupBoxCommon):
+class TimeUnitsWidget(GroupBoxWidget):
 
     def __init__(self, parent, **params):
         get_or_put(params, 'i18n', 'time.units.group.title')

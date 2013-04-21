@@ -13,7 +13,7 @@ try:
     from pycore.misc import Separator
     from pygui.qt.utils.qt_i18n import QT_I18N
     from pygui.qt.utils.graphics import get_width_of_n_letters
-    from pygui.qt.utils.widgets import GroupBoxCommon
+    from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.button_group_widget import ButtonGroupWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
@@ -38,7 +38,7 @@ class SeparatorWidget(object):
     def __init__(self, parent, **params):
         get_or_put(params, 'i18n_def', 'Separator')
         self.params = Params(**params)
-        self.separatorsGroupBox = GroupBoxCommon(parent,
+        self.separatorsGroupBox = GroupBoxWidget(parent,
                             i18n="separator.widget.group.title",
                             i18n_def=nvl(self.params.i18n_def, "Separator"),
                             layout=QVBoxLayout())

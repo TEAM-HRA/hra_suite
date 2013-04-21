@@ -11,7 +11,7 @@ try:
     from pycore.collections_utils import get_or_put
     from pycore.misc import Params
     from pymath.datasources import DataVectorListener
-    from pygui.qt.utils.widgets import GroupBoxCommon
+    from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.number_edit_widget import NumberEditWidget
     from pygui.qt.widgets.label_widget import LabelWidget
@@ -23,7 +23,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class SquareFilterWidget(GroupBoxCommon):
+class SquareFilterWidget(GroupBoxWidget):
     """
     graphical representation of a square filter
     """

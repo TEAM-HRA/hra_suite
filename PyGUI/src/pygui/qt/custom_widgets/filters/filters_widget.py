@@ -11,7 +11,7 @@ try:
     from pymath.datasources import DataVectorListener
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
-    from pygui.qt.utils.widgets import GroupBoxCommon
+    from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.custom_widgets.filters.square_filter_widget import SquareFilterWidget # @IgnorePep8
     from pygui.qt.custom_widgets.filters.common_annotation_filter_widget import CommonAnnotationFilterWidget  # @IgnorePep8
 except ImportError as error:
@@ -30,7 +30,7 @@ class FiltersWidget(CompositeWidget):
         self.data_accessor.addListener(self,
                                 __FilterActivatedDataVectorListener__(self))
 
-        filtersGroup = GroupBoxCommon(self, layout=QVBoxLayout(),
+        filtersGroup = GroupBoxWidget(self, layout=QVBoxLayout(),
                                       i18n_def=params.get('title', 'Filters'))
         annotation_widget_class = params.get('annotation_widget_class', False)
         if annotation_widget_class:

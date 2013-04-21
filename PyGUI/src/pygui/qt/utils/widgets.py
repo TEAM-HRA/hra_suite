@@ -195,12 +195,6 @@ class ListWidgetCommon(QListWidget, Common):
                          double_click_handler)
 
 
-class GroupBoxCommon(QGroupBox, Common):
-    def __init__(self, parent, **params):
-        super(GroupBoxCommon, self).__init__(parent)
-        prepareWidget(parent=parent, titleable=True, widget=self, **params)
-
-
 class TableViewCommon(QTableView, Common):
     def __init__(self, parent, **params):
         super(TableViewCommon, self).__init__(parent)
@@ -235,15 +229,6 @@ class ListWidgetItemCommon(QListWidgetItem):
         item = self.data(Qt.UserRole)
         if item:
             return item.toPyObject()
-
-
-class ComboBoxCommon(QComboBox, Common):
-    def __init__(self, parent, **params):
-        super(ComboBoxCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
-        click_handler = params.get('clicked_handler', None)
-        if click_handler:
-            self.connect(self, CURRENT_INDEX_CHANGED_SIGNAL, click_handler)
 
 
 def maximize_widget(widget):
