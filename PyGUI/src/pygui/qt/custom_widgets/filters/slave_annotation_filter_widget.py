@@ -11,7 +11,7 @@ try:
     from pycore.collections_utils import is_empty
     from pymath.datasources import DataVectorListener
     from pymath.datasources import ALL_ANNOTATIONS
-    from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.custom_widgets.filters.common_annotation_filter_widget import CommonAnnotationFilterWidget # @IgnorePep8    
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -29,7 +29,7 @@ class SlaveAnnotationFilterWidget(CommonAnnotationFilterWidget):
         return self.__action_button__
 
     def createActionButton(self):
-        self.__action_button__ = CheckBoxCommon(self, i18n_def='Use filter')
+        self.__action_button__ = CheckBoxWidget(self, i18n_def='Use filter')
         self.__action_button__.setChecked(False)
         self.__action_button__.setEnabled(False)
 

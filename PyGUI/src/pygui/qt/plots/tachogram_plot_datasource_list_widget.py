@@ -11,7 +11,7 @@ try:
     from pygui.qt.utils.windows import showFilesPreviewDialog
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
-    from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.utils.widgets import ListWidgetItemCommon
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.custom_widgets.toolbars import ToolBarManager
@@ -43,7 +43,7 @@ class TachogramPlotDatasourceListWidget(WidgetCommon):
                     clicked_handler=self.__showTachogramsHandler__,
                     enabled_precheck_handler=self.__enabledPrecheckHandler__)
 
-        self.__allowTachogramsDuplicationButton__ = CheckBoxCommon(self,
+        self.__allowTachogramsDuplicationButton__ = CheckBoxWidget(self,
                     i18n="poincare.plot.allow.tachograms.duplications.button",
                     i18n_def="Allow tachograms duplication",
                     enabled=False,

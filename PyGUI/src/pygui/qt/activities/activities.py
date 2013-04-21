@@ -16,7 +16,7 @@ try:
     from pygui.qt.utils.signals import CLEAR_ACTIVITIES_SIGNAL
     from pygui.qt.utils.settings import SettingsFactory
     from pygui.qt.utils.widgets import CompositeCommon
-    from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.utils.widgets import LineEditCommon
     from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
     from pygui.qt.utils.widgets import ListWidgetCommon
@@ -56,7 +56,7 @@ class ActivityWidget(CompositeCommon):
     def __init__(self, parent, **params):
         super(ActivityWidget, self).__init__(parent, layout=QHBoxLayout(),
                                              **params)
-        self.activityButton = CheckBoxCommon(self,
+        self.activityButton = CheckBoxWidget(self,
                             i18n="activity.button",
                             i18n_def="Save as activity",
                             clicked_handler=self.__clickedHandler__)

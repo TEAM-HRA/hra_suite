@@ -195,15 +195,6 @@ class ListWidgetCommon(QListWidget, Common):
                          double_click_handler)
 
 
-class CheckBoxCommon(QCheckBox, Common):
-    def __init__(self, parent, **params):
-        super(CheckBoxCommon, self).__init__(parent)
-        if params.get('sizePolicy', None) == None:
-            params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
-                                               QSizePolicy.Fixed)
-        prepareWidget(parent=parent, widget=self, textable=True, **params)
-
-
 class LineEditCommon(QLineEdit, Common):
     def __init__(self, parent, **params):
         QLineEdit.__init__(self, parent)

@@ -13,7 +13,7 @@ try:
     from pymath.datasources import get_unique_annotations
     from pymath.datasources import ALL_ANNOTATIONS
     from pygui.qt.utils.widgets import ButtonGroupCommon
-    from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.utils.signals import BUTTON_CLICKED_SIGNAL
     from pymath.time_domain.poincare_plot.filters.annotation_filter import AnnotationFilter # @IgnorePep8
@@ -114,11 +114,11 @@ class CommonAnnotationFilterWidget(GroupBoxCommon):
                                                 self.data_accessor.annotation0)
         empty = is_empty(unique_annotations0)
         self.set_title(empty)
-        self.__all_button__ = CheckBoxCommon(self, i18n_def='ALL',
+        self.__all_button__ = CheckBoxWidget(self, i18n_def='ALL',
                                 clicked_handler=self.__all_button_handler__)
         self.__button_group__.addButton(self.__all_button__)
         for unique_annotation in unique_annotations0:
-            annotationCheckBox = CheckBoxCommon(self,
+            annotationCheckBox = CheckBoxWidget(self,
                                             i18n_def=str(unique_annotation))
             self.__button_group__.addButton(annotationCheckBox)
 

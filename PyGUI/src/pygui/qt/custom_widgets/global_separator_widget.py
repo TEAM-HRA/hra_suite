@@ -9,7 +9,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import is_empty
     from pycore.misc import Params
-    from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.utils.windows import InformationWindow
     from pygui.qt.custom_widgets.separator_widget import SeparatorWidget
 except ImportError as error:
@@ -24,7 +24,7 @@ class GlobalSeparatorWidget(SeparatorWidget):
 
         self.globalSettingsCheckBox = None
         if self.params.globalHandler:
-            self.globalSettingsCheckBox = CheckBoxCommon(
+            self.globalSettingsCheckBox = CheckBoxWidget(
                                         self.separatorsGroupBox,
                                         i18n="separator.global.separator",
                                         i18n_def="Global separator")

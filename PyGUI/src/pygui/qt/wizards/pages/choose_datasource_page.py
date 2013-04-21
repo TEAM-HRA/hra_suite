@@ -90,13 +90,13 @@ class ChooseDatasourcePage(QWizardPage):
                      SIGNAL("textChanged(const QString&)"),
                      self.reload)
 
-        self.recursively = CheckBoxCommon(fileConstraintsComposite,
+        self.recursively = CheckBoxWidget(fileConstraintsComposite,
                         i18n="datasource.search.files.recursively.label",
                         i18n_def="Search files recursively",
                         clicked_handler=self.reload,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
-        self.onlyKnownTypes = CheckBoxCommon(fileConstraintsComposite,
+        self.onlyKnownTypes = CheckBoxWidget(fileConstraintsComposite,
                         i18n="datasource.only.known.types.checkbox",
                         i18n_def="Only known types",
                         checked=True,

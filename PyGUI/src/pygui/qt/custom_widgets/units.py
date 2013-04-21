@@ -12,7 +12,7 @@ try:
     from pycore.units import TimeUnit
     from pycore.units import Millisecond
     from pygui.qt.utils.widgets import GroupBoxCommon
-    from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.utils.widgets import ButtonGroupCommon
 except ImportError as error:
     print_import_error(__name__, error)
@@ -30,7 +30,7 @@ class TimeUnitsWidget(GroupBoxCommon):
         self.__change_unit_handler__ = params.get('change_unit_handler', None)
 
         for time_unit in get_units_for_type(TimeUnit):
-            unitCheckBox = CheckBoxCommon(self,
+            unitCheckBox = CheckBoxWidget(self,
                     i18n_def="%s [%s]" % (time_unit.name, time_unit.label))
 
             #add artificially property unit for later use in getUnit method
@@ -51,7 +51,7 @@ class TimeUnitsWidget(GroupBoxCommon):
             return unitCheckBox.unit
 
     def addUnit(self, unit):
-        unitCheckBox = CheckBoxCommon(self,
+        unitCheckBox = CheckBoxWidget(self,
                     i18n_def="%s [%s]" % (unit.name, unit.label))
         unitCheckBox.unit = unit
         if unit == self.default_unit:

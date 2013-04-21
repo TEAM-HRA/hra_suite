@@ -12,7 +12,7 @@ try:
     from pymath.datasources import DataVectorListener
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import GroupBoxCommon
-    from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.utils.widgets import SliderCommon
 except ImportError as error:
@@ -36,10 +36,10 @@ class MiscellaneousWidget(GroupBoxCommon):
                                                 params.get('data_accessor'))
 
         self.__use_paramaters__ = CompositeCommon(self, layout=QHBoxLayout())
-        self.__use_buffer__ = CheckBoxCommon(self.__use_paramaters__,
+        self.__use_buffer__ = CheckBoxWidget(self.__use_paramaters__,
                                              i18n_def='Use buffer',
                                              checked=True)
-        self.__use_identity_line__ = CheckBoxCommon(self.__use_paramaters__,
+        self.__use_identity_line__ = CheckBoxWidget(self.__use_paramaters__,
                                              i18n_def='Use identity line',
                                              checked=True)
 

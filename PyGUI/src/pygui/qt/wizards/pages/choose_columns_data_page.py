@@ -196,7 +196,7 @@ class ChooseColumnsDataPage(QWizardPage):
                             selectionBehavior=QAbstractItemView.SelectRows,
                             selectionMode=QAbstractItemView.SingleSelection)
 
-        self.__globalCheckBox__ = CheckBoxCommon(
+        self.__globalCheckBox__ = CheckBoxWidget(
                                     self.fileHeaderPreviewGroup,
                                     i18n="global.data.column.index",
                                     i18n_def="Global columns indexes",
@@ -421,13 +421,13 @@ class HeaderWidget(QWidget):
         LabelWidget(self, i18n_def=_header)
 
         self.__buttons__ = {}
-        self.__buttons__[ColumnType.signal] = CheckBoxCommon(self,
+        self.__buttons__[ColumnType.signal] = CheckBoxWidget(self,
                                     i18n_def="signal",
                                     clicked_handler=self.__signalClicked__)
-        self.__buttons__[ColumnType.annotation] = CheckBoxCommon(self,
+        self.__buttons__[ColumnType.annotation] = CheckBoxWidget(self,
                                     i18n_def="annotation",
                                     clicked_handler=self.__annotationClicked__)
-        self.__buttons__[ColumnType.time] = CheckBoxCommon(self,
+        self.__buttons__[ColumnType.time] = CheckBoxWidget(self,
                                     i18n_def="time",
                                     clicked_handler=self.__timeClicked__)
 

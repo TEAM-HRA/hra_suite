@@ -13,7 +13,7 @@ try:
     from pycore.misc import Separator
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.utils.widgets import CompositeCommon
-    from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.utils.widgets import ButtonGroupCommon
     from pygui.qt.utils.widgets import LineEditCommon
     from pygui.qt.utils.qt_i18n import QT_I18N
@@ -54,7 +54,7 @@ class SeparatorWidget(object):
         for separatorSpec in self.predefinedSeparatorsSpecs:
             label = separatorSpec.label
             if not label == Separator.CUSTOM.label:  # @UndefinedVariable
-                predefinedSeparatorCheckBox = CheckBoxCommon(
+                predefinedSeparatorCheckBox = CheckBoxWidget(
                                             self.predefinedSeparatorsComposite)
                 #attach artificially a separatorSpec object used later in
                 #def setSeparator(self, _separator) method
@@ -68,7 +68,7 @@ class SeparatorWidget(object):
                                     self.predefinedSeparatorButtonClicked)
 
         if not self.params.no_custom_separator == True:
-            self.customSeparatorCheckBox = CheckBoxCommon(
+            self.customSeparatorCheckBox = CheckBoxWidget(
                                         self.predefinedSeparatorsComposite,
                                         i18n="separator.custom.checkbox",
                                         i18n_def="Custom")

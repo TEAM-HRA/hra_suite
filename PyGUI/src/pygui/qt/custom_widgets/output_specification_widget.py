@@ -9,7 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
     from pygui.qt.utils.widgets import GroupBoxCommon
-    from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.custom_widgets.decimal_precision_widget import DecimalPrecisionWidget # @IgnorePep8
     from pygui.qt.custom_widgets.separator_widget import SeparatorWidget # @IgnorePep8
     from pygui.qt.custom_widgets.dir_widget import DirWidget
@@ -33,4 +33,4 @@ class OutputSpecificationWidget(GroupBoxCommon):
         self.__precision__ = DecimalPrecisionWidget(self)
         self.__separator__ = SeparatorWidget(self, i18n_def='Output separator',
                 no_custom_separator=params.get('no_custom_separator', None))
-        self.__skip_existing__ = CheckBoxCommon(self, i18n_def='Skip existing outcomes') # @IgnorePep8
+        self.__skip_existing__ = CheckBoxWidget(self, i18n_def='Skip existing outcomes') # @IgnorePep8

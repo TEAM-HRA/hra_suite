@@ -15,7 +15,7 @@ try:
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.number_edit_widget import NumberEditWidget
     from pygui.qt.widgets.label_widget import LabelWidget
-    from pygui.qt.utils.widgets import CheckBoxCommon
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.utils.windows import InformationWindow
     from pymath.time_domain.poincare_plot.filters.square_filter import SquareFilter # @IgnorePep8
     from pygui.qt.custom_widgets.filters.filter_utils import run_filter
@@ -48,7 +48,7 @@ class SquareFilterWidget(GroupBoxCommon):
             self.__action_button__ = PushButtonWidget(self, i18n_def='Apply',
                                 clicked_handler=self.__filter_handler__)
         else:
-            self.__action_button__ = CheckBoxCommon(self,
+            self.__action_button__ = CheckBoxWidget(self,
                             i18n_def='Use filter',
                             clicked_handler=self.__use_handler__)
             self.data_accessor.addListener(self,
