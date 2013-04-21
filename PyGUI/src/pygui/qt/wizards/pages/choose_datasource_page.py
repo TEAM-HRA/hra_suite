@@ -20,6 +20,8 @@ try:
     from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
+    from pygui.qt.widgets.composite_widget import CompositeWidget
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -59,7 +61,7 @@ class ChooseDatasourcePage(QWizardPage):
         self.chooseRootDirButton.setEnabled(True)
 
     def __createFileConstraintsComposite__(self, parent):
-        fileConstraintsComposite = CompositeCommon(parent,
+        fileConstraintsComposite = CompositeWidget(parent,
                                                    layout=QHBoxLayout())
 
         self.chooseRootDirButton = PushButtonWidget(fileConstraintsComposite,
@@ -120,7 +122,7 @@ class ChooseDatasourcePage(QWizardPage):
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
     def __createFilesOperationsComposite__(self, parent):
-        filesOperations = CompositeCommon(parent,
+        filesOperations = CompositeWidget(parent,
                                             layout=QHBoxLayout())
 
         self.filePreviewButton = PushButtonWidget(filesOperations,

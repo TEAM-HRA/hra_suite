@@ -211,14 +211,6 @@ class LineEditCommon(QLineEdit, Common):
         super(LineEditCommon, self).focusInEvent(qfocusevent)
 
 
-class CompositeCommon(WidgetCommon):
-    """
-    this a placeholder used as a generic widget which could contains other
-    widgets
-    """
-    pass
-
-
 class GroupBoxCommon(QGroupBox, Common):
     def __init__(self, parent, **params):
         super(GroupBoxCommon, self).__init__(parent)
@@ -256,54 +248,6 @@ class ProgressBarCommon(QProgressBar, Common):
     def __init__(self, parent, **params):
         super(ProgressBarCommon, self).__init__(parent)
         prepareWidget(parent=parent, widget=self, **params)
-
-
-class ButtonGroupCommon(QButtonGroup, Common):
-    def __init__(self, parent, **params):
-        super(ButtonGroupCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
-
-    def isAllUnchecked(self):
-        """
-        return True when all buttons in button's group are unchecked
-        """
-        for button in self.buttons():
-            if button.isChecked():
-                return False
-        return True
-
-    def isAllChecked(self):
-        """
-        returns True when all buttons in button's group are checked
-        """
-        for button in self.buttons():
-            if not button.isChecked():
-                return False
-        return True
-
-    def setAllChecked(self, _checked):
-        """
-        check/uncheck all butoons in button's group
-        """
-        exclusive = self.exclusive()
-        self.setExclusive(False)
-        for button in self.buttons():
-            button.setChecked(_checked)
-        if exclusive:
-            self.setExclusive(True)
-
-    def setEnabled(self, _enabled):
-        for button in self.buttons():
-            button.setEnabled(_enabled)
-
-    def isAnyChecked(self):
-        """
-        returns True when any button is checked
-        """
-        for button in self.buttons():
-            if button.isChecked():
-                return True
-        return False
 
 
 class ListWidgetItemCommon(QListWidgetItem):

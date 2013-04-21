@@ -95,7 +95,7 @@ class ProgressDialogManager(object):
 #        self.counter = 0
 #        self.stopped = False
 #
-#        self.progressBarComposite = CompositeCommon(parent,
+#        self.progressBarComposite = CompositeWidget(parent,
 #                                layout=QHBoxLayout(),
 #                                hide_event_handler=self.__hideEventHandler__)
 #        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)

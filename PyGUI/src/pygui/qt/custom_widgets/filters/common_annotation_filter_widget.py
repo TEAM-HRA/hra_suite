@@ -4,6 +4,7 @@ Created on 23-03-2013
 @author: jurek
 '''
 from pycore.special import ImportErrorMessage
+
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
@@ -12,11 +13,11 @@ try:
     from pycore.misc import Params
     from pymath.datasources import get_unique_annotations
     from pymath.datasources import ALL_ANNOTATIONS
-    from pygui.qt.utils.widgets import ButtonGroupCommon
-    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
+    from pymath.time_domain.poincare_plot.filters.annotation_filter import AnnotationFilter # @IgnorePep8
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.utils.signals import BUTTON_CLICKED_SIGNAL
-    from pymath.time_domain.poincare_plot.filters.annotation_filter import AnnotationFilter # @IgnorePep8
+    from pygui.qt.widgets.button_group_widget import ButtonGroupWidget
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -108,7 +109,7 @@ class CommonAnnotationFilterWidget(GroupBoxCommon):
 
     def __createAnnotationButtons__(self):
 
-        self.__button_group__ = ButtonGroupCommon(self)
+        self.__button_group__ = ButtonGroupWidget(self)
 
         unique_annotations0 = get_unique_annotations(
                                                 self.data_accessor.annotation0)

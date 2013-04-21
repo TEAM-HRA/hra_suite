@@ -10,7 +10,7 @@ try:
     from pycore.special import ImportErrorMessage
     from pycore.collections_utils import get_or_put
     from pymath.datasources import DataVectorListener
-    from pygui.qt.utils.widgets import CompositeCommon
+    from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.widgets.label_widget import LabelWidget
@@ -35,7 +35,7 @@ class MiscellaneousWidget(GroupBoxCommon):
         self.__window_size = __DataWindowSizeWidget__(self,
                                                 params.get('data_accessor'))
 
-        self.__use_paramaters__ = CompositeCommon(self, layout=QHBoxLayout())
+        self.__use_paramaters__ = CompositeWidget(self, layout=QHBoxLayout())
         self.__use_buffer__ = CheckBoxWidget(self.__use_paramaters__,
                                              i18n_def='Use buffer',
                                              checked=True)
@@ -52,7 +52,7 @@ class MiscellaneousWidget(GroupBoxCommon):
         return self.__use_identity_line__.isChecked()
 
 
-class __DataWindowSizeWidget__(CompositeCommon):
+class __DataWindowSizeWidget__(CompositeWidget):
     """
     widget used to change data window size
     """
@@ -64,7 +64,7 @@ class __DataWindowSizeWidget__(CompositeCommon):
         self.data_accessor.addListener(self,
                     __DataWindowSizeDataVectorListener__(self))
 
-        info_group = CompositeCommon(self, layout=QHBoxLayout())
+        info_group = CompositeWidget(self, layout=QHBoxLayout())
         LabelWidget(info_group, i18n_def='Data window size:')
         self.__size_value__ = LabelWidget(info_group, i18n_def='<value>')
         self.__unit_value__ = LabelWidget(info_group, i18n_def='')

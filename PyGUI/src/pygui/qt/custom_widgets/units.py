@@ -13,7 +13,7 @@ try:
     from pycore.units import Millisecond
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
-    from pygui.qt.utils.widgets import ButtonGroupCommon
+    from pygui.qt.widgets.button_group_widget import ButtonGroupWidget
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -26,7 +26,7 @@ class TimeUnitsWidget(GroupBoxCommon):
         get_or_put(params, 'layout', QHBoxLayout())
         self.default_unit = params.get('default_unit', Millisecond)
         super(TimeUnitsWidget, self).__init__(parent, **params)
-        self.__unitsButtonsGroup__ = ButtonGroupCommon(self)
+        self.__unitsButtonsGroup__ = ButtonGroupWidget(self)
         self.__change_unit_handler__ = params.get('change_unit_handler', None)
 
         for time_unit in get_units_for_type(TimeUnit):

@@ -8,7 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
-    from pygui.qt.utils.widgets import CompositeCommon
+    from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.utils.windows import ErrorWindow
@@ -16,7 +16,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class DirWidget(CompositeCommon):
+class DirWidget(CompositeWidget):
     """
     widget gives ability to choose a directory
     """

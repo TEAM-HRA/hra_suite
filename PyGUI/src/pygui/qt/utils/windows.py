@@ -22,7 +22,7 @@ try:
     from pygui.qt.menu.menus import QTMenuBuilder
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
-    from pygui.qt.utils.widgets import CompositeCommon
+    from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import PlainTextEditCommon
@@ -196,7 +196,7 @@ class FilesPreviewDialog(QDialog):
         self.connect(closeButton, SIGNAL("clicked()"), self, SLOT("reject()"))
 
     def __createFilePreview__(self, parent, filename):
-        composite = CompositeCommon(parent)
+        composite = CompositeWidget(parent)
         layout = QVBoxLayout()
         composite.setLayout(layout)
         informationLabel = LabelWidget(composite)

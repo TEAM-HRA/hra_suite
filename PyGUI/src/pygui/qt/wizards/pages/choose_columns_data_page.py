@@ -26,6 +26,8 @@ try:
     from pygui.qt.utils.plugins import PluginsNames
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
+    from pygui.qt.widgets.composite_widget import CompositeWidget
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -63,7 +65,7 @@ class ChooseColumnsDataPage(QWizardPage):
         self.separatorWidget.setGlobalSeparatorAsDefault()
 
     def __createTableView__(self, pageLayout):
-        self.tableViewComposite = CompositeCommon(self, layout=QVBoxLayout())
+        self.tableViewComposite = CompositeWidget(self, layout=QVBoxLayout())
 
         datasource_page = self.wizard().page(self.datasource_page_id)
         model = CheckStateProxySortFilterModel(self)

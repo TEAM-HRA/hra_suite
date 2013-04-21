@@ -9,7 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
     from pymath.datasources import DataVectorListener
-    from pygui.qt.utils.widgets import CompositeCommon
+    from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.custom_widgets.filters.square_filter_widget import SquareFilterWidget # @IgnorePep8
@@ -18,7 +18,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class FiltersWidget(CompositeCommon):
+class FiltersWidget(CompositeWidget):
     """
     a composite widget to choose a filtering method based on
     subclasses of Filter class

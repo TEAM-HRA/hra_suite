@@ -11,13 +11,13 @@ try:
     from pycore.collections_utils import nvl
     from pycore.misc import Params
     from pycore.misc import Separator
-    from pygui.qt.utils.widgets import GroupBoxCommon
-    from pygui.qt.utils.widgets import CompositeCommon
-    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
-    from pygui.qt.utils.widgets import ButtonGroupCommon
-    from pygui.qt.utils.widgets import LineEditCommon
     from pygui.qt.utils.qt_i18n import QT_I18N
     from pygui.qt.utils.graphics import get_width_of_n_letters
+    from pygui.qt.utils.widgets import GroupBoxCommon
+    from pygui.qt.widgets.composite_widget import CompositeWidget
+    from pygui.qt.utils.widgets import LineEditCommon
+    from pygui.qt.widgets.button_group_widget import ButtonGroupWidget
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -43,10 +43,10 @@ class SeparatorWidget(object):
                             i18n_def=nvl(self.params.i18n_def, "Separator"),
                             layout=QVBoxLayout())
 
-        self.predefinedSeparatorsComposite = CompositeCommon(
+        self.predefinedSeparatorsComposite = CompositeWidget(
                                                     self.separatorsGroupBox,
                                                     layout=QHBoxLayout())
-        self.predefinedSeparatorsButtonsGroup = ButtonGroupCommon(
+        self.predefinedSeparatorsButtonsGroup = ButtonGroupWidget(
                                             self.predefinedSeparatorsComposite)
 
         self.predefinedSeparatorsSpecs = Separator.getSeparatorsSpec(

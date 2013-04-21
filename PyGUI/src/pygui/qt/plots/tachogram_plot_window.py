@@ -14,7 +14,7 @@ try:
     from pymath.datasources import DataVectorAccessor
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
-    from pygui.qt.utils.widgets import CompositeCommon
+    from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
@@ -55,7 +55,7 @@ class TachogramPlotWindow(MainWindowCommon):
 #
 
 
-class __TachogramPlot__(CompositeCommon):
+class __TachogramPlot__(CompositeWidget):
     """
     this class represents core of the tachogram plot that is a plot itself
     """

@@ -7,14 +7,14 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
-    from pygui.qt.utils.widgets import CompositeCommon
+    from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.utils.widgets import ComboBoxCommon
     from pygui.qt.widgets.label_widget import LabelWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class DecimalPrecisionWidget(CompositeCommon):
+class DecimalPrecisionWidget(CompositeWidget):
     MAX_PRECISION = 36
     """
     widget aimed to choose precision (ans sclae) for decimal numbers
