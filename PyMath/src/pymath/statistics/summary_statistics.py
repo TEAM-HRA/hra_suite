@@ -95,6 +95,14 @@ class SummaryStatistic(object):
         """
         pass
 
+    @property
+    def description(self):
+        """
+        method which gives ability to append additional statistic's
+        description for later use by client code
+        """
+        return self.__class__.__name__
+
 
 class Core(object):
     """
@@ -103,7 +111,14 @@ class Core(object):
     pass
 
 
-class C1dC1aTimeSummaryStatistic(SummaryStatistic, Core):
+class Asymmetry(object):
+    """
+    marker class to mark asymmetry summary statistics
+    """
+    pass
+
+
+class C1dC1aTimeSummaryStatistic(SummaryStatistic, Asymmetry):
     """
     summary statistic which calculates percentage of time when
     C1d is greater then C1a during processing/moving the window data

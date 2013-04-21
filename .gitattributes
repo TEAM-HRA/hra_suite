@@ -85,6 +85,7 @@ PyGUI/src/pygui/qt/plots/poincare_plot_settings_dock_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/__init__.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/miscellaneous_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/statistics_selection_widget.py -text
+PyGUI/src/pygui/qt/plots/specific_widgets/summary_statistics_selection_widget.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_canvas.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_const.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_datasource_list_widget.py -text

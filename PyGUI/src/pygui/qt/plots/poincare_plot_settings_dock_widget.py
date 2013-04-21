@@ -15,6 +15,7 @@ try:
     from pygui.qt.custom_widgets.output_specification_widget import OutputSpecificationWidget  # @IgnorePep8
     from pygui.qt.plots.specific_widgets.miscellaneous_widget import MiscellaneousWidget # @IgnorePep8
     from pygui.qt.plots.specific_widgets.statistics_selection_widget import StatisticsSelectionWidget # @IgnorePep8
+    from pygui.qt.plots.specific_widgets.summary_statistics_selection_widget import SummaryStatisticsSelectionWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -36,6 +37,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
         self.__createOutputSpecificationWidget__(QVBoxLayout())
         self.__createMiscellaneousWidget__(QVBoxLayout())
         self.__createStatisticsSelectionWidget__(QVBoxLayout())
+        self.__createSummaryStatisticsSelectionWidget__(QVBoxLayout())
 
         parent.addDockWidget(Qt.LeftDockWidgetArea, self)
 
@@ -64,6 +66,10 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
     def __createStatisticsSelectionWidget__(self, layout):
         StatisticsSelectionWidget(self.__splitter__, layout=layout)
         self.__changeSplitterHandleColor__(3, Qt.black)
+
+    def __createSummaryStatisticsSelectionWidget__(self, layout):
+        SummaryStatisticsSelectionWidget(self.__splitter__, layout=layout)
+        self.__changeSplitterHandleColor__(4, Qt.yellow)
 
     def __changeSplitterHandleColor__(self, idx, color):
         handle = self.__splitter__.handle(idx)
