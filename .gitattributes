@@ -72,7 +72,6 @@ PyGUI/src/pygui/qt/custom_widgets/modelviews.py -text
 PyGUI/src/pygui/qt/custom_widgets/output_specification_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/progress_bar.py -text
 PyGUI/src/pygui/qt/custom_widgets/separator_widget.py -text
-PyGUI/src/pygui/qt/custom_widgets/splitter.py -text
 PyGUI/src/pygui/qt/custom_widgets/tabwidget.py -text
 PyGUI/src/pygui/qt/custom_widgets/toolbars.py -text
 PyGUI/src/pygui/qt/custom_widgets/units.py -text
@@ -127,6 +126,7 @@ PyGUI/src/pygui/qt/widgets/progress_bar_widget.py -text
 PyGUI/src/pygui/qt/widgets/progress_dialog_widget.py -text
 PyGUI/src/pygui/qt/widgets/push_button_widget.py -text
 PyGUI/src/pygui/qt/widgets/slider_widget.py -text
+PyGUI/src/pygui/qt/widgets/splitter_widget.py -text
 PyGUI/src/pygui/qt/widgets/status_bar_widget.py -text
 PyGUI/src/pygui/qt/widgets/table_view_widget.py -text
 PyGUI/src/pygui/qt/widgets/text_edit_widget.py -text
