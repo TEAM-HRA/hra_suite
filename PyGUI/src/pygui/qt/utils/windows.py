@@ -12,22 +12,22 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pycore.misc import get_max_number_between_signs
+    from pycore.collections_utils import any_indexes
+    from pycore.collections_utils import or_values
+    from pycore.globals import GLOBALS
+    from pycore.introspection import get_class_object
     from pygui.qt.utils.qt_i18n import QT_I18N
-    from pygui.qt.utils.widgets import CompositeCommon
+    from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
+    from pygui.qt.activities.activities import ActivityDockWidget
+    from pygui.qt.menu.menus import QTMenuBuilder
     from pygui.qt.widgets.label_widget import LabelWidget
+    from pygui.qt.widgets.push_button_widget import PushButtonWidget
+    from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import MainWindowCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import PlainTextEditCommon
-    from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
-    from pygui.qt.activities.activities import ActivityDockWidget
-    from pygui.qt.menu.menus import QTMenuBuilder
-    from pycore.globals import GLOBALS
-    from pycore.introspection import get_class_object
-    from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
-    from pycore.collections_utils import any_indexes
-    from pycore.collections_utils import or_values
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -192,7 +192,7 @@ class FilesPreviewDialog(QDialog):
                                                  filename)
                 filesPreviewTabWidget.addTab(tab, 'File: ' + filename)
 
-        closeButton = PushButtonCommon(self, i18n="close", i18n_def="Close")
+        closeButton = PushButtonWidget(self, i18n="close", i18n_def="Close")
         self.connect(closeButton, SIGNAL("clicked()"), self, SLOT("reject()"))
 
     def __createFilePreview__(self, parent, filename):

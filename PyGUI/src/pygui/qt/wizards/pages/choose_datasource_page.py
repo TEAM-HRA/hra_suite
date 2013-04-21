@@ -14,11 +14,12 @@ try:
     from pygui.qt.utils.settings import Setter
     from pygui.qt.utils.widgets import *  # @UnusedWildImport
     from pygui.qt.utils.graphics import get_width_of_n_letters
-    from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
+    from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
     from pygui.qt.utils.windows import showFilesPreviewDialog
     from pygui.qt.custom_widgets.modelviews import FilesTableView
-    from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
+    from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
     from pygui.qt.widgets.label_widget import LabelWidget
+    from pygui.qt.widgets.push_button_widget import PushButtonWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -61,7 +62,7 @@ class ChooseDatasourcePage(QWizardPage):
         fileConstraintsComposite = CompositeCommon(parent,
                                                    layout=QHBoxLayout())
 
-        self.chooseRootDirButton = PushButtonCommon(fileConstraintsComposite,
+        self.chooseRootDirButton = PushButtonWidget(fileConstraintsComposite,
                         i18n="datasource.datasource.choose.root.dir.button",
                         i18n_def="Choose root dir",
                         clicked_handler=self.chooseRootDirAction)
@@ -103,7 +104,7 @@ class ChooseDatasourcePage(QWizardPage):
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
     def __createReloadButton__(self, parent):
-        self.reloadButton = PushButtonCommon(parent,
+        self.reloadButton = PushButtonWidget(parent,
                         i18n="datasource.reload.button",
                         i18n_def="Reload",
                         clicked_handler=self.reload,
@@ -122,21 +123,21 @@ class ChooseDatasourcePage(QWizardPage):
         filesOperations = CompositeCommon(parent,
                                             layout=QHBoxLayout())
 
-        self.filePreviewButton = PushButtonCommon(filesOperations,
+        self.filePreviewButton = PushButtonWidget(filesOperations,
                         i18n="datasource.file.preview.button",
                         i18n_def="File preview",
                         stretch_after_widget=1,
                         clicked_handler=self.filePreviewAction,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
-        self.checkAllButton = PushButtonCommon(filesOperations,
+        self.checkAllButton = PushButtonWidget(filesOperations,
                         i18n="datasource.accept.check.all.button",
                         i18n_def="Check all",
                         enabled=False,
                         clicked_handler=self.checkAllAction,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
-        self.uncheckAllButton = PushButtonCommon(filesOperations,
+        self.uncheckAllButton = PushButtonWidget(filesOperations,
                         i18n="datasource.accept.uncheck.all.button",
                         i18n_def="Uncheck all",
                         enabled=False,

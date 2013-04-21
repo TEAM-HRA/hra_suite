@@ -7,7 +7,7 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
-    from pygui.qt.utils.widgets import PushButtonCommon
+    from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.custom_widgets.filters.common_annotation_filter_widget import CommonAnnotationFilterWidget # @IgnorePep8    
     from pygui.qt.custom_widgets.filters.filter_utils import run_filter
 except ImportError as error:
@@ -23,7 +23,7 @@ class MasterAnnotationFilterWidget(CommonAnnotationFilterWidget):
         return self.__action_button__
 
     def createActionButton(self):
-        self.__action_button__ = PushButtonCommon(self, i18n_def='Apply',
+        self.__action_button__ = PushButtonWidget(self, i18n_def='Apply',
                                 clicked_handler=self.__annotation_handler__)
         self.__action_button__.setChecked(False)
         self.__action_button__.setEnabled(False)

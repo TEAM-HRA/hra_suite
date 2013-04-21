@@ -11,7 +11,7 @@ try:
     from pymath.datasources import DataVectorListener
     from pymath.statistics.tachogram_statistics import calculate_tachogram_statistics  # @IgnorePep8
     from pygui.qt.utils.widgets import TableViewCommon
-    from pygui.qt.utils.widgets import DockWidgetCommon
+    from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
     from pygui.qt.utils.dnd import CopyDragger
     from pygui.qt.plots.tachogram_plot_const import STATISTIC_MIME_ID
     from pygui.qt.plots.tachogram_plot_const import STATISTIC_CLASS_NAME_ID
@@ -19,7 +19,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class TachogramPlotStatisticsDockWidget(DockWidgetCommon):
+class TachogramPlotStatisticsDockWidget(DockWidgetWidget):
     """
     a dock widget for tachogram plot statistics
     """

@@ -9,7 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
     from pygui.qt.utils.widgets import CompositeCommon
-    from pygui.qt.utils.widgets import PushButtonCommon
+    from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.utils.windows import ErrorWindow
 except ImportError as error:
@@ -32,7 +32,7 @@ class DirWidget(CompositeCommon):
                         sizePolicy=QSizePolicy(QSizePolicy.MinimumExpanding,
                                                QSizePolicy.Minimum))
 
-        PushButtonCommon(self, i18n_def="Browse",
+        PushButtonWidget(self, i18n_def="Browse",
                 clicked_handler=self.__clicked_handler__)
 
     def __clicked_handler__(self):

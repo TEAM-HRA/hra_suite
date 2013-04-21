@@ -17,9 +17,9 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class DockWidgetCommon(QDockWidget, Common):
+class DockWidgetWidget(QDockWidget, Common):
     def __init__(self, parent, **params):
-        super(DockWidgetCommon, self).__init__(
+        super(DockWidgetWidget, self).__init__(
                             nvl(params.get('title', None), ''), parent)
         if params.get('not_add_widget_to_parent_layout', None) == None:
             params['not_add_widget_to_parent_layout'] = True

@@ -7,7 +7,7 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
-    from pygui.qt.utils.widgets import ProgressDialogCommon
+    from pygui.qt.widgets.progress_dialog_widget import ProgressDialogWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -18,7 +18,7 @@ class ProgressDialogManager(object):
         self.params = params
 
     def __enter__(self):
-        self.progress_bar = ProgressDialogCommon(self.parent, **self.params)
+        self.progress_bar = ProgressDialogWidget(self.parent, **self.params)
         self.progress_bar.setWindowModality(Qt.WindowModal)
         self.progress_bar.setMinimumDuration(0)
         self.progress_bar.forceShow()
@@ -106,7 +106,7 @@ class ProgressDialogManager(object):
 #        self.progressBar.setRange(0, self.size)
 #        self.progressBar.setValue(0)
 #
-#        self.stopButton = PushButtonCommon(
+#        self.stopButton = PushButtonWidget(
 #                                self.progressBarComposite,
 #                                i18n="datasource.stop.progress.bar.button",
 #                                i18n_def="Stop",

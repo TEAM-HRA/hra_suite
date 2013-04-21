@@ -9,7 +9,7 @@ try:
     from PyQt4.QtCore import *
     from PyQt4.QtGui import *
     from pygui.qt.utils.windows import ApplicationMainWindow
-    from pygui.qt.utils.widgets import ApplicationCommon
+    from pygui.qt.widgets.application_widget import ApplicationWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -17,7 +17,7 @@ __version__ = "1.0.0"
 
 
 def main():
-    app = ApplicationCommon(sys.argv)
+    app = ApplicationWidget(sys.argv)
     app.setOrganizationName("Med")
     app.setOrganizationDomain("med")
     app.setApplicationName("Medical app")

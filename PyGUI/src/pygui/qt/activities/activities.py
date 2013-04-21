@@ -18,10 +18,10 @@ try:
     from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.widgets import LineEditCommon
-    from pygui.qt.utils.widgets import DockWidgetCommon
+    from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import ListWidgetItemCommon
-    from pygui.qt.utils.widgets import PushButtonCommon
+    from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.label_widget import LabelWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -78,7 +78,7 @@ class ActivityWidget(CompositeCommon):
         self.activityDescription.setEnabled(self.activityButton.isChecked())
 
 
-class ActivityDockWidget(DockWidgetCommon):
+class ActivityDockWidget(DockWidgetWidget):
     """
     a dock widget for activities
     """
@@ -104,7 +104,7 @@ class ActivityDockWidget(DockWidgetCommon):
                                  text=activity.label,
                                  data=activity)
 
-        self.clearAll = PushButtonCommon(self.dockComposite,
+        self.clearAll = PushButtonWidget(self.dockComposite,
                             i18n="clear.all.activity.button",
                             i18n_def="Clear all activities",
                             clicked_handler=self.__clear_list__)

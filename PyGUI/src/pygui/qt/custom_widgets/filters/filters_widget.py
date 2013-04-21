@@ -10,7 +10,7 @@ try:
     from pycore.collections_utils import get_or_put
     from pymath.datasources import DataVectorListener
     from pygui.qt.utils.widgets import CompositeCommon
-    from pygui.qt.utils.widgets import PushButtonCommon
+    from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.custom_widgets.filters.square_filter_widget import SquareFilterWidget # @IgnorePep8
     from pygui.qt.custom_widgets.filters.common_annotation_filter_widget import CommonAnnotationFilterWidget  # @IgnorePep8
@@ -46,7 +46,7 @@ class FiltersWidget(CompositeCommon):
                                     use_apply_button=use_apply_button)
 
         if params.get('restore_button', False):
-            self.__restore_button__ = PushButtonCommon(filtersGroup,
+            self.__restore_button__ = PushButtonWidget(filtersGroup,
                                      i18n_def='Back to unfiltered data',
                                      clicked_handler=self.__restore_handler__,
                                      enabled=False)

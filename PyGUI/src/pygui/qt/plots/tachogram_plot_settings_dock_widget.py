@@ -9,7 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pycore.units import OrderUnit
-    from pygui.qt.utils.widgets import DockWidgetCommon
+    from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
     from pygui.qt.custom_widgets.units import TimeUnitsWidget
     from pygui.qt.custom_widgets.filters.filters_widget import FiltersWidget
     from pygui.qt.custom_widgets.filters.master_annotation_filter_widget import MasterAnnotationFilterWidget  # @IgnorePep8
@@ -17,7 +17,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class TachogramPlotSettingsDockWidget(DockWidgetCommon):
+class TachogramPlotSettingsDockWidget(DockWidgetWidget):
     """
     a dock widget for tachogram plot settings
     """

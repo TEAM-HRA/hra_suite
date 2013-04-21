@@ -8,7 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pygui.qt.utils.widgets import DockWidgetCommon
+    from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
     from pygui.qt.custom_widgets.filters.filters_widget import FiltersWidget
     from pygui.qt.custom_widgets.filters.slave_annotation_filter_widget import SlaveAnnotationFilterWidget # @IgnorePep8
     from pygui.qt.custom_widgets.output_specification_widget import OutputSpecificationWidget  # @IgnorePep8
@@ -17,7 +17,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class PoincarePlotSettingsDockWidget(DockWidgetCommon):
+class PoincarePlotSettingsDockWidget(DockWidgetWidget):
     """
     a dock widget for poincare plot settings
     """

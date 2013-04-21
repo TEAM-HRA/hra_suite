@@ -9,7 +9,6 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import Params
     from pygui.qt.utils.windows import showFilesPreviewDialog
-    from pygui.qt.utils.widgets import PushButtonCommon
     from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import CheckBoxCommon
@@ -21,6 +20,7 @@ try:
     from pygui.qt.utils.widgets import maximize_widget
     from pygui.qt.utils.widgets import restore_widget
     from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
+    from pygui.qt.widgets.push_button_widget import PushButtonWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -36,7 +36,7 @@ class TachogramPlotDatasourceListWidget(WidgetCommon):
                 toolbar_close_handler=self.params.close_tachogram_plot_handler)
         self.layout().addWidget(toolbars)
 
-        self.__showTachogramsButton__ = PushButtonCommon(self,
+        self.__showTachogramsButton__ = PushButtonWidget(self,
                     i18n="poincare.plot.show.tachograms.button",
                     i18n_def="Show tachograms",
                     enabled=False,
@@ -49,7 +49,7 @@ class TachogramPlotDatasourceListWidget(WidgetCommon):
                     enabled=False,
                     enabled_precheck_handler=self.__enabledPrecheckHandler__)
 
-        self.__closeAllTachogramsButton__ = PushButtonCommon(self,
+        self.__closeAllTachogramsButton__ = PushButtonWidget(self,
                     i18n="poincare.plot.close.all.tachograms.button",
                     i18n_def="Close all tachograms",
                     enabled=False,
@@ -71,7 +71,7 @@ class TachogramPlotDatasourceListWidget(WidgetCommon):
             ListWidgetItemCommon(self.__datasourceList__,
                                  text='model not specified or incorrect type')
 
-        self.__filesPreviewButton__ = PushButtonCommon(self,
+        self.__filesPreviewButton__ = PushButtonWidget(self,
                     i18n="poincare.plot.files.preview.button",
                     i18n_def="Files preview",
                     enabled=False,

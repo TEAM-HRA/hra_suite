@@ -10,20 +10,14 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.globals import Globals
     from pycore.misc import Params
-    from pycore.introspection import get_object
     from pycore.collections_utils import nvl
-    from pygui.qt.utils.keys import digit_key
-    from pygui.qt.utils.keys import movement_key
-    from pygui.qt.utils.keys import delete_key
     from pygui.qt.utils.signals import TEXT_CHANGED_SIGNAL
     from pygui.qt.utils.qt_i18n import text_I18N
     from pygui.qt.utils.qt_i18n import title_I18N
     from pygui.qt.utils.logging import LoggingEventFilter
-    from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import LIST_ITEM_CLICKED_SIGNAL
     from pygui.qt.utils.signals import LIST_ITEM_DOUBLE_CLICKED_SIGNAL
     from pygui.qt.utils.signals import CURRENT_INDEX_CHANGED_SIGNAL
-    from pygui.qt.utils.signals import DOCK_WIDGET_LOCATION_CHANGED_SIGNAL
     from pygui.qt.utils.signals import VALUE_CHANGED_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -201,15 +195,6 @@ class ListWidgetCommon(QListWidget, Common):
                          double_click_handler)
 
 
-class PushButtonCommon(QPushButton, Common):
-    def __init__(self, parent, **params):
-        super(PushButtonCommon, self).__init__(parent)
-        if params.get('sizePolicy', None) == None:
-            params['sizePolicy'] = QSizePolicy(QSizePolicy.Fixed,
-                                               QSizePolicy.Fixed)
-        prepareWidget(parent=parent, widget=self, textable=True, **params)
-
-
 class CheckBoxCommon(QCheckBox, Common):
     def __init__(self, parent, **params):
         super(CheckBoxCommon, self).__init__(parent)
@@ -330,48 +315,6 @@ class ButtonGroupCommon(QButtonGroup, Common):
         return False
 
 
-class DockWidgetCommon(QDockWidget, Common):
-    def __init__(self, parent, **params):
-        super(DockWidgetCommon, self).__init__(
-                            nvl(params.get('title', None), ''), parent)
-        if params.get('not_add_widget_to_parent_layout', None) == None:
-            params['not_add_widget_to_parent_layout'] = True
-        prepareWidget(parent=parent, widget=self, **params)
-        self.params = Params(**params)
-        if self.params.use_scroll_area == None:
-            self.params.use_scroll_area = True
-        if not self.params.dock_widget_location_changed == None:
-            self.connect(self, DOCK_WIDGET_LOCATION_CHANGED_SIGNAL,
-                         self.__dock_widget_location_changed__)
-        self.setObjectName(self.__class__.__name__)
-        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea |
-                             Qt.TopDockWidgetArea | Qt.BottomDockWidgetArea)
-        layout = nvl(self.params.layout, QVBoxLayout())
-        if hasattr(layout, 'setMargin'):
-            layout.setMargin(0)
-        self.scrollArea = None
-        if self.params.use_scroll_area:
-            self.scrollArea = QScrollArea(self)
-
-        self.dockComposite = CompositeCommon(self, layout=layout,
-                                        not_add_widget_to_parent_layout=True)
-
-        if self.params.use_scroll_area:
-            self.scrollArea.setWidget(self.dockComposite)
-            self.scrollArea.setWidgetResizable(True)
-            self.setWidget(self.scrollArea)
-        else:
-            self.setWidget(self.dockComposite)
-
-    def closeEvent(self, event):
-        if self.params.not_closable:
-            event.ignore()
-
-    def __dock_widget_location_changed__(self, dockWidgetArea):
-        if not self.params.dock_widget_location_changed == None:
-            self.params.dock_widget_location_changed(dockWidgetArea)
-
-
 class ListWidgetItemCommon(QListWidgetItem):
     def __init__(self, parent, **params):
         params = Params(**params)
@@ -394,46 +337,6 @@ class ComboBoxCommon(QComboBox, Common):
         click_handler = params.get('clicked_handler', None)
         if click_handler:
             self.connect(self, CURRENT_INDEX_CHANGED_SIGNAL, click_handler)
-
-
-class ApplicationCommon(QApplication):
-    def __init__(self, *params):
-        super(ApplicationCommon, self).__init__(*params)
-        #set up main dispatcher as a QApplication object
-        SignalDispatcher.setMainDispatcher(self)
-
-        #set up USE_NUMPY_EQUIVALENT property
-        if not Globals.USE_NUMPY_EQUIVALENT == None:
-            NUMPY_UTILS = get_object("pymath.utils.utils")
-            if NUMPY_UTILS:
-                if hasattr(NUMPY_UTILS, 'USE_NUMPY_EQUIVALENT'):
-                    setattr(NUMPY_UTILS, 'USE_NUMPY_EQUIVALENT',
-                            Globals.USE_NUMPY_EQUIVALENT)
-
-
-class ProgressDialogCommon(QProgressDialog, Common):
-    def __init__(self, parent, **params):
-        local_params = Params(**params)
-        local_params.label_text = nvl(local_params.label_text, 'Processing...')
-        local_params.cancel_text = nvl(local_params.cancel_text, 'Abort')
-        self.min_value = nvl(local_params.min_value, 0)
-        self.max_value = nvl(local_params.max_value, 10000)
-        self.counter = self.min_value
-        super(ProgressDialogCommon, self).__init__(local_params.label_text,
-                                                   local_params.cancel_text,
-                                                   self.min_value,
-                                                   self.max_value,
-                                                   parent)
-        self.setWindowTitle(nvl(local_params.title, 'Progress'))
-        if params.get('not_add_widget_to_parent_layout', None) == None:
-            params['not_add_widget_to_parent_layout'] = True
-        prepareWidget(parent=parent, widget=self, **params)
-
-    def increaseCounter(self, step=1):
-        self.setValue(self.counter)
-        self.counter = self.counter + step
-        if self.counter > self.max_value:
-            self.counter = 0
 
 
 def maximize_widget(widget):

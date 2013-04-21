@@ -12,7 +12,7 @@ try:
     from pycore.misc import Params
     from pymath.datasources import DataVectorListener
     from pygui.qt.utils.widgets import GroupBoxCommon
-    from pygui.qt.utils.widgets import PushButtonCommon
+    from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.number_edit_widget import NumberEditWidget
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.utils.widgets import CheckBoxCommon
@@ -45,7 +45,7 @@ class SquareFilterWidget(GroupBoxCommon):
                                     text_changed_handler=self.__max_handler__)
 
         if self.params.use_apply_button:
-            self.__action_button__ = PushButtonCommon(self, i18n_def='Apply',
+            self.__action_button__ = PushButtonWidget(self, i18n_def='Apply',
                                 clicked_handler=self.__filter_handler__)
         else:
             self.__action_button__ = CheckBoxCommon(self,

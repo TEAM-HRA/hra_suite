@@ -25,6 +25,7 @@ try:
     from pygui.qt.utils.plugins import PluginsManager
     from pygui.qt.utils.plugins import PluginsNames
     from pygui.qt.widgets.label_widget import LabelWidget
+    from pygui.qt.widgets.push_button_widget import PushButtonWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -77,7 +78,7 @@ class ChooseColumnsDataPage(QWizardPage):
                                         sorting=True)
         self.filesTableView.setColumnHidden(0, True)
 
-        self.filePreviewButton = PushButtonCommon(self.tableViewComposite,
+        self.filePreviewButton = PushButtonWidget(self.tableViewComposite,
                             i18n="datasource.file.preview.button",
                             i18n_def="File preview",
                             enabled=False,
