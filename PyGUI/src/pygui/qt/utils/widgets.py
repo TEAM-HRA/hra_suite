@@ -12,7 +12,6 @@ try:
     from pycore.misc import Params
     from pycore.introspection import get_object
     from pycore.collections_utils import nvl
-    from pycore.collections_utils import get_or_put
     from pygui.qt.utils.keys import digit_key
     from pygui.qt.utils.keys import movement_key
     from pygui.qt.utils.keys import delete_key
