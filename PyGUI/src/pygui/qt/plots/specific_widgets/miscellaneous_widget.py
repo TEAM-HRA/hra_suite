@@ -31,6 +31,7 @@ class MiscellaneousWidget(GroupBoxCommon):
         get_or_put(params, 'i18n_def', 'Miscellaneous')
         super(MiscellaneousWidget, self).__init__(parent, **params)
 
+        LabelCommon(self, i18n_def='Data window shift: 1')
         self.__window_size = __DataWindowSizeWidget__(self,
                                                 params.get('data_accessor'))
 

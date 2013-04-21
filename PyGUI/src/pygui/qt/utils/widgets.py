@@ -12,6 +12,7 @@ try:
     from pycore.misc import Params
     from pycore.introspection import get_object
     from pycore.collections_utils import nvl
+    from pycore.collections_utils import get_or_put
     from pygui.qt.utils.keys import digit_key
     from pygui.qt.utils.keys import movement_key
     from pygui.qt.utils.keys import delete_key
@@ -347,8 +348,30 @@ class DockWidgetCommon(QDockWidget, Common):
             params['not_add_widget_to_parent_layout'] = True
         prepareWidget(parent=parent, widget=self, **params)
         self.params = Params(**params)
-        self.connect(self, DOCK_WIDGET_LOCATION_CHANGED_SIGNAL,
-                     self.__dock_widget_location_changed__)
+        if self.params.use_scroll_area == None:
+            self.params.use_scroll_area = True
+        if not self.params.dock_widget_location_changed == None:
+            self.connect(self, DOCK_WIDGET_LOCATION_CHANGED_SIGNAL,
+                         self.__dock_widget_location_changed__)
+        self.setObjectName(self.__class__.__name__)
+        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea |
+                             Qt.TopDockWidgetArea | Qt.BottomDockWidgetArea)
+        layout = nvl(self.params.layout, QVBoxLayout())
+        if hasattr(layout, 'setMargin'):
+            layout.setMargin(0)
+        self.scrollArea = None
+        if self.params.use_scroll_area:
+            self.scrollArea = QScrollArea(self)
+
+        self.dockComposite = CompositeCommon(self, layout=layout,
+                                        not_add_widget_to_parent_layout=True)
+
+        if self.params.use_scroll_area:
+            self.scrollArea.setWidget(self.dockComposite)
+            self.scrollArea.setWidgetResizable(True)
+            self.setWidget(self.scrollArea)
+        else:
+            self.setWidget(self.dockComposite)
 
     def closeEvent(self, event):
         if self.params.not_closable:

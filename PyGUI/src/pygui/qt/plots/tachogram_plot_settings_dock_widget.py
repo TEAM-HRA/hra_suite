@@ -7,11 +7,9 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
-    from pycore.collections_utils import get_or_put
     from pycore.misc import Params
     from pycore.units import OrderUnit
     from pygui.qt.utils.widgets import DockWidgetCommon
-    from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.custom_widgets.units import TimeUnitsWidget
     from pygui.qt.custom_widgets.filters.filters_widget import FiltersWidget
     from pygui.qt.custom_widgets.filters.master_annotation_filter_widget import MasterAnnotationFilterWidget  # @IgnorePep8
@@ -26,20 +24,10 @@ class TachogramPlotSettingsDockWidget(DockWidgetCommon):
     def __init__(self, parent, **params):
         self.params = Params(**params)
         self.data_accessor = self.params.data_accessor  # alias
-        get_or_put(params, 'dock_widget_location_changed',
-                   self.__dock_widget_location_changed__)
         super(TachogramPlotSettingsDockWidget, self).__init__(parent,
-                        title=params.get('title', 'Tachogram plot settings'),
-                        **params)
-        self.setObjectName("TachogramPlotSettingsDockWidget")
-        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea |
-                             Qt.TopDockWidgetArea | Qt.BottomDockWidgetArea)
-        layout = QVBoxLayout()
-        layout.setMargin(0)  # no margin for internal layout
-        self.dockComposite = CompositeCommon(self, layout=layout,
-                                        not_add_widget_to_parent_layout=True)
-
-        self.setWidget(self.dockComposite)
+            title=params.get('title', 'Tachogram plot settings'),
+            dock_widget_location_changed=self.__dock_widget_location_changed__,
+            **params)
         parent.addDockWidget(Qt.BottomDockWidgetArea, self)
 
     def __changeUnit__(self, unit):

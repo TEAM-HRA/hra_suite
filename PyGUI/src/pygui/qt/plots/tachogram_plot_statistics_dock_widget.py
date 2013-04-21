@@ -11,7 +11,6 @@ try:
     from pymath.datasources import DataVectorListener
     from pymath.statistics.tachogram_statistics import calculate_tachogram_statistics  # @IgnorePep8
     from pygui.qt.utils.widgets import TableViewCommon
-    from pygui.qt.utils.widgets import CompositeCommon
     from pygui.qt.utils.widgets import DockWidgetCommon
     from pygui.qt.utils.dnd import CopyDragger
     from pygui.qt.plots.tachogram_plot_const import STATISTIC_MIME_ID
@@ -32,17 +31,7 @@ class TachogramPlotStatisticsDockWidget(DockWidgetCommon):
         self.data_accessor = self.params.data_accessor  # alias
         self.data_accessor.addListener(self,
                             __TachogramStatisticsDataVectorListener__(self))
-
-        self.setObjectName("TachogramPlotStatisticsDockWidget")
-        self.setAllowedAreas(Qt.LeftDockWidgetArea | Qt.RightDockWidgetArea |
-                             Qt.TopDockWidgetArea | Qt.BottomDockWidgetArea)
-        layout = QVBoxLayout()
-        layout.setMargin(0)  # no margin for internal layout
-        self.dockComposite = CompositeCommon(self, layout=layout,
-                                        not_add_widget_to_parent_layout=True)
         self.__createStatisticsWidget__(QVBoxLayout())
-
-        self.setWidget(self.dockComposite)
         parent.addDockWidget(Qt.RightDockWidgetArea, self)
 
     def __createStatisticsWidget__(self, _layout):
