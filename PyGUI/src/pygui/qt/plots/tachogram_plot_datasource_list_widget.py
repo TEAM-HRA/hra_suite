@@ -10,17 +10,17 @@ try:
     from pycore.misc import Params
     from pygui.qt.utils.windows import showFilesPreviewDialog
     from pygui.qt.utils.widgets import WidgetCommon
-    from pygui.qt.utils.widgets import ListWidgetCommon
-    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
-    from pygui.qt.utils.widgets import ListWidgetItemCommon
-    from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
-    from pygui.qt.custom_widgets.toolbars import ToolBarManager
-    from pygui.qt.custom_widgets.toolbars import CheckUncheckToolBarWidget
-    from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
     from pygui.qt.utils.widgets import maximize_widget
     from pygui.qt.utils.widgets import restore_widget
     from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
+    from pygui.qt.widgets.list_widget_widget import ListWidgetItemWidget
+    from pygui.qt.widgets.list_widget_widget import ListWidgetWidget
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
+    from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
+    from pygui.qt.custom_widgets.toolbars import ToolBarManager
+    from pygui.qt.custom_widgets.toolbars import CheckUncheckToolBarWidget
+    from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -56,7 +56,7 @@ class TachogramPlotDatasourceListWidget(WidgetCommon):
                     clicked_handler=self.__closeTachogramsHandler__)
 
         self.__datasourceList__ = \
-            ListWidgetCommon(self,
+            ListWidgetWidget(self,
                 list_item_clicked_handler=self.__datasourceItemClickedHandler__, # @IgnorePep8
                 list_item_double_clicked_handler=self.__datasourceDoubleItemClickedHandler__, # @IgnorePep8
                 selectionMode=QAbstractItemView.MultiSelection,
@@ -64,11 +64,11 @@ class TachogramPlotDatasourceListWidget(WidgetCommon):
         if len(model) > 0:
             for row in range(len(model)):
                 fileSpecification = model[row]
-                ListWidgetItemCommon(self.__datasourceList__,
+                ListWidgetItemWidget(self.__datasourceList__,
                                      text=fileSpecification.filename,
                                      data=fileSpecification)
         else:
-            ListWidgetItemCommon(self.__datasourceList__,
+            ListWidgetItemWidget(self.__datasourceList__,
                                  text='model not specified or incorrect type')
 
         self.__filesPreviewButton__ = PushButtonWidget(self,

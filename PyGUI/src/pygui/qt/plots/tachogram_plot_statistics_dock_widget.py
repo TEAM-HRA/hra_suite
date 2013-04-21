@@ -10,9 +10,9 @@ try:
     from pycore.misc import Params
     from pymath.datasources import DataVectorListener
     from pymath.statistics.tachogram_statistics import calculate_tachogram_statistics  # @IgnorePep8
-    from pygui.qt.utils.widgets import TableViewCommon
-    from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
     from pygui.qt.utils.dnd import CopyDragger
+    from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
+    from pygui.qt.widgets.table_view_widget import TableViewWidget
     from pygui.qt.plots.tachogram_plot_const import STATISTIC_MIME_ID
     from pygui.qt.plots.tachogram_plot_const import STATISTIC_CLASS_NAME_ID
 except ImportError as error:
@@ -46,12 +46,12 @@ class TachogramPlotStatisticsDockWidget(DockWidgetWidget):
         self.statisticsWidget.setTachogramStatistics(statistics)
 
 
-class TachogramStatisticsWidget(TableViewCommon):
+class TachogramStatisticsWidget(TableViewWidget):
     """
     a widget to display basic tachogram's statistics
     """
     def __init__(self, parent, **params):
-        TableViewCommon.__init__(self, parent, **params)
+        TableViewWidget.__init__(self, parent, **params)
         self.__dragger__ = CopyDragger(self, STATISTIC_MIME_ID, drag_only=True)
         self.setSelectionMode(QAbstractItemView.SingleSelection)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)

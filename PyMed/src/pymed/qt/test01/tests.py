@@ -6,12 +6,12 @@ Created on 11-12-2012
 
 from PyQt4.QtCore import *  # @UnusedWildImport
 from PyQt4.QtGui import *  # @UnusedWildImport
-from pygui.qt.utils.widgets import TableViewCommon
+from pygui.qt.widgets.table_view_widget import TableViewWidget
 from pygui.qt.custom_widgets.modelviews import WidgetsHorizontalHeader
 
 
 def createTestTable(parentLayout, parent):
-    testTable = TableViewCommon(parent,
+    testTable = TableViewWidget(parent,
                         selectionBehavior=QAbstractItemView.SelectRows,
                         selectionMode=QAbstractItemView.SingleSelection)
     model = QStandardItemModel(parent)

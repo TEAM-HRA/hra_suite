@@ -28,6 +28,7 @@ try:
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
+    from pygui.qt.widgets.table_view_widget import TableViewWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -195,7 +196,7 @@ class ChooseColumnsDataPage(QWizardPage):
 
         self.__createHeaderPreviewGroup__()
 
-        self.headersTablePreview = TableViewCommon(self.fileHeaderPreviewGroup,
+        self.headersTablePreview = TableViewWidget(self.fileHeaderPreviewGroup,
                             selectionBehavior=QAbstractItemView.SelectRows,
                             selectionMode=QAbstractItemView.SingleSelection)
 

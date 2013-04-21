@@ -184,23 +184,6 @@ class StatusBarCommon(QStatusBar, Common):
         prepareWidget(parent=parent, widget=self, **params)
 
 
-class ListWidgetCommon(QListWidget, Common):
-    def __init__(self, parent, **params):
-        super(ListWidgetCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
-        double_click_handler = params.get('list_item_double_clicked_handler',
-                                          None)
-        if double_click_handler:
-            self.connect(self, LIST_ITEM_DOUBLE_CLICKED_SIGNAL,
-                         double_click_handler)
-
-
-class TableViewCommon(QTableView, Common):
-    def __init__(self, parent, **params):
-        super(TableViewCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
-
-
 class SliderCommon(QSlider, Common):
     def __init__(self, parent, **params):
         super(SliderCommon, self).__init__(parent)
@@ -214,21 +197,6 @@ class ProgressBarCommon(QProgressBar, Common):
     def __init__(self, parent, **params):
         super(ProgressBarCommon, self).__init__(parent)
         prepareWidget(parent=parent, widget=self, **params)
-
-
-class ListWidgetItemCommon(QListWidgetItem):
-    def __init__(self, parent, **params):
-        params = Params(**params)
-        super(ListWidgetItemCommon, self).__init__(
-                                            nvl(params.text, ''), parent)
-        #store in data buffer of list item for later use
-        if params.data:
-            self.setData(Qt.UserRole, QVariant(params.data))
-
-    def getData(self):
-        item = self.data(Qt.UserRole)
-        if item:
-            return item.toPyObject()
 
 
 def maximize_widget(widget):

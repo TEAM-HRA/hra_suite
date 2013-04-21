@@ -15,14 +15,14 @@ try:
     from pygui.qt.utils.signals import ADD_ACTIVITY_SIGNAL
     from pygui.qt.utils.signals import CLEAR_ACTIVITIES_SIGNAL
     from pygui.qt.utils.settings import SettingsFactory
-    from pygui.qt.utils.widgets import ListWidgetCommon
-    from pygui.qt.utils.widgets import ListWidgetItemCommon
+    from pygui.qt.widgets.list_widget_widget import ListWidgetWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.widgets.line_edit_widget import LineEditWidget
     from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.label_widget import LabelWidget
+    from pygui.qt.widgets.list_widget_widget import ListWidgetItemWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -93,14 +93,14 @@ class ActivityDockWidget(DockWidgetWidget):
         layout.setMargin(0)  # no margin for internal layout
         self.dockComposite = CompositeWidget(self, layout=layout,
                                         not_add_widget_to_parent_layout=True)
-        self.listWidget = ListWidgetCommon(self.dockComposite,
+        self.listWidget = ListWidgetWidget(self.dockComposite,
                 list_item_double_clicked_handler=self.__list_item_handler__,
                 selectionMode=QAbstractItemView.MultiSelection,
                 sizePolicy=QSizePolicy(QSizePolicy.Expanding,
                                        QSizePolicy.Expanding))
         for activity in ActivityManager.getActivities(PLUGIN_ACTIVITY_TYPE):
             if activity:
-                ListWidgetItemCommon(self.listWidget,
+                ListWidgetItemWidget(self.listWidget,
                                  text=activity.label,
                                  data=activity)
 
@@ -128,7 +128,7 @@ class ActivityDockWidget(DockWidgetWidget):
 
     def __add_activity__(self, activity):
         if activity:
-            ListWidgetItemCommon(self.listWidget,
+            ListWidgetItemWidget(self.listWidget,
                                  text=activity.label,
                                  data=activity)
 
