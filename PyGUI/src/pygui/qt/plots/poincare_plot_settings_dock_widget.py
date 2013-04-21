@@ -13,6 +13,7 @@ try:
     from pygui.qt.custom_widgets.filters.slave_annotation_filter_widget import SlaveAnnotationFilterWidget # @IgnorePep8
     from pygui.qt.custom_widgets.output_specification_widget import OutputSpecificationWidget  # @IgnorePep8
     from pygui.qt.plots.specific_widgets.miscellaneous_widget import MiscellaneousWidget # @IgnorePep8
+    from pygui.qt.plots.specific_widgets.statistics_selection_widget import StatisticsSelectionWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -54,6 +55,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
             self.__createFiltersWidget__(QHBoxLayout())
         self.__createOutputSpecificationWidget__(QVBoxLayout())
         self.__createMiscellaneousWidget__(QVBoxLayout())
+        self.__createStatisticsSelectionWidget__(QVBoxLayout())
 
     def __createFiltersWidget__(self, layout):
         self.__filtersWidget__ = FiltersWidget(self.dockComposite,
@@ -72,3 +74,8 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
         self.__output_specification__ = MiscellaneousWidget(
                                         self.dockComposite, layout=layout,
                                         data_accessor=self.data_accessor)
+
+    def __createStatisticsSelectionWidget__(self, layout):
+        self.__output_specification__ = StatisticsSelectionWidget(
+                                        self.dockComposite,
+                                        layout=layout)
