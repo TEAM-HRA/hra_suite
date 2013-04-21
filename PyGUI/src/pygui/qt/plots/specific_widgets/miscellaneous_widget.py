@@ -3,18 +3,18 @@ Created on 20 kwi 2013
 
 @author: jurek
 '''
+from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     import pylab as pl
-    from pycore.special import ImportErrorMessage
     from pycore.collections_utils import get_or_put
     from pymath.datasources import DataVectorListener
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.widgets.label_widget import LabelWidget
-    from pygui.qt.utils.widgets import SliderCommon
+    from pygui.qt.widgets.slider_widget import SliderWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -69,7 +69,7 @@ class __DataWindowSizeWidget__(CompositeWidget):
         self.__size_value__ = LabelWidget(info_group, i18n_def='<value>')
         self.__unit_value__ = LabelWidget(info_group, i18n_def='')
 
-        self.__size_slider__ = SliderCommon(self, orientation=Qt.Horizontal,
+        self.__size_slider__ = SliderWidget(self, orientation=Qt.Horizontal,
                         sizePolicy=QSizePolicy(QSizePolicy.MinimumExpanding,
                                                QSizePolicy.Fixed),
                         value_changed_handler=self.__value_changed__)

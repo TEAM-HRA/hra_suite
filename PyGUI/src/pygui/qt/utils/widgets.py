@@ -10,14 +10,10 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.globals import Globals
     from pycore.misc import Params
-    from pycore.collections_utils import nvl
-    from pygui.qt.utils.signals import TEXT_CHANGED_SIGNAL
     from pygui.qt.utils.qt_i18n import text_I18N
     from pygui.qt.utils.qt_i18n import title_I18N
     from pygui.qt.utils.logging import LoggingEventFilter
     from pygui.qt.utils.signals import LIST_ITEM_CLICKED_SIGNAL
-    from pygui.qt.utils.signals import LIST_ITEM_DOUBLE_CLICKED_SIGNAL
-    from pygui.qt.utils.signals import CURRENT_INDEX_CHANGED_SIGNAL
     from pygui.qt.utils.signals import VALUE_CHANGED_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -158,45 +154,6 @@ class Common(QObject):
         precheck_enabled = self.enabled_precheck_handler(self)
         self.setEnabled(enabled
                     if precheck_enabled == None else precheck_enabled)
-
-
-class WidgetCommon(QWidget, Common):
-    def __init__(self, parent, **params):
-        super(WidgetCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
-        self.params = Params(**params)
-
-    def hideEvent(self, event):
-        if self.params.hide_event_handler:
-            self.params.hide_event_handler(event)
-        super(WidgetCommon, self).hideEvent(event)
-
-
-class MainWindowCommon(QMainWindow, Common):
-    def __init__(self, parent, **params):
-        super(MainWindowCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
-
-
-class StatusBarCommon(QStatusBar, Common):
-    def __init__(self, parent, **params):
-        super(StatusBarCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
-
-
-class SliderCommon(QSlider, Common):
-    def __init__(self, parent, **params):
-        super(SliderCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
-        value_changed_handler = params.get('value_changed_handler', None)
-        if value_changed_handler:
-            self.connect(self, VALUE_CHANGED_SIGNAL, value_changed_handler)
-
-
-class ProgressBarCommon(QProgressBar, Common):
-    def __init__(self, parent, **params):
-        super(ProgressBarCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
 
 
 def maximize_widget(widget):

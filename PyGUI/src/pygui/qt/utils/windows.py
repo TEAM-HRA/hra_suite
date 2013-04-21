@@ -18,21 +18,21 @@ try:
     from pycore.introspection import get_class_object
     from pygui.qt.utils.qt_i18n import QT_I18N
     from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
-    from pygui.qt.utils.widgets import MainWindowCommon
-    from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.activities.activities import ActivityDockWidget
     from pygui.qt.menu.menus import QTMenuBuilder
+    from pygui.qt.widgets.commons import CommonWidget
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.plain_text_edit_widget import PlainTextEditWidget
+    from pygui.qt.widgets.main_window_widget import MainWindowWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class ApplicationMainWindow(MainWindowCommon):
+class ApplicationMainWindow(MainWindowWidget):
 
     def __init__(self, parent=None,
                  create_menus=True,
@@ -213,10 +213,10 @@ class FilesPreviewDialog(QDialog):
         return composite
 
 
-class MainTabItemWindow(MainWindowCommon):
+class MainTabItemWindow(MainWindowWidget):
     def __init__(self, parent, **params):
         super(MainTabItemWindow, self).__init__(parent, **params)
-        self.__centralWidget__ = WidgetCommon(self,
+        self.__centralWidget__ = CommonWidget(self,
                                     not_add_widget_to_parent_layout=True)
         self.setCentralWidget(self.__centralWidget__)
         self.__activity__ = ActivityDockWidget(self, not_closable=True,

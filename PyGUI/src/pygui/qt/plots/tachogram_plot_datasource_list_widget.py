@@ -9,10 +9,10 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import Params
     from pygui.qt.utils.windows import showFilesPreviewDialog
-    from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import maximize_widget
     from pygui.qt.utils.widgets import restore_widget
     from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
+    from pygui.qt.widgets.commons import CommonWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.list_widget_widget import ListWidgetItemWidget
     from pygui.qt.widgets.list_widget_widget import ListWidgetWidget
@@ -25,7 +25,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class TachogramPlotDatasourceListWidget(WidgetCommon):
+class TachogramPlotDatasourceListWidget(CommonWidget):
     def __init__(self, parent, model, **params):
         super(TachogramPlotDatasourceListWidget, self).__init__(parent,
                                                     add_widget_to_parent=True,

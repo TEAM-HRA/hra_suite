@@ -12,10 +12,10 @@ try:
     from pycore.units import OrderUnit
     from pymath.datasources import FileDataSource
     from pymath.datasources import DataVectorAccessor
-    from pygui.qt.utils.widgets import MainWindowCommon
+    from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
-    from pygui.qt.utils.signals import SignalDispatcher
+    from pygui.qt.widgets.main_window_widget import MainWindowWidget
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import RESTORE_TACHOGRAM_PLOT_SIGNAL
@@ -25,7 +25,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class TachogramPlotWindow(MainWindowCommon):
+class TachogramPlotWindow(MainWindowWidget):
     def __init__(self, parent, **params):
         super(TachogramPlotWindow, self).__init__(parent, **params)
         self.params = Params(**params)
@@ -47,7 +47,7 @@ class TachogramPlotWindow(MainWindowCommon):
 
 #    def __change_unit_handler__(self, _unit):
 #        self.tachogramPlot.changeXUnit(_unit)
-#        statusbar = StatusBarCommon(self.__initial_tab__)
+#        statusbar = StatusBarWidget(self.__initial_tab__)
 #        self.__initial_tab__.setStatusBar(statusbar)
 #        statusLabel = LabelWidget(statusbar,
 #                    i18n_def="STATUS",

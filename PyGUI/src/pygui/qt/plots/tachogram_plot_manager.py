@@ -7,11 +7,11 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
-    from pygui.qt.utils.widgets import MainWindowCommon
-    from pygui.qt.widgets.label_widget import LabelWidget
-    from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import TAB_WIDGET_ADDED_SIGNAL
+    from pygui.qt.widgets.main_window_widget import MainWindowWidget
+    from pygui.qt.widgets.label_widget import LabelWidget
+    from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.tachogram_plot_window import TachogramPlotWindow
 except ImportError as error:
@@ -37,7 +37,7 @@ class TachogramPlotManager(TabWidgetCommon):
             return tab
 
     def createInitialPlot(self):
-        self.__initial_tab__ = MainWindowCommon(self)
+        self.__initial_tab__ = MainWindowWidget(self)
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         label = LabelWidget(self.__initial_tab__,
                             i18n="tachogram.initial.page.label",

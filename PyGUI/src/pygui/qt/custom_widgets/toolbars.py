@@ -14,8 +14,8 @@ try:
     from pycommon.actions import ActionSpec
     from pygui.qt.actions.actions_utils import create_action
     from pygui.qt.utils.widgets import Common
-    from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.utils.widgets import prepareWidget
+    from pygui.qt.widgets.commons import CommonWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -98,7 +98,7 @@ def create_toolbar_button(parent, toolbar, button_type, **params):
                         action=create_action(toolbar, actionSpec)))
 
 
-class ToolBarManager(WidgetCommon):
+class ToolBarManager(CommonWidget):
     """
     this class give ability to join toolbars as a one widget
     """

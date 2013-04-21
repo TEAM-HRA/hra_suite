@@ -99,7 +99,7 @@ class ProgressDialogManager(object):
 #                                layout=QHBoxLayout(),
 #                                hide_event_handler=self.__hideEventHandler__)
 #        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-#        self.progressBar = ProgressBarCommon(self.progressBarComposite,
+#        self.progressBar = ProgressBarWidget(self.progressBarComposite,
 #                                             sizePolicy=sizePolicy)
 #        if self.params.hidden:
 #            self.progressBarComposite.hide()
