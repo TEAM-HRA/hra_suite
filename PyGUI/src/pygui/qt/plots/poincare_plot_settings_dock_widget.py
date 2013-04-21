@@ -51,29 +51,22 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
                         title='Active filters for tachogram plot',
                         use_apply_button=False,
                         annotation_widget_class=SlaveAnnotationFilterWidget)
-        self.__changeSplitterHandleColor__(0, Qt.red)
+        self.__splitter__.changeSplitterHandleColor(0, Qt.red)
 
     def __createOutputSpecificationWidget__(self, layout):
         OutputSpecificationWidget(self.__splitter__, no_custom_separator=True,
                                   layout=layout)
-        self.__changeSplitterHandleColor__(1, Qt.blue)
+        self.__splitter__.changeSplitterHandleColor(1, Qt.blue)
 
     def __createMiscellaneousWidget__(self, layout):
         MiscellaneousWidget(self.__splitter__, layout=layout,
                             data_accessor=self.data_accessor)
-        self.__changeSplitterHandleColor__(2, Qt.green)
+        self.__splitter__.changeSplitterHandleColor(2, Qt.green)
 
     def __createStatisticsSelectionWidget__(self, layout):
         StatisticsSelectionWidget(self.__splitter__, layout=layout)
-        self.__changeSplitterHandleColor__(3, Qt.black)
+        self.__splitter__.changeSplitterHandleColor(3, Qt.black)
 
     def __createSummaryStatisticsSelectionWidget__(self, layout):
         SummaryStatisticsSelectionWidget(self.__splitter__, layout=layout)
-        self.__changeSplitterHandleColor__(4, Qt.yellow)
-
-    def __changeSplitterHandleColor__(self, idx, color):
-        handle = self.__splitter__.handle(idx)
-        p = handle.palette()
-        p.setColor(handle.backgroundRole(), color)
-        handle.setPalette(p)
-        handle.setAutoFillBackground(True)
+        self.__splitter__.changeSplitterHandleColor(4, Qt.yellow)

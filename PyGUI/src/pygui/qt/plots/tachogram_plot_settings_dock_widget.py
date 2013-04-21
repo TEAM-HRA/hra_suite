@@ -9,6 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pycore.units import OrderUnit
+    from pygui.qt.widgets.splitter_widget import SplitterWidget
     from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
     from pygui.qt.custom_widgets.units import TimeUnitsWidget
     from pygui.qt.custom_widgets.filters.filters_widget import FiltersWidget
@@ -28,6 +29,10 @@ class TachogramPlotSettingsDockWidget(DockWidgetWidget):
             title=params.get('title', 'Tachogram plot settings'),
             **params)
 
+        self.__splitter__ = SplitterWidget(self.dockComposite,
+                                           orientation=Qt.Vertical)
+        self.__splitter__.setHandleWidth(5)
+
         self.__createUnitsWidget__(QHBoxLayout())
         self.__createFiltersWidget__(QVBoxLayout())
 
@@ -38,16 +43,18 @@ class TachogramPlotSettingsDockWidget(DockWidgetWidget):
             self.data_accessor.changeXSignalUnit(self, unit)
 
     def __createUnitsWidget__(self, layout):
-        self.__unitsWidget__ = TimeUnitsWidget(self.dockComposite,
+        self.__unitsWidget__ = TimeUnitsWidget(self.__splitter__,
                                 i18n_def='X axis units',
                                 default_unit=self.data_accessor.signal_x_unit,
                                 change_unit_handler=self.__changeUnit__,
                                 layout=layout)
         self.__unitsWidget__.addUnit(OrderUnit)
+        self.__splitter__.changeSplitterHandleColor(0, Qt.red)
 
     def __createFiltersWidget__(self, layout):
-        self.__filtersWidget__ = FiltersWidget(self.dockComposite,
+        self.__filtersWidget__ = FiltersWidget(self.__splitter__,
                         layout=layout, data_accessor=self.data_accessor,
                         annotation_widget_class=MasterAnnotationFilterWidget,
                         use_apply_button=True,
                         restore_button=True)
+        self.__splitter__.changeSplitterHandleColor(1, Qt.blue)

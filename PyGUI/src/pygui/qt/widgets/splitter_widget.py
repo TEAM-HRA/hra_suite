@@ -49,3 +49,13 @@ class SplitterWidget(QSplitter, Common):
     def updateSizes(self):
         if self.sizesLoaded():
             self.setSizes(self.sizes_list)
+
+    def changeSplitterHandleColor(self, idx, color):
+        """
+        method used to change color of specified (by idx) handle splitter
+        """
+        handle = self.handle(idx)
+        p = handle.palette()
+        p.setColor(handle.backgroundRole(), color)
+        handle.setPalette(p)
+        handle.setAutoFillBackground(True)
