@@ -11,7 +11,7 @@ try:
     from pygui.qt.utils.keys import movement_key
     from pygui.qt.utils.keys import digit_key
     from pygui.qt.widgets.commons import prepareWidget
-    from pygui.qt.widgets.line_edit_widgets import LineEditWidget
+    from pygui.qt.widgets.line_edit_widget import LineEditWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 

@@ -22,6 +22,7 @@ try:
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
+    from pygui.qt.widgets.line_edit_widget import LineEditWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -83,7 +84,7 @@ class ChooseDatasourcePage(QWizardPage):
                     i18n="datasource.file.name.filter.label",
                     i18n_def="Files name filter")
 
-        self.filesExtension = LineEditCommon(fileConstraintsComposite,
+        self.filesExtension = LineEditWidget(fileConstraintsComposite,
                         maxLength=15,
                         width=get_width_of_n_letters(14),
                         text="*",

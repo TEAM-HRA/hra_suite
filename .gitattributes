@@ -118,7 +118,7 @@ PyGUI/src/pygui/qt/widgets/composite_widget.py -text
 PyGUI/src/pygui/qt/widgets/dock_widget_widget.py -text
 PyGUI/src/pygui/qt/widgets/group_box_widget.py -text
 PyGUI/src/pygui/qt/widgets/label_widget.py -text
-PyGUI/src/pygui/qt/widgets/line_edit_widgets.py -text
+PyGUI/src/pygui/qt/widgets/line_edit_widget.py -text
 PyGUI/src/pygui/qt/widgets/list_widget_widget.py -text
 PyGUI/src/pygui/qt/widgets/main_window_widget.py -text
 PyGUI/src/pygui/qt/widgets/number_edit_widget.py -text

@@ -195,22 +195,6 @@ class ListWidgetCommon(QListWidget, Common):
                          double_click_handler)
 
 
-class LineEditCommon(QLineEdit, Common):
-    def __init__(self, parent, **params):
-        QLineEdit.__init__(self, parent)
-        self.focusEventHandler = params.get('focusEventHandler', None)
-        prepareWidget(parent=parent, widget=self, **params)
-
-        text_changed_handler = params.get('text_changed_handler', None)
-        if text_changed_handler:
-            self.connect(self, TEXT_CHANGED_SIGNAL, text_changed_handler)
-
-    def focusInEvent(self, qfocusevent):
-        if not self.focusEventHandler == None:
-            self.focusEventHandler()
-        super(LineEditCommon, self).focusInEvent(qfocusevent)
-
-
 class GroupBoxCommon(QGroupBox, Common):
     def __init__(self, parent, **params):
         super(GroupBoxCommon, self).__init__(parent)
@@ -230,18 +214,6 @@ class SliderCommon(QSlider, Common):
         value_changed_handler = params.get('value_changed_handler', None)
         if value_changed_handler:
             self.connect(self, VALUE_CHANGED_SIGNAL, value_changed_handler)
-
-
-class TextEditCommon(QTextEdit, Common):
-    def __init__(self, parent, **params):
-        super(TextEditCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
-
-
-class PlainTextEditCommon(QPlainTextEdit, Common):
-    def __init__(self, parent, **params):
-        super(PlainTextEditCommon, self).__init__(parent)
-        prepareWidget(parent=parent, widget=self, **params)
 
 
 class ProgressBarCommon(QProgressBar, Common):

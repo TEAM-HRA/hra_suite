@@ -15,9 +15,9 @@ try:
     from pygui.qt.utils.graphics import get_width_of_n_letters
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.widgets.composite_widget import CompositeWidget
-    from pygui.qt.utils.widgets import LineEditCommon
     from pygui.qt.widgets.button_group_widget import ButtonGroupWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
+    from pygui.qt.widgets.line_edit_widget import LineEditWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -76,7 +76,7 @@ class SeparatorWidget(object):
                                         SIGNAL("clicked()"),
                                         self.customSeparatorButtonClicked)
 
-            self.customSeparatorEdit = LineEditCommon(
+            self.customSeparatorEdit = LineEditWidget(
                         self.predefinedSeparatorsComposite,
                         maxLength=15,
                         width=get_width_of_n_letters(14),

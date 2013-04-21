@@ -18,14 +18,14 @@ try:
     from pycore.introspection import get_class_object
     from pygui.qt.utils.qt_i18n import QT_I18N
     from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
+    from pygui.qt.utils.widgets import MainWindowCommon
+    from pygui.qt.utils.widgets import WidgetCommon
     from pygui.qt.activities.activities import ActivityDockWidget
     from pygui.qt.menu.menus import QTMenuBuilder
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
-    from pygui.qt.utils.widgets import MainWindowCommon
-    from pygui.qt.utils.widgets import WidgetCommon
-    from pygui.qt.utils.widgets import PlainTextEditCommon
+    from pygui.qt.widgets.plain_text_edit_widget import PlainTextEditWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
 except ImportError as error:
@@ -201,7 +201,7 @@ class FilesPreviewDialog(QDialog):
         composite.setLayout(layout)
         informationLabel = LabelWidget(composite)
         layout.addWidget(informationLabel)
-        preview = PlainTextEditCommon(composite, readonly=True)
+        preview = PlainTextEditWidget(composite, readonly=True)
         layout.addWidget(preview)
         file_ = QFile(filename)
         if file_.open(QFile.ReadOnly):

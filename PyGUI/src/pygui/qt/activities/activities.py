@@ -15,12 +15,12 @@ try:
     from pygui.qt.utils.signals import ADD_ACTIVITY_SIGNAL
     from pygui.qt.utils.signals import CLEAR_ACTIVITIES_SIGNAL
     from pygui.qt.utils.settings import SettingsFactory
-    from pygui.qt.widgets.composite_widget import CompositeWidget
-    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
-    from pygui.qt.utils.widgets import LineEditCommon
-    from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
     from pygui.qt.utils.widgets import ListWidgetCommon
     from pygui.qt.utils.widgets import ListWidgetItemCommon
+    from pygui.qt.widgets.composite_widget import CompositeWidget
+    from pygui.qt.widgets.check_box_widget import CheckBoxWidget
+    from pygui.qt.widgets.line_edit_widget import LineEditWidget
+    from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.label_widget import LabelWidget
 except ImportError as error:
@@ -65,7 +65,7 @@ class ActivityWidget(CompositeWidget):
                      i18n="activity.description.label",
                      i18n_def="Activity description (optional):")
 
-        self.activityDescription = LineEditCommon(self, enabled=False)
+        self.activityDescription = LineEditWidget(self, enabled=False)
 
     def activityOk(self):
         return self.activityButton.isChecked()
