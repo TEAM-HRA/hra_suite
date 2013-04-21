@@ -26,37 +26,16 @@ class TachogramPlotSettingsDockWidget(DockWidgetWidget):
         self.data_accessor = self.params.data_accessor  # alias
         super(TachogramPlotSettingsDockWidget, self).__init__(parent,
             title=params.get('title', 'Tachogram plot settings'),
-            dock_widget_location_changed=self.__dock_widget_location_changed__,
             **params)
+
+        self.__createUnitsWidget__(QHBoxLayout())
+        self.__createFiltersWidget__(QVBoxLayout())
+
         parent.addDockWidget(Qt.BottomDockWidgetArea, self)
 
     def __changeUnit__(self, unit):
         if not self.data_accessor == None:
             self.data_accessor.changeXSignalUnit(self, unit)
-
-    def __dock_widget_location_changed__(self, dockWidgetArea):
-        layout = self.layout()
-        if (dockWidgetArea in [Qt.TopDockWidgetArea, Qt.BottomDockWidgetArea]
-            and isinstance(layout, QHBoxLayout)) or \
-            (dockWidgetArea in [Qt.LeftDockWidgetArea, Qt.RightDockWidgetArea]
-            and isinstance(layout, QVBoxLayout)):
-            return
-
-        #in order to recreate widgets at first we have to remove
-        #previous version
-        if hasattr(self, '__unitsWidget__'):
-            self.__unitsWidget__.hide()
-            layout.removeWidget(self.__unitsWidget__)
-        if hasattr(self, '__filtersWidget__'):
-            self.__filtersWidget__.hide()
-            layout.removeWidget(self.__filtersWidget__)
-
-        if dockWidgetArea in [Qt.TopDockWidgetArea, Qt.BottomDockWidgetArea]:
-            self.__createUnitsWidget__(QHBoxLayout())
-            self.__createFiltersWidget__(QVBoxLayout())
-        else:
-            self.__createUnitsWidget__(QVBoxLayout())
-            self.__createFiltersWidget__(QHBoxLayout())
 
     def __createUnitsWidget__(self, layout):
         self.__unitsWidget__ = TimeUnitsWidget(self.dockComposite,
