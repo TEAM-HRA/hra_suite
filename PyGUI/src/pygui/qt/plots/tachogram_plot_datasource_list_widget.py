@@ -8,10 +8,10 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pygui.qt.utils.windows import showFilesPreviewDialog
-    from pygui.qt.utils.widgets import maximize_widget
-    from pygui.qt.utils.widgets import restore_widget
     from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
+    from pygui.qt.utils.windows import showFilesPreviewDialog
+    from pygui.qt.widgets.commons import maximize_widget
+    from pygui.qt.widgets.commons import restore_widget
     from pygui.qt.widgets.commons import CommonWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.list_widget_widget import ListWidgetItemWidget

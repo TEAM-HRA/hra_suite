@@ -6,12 +6,12 @@ Created on 03-11-2012
 from pycore.special import ImportErrorMessage
 try:
     import collections
+    import inspect
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.collections_utils import create_list
     from pycore.collections_utils import nvl
     from pycore.io_utils import DataFileHeader
-    from pygui.qt.utils.widgets import *  # @UnusedWildImport
     from pygui.qt.activities.activities import ActivityWidget
     from pygui.qt.utils.windows import showFilesPreviewDialog
     from pygui.qt.utils.windows import InformationWindow

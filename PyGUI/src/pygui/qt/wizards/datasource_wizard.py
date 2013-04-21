@@ -8,7 +8,6 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pygui.qt.utils.qt_i18n import QT_I18N
-    from pygui.qt.utils.widgets import *  # @UnusedWildImport
     from pygui.qt.wizards.pages.choose_datasource_page import ChooseDatasourcePage # @IgnorePep8
     from pygui.qt.wizards.pages.choose_columns_data_page import ChooseColumnsDataPage # @IgnorePep8
 except ImportError as error:

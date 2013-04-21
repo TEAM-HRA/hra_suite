@@ -10,8 +10,8 @@ try:
     from pycore.misc import Params
     from pygui.qt.utils.settings import SettingsFactory
     from pygui.qt.utils.settings import Setter
-    from pygui.qt.utils.widgets import prepareWidget
-    from pygui.qt.utils.widgets import Common
+    from pygui.qt.widgets.commons import prepareWidget
+    from pygui.qt.widgets.commons import Common
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 

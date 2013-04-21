@@ -13,8 +13,8 @@ try:
     from pycore.collections_utils import nvl
     from pycommon.actions import ActionSpec
     from pygui.qt.actions.actions_utils import create_action
-    from pygui.qt.utils.widgets import Common
-    from pygui.qt.utils.widgets import prepareWidget
+    from pygui.qt.widgets.commons import Common
+    from pygui.qt.widgets.commons import prepareWidget
     from pygui.qt.widgets.commons import CommonWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)

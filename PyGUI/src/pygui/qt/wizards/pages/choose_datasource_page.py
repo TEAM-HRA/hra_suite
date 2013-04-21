@@ -10,14 +10,15 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.io_utils import is_text_file
+    from pygui.qt.utils.qt_i18n import title_I18N
     from pygui.qt.utils.settings import SettingsFactory
     from pygui.qt.utils.settings import Setter
-    from pygui.qt.utils.widgets import *  # @UnusedWildImport
     from pygui.qt.utils.graphics import get_width_of_n_letters
     from pygui.qt.utils.signals import WIZARD_COMPLETE_CHANGED_SIGNAL
     from pygui.qt.utils.windows import showFilesPreviewDialog
     from pygui.qt.custom_widgets.modelviews import FilesTableView
     from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
+    from pygui.qt.widgets.commons import ENABLED_SIGNAL_NAME
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget

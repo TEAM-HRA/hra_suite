@@ -9,8 +9,8 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pycore.misc import get_max_number_between_signs
-    from pygui.qt.utils.widgets import Common
-    from pygui.qt.utils.widgets import prepareWidget
+    from pygui.qt.widgets.commons import Common
+    from pygui.qt.widgets.commons import prepareWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 

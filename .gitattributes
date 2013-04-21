@@ -106,7 +106,6 @@ PyGUI/src/pygui/qt/utils/settings.py -text
 PyGUI/src/pygui/qt/utils/signals.py -text
 PyGUI/src/pygui/qt/utils/specials.py -text
 PyGUI/src/pygui/qt/utils/threads.py -text
-PyGUI/src/pygui/qt/utils/widgets.py -text
 PyGUI/src/pygui/qt/utils/windows.py -text
 PyGUI/src/pygui/qt/widgets/__init__.py -text
 PyGUI/src/pygui/qt/widgets/application_widget.py -text

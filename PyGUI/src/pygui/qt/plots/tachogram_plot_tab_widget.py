@@ -13,8 +13,8 @@ try:
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.custom_widgets.splitter import SplitterWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetItemCommon
-    from pygui.qt.utils.widgets import maximize_widget
-    from pygui.qt.utils.widgets import restore_widget
+    from pygui.qt.widgets.commons import maximize_widget
+    from pygui.qt.widgets.commons import restore_widget
     from pygui.qt.utils.signals import ENABLEMEND_SIGNAL
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
