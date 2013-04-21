@@ -461,23 +461,3 @@ def restore_widget(widget):
                 if not widget == childWidget:
                     if hasattr(childWidget, 'show'):
                         childWidget.show()
-
-
-class NumberEditCommon(LineEditCommon):
-    """
-    input text widget which accepts only integer numbers
-    """
-    def __init__(self, parent, **params):
-        super(NumberEditCommon, self).__init__(parent, **params)
-        prepareWidget(parent=parent, widget=self, **params)
-
-    def keyPressEvent(self, e):
-        key = e.key()
-        if delete_key(key) or movement_key(key) or digit_key(key):
-            e.accept()
-            QLineEdit.keyPressEvent(self, e)
-        else:
-            e.ignore()
-
-    def setText(self, text):
-        super(LineEditCommon, self).setText(str(text))

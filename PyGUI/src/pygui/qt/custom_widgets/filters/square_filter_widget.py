@@ -13,7 +13,7 @@ try:
     from pymath.datasources import DataVectorListener
     from pygui.qt.utils.widgets import GroupBoxCommon
     from pygui.qt.utils.widgets import PushButtonCommon
-    from pygui.qt.utils.widgets import NumberEditCommon
+    from pygui.qt.widgets.number_edit_widget import NumberEditWidget
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.utils.widgets import CheckBoxCommon
     from pygui.qt.utils.windows import InformationWindow
@@ -38,10 +38,10 @@ class SquareFilterWidget(GroupBoxCommon):
         self.__filter__ = SquareFilter()
 
         LabelWidget(self, i18n_def="Min value")
-        self.__min_value__ = NumberEditCommon(self,
+        self.__min_value__ = NumberEditWidget(self,
                                     text_changed_handler=self.__min_handler__)
         LabelWidget(self, i18n_def="Max value")
-        self.__max_value__ = NumberEditCommon(self,
+        self.__max_value__ = NumberEditWidget(self,
                                     text_changed_handler=self.__max_handler__)
 
         if self.params.use_apply_button:
