@@ -5,7 +5,6 @@ Created on 01-04-2013
 module used to calculate summary statistics that is
 statistics which correspond to the whole data recording
 '''
-
 from pymath.utils.utils import print_import_error
 try:
     import pylab as pl
@@ -45,6 +44,8 @@ class SummaryStatisticsFactory(object):
                 type_or_name = create_class_object_with_suffix(
                                     'pymath.statistics.summary_statistics',
                                     type_or_name, 'SummaryStatistic')
+            if isinstance(type_or_name, __Inner__):
+                continue
             #if type_or_name is a class type
             if isinstance(type_or_name, type):
                 summary_statistic_object = type_or_name.__new__(type_or_name)
@@ -65,7 +66,7 @@ class SummaryStatisticsFactory(object):
             for name, value in \
                 [(s1.__class__.__name__, s1.summary_statistic) for s1 in ss]:
                     s_statistics[name[:name.rfind('SummaryStatistic')]] = value
-                    return s_statistics
+            return s_statistics
 
     @property
     def has_summary_statistics(self):
@@ -104,6 +105,14 @@ class SummaryStatistic(object):
         return self.__class__.__name__
 
 
+class __Inner__(object):
+    """
+    marker class to mark __Inner__ summary statistics,
+    usually mark a class as not accessible for outer code
+    """
+    pass
+
+
 class Core(object):
     """
     marker class to mark core summary statistics
@@ -118,43 +127,11 @@ class Asymmetry(object):
     pass
 
 
-class C1dC1aTimeSummaryStatistic(SummaryStatistic, Asymmetry):
-    """
-    summary statistic which calculates percentage of time when
-    C1d is greater then C1a during processing/moving the window data
-    over the whole recording
-    """
-    def __init__(self):
-        self.__summary_time__ = 0
-        self.__summary_c1d_time__ = 0
-        self.__summary_c1a_time__ = 0
-
-    def calculate(self, statistics, data_vector):
-        signal_time = pl.sum(data_vector.signal_plus)
-        self.__summary_time__ = self.__summary_time__ + signal_time
-        c1d = statistics.get('C1d', None)
-        if c1d == None:
-            raise ValueError('C1d statistic is required to calculate C1dC1aTimeSummaryStatistic') # @IgnorePep8
-        if c1d > 0.5:
-            self.__summary_c1d_time__ = self.__summary_c1d_time__ + signal_time
-
-        c1a = statistics.get('C1a', None)
-        if c1a == None:
-            raise ValueError('C1a statistic is required to calculate C1dC1aTimeSummaryStatistic') # @IgnorePep8        
-        if c1a > 0.5:
-            self.__summary_c1a_time__ = self.__summary_c1a_time__ + signal_time
-
-    @property
-    def summary_statistic(self):
-        return self.__summary_c1d_time__ / self.__summary_time__ \
-                if self.__summary_time__ > 0 else 0
-
-
 def get_summary_statistics_names(summary_statistic_ident,
                                  only_short_names=True):
     if summary_statistic_ident == ALL_SUMMARY_STATISTICS:
         names = []
-        for _class in [Core]:
+        for _class in [Asymmetry]:
             names[len(names):] = get_summary_statistics_class_names(_class,
                                         only_short_names=only_short_names)
         return names
@@ -180,3 +157,59 @@ def expand_to_real_summary_statistics_names(statistics_summary_names):
     return expand_to_real_class_names(statistics_summary_names,
                                       SummaryStatistic,
                                       _class_suffix='summarystatistic')
+
+
+class __TimeOver50PercentageInnerSummaryStatistic__(SummaryStatistic, __Inner__): # @IgnorePep8
+    """
+    summary statistic which calculates percentage of time when
+    statistic defined by _stat_name last more then 50% of the whole time
+    during processing/moving the window data over the whole recording
+    """
+    def __init__(self, _stat_name):  # , cd_name):
+        self.__summary_time__ = 0
+        self.__summary_stat_time__ = 0
+        self.__stat_name__ = _stat_name
+
+    def calculate(self, statistics, data_vector):
+        signal_time = pl.sum(data_vector.signal_plus)
+        self.__summary_time__ = self.__summary_time__ + signal_time
+        stat = statistics.get(self.__stat_name__, None)
+        if stat == None:
+            raise ValueError(self.__stat_name__ + ' statistic is required to calculate ' + self.__class__.__name__) # @IgnorePep8
+        if stat > 0.5:
+            self.__summary_stat_time__ = self.__summary_stat_time__ + signal_time # @IgnorePep8
+
+    @property
+    def summary_statistic(self):
+        return self.__summary_stat_time__ / self.__summary_time__ \
+                if self.__summary_time__ > 0 else 0
+
+
+class C1dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary statistic which calculates percentage of time when
+    C1d is greater then 50% of the whole time during processing/moving
+    the window data over the whole recording
+    """
+    def __init__(self):
+        __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'C1d')
+
+
+class C2dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary statistic which calculates percentage of time when
+    C2d is greater then 50% of the whole time during processing/moving
+    the window data over the whole recording
+    """
+    def __init__(self):
+        __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'C2d')
+
+
+class CdTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary statistic which calculates percentage of time when
+    Cd is greater then 50% of the whole time during processing/moving
+    the window data over the whole recording
+    """
+    def __init__(self):
+        __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'Cd')
