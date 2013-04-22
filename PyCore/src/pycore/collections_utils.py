@@ -219,3 +219,11 @@ def pop_from_list(_list, _value):
     """
     if not _list == None and _list.count(_value) > 0:
         _list.pop(_list.index(_value))
+
+
+def remove_suffix(_collection, _suffix):
+    """
+    function removes suffix from all elements in collection
+    """
+    return [name[:-len(_suffix)] for name in
+            [name for name in _collection if name.endswith(_suffix)]]
