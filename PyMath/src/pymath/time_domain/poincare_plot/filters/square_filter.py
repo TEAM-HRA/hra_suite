@@ -11,7 +11,7 @@ try:
     from pycore.misc import Params
     from pycore.units import Millisecond
     from pymath.datasources import DataVector
-    from pymath.time_domain.poincare_plot.filters.filter_utils import Filter
+    from pymath.time_domain.poincare_plot.filters.filter_core import Filter
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -23,8 +23,8 @@ class SquareFilter(Filter):
     """
     square filter
     """
-    def __init__(self, shift=1, **params):
-        super(SquareFilter, self).__init__(shift=shift)
+    def __init__(self, _shift=1, **params):
+        super(SquareFilter, self).__init__(_shift=_shift)
         params = Params(**params)
         self.min_value = nvl(params.min_value, DEFAULT_MIN_VALUE)
         self.max_value = nvl(params.max_value, DEFAULT_MAX_VALUE)

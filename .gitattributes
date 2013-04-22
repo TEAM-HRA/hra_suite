@@ -156,6 +156,7 @@ PyMath/src/pymath/time_domain/__init__.py -text
 PyMath/src/pymath/time_domain/poincare_plot/__init__.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/__init__.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/annotation_filter.py -text
+PyMath/src/pymath/time_domain/poincare_plot/filters/filter_core.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/filter_manager.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/filter_utils.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/square_filter.py -text

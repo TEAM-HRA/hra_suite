@@ -8,6 +8,7 @@ try:
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_method_arguments_count
     from pymath.time_domain.poincare_plot.filters.filter_utils import expand_to_real_filters_names # @IgnorePep8
+    from pymath.time_domain.poincare_plot.filters.filter_utils import get_package_for_filter # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -52,8 +53,9 @@ class FilterManager(object):
                                         _filter_object_or_handler_or_names):
                 if filter_name == None:
                     return
+                _module = get_package_for_filter(filter_name)
                 filter_object = create_class_object_with_suffix(
-                                    'pymath.time_domain.poincare_plot.filters',
+                                    get_package_for_filter(filter_name),
                                     filter_name,
                                     _suffix='Filter')
                 filter_object = filter_object(_shift=self.__shift__)

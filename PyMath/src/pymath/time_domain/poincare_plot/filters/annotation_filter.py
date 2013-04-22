@@ -11,14 +11,14 @@ try:
     from pymath.datasources import exclude_boundary_annotations
     from pymath.datasources import get_not_annotation_indexes
     from pymath.datasources import EMPTY_DATA_VECTOR
-    from pymath.time_domain.poincare_plot.filters.filter_utils import Filter
+    from pymath.time_domain.poincare_plot.filters.filter_core import Filter
 except ImportError as error:
     print_import_error(__name__, error)
 
 
 class AnnotationFilter(Filter):
-    def __init__(self,  _excluded_annotations=ALL_ANNOTATIONS, shift=1):
-        super(AnnotationFilter, self).__init__(shift=shift)
+    def __init__(self,  _excluded_annotations=ALL_ANNOTATIONS, _shift=1):
+        super(AnnotationFilter, self).__init__(_shift=_shift)
         self.__excluded_annotations__ = _excluded_annotations
 
     def check(self, _data_vector):

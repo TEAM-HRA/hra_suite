@@ -3,23 +3,14 @@ Created on 9 kwi 2013
 
 @author: jurek
 '''
-
 from pymath.utils.utils import print_import_error
 try:
-    from pycore.collections_utils import commas
+    from pycore.collections_utils import remove_suffix
     from pycore.collections_utils import get_as_list
-    from pycore.introspection import get_subclasses_names
 except ImportError as error:
     print_import_error(__name__, error)
 
 ALL_FILTERS = 'ALL'
-
-
-def getFiltersShortNames():
-    """
-    to get default filter names; subclasses of Filter class
-    """
-    return commas(Filter.getSubclassesShortNames())
 
 
 def expand_to_real_filters_names(filters_names):
@@ -28,10 +19,10 @@ def expand_to_real_filters_names(filters_names):
     real filters class names
     """
     if filters_names[0] == ALL_FILTERS or filters_names == ALL_FILTERS:
-        return Filter.getSubclassesLongNames()
+        return get_filters_long_names()
     real_filters_names = []
     real_names = [(real_name, real_name.lower(), ) \
-                  for real_name in Filter.getSubclassesLongNames()]
+                  for real_name in get_filters_long_names()]
     lower_names = [(name.lower(), name.lower() + 'filter', ) \
                    for name in get_as_list(filters_names)]
     for (filter_lower_name, filter_base_name) in lower_names:
@@ -45,38 +36,37 @@ def expand_to_real_filters_names(filters_names):
     return real_filters_names
 
 
-class Filter(object):
-    '''
-    base class (in a role of abstract class) for filters
-    '''
+def get_filters_subclasses():
+    """
+    due to difficulty to obtain subclasses of a given class
+    when subclasses are placed in different modules,
+    all subclasses of Filter class have to be put explicitly
+    """
+    from pymath.time_domain.poincare_plot.filters.annotation_filter import AnnotationFilter # @IgnorePep8
+    from pymath.time_domain.poincare_plot.filters.square_filter import SquareFilter # @IgnorePep8    
+    return [AnnotationFilter, SquareFilter]
 
-    def __init__(self, _shift=1, **params):
-        '''
-        Constructor
-        '''
-        self.__shift__ = _shift
 
-    # if parameter is not set in the __init__() this method then returns None
-    def __getattr__(self, name):
-        return None
+def get_filters_long_names():
+    """
+    function get class names without package
+    """
+    return [_class.__name__ for _class in get_filters_subclasses()]
 
-    def check(self, _data_vector):
-        """
-        method returns None if a filter will be used or a text message
-        if not be used due to specific data conditions
-        """
-        pass
 
-    def filter(self, _data_vector):
-        return self.__filter__(_data_vector)
+def get_filters_short_names():
+    """
+    function get class names without package and suffix Filter
+    """
+    return remove_suffix(get_filters_long_names(), 'Filter')
 
-    def __filter__(self, _data_vector):
-        return _data_vector
 
-    @staticmethod
-    def getSubclassesShortNames():
-        return get_subclasses_names(Filter, remove_name='Filter')
-
-    @staticmethod
-    def getSubclassesLongNames():
-        return get_subclasses_names(Filter)
+def get_package_for_filter(filter_name_or_class):
+    """
+    function get a full class package base on Filter subclass name
+    or Filter subclass itself
+    """
+    for subclass in get_filters_subclasses():
+        if subclass == filter_name_or_class or \
+            subclass.__name__ == filter_name_or_class:
+            return subclass.__module__

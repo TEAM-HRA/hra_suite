@@ -41,7 +41,7 @@ try:
     from pymath.interpolation import Interpolation
     from pymath.frequency_domain.fourier import FourierTransformationManager
     from pymath.frequency_domain.fourier import FourierTransformation
-    from pymath.time_domain.poincare_plot.filters.filter_utils import getFiltersShortNames # @IgnorePep8
+    from pymath.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_manager import FilterManager # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
@@ -203,7 +203,7 @@ class PoincarePlotManager(object):
         [optional]
         print all available filters names
         """
-        print(getFiltersShortNames())
+        print(get_filters_short_names())
 
     @property
     def signal_index(self):
@@ -302,7 +302,7 @@ class PoincarePlotManager(object):
         [optional]
         use filters names (separated by comma)
         to get list of standard filters names call a function:
-        getFiltersShortNames()
+        get_filters_short_names()
         [module: pymath.time_domain.poincare_plot.poincare_plot]
         """
         return self.__filters_names__
@@ -906,7 +906,7 @@ if __name__ == '__main__':
 #                type=to_bool, default=False)
     parser.add_argument("-fts", "--filters",
                 help="""use filters; available filters: """
-                    + getFiltersShortNames())
+                    + commas(get_filters_short_names()))
     parser.add_argument("-ft", "--fourier_transformation",
                 help="""use fourier transformation; available: """ +
                         getFourierTransformationNames())
@@ -973,7 +973,7 @@ if __name__ == '__main__':
                                        _default='none'))
 #    if __args.display_filters == True:
 #        _disp = True
-#        print('Filters: ' + getFiltersShortNames())
+#        print('Filters: ' + get_filters_short_names())
     if __args.headers == True:
         _disp = True
         print('Headers:')
