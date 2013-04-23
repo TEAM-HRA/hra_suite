@@ -91,9 +91,6 @@ class ChooseDatasourcePage(QWizardPage):
                         width=get_width_of_n_letters(14),
                         text="*",
                         enabled_precheck_handler=self.enabledPrecheckHandler)
-        self.connect(self.filesExtension,
-                     SIGNAL("textChanged(const QString&)"),
-                     self.reload)
 
         self.recursively = CheckBoxWidget(fileConstraintsComposite,
                         i18n="datasource.search.files.recursively.label",
@@ -113,6 +110,7 @@ class ChooseDatasourcePage(QWizardPage):
                         i18n="datasource.reload.button",
                         i18n_def="Reload",
                         clicked_handler=self.reload,
+                        alignment=Qt.AlignRight,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
     def __createTableView__(self, parent):
@@ -135,18 +133,18 @@ class ChooseDatasourcePage(QWizardPage):
                         clicked_handler=self.filePreviewAction,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
-        self.checkAllButton = PushButtonWidget(filesOperations,
-                        i18n="datasource.accept.check.all.button",
-                        i18n_def="Check all",
+        self.selectAllButton = PushButtonWidget(filesOperations,
+                        i18n="datasource.accept.select.all.button",
+                        i18n_def="Select all",
                         enabled=False,
-                        clicked_handler=self.checkAllAction,
+                        clicked_handler=self.__select_all_handler__,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
-        self.uncheckAllButton = PushButtonWidget(filesOperations,
-                        i18n="datasource.accept.uncheck.all.button",
-                        i18n_def="Uncheck all",
+        self.unselectAllButton = PushButtonWidget(filesOperations,
+                        i18n="datasource.accept.unselect.all.button",
+                        i18n_def="Unselect all",
                         enabled=False,
-                        clicked_handler=self.uncheckAllAction,
+                        clicked_handler=self.__unselect_all_handler__,
                         enabled_precheck_handler=self.enabledPrecheckHandler)
 
     def chooseRootDirAction(self):
@@ -161,24 +159,24 @@ class ChooseDatasourcePage(QWizardPage):
             self.rootDirLabel.setText(self.rootDir)
             self.reload()
 
-    def checkAllAction(self):
-        self.checkUncheckAllAction(True)
+    def __select_all_handler__(self):
+        self.__change_selection__(True)
 
-    def uncheckAllAction(self):
-        self.checkUncheckAllAction(False)
+    def __unselect_all_handler__(self):
+        self.__change_selection__(False)
 
-    def checkUncheckAllAction(self, check):
+    def __change_selection__(self, _select):
         self.changeEnablemend(False)
         count = self.filesTableView.getRowCount()
         progressManager = ProgressDialogManager(self,
-                    label_text=("Checking..." if check else "Unchecking..."),
-                    max_value=count)
+                label_text=("Selecting..." if _select else "Unselecting..."),
+                max_value=count)
         with progressManager as progress:
             for idx in range(count):
                 if (progress.wasCanceled()):
                     break
                 progress.increaseCounter()
-                if check:
+                if _select:
                     self.filesTableView.setCheckedRowState(idx, Qt.Checked)
                 else:
                     self.filesTableView.setCheckedRowState(idx, Qt.Unchecked)
@@ -257,7 +255,7 @@ class ChooseDatasourcePage(QWizardPage):
         """
         only interested widgets return bool value others none value
         """
-        if widget in (self.checkAllButton, self.uncheckAllButton):
+        if widget in (self.selectAllButton, self.unselectAllButton):
             return self.filesTableView.count() > 0
         elif widget == self.filePreviewButton:
             return self.filesTableView.getSelectedRowCount() > 0
