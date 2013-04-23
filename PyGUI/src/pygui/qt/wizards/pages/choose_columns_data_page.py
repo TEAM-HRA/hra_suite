@@ -30,7 +30,7 @@ try:
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.widgets.table_view_widget import TableViewWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
-    from pygui.qt.custom_widgets.checkable_table_header_widget import HeaderColumn # @IgnorePep8
+    from pygui.qt.custom_widgets.checkable_table_header_widget import HeaderElement # @IgnorePep8
     from pygui.qt.custom_widgets.checkable_table_header_widget import HeaderWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -56,9 +56,9 @@ class ChooseColumnsDataPage(QWizardPage):
         self.__headerWidgets__ = []
         self.__widgetsHorizontalHeader__ = None
 
-        self.__signal_header_column__ = HeaderColumn('signal', 'signal', self.__signalWidgetHandler__) # @IgnorePep8
-        self.__annotation_header_column__ = HeaderColumn('annotation', 'annotation', self.__annotationWidgetHandler__) # @IgnorePep8
-        self.__time_header_column__ = HeaderColumn('time', 'time', self.__timeWidgetHandler__) # @IgnorePep8
+        self.__signal_header_element__ = HeaderElement('signal', 'signal', self.__signalWidgetHandler__) # @IgnorePep8
+        self.__annotation_header_element__ = HeaderElement('annotation', 'annotation', self.__annotationWidgetHandler__) # @IgnorePep8
+        self.__time_header_element__ = HeaderElement('time', 'time', self.__timeWidgetHandler__) # @IgnorePep8
 
     def initializePage(self):
         self.setTitle('Choose column data')
@@ -152,25 +152,25 @@ class ChooseColumnsDataPage(QWizardPage):
             for num, header in enumerate(headerLine):
                 widget = HeaderWidget(self.__widgetsHorizontalHeader__,
                                       header,
-                                      [self.__signal_header_column__,
-                                       self.__annotation_header_column__,
-                                       self.__time_header_column__])
+                                      [self.__signal_header_element__,
+                                       self.__annotation_header_element__,
+                                       self.__time_header_element__])
                 self.__headerWidgets__.append(widget)
                 # some value of global indicator have to be not None
                 if not nvl(*self.__globalIndex__) == None:
                     widget.enabledAll(False)
                     if self.__globalIndex__.signal == num:  # signal index
-                        widget.check(self.__signal_header_column__.name)
+                        widget.check(self.__signal_header_element__.name)
                     elif self.__globalIndex__.annotation == num:  # annotation index @IgnorePep8
-                        widget.check(self.__annotation_header_column__.name)
+                        widget.check(self.__annotation_header_element__.name)
                     if self.__globalIndex__.time == num:  # time index
-                        widget.check(self.__time_header_column__.name)
+                        widget.check(self.__time_header_element__.name)
                 elif self.__signalColumnIndexes__.get(pathFile) == num:
-                    widget.check(self.__signal_header_column__.name)
+                    widget.check(self.__signal_header_element__.name)
                 elif self.__annotationColumnIndexes__.get(pathFile) == num:
-                    widget.check(self.__annotation_header_column__.name)
+                    widget.check(self.__annotation_header_element__.name)
                 elif self.__timeColumnIndexes__.get(pathFile) == num:
-                    widget.check(self.__time_header_column__.name)
+                    widget.check(self.__time_header_element__.name)
         self.__widgetsHorizontalHeader__.setWidgets(self.__headerWidgets__)
 
         # create data lines
@@ -249,13 +249,13 @@ class ChooseColumnsDataPage(QWizardPage):
                 self.__createDataFileHeader__(pathFile, _separator)
 
     def __signalWidgetHandler__(self, _widget):
-        self.__widgetHandler__(_widget, self.__signal_header_column__.name)
+        self.__widgetHandler__(_widget, self.__signal_header_element__.name)
 
     def __annotationWidgetHandler__(self, _widget):
-        self.__widgetHandler__(_widget, self.__annotation_header_column__.name)
+        self.__widgetHandler__(_widget, self.__annotation_header_element__.name)  # @IgnorePep8
 
     def __timeWidgetHandler__(self, _widget):
-        self.__widgetHandler__(_widget, self.__time_header_column__.name)
+        self.__widgetHandler__(_widget, self.__time_header_element__.name)
 
     def __widgetHandler__(self, _widget, _type):
         checked = _widget.isChecked(_type)
@@ -263,31 +263,31 @@ class ChooseColumnsDataPage(QWizardPage):
         if checked:
             for num, widget in enumerate(self.__headerWidgets__):
                 if widget == _widget:
-                    if _type == self.__signal_header_column__.name:
-                        _widget.uncheck(self.__annotation_header_column__.name)
+                    if _type == self.__signal_header_element__.name:
+                        _widget.uncheck(self.__annotation_header_element__.name) # @IgnorePep8
                         self.__signalColumnIndexes__[pathFile] = num
-                    elif _type == self.__annotation_header_column__.name:
-                        _widget.uncheck(self.__signal_header_column__.name)
-                        _widget.uncheck(self.__time_header_column__.name)
+                    elif _type == self.__annotation_header_element__.name:
+                        _widget.uncheck(self.__signal_header_element__.name)
+                        _widget.uncheck(self.__time_header_element__.name)
                         self.__annotationColumnIndexes__[pathFile] = num
-                    elif _type == self.__time_header_column__.name:
-                        _widget.uncheck(self.__annotation_header_column__.name)
+                    elif _type == self.__time_header_element__.name:
+                        _widget.uncheck(self.__annotation_header_element__.name) # @IgnorePep8
                         self.__timeColumnIndexes__[pathFile] = num
                 else:
-                    if _type == self.__signal_header_column__.name:
-                        widget.uncheck(self.__signal_header_column__.name)
-                    elif _type == self.__annotation_header_column__.name:
-                        widget.uncheck(self.__annotation_header_column__.name)
-                    elif _type == self.__time_header_column__.name:
-                        widget.uncheck(self.__time_header_column__.name)
+                    if _type == self.__signal_header_element__.name:
+                        widget.uncheck(self.__signal_header_element__.name)
+                    elif _type == self.__annotation_header_element__.name:
+                        widget.uncheck(self.__annotation_header_element__.name)
+                    elif _type == self.__time_header_element__.name:
+                        widget.uncheck(self.__time_header_element__.name)
 
             self.__globalCheckBox__.setEnabled(True)
         else:
-            if _type == self.__signal_header_column__.name:
+            if _type == self.__signal_header_element__.name:
                 self.__signalColumnIndexes__[pathFile] = None
-            elif _type == self.__annotation_header_column__.name:
+            elif _type == self.__annotation_header_element__.name:
                 self.__annotationColumnIndexes__[pathFile] = None
-            elif _type == self.__time_header_column__.name:
+            elif _type == self.__time_header_element__.name:
                 self.__timeColumnIndexes__[pathFile] = None
 
     def __globalClicked__(self):
@@ -297,11 +297,11 @@ class ChooseColumnsDataPage(QWizardPage):
         _time = None
         if self.__globalCheckBox__.isChecked():
             for num, widget in enumerate(self.__headerWidgets__):
-                if widget.isChecked(self.__signal_header_column__.name):
+                if widget.isChecked(self.__signal_header_element__.name):
                     _signal = num
-                if widget.isChecked(self.__annotation_header_column__.name):
+                if widget.isChecked(self.__annotation_header_element__.name):
                     _annotation = num
-                if widget.isChecked(self.__time_header_column__.name):
+                if widget.isChecked(self.__time_header_element__.name):
                     _time = num
             index = GlobalIndex(_signal, _annotation, _time)
             if index.signal == None:

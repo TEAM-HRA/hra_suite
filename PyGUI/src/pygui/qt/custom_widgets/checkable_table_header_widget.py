@@ -13,7 +13,7 @@ try:
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
-HeaderColumn = collections.namedtuple('HeaderColumn', ['name', 'label', 'handler']) # @IgnorePep8
+HeaderElement = collections.namedtuple('HeaderElement', ['name', 'label', 'handler']) # @IgnorePep8
 
 
 class __Handler__():
