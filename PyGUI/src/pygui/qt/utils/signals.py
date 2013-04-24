@@ -55,6 +55,9 @@ BUTTON_CLICKED_SIGNAL = SIGNAL("buttonClicked(QAbstractButton *)")
 #signal emitted for example by slider widget
 VALUE_CHANGED_SIGNAL = SIGNAL("valueChanged(int)")
 
+#signal emitted when item is check (check/uncheck) in a table view
+ITEM_CHANGED_SIGNAL = SIGNAL('itemChanged(QStandardItem *)')
+
 
 class SignalDispatcher(QObject):
     """

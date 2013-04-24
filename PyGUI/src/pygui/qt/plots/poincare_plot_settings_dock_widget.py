@@ -15,7 +15,7 @@ try:
     from pygui.qt.custom_widgets.output_specification_widget import OutputSpecificationWidget  # @IgnorePep8
     from pygui.qt.plots.specific_widgets.miscellaneous_widget import MiscellaneousWidget # @IgnorePep8
     from pygui.qt.plots.specific_widgets.statistics_selection_widget import StatisticsSelectionWidget # @IgnorePep8
-    from pygui.qt.plots.specific_widgets.summary_statistics_selection_widget import SummaryStatisticsSelectionWidget # @IgnorePep8
+    from pygui.qt.plots.specific_widgets.summary_statistics_calculation_widget import SummaryStatisticsCalculationWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -37,7 +37,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
         self.__createOutputSpecificationWidget__(QVBoxLayout())
         self.__createMiscellaneousWidget__(QVBoxLayout())
         self.__createStatisticsSelectionWidget__(QVBoxLayout())
-        self.__createSummaryStatisticsSelectionWidget__(QVBoxLayout())
+        self.__createSummaryStatisticsCalculationWidget__(QVBoxLayout())
 
         parent.addDockWidget(Qt.LeftDockWidgetArea, self)
 
@@ -67,6 +67,6 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
         StatisticsSelectionWidget(self.__splitter__, layout=layout)
         self.__splitter__.changeSplitterHandleColor(3, Qt.black)
 
-    def __createSummaryStatisticsSelectionWidget__(self, layout):
-        SummaryStatisticsSelectionWidget(self.__splitter__, layout=layout)
+    def __createSummaryStatisticsCalculationWidget__(self, layout):
+        SummaryStatisticsCalculationWidget(self.__splitter__, layout=layout)
         self.__splitter__.changeSplitterHandleColor(4, Qt.yellow)

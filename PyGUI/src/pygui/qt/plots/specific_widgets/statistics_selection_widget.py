@@ -20,6 +20,9 @@ except ImportError as error:
 
 
 class StatisticsSelectionWidget(GroupBoxWidget):
+    #this value is set up in __createModel__ method
+    VALUE_COLUMN = 0
+
     """
     widget which gives ability to select statistics
     """
@@ -38,15 +41,20 @@ class StatisticsSelectionWidget(GroupBoxWidget):
         self.__fillStatistics__(self.params.statistics_base_classes)
 
     def __createTable__(self):
-        self.__table__ = TableViewWidget(self)
+        self.__table__ = TableViewWidget(self,
+            change_check_count_handler=self.params.change_selection_count_handler) # @IgnorePep8
         self.__table__.setSelectionMode(QAbstractItemView.MultiSelection)
         self.__table__.setSelectionBehavior(QAbstractItemView.SelectRows)
 
     def __createModel__(self):
-        model = QStandardItemModel(self)
-        labels = QStringList(["Statistic", "Description"])
+        model = __StatisticsSelectionModel__(self)
+        labels = QStringList(["Statistic", "Description", "Value"])
+        StatisticsSelectionWidget.VALUE_COLUMN = labels.indexOf("Value")
+        model.setNumValueColumn(StatisticsSelectionWidget.VALUE_COLUMN)
         model.setHorizontalHeaderLabels(labels)
         self.__table__.setModel(model)
+        self.__table__.setColumnHidden(StatisticsSelectionWidget.VALUE_COLUMN,
+                                       True)
 
     def __createButtons__(self):
         buttons_composite = CompositeWidget(self, layout=QHBoxLayout())
@@ -66,15 +74,62 @@ class StatisticsSelectionWidget(GroupBoxWidget):
         model = self.__table__.model()
         model.removeRows(0, model.rowCount())
 
-        statistics = {}
+        self.__statistics_classes__ = []
+
         for base_class in _statistics_base_classes:
             for subclass in get_subclasses(base_class):
-                statistics[subclass.__name__] = subclass().description
+                self.__statistics_classes__.append(subclass)
 
-        for name in sorted([statistic_name for statistic_name in statistics]):
-            check_column = QStandardItem('%s' % name)
+        #sort alphabetically
+        cmp_stat = lambda x, y: cmp(x.__name__, y.__name__)
+        self.__statistics_classes__ = sorted(self.__statistics_classes__,
+                                             cmp_stat)
+
+        for statistic_class in self.__statistics_classes__:
+            check_column = QStandardItem('%s' % statistic_class.__name__)
             check_column.setCheckState(Qt.Unchecked)
             check_column.setCheckable(True)
 
-            model.appendRow([check_column,
-                             QStandardItem(str(statistics[name]))])
+            description_column = QStandardItem(str(statistic_class().description)) # @IgnorePep8
+
+            value_column = QStandardItem('')
+
+            model.appendRow([check_column, description_column, value_column])
+
+    @property
+    def statistics_classes(self):
+        return self.__statistics_classes__
+
+    def setStatisticsValues(self, values_map):
+        """
+        method to set up statistics values
+        """
+        #show value column
+        self.__table__.setColumnHidden(StatisticsSelectionWidget.VALUE_COLUMN,
+                                       False)
+        for statistic_class in values_map:
+            row = self.__statistics_classes__.index(statistic_class)
+            self.__table__.model().setItem(row,
+                            StatisticsSelectionWidget.VALUE_COLUMN,
+                            QStandardItem(str(values_map[statistic_class])))
+
+
+class __StatisticsSelectionModel__(QStandardItemModel):
+    """
+    custom model for StatisticsSelectionWidget
+    """
+    def __init__(self, parent):
+        QStandardItemModel.__init__(self, parent=parent)
+        self.__num_value_column__ = -1
+
+    def setNumValueColumn(self, _num_value_column):
+        self.__num_value_column__ = _num_value_column
+
+    def data(self, _modelIndex, _role):
+        #the third column (indexing starts from 0) is a value of statistic
+        if _modelIndex.column() == self.__num_value_column__ and \
+            _role == Qt.TextAlignmentRole:
+            return Qt.AlignRight
+        else:
+            return super(__StatisticsSelectionModel__, self).data(_modelIndex,
+                                                              _role)
