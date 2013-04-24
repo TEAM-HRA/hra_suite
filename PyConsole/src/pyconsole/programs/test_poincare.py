@@ -10,7 +10,7 @@ from pylab import find
 from pycore.globals import GLOBALS
 from pymath.model.data_vector import DataVector
 #from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlot
-from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlotSegmenter #@IgnorePep8
+from pymath.model.data_vector_segmenter import DataVectorSegmenter
 #from pymath.time_domain.poincare_plot.filters import RemoveAnnotationFilter #@IgnorePep8
 #from pymath.time_domain.poincare_plot.filters import ZeroAnnotationFilter
 #from pymath.time_domain.poincare_plot.filters import AnnotationShiftedPartsFilter #@IgnorePep8
@@ -126,7 +126,7 @@ def test_poincare():
         print(1)
         print(d)
         #2017
-        for sub_d in PoincarePlotSegmenter(d, len(d.signal) - 1):
+        for sub_d in DataVectorSegmenter(d, len(d.signal) - 1):
             print(2)
             print(sub_d)
             d2 = None  # ZeroAnnotationFilter(sub_d, (1,)).filter

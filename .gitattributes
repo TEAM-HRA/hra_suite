@@ -152,6 +152,7 @@ PyMath/src/pymath/model/__init__.py -text
 PyMath/src/pymath/model/data_vector.py -text
 PyMath/src/pymath/model/data_vector_accessor.py -text
 PyMath/src/pymath/model/data_vector_listener.py -text
+PyMath/src/pymath/model/data_vector_segmenter.py -text
 PyMath/src/pymath/model/file_data_source.py -text
 PyMath/src/pymath/model/utils.py -text
 PyMath/src/pymath/sampling.py -text
