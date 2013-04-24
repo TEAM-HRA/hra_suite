@@ -145,6 +145,7 @@ PyMath/build_pymath.xml -text
 PyMath/src/pymath/__init__.py -text
 PyMath/src/pymath/frequency_domain/__init__.py -text
 PyMath/src/pymath/frequency_domain/fourier.py -text
+PyMath/src/pymath/frequency_domain/fourier_parameters.py -text
 PyMath/src/pymath/imputuj.py -text
 PyMath/src/pymath/integrals.py -text
 PyMath/src/pymath/interpolation.py -text
@@ -152,11 +153,14 @@ PyMath/src/pymath/model/__init__.py -text
 PyMath/src/pymath/model/data_vector.py -text
 PyMath/src/pymath/model/data_vector_accessor.py -text
 PyMath/src/pymath/model/data_vector_listener.py -text
+PyMath/src/pymath/model/data_vector_parameters.py -text
 PyMath/src/pymath/model/data_vector_segmenter.py -text
+PyMath/src/pymath/model/file_data_parameters.py -text
 PyMath/src/pymath/model/file_data_source.py -text
 PyMath/src/pymath/model/utils.py -text
 PyMath/src/pymath/sampling.py -text
 PyMath/src/pymath/statistics/__init__.py -text
+PyMath/src/pymath/statistics/statistic_parameters.py -text
 PyMath/src/pymath/statistics/statistics.py -text
 PyMath/src/pymath/statistics/summary_statistics.py -text
 PyMath/src/pymath/statistics/tachogram_statistics.py -text
@@ -166,9 +170,11 @@ PyMath/src/pymath/time_domain/poincare_plot/filters/__init__.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/annotation_filter.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/filter_core.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/filter_manager.py -text
+PyMath/src/pymath/time_domain/poincare_plot/filters/filter_parameters.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/filter_utils.py -text
 PyMath/src/pymath/time_domain/poincare_plot/filters/square_filter.py -text
 PyMath/src/pymath/time_domain/poincare_plot/poincare_plot.py -text
+PyMath/src/pymath/time_domain/poincare_plot/poincare_plot_parameters.py -text
 PyMath/src/pymath/utils/__init__.py -text
 PyMath/src/pymath/utils/array_utils.py -text
 PyMath/src/pymath/utils/io_utils.py -text

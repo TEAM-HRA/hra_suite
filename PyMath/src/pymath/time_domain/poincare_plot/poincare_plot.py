@@ -9,32 +9,30 @@ try:
     import argparse
     import glob
     from pycore.misc import Separator
-    from pycore.misc import extract_number
-    from pycore.misc import extract_alphabetic
     from pycore.utils import ProgressMark
     from pycore.utils import ControlInterruptHandler
     from pycore.introspection import copy_private_properties
     from pycore.introspection import print_private_properties
     from pycore.collections_utils import nvl
     from pycore.collections_utils import commas
-    from pycore.collections_utils import get_as_list
     from pymath.model.file_data_source import FileDataSource
-    from pymath.model.utils import ALL_ANNOTATIONS
     from pymath.model.data_vector_segmenter import DataVectorSegmenter
+    from pymath.model.data_vector_parameters import DataVectorParameters
+    from pymath.model.file_data_parameters import FileDataParameters
+    from pymath.statistics.statistic_parameters import StatisticParameters
+    from pymath.frequency_domain.fourier_parameters import FourierParameters
+    from pymath.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
+    from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
     from pymath.utils.io_utils import NumpyCSVFile
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.statistics import get_statistics_names
     from pymath.statistics.statistics import ALL_STATISTICS
-    from pymath.statistics.statistics import CHECK_STATISTICS
-    from pymath.statistics.statistics import CORE_STATISTICS
-    from pymath.statistics.statistics import ASYMMETRY_STATISTICS
-    from pymath.statistics.statistics import NON_CHECK_STATISTICS
     from pymath.statistics.summary_statistics import get_summary_statistics_names # @IgnorePep8
     from pymath.statistics.summary_statistics import ALL_SUMMARY_STATISTICS
     from pymath.statistics.summary_statistics import SummaryStatisticsFactory
-    from pymath.interpolation import Interpolation
+    from pymath.frequency_domain.fourier_parameters import getInterpolationNames # @IgnorePep8
     from pymath.frequency_domain.fourier import FourierTransformationManager
-    from pymath.frequency_domain.fourier import FourierTransformation
+    from pymath.frequency_domain.fourier_parameters import getFourierTransformationNames # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_manager import FilterManager # @IgnorePep8
 except ImportError as error:
@@ -44,21 +42,6 @@ except ImportError as error:
 DEFAULT_OUTCOME_DIRECTORY = os.path.join(os.getcwd(), 'pp_outcomes')
 
 
-def getInterpolationNames():
-    """
-    to get default interpolations names; subclasses of Interpolation class
-    """
-    return commas(Interpolation.getSubclassesShortNames())
-
-
-def getFourierTransformationNames():
-    """
-    to get default fourier transformation names; subclasses of
-    FourierTransformation class
-    """
-    return commas(FourierTransformation.getSubclassesShortNames())
-
-
 def getSeparatorLabels():
     """
     to get default separator label names
@@ -66,335 +49,24 @@ def getSeparatorLabels():
     return commas(Separator.getSeparatorsLabels())
 
 
-class PoincarePlotManager(object):
+class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
+                          FileDataParameters, FilterParameters,
+                          StatisticParameters, FourierParameters):
     def __init__(self, other=None):
-        self.__extension__ = '*'
-        self.__window_shift__ = 1
-        self.__excluded_annotations__ = ALL_ANNOTATIONS
-        self.__filters__ = []
+        PoincarePlotParameters.__init__(self)
+        DataVectorParameters.__init__(self)
+        FileDataParameters.__init__(self)
+        FilterParameters.__init__(self)
+        StatisticParameters.__init__(self)
+        FourierParameters.__init__(self)
+
         self.__progress_mark__ = None
-        self.__use_buffer__ = True
         if not other == None:
             copy_private_properties(other, self)
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
         return None
-
-    @property
-    def data_dir(self):
-        """
-        [obligatory if data_file is NOT specified]
-        directory where input data files are located
-        """
-        return self.__data_dir__
-
-    @data_dir.setter
-    def data_dir(self, _data_dir):
-        self.__data_dir__ = _data_dir
-
-    @property
-    def extension(self):
-        """
-        [obligatory if data_dir is specified]
-        extension of data input files in the form '*.ext'
-        example: *.rea
-        """
-        return self.__extension__
-
-    @extension.setter
-    def extension(self, _extension):
-        self.__extension__ = _extension
-
-    @property
-    def window_size(self):
-        """
-        [obligatory]
-        data window size expressed in number of data items or
-        in time units by suffix: s - second, m - minute, h - hour;
-        examples: 100, 5m
-        """
-        return self.__window_size__
-
-    @window_size.setter
-    def window_size(self, _window_size):
-        self.__window_size__ = extract_number(_window_size, convert=int)
-        self.__window_size_unit__ = extract_alphabetic(_window_size,
-                                                       convert=str.lower)
-
-    @property
-    def window_size_unit(self):
-        """
-        [optional]
-        window size unit, as a separate property,
-        acceptable values: s - second, m - minute, h - hour
-        """
-        return self.__window_size_unit__
-
-    @window_size_unit.setter
-    def window_size_unit(self, _window_size_unit):
-        self.__window_size_unit__ = _window_size_unit
-
-    @property
-    def output_dir(self):
-        """
-        [obligatory]
-        a directory for outcomes files
-        """
-        return self.__output_dir__
-
-    @output_dir.setter
-    def output_dir(self, _output_dir):
-        self.__output_dir__ = _output_dir
-
-    @property
-    def statistics(self):
-        """
-        [optional]
-        names of statistics to be calculated (separated by ','),
-        or ALL for all statistics or CHECK for check statistics
-        or ASYMMETRY for asymmetry statistics;
-        an example: 'mean, sd1, sd2a'
-        to get a list of available statistics names call a method:
-        available_statistics()
-        """
-        return self.__statistics_names__
-
-    @statistics.setter
-    def statistics(self, _statistics_names):
-        self.__statistics_names__ = _statistics_names
-
-    @property
-    def summary_statistics(self):
-        """
-        [optional]
-        names of summary_statistics to be calculated (separated by ','),
-        or ALL for all summary statistics
-        to get a list of available statistics names call a method:
-        available_statistics()
-        """
-        return self.__summary_statistics_names__
-
-    @summary_statistics.setter
-    def summary_statistics(self, _summary_statistics_names):
-        self.__summary_statistics_names__ = _summary_statistics_names
-
-    def available_statistics(self):
-        """
-        [optional]
-        print all available statistics names
-        """
-        for statistic_ident in [CORE_STATISTICS, ASYMMETRY_STATISTICS,
-                                CHECK_STATISTICS]:
-            print(statistic_ident + ': ' +
-                       commas(get_statistics_names(statistic_ident)))
-        print(ALL_STATISTICS + ': all above statistics')
-        print(NON_CHECK_STATISTICS + ': ' + CORE_STATISTICS + ', '
-               + ASYMMETRY_STATISTICS)
-
-    def available_filters(self):
-        """
-        [optional]
-        print all available filters names
-        """
-        print(get_filters_short_names())
-
-    @property
-    def signal_index(self):
-        """
-        [obligatory]
-        an index of a signal column (0 - based)
-        """
-        return self.__signal_index__
-
-    @signal_index.setter
-    def signal_index(self, _signal_index):
-        self.__signal_index__ = _signal_index
-
-    @property
-    def annotation_index(self):
-        """
-        [optional if annotations are not present in input files]
-        an index of an annotation column (0 - based)
-        """
-        return self.__annotation_index__
-
-    @annotation_index.setter
-    def annotation_index(self, _annotation_index):
-        self.__annotation_index__ = _annotation_index
-
-    @property
-    def time_index(self):
-        """
-        [optional]
-        an index of a time column (0 - based) [for future use]
-        """
-        return self.__time_index__
-
-    @time_index.setter
-    def time_index(self, _time_index):
-        self.__time_index__ = _time_index
-
-    @property
-    def separator(self):
-        """
-        [optional]
-        a separator used between input data columns;
-        to get list of standard separators call a function:
-        getSeparatorLabels()
-        [module: pymath.time_domain.poincare_plot.poincare_plot]
-        note: the application tries to discover a separator itself
-        """
-        return self.__separator__
-
-    @separator.setter
-    def separator(self, _separator):
-        self.__separator__ = _separator
-
-    @property
-    def data_file(self):
-        """
-        [obligatory if data_dir is NOT specified]
-        this is an alternative option to set up one file
-        (with full path) as data source
-        """
-        return self.__data_file__
-
-    @data_file.setter
-    def data_file(self, _data_file):
-        self.__data_file__ = _data_file
-
-    @property
-    def window_shift(self):
-        """
-        [optional]
-        a data window shift between two sets of signals which constitute
-        a poincare plot, default value 1
-        """
-        return nvl(self.__window_shift__, 1)
-
-    @window_shift.setter
-    def window_shift(self, _window_shift):
-        self.__window_shift__ = _window_shift
-
-    @property
-    def output_precision(self):
-        """
-        [optional]
-        precision for output data [default: 10,5]
-        """
-        return '10,5' if self.__output_precision__ == None \
-                else self.__output_precision__
-
-    @output_precision.setter
-    def output_precision(self, _output_precision):
-        self.__output_precision__ = _output_precision
-
-    @property
-    def filters(self):
-        """
-        [optional]
-        use filters names (separated by comma)
-        to get list of standard filters names call a function:
-        get_filters_short_names()
-        [module: pymath.time_domain.poincare_plot.poincare_plot]
-        """
-        return self.__filters_names__
-
-    @filters.setter
-    def filters(self, _filters_names):
-        self.__filters_names__ = _filters_names
-        if _filters_names is not None:
-            map(self.addFilter, get_as_list(_filters_names))
-        else:
-            self.__filters__ = []
-
-    def addFilter(self, name_or_object):
-        """
-        [optional]
-        add a filter function
-        the filter function have to have the following signature:
-            <name>(data_vector, excluded_annotations)
-        -----------------------------------------------------------------------
-        commentary:
-        data_vector - parameter of type pymath.model.data_vector.DataVector
-          DataVector has the following members (fields):
-           signal (numpy array) - the whole data signal (or part of the signal)
-           annotation (numpy array) - annotation data correspond to signal data
-           signal_plus (numpy array) - part of the signal data which
-                                       corresponds to RRi(n)
-           signal_minus (numpy array) - part of the signal data which
-                                       corresponds to RRi(n+1)
-           signal_unit - unit of signal column
-                                       (defaults to millisecond - ms)
-           time - (numpy array) time data column (for future use)
-
-        a custom filter function have to return an object of type DataVector
-        """
-        self.__filters__.append(name_or_object)
-
-    @property
-    def fourier_transformation(self):
-        """
-        [optional]
-        use fourier transformation
-        to get list of fourier transformations call a function:
-        getFourierTransformationNames()
-        [module: pymath.time_domain.poincare_plot.poincare_plot]
-        """
-        return self.__fourier_transformation__
-
-    @fourier_transformation.setter
-    def fourier_transformation(self, _fourier_transformation):
-        self.__fourier_transformation__ = _fourier_transformation
-
-    @property
-    def fourier_transform_interpolation(self):
-        """
-        [optional]
-        use interpolation method during fourier transformation
-        to get list of fourier transformations interpolations call a function:
-        getInterpolationNames()
-        [module: pymath.time_domain.poincare_plot.poincare_plot]
-        """
-        return self.__fourier_transform_interpolation__
-
-    @fourier_transform_interpolation.setter
-    def fourier_transform_interpolation(self, _fourier_transform_interpolation):  # @IgnorePep8
-        self.__fourier_transform_interpolation__ = \
-                _fourier_transform_interpolation
-
-    @property
-    def excluded_annotations(self):
-        """
-        [optional]
-        specifies, as a string separated by comma or as a list,
-        which values (separated by a comma) have to be interpreted
-        as true annotations values; if not specified then all non-0 values are
-        annotation values
-        """
-        return self.__excluded_annotations__
-
-    @excluded_annotations.setter
-    def excluded_annotations(self, _excluded_annotations):
-        if isinstance(_excluded_annotations, str):
-            self.__excluded_annotations__ = get_as_list(_excluded_annotations)
-        else:
-            self.__excluded_annotations__ = _excluded_annotations
-
-    @property
-    def ordinal_column_name(self):
-        """
-        [optional]
-        name of the ordinal column (values of an ordinal column is index
-        or time what depends on window size unit);
-        this column will be the first column in outcome data files
-        """
-        return self.__ordinal_column_name__
-
-    @ordinal_column_name.setter
-    def ordinal_column_name(self, _ordinal_column_name):
-        self.__ordinal_column_name__ = _ordinal_column_name
 
     def generate(self):
         """
@@ -449,7 +121,7 @@ class PoincarePlotManager(object):
                                     self.fourier_transform_interpolation)
         filter_manager = FilterManager(_shift=self.window_shift,
                         _excluded_annotations=self.excluded_annotations,
-                        _filters=self.__filters__)
+                        _filters=self.filters)
         with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=_file,
                          output_precision=self.output_precision,
@@ -548,40 +220,6 @@ class PoincarePlotManager(object):
                 progress.close
             interrupter.clean()
 
-    def addStatistic(self, _handler, _name):
-        """
-        [optional]
-        add a statistic function (or handler) with optional _name
-        all parameters of this function are type of numpy.array;
-        parameter _name is a name of a column in an outcome file associated
-        with this statistic function,
-        the function could have the following signatures:
-            <function name>(signal)
-            <function name>(signal, annotation)
-            <function name>(signal, signal_plus, signal_minus)
-            <function name>(signal, signal_plus, signal_minus, annotation)
-        -----------------------------------------------------------------------
-        commentary:
-        signal - the whole data signal (or part of it)
-        annotation - annotation data correspond to signal data
-        signal_plus - part of the signal data which corresponds to RRi(n)
-        signal_minus - part of the signal data which corresponds to RRi(n+1)
-        """
-        if self.__statistics_handlers__ == None:
-            self.__statistics_handlers__ = []
-        _handler.name = _name
-        self.__statistics_handlers__.append(_handler)
-
-    def removeStatistic(self, _name):
-        """
-        [optional]
-        remove statistic handler/function associated with a _name
-        """
-        for idx, _handler in enumerate(self.__statistics_handlers__):
-            if _handler.name == _name:
-                del self.__statistics_handlers__[idx]
-                return
-
     def getUniqueAnnotations(self):
         """
         [optional]
@@ -654,71 +292,6 @@ class PoincarePlotManager(object):
         print('\n available statistics:')
         self.available_statistics()
 
-    @property
-    def output_separator(self):
-        """
-        [optional]
-        output separator between data columns
-        default: ',' (comma)
-        """
-        return self.__output_separator__
-
-    @output_separator.setter
-    def output_separator(self, _output_separator):
-        self.__output_separator__ = _output_separator
-
-    @property
-    def output_headers(self):
-        """
-        [optional]
-        headers in the output files
-        default: True
-        """
-        return self.__output_headers__
-
-    @output_headers.setter
-    def output_headers(self, _output_headers):
-        self.__output_headers__ = _output_headers
-
-    @property
-    def use_identity_line(self):
-        """
-        [optional]
-        in calculation of sd1 use line of identity
-        default: True
-        """
-        return nvl(self.__use_identity_line__, True)
-
-    @use_identity_line.setter
-    def use_identity_line(self, _use_identity_line):
-        self.__use_identity_line__ = _use_identity_line
-
-    @property
-    def use_buffer(self):
-        """
-        [optional]
-        in calculation of statistics use buffer
-        default: True
-        """
-        return nvl(self.__use_buffer__, True)
-
-    @use_buffer.setter
-    def use_buffer(self, _use_buffer):
-        self.__use_buffer__ = _use_buffer
-
-    @property
-    def skip_existing_outcomes(self):
-        """
-        [optional]
-        skip processing data file for existing outcomes
-        default: False
-        """
-        return nvl(self.__skip_existing_outcomes__, False)
-
-    @skip_existing_outcomes.setter
-    def skip_existing_outcomes(self, _skip_existing_outcomes):
-        self.__skip_existing_outcomes__ = _skip_existing_outcomes
-
     def __print_information__(self):
         print('Using statistics: ' + self.statistics)
         if self.__statistics_handlers__:
@@ -729,8 +302,8 @@ class PoincarePlotManager(object):
             print('Using summary statistics: ' + self.summary_statistics)
         print('Using output precision: ' + self.output_precision)
         print('Using buffer: ' + str(self.use_buffer))
-        if not self.filters == None:
-            print('Using filters: ' + str(self.filters))
+        if not self.filters_names == None:
+            print('Using filters: ' + str(self.filters_names))
         print('Window size: ' + str(self.window_size) +
               nvl(self.window_size_unit, ''))
         print('Using buffer: ' + str(self.use_buffer))
@@ -795,7 +368,7 @@ if __name__ == '__main__':
 #    parser.add_argument("-df", "--display_filters",
 #                help="display list of available filters [True|False]",
 #                type=to_bool, default=False)
-    parser.add_argument("-fts", "--filters",
+    parser.add_argument("-fts", "--filters_names",
                 help="""use filters; available filters: """
                     + commas(get_filters_short_names()))
     parser.add_argument("-ft", "--fourier_transformation",
@@ -844,7 +417,7 @@ if __name__ == '__main__':
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
     ppManager.output_precision = __args.output_precision
-    ppManager.filters = __args.filters
+    ppManager.filters_names = __args.filters_names
     ppManager.fourier_transformation = \
                     __args.fourier_transformation
     ppManager.fourier_transform_interpolation = \
