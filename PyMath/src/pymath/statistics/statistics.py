@@ -12,7 +12,7 @@ try:
     from pycore.introspection import get_method_arguments_count
     from pycore.introspection import get_subclasses_names
     from pycore.introspection import expand_to_real_class_names
-    from pymath.datasources import DataVector
+    from pymath.model.data_vector import DataVector
 except ImportError as error:
     print_import_error(__name__, error)
 

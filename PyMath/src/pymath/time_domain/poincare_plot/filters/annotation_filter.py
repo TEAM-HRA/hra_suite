@@ -6,11 +6,11 @@ Created on 27-07-2012
 from pymath.utils.utils import print_import_error
 try:
     import pylab as pl
-    from pymath.datasources import DataVector
-    from pymath.datasources import ALL_ANNOTATIONS
-    from pymath.datasources import exclude_boundary_annotations
-    from pymath.datasources import get_not_annotation_indexes
-    from pymath.datasources import EMPTY_DATA_VECTOR
+    from pymath.model.utils import ALL_ANNOTATIONS
+    from pymath.model.utils import exclude_boundary_annotations
+    from pymath.model.utils import get_not_annotation_indexes
+    from pymath.model.data_vector import DataVector
+    from pymath.model.data_vector import EMPTY_DATA_VECTOR
     from pymath.time_domain.poincare_plot.filters.filter_core import Filter
 except ImportError as error:
     print_import_error(__name__, error)

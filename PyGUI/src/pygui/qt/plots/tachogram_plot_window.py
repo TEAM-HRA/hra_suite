@@ -10,8 +10,8 @@ try:
     from pycore.misc import Params
     from pycore.units import get_unit_by_class_name
     from pycore.units import OrderUnit
-    from pymath.datasources import FileDataSource
-    from pymath.datasources import DataVectorAccessor
+    from pymath.model.file_data_source import FileDataSource
+    from pymath.model.data_vector_accessor import DataVectorAccessor
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget

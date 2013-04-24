@@ -8,7 +8,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pymath.datasources import DataVectorListener
+    from pymath.model.data_vector_listener import DataVectorListener
     from pymath.statistics.tachogram_statistics import calculate_tachogram_statistics  # @IgnorePep8
     from pygui.qt.utils.dnd import CopyDragger
     from pygui.qt.widgets.dock_widget_widget import DockWidgetWidget

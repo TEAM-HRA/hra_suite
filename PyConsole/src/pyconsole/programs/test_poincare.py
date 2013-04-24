@@ -8,7 +8,7 @@ from numpy import array
 from pylab import find
 
 from pycore.globals import GLOBALS
-from pymath.datasources import DataVector
+from pymath.model.data_vector import DataVector
 #from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlot
 from pymath.time_domain.poincare_plot.poincare_plot import PoincarePlotSegmenter #@IgnorePep8
 #from pymath.time_domain.poincare_plot.filters import RemoveAnnotationFilter #@IgnorePep8

@@ -4,15 +4,14 @@ Created on 23-03-2013
 @author: jurek
 '''
 from pycore.special import ImportErrorMessage
-
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import is_empty
     from pycore.collections_utils import get_or_put
     from pycore.misc import Params
-    from pymath.datasources import get_unique_annotations
-    from pymath.datasources import ALL_ANNOTATIONS
+    from pymath.model.utils import get_unique_annotations
+    from pymath.model.utils import ALL_ANNOTATIONS
     from pymath.time_domain.poincare_plot.filters.annotation_filter import AnnotationFilter # @IgnorePep8
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.utils.signals import BUTTON_CLICKED_SIGNAL

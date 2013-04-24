@@ -9,7 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     import pylab as pl
     from pycore.collections_utils import get_or_put
-    from pymath.datasources import DataVectorListener
+    from pymath.model.data_vector_listener import DataVectorListener
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget

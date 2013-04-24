@@ -13,7 +13,7 @@ try:
     from pycore.misc import Params
     from pycore.units import OrderUnit
     from pycore.collections_utils import pop_from_list
-    from pymath.datasources import DataVectorListener
+    from pymath.model.data_vector_listener import DataVectorListener
     from pygui.qt.utils.dnd import CopyDropper
     from pygui.qt.plots.tachogram_plot_const import STATISTIC_MIME_ID
     from pygui.qt.plots.tachogram_plot_const import STATISTIC_CLASS_NAME_ID

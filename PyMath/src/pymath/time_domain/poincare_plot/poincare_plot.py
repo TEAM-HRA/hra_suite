@@ -20,6 +20,9 @@ try:
     from pycore.collections_utils import nvl
     from pycore.collections_utils import commas
     from pycore.collections_utils import get_as_list
+    from pymath.model.file_data_source import FileDataSource
+    from pymath.model.data_vector import DataVector
+    from pymath.model.utils import ALL_ANNOTATIONS
     from pymath.utils.array_utils import \
         get_max_index_for_cumulative_sum_greater_then_value
     from pymath.utils.array_utils import \
@@ -35,9 +38,6 @@ try:
     from pymath.statistics.summary_statistics import get_summary_statistics_names # @IgnorePep8
     from pymath.statistics.summary_statistics import ALL_SUMMARY_STATISTICS
     from pymath.statistics.summary_statistics import SummaryStatisticsFactory
-    from pymath.datasources import DataVector
-    from pymath.datasources import FileDataSource
-    from pymath.datasources import ALL_ANNOTATIONS
     from pymath.interpolation import Interpolation
     from pymath.frequency_domain.fourier import FourierTransformationManager
     from pymath.frequency_domain.fourier import FourierTransformation
@@ -323,7 +323,7 @@ class PoincarePlotManager(object):
             <name>(data_vector, excluded_annotations)
         -----------------------------------------------------------------------
         commentary:
-        data_vector - parameter of type pymath.datasources.DataVector
+        data_vector - parameter of type pymath.model.data_vector.DataVector
           DataVector has the following members (fields):
            signal (numpy array) - the whole data signal (or part of the signal)
            annotation (numpy array) - annotation data correspond to signal data

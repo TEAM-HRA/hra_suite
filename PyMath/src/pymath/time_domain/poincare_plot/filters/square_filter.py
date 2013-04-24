@@ -10,7 +10,7 @@ try:
     from pycore.collections_utils import is_empty
     from pycore.misc import Params
     from pycore.units import Millisecond
-    from pymath.datasources import DataVector
+    from pymath.model.data_vector import DataVector
     from pymath.time_domain.poincare_plot.filters.filter_core import Filter
 except ImportError as error:
     print_import_error(__name__, error)

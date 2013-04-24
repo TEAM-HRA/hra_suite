@@ -10,7 +10,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
     from pycore.misc import Params
-    from pymath.datasources import DataVectorListener
+    from pymath.model.data_vector_listener import DataVectorListener
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.number_edit_widget import NumberEditWidget

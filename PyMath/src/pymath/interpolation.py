@@ -8,9 +8,9 @@ try:
     import pylab as pl
     from itertools import count
     from pymath.utils.utils import USE_NUMPY_EQUIVALENT
-    from pymath.datasources import exclude_boundary_annotations
-    from pymath.datasources import get_annotation_indexes
-    from pymath.datasources import get_not_annotation_indexes
+    from pymath.model.utils import exclude_boundary_annotations
+    from pymath.model.utils import get_annotation_indexes
+    from pymath.model.utils import get_not_annotation_indexes
     from pycore.introspection import get_subclasses_names
 except ImportError as error:
     print_import_error(__name__, error)

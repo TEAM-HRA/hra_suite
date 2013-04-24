@@ -9,8 +9,8 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import is_empty
-    from pymath.datasources import DataVectorListener
-    from pymath.datasources import ALL_ANNOTATIONS
+    from pymath.model.data_vector_listener import DataVectorListener
+    from pymath.model.utils import ALL_ANNOTATIONS
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.custom_widgets.filters.common_annotation_filter_widget import CommonAnnotationFilterWidget # @IgnorePep8    
 except ImportError as error:
