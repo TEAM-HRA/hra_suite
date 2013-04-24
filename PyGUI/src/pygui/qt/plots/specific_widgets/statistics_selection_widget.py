@@ -15,7 +15,6 @@ try:
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
-    from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -58,10 +57,10 @@ class StatisticsSelectionWidget(GroupBoxWidget):
                     clicked_handler=self.__unselect_all_handler__)
 
     def __select_all_handler__(self):
-        self.__change_selection__(True)
+        self.__table__.changeCheckStatForAll(True)
 
     def __unselect_all_handler__(self):
-        self.__change_selection__(False)
+        self.__table__.changeCheckStatForAll(False)
 
     def __fillStatistics__(self, _statistics_base_classes):
         model = self.__table__.model()
@@ -79,18 +78,3 @@ class StatisticsSelectionWidget(GroupBoxWidget):
 
             model.appendRow([check_column,
                              QStandardItem(str(statistics[name]))])
-
-    def __change_selection__(self, _select):
-        self.__table__.setEnabled(False)
-        count = self.__table__.model().rowCount()
-        progressManager = ProgressDialogManager(self,
-                label_text=("Selecting..." if _select else "Unselecting..."),
-                max_value=count)
-        with progressManager as progress:
-            for idx in range(count):
-                if (progress.wasCanceled()):
-                    break
-                progress.increaseCounter()
-                self.__table__.model().item(idx).setCheckState(Qt.Checked
-                                                if _select else Qt.Unchecked)
-        self.__table__.setEnabled(True)
