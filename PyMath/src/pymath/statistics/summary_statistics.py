@@ -213,3 +213,48 @@ class CdTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asym
     """
     def __init__(self):
         __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'Cd')
+
+
+class __MeanInnerSummaryStatistic__(SummaryStatistic, __Inner__):
+    """
+    inner summary mean statistic
+    """
+    def __init__(self, _stat_name):
+        self.__stat_name__ = _stat_name
+        self.__sum_stat__ = 0.0
+        self.__count__ = 0
+
+    def calculate(self, statistics, data_vector):
+        stat = statistics.get(self.__stat_name__, None)
+        if stat == None:
+            raise ValueError(self.__stat_name__ + ' statistic is required to calculate ' + self.__class__.__name__) # @IgnorePep8
+        self.__sum_stat__ = self.__sum_stat__ + stat
+        self.__count__ = self.__count__ + 1
+
+    @property
+    def summary_statistic(self):
+        return self.__sum_stat__ / self.__count__
+
+
+class C1dMeanSummaryStatistic(__MeanInnerSummaryStatistic__, Asymmetry):
+    """
+    summary mean statistic for C1d
+    """
+    def __init__(self):
+        __MeanInnerSummaryStatistic__.__init__(self, 'C1d')
+
+
+class C2dMeanSummaryStatistic(__MeanInnerSummaryStatistic__, Asymmetry):
+    """
+    summary mean statistic for C2d
+    """
+    def __init__(self):
+        __MeanInnerSummaryStatistic__.__init__(self, 'C2d')
+
+
+class CdMeanSummaryStatistic(__MeanInnerSummaryStatistic__, Asymmetry):
+    """
+    summary mean statistic for Cd
+    """
+    def __init__(self):
+        __MeanInnerSummaryStatistic__.__init__(self, 'Cd')
