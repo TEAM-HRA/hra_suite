@@ -9,32 +9,25 @@ try:
     import argparse
     import glob
     from pycore.misc import Separator
-    from pycore.utils import ProgressMark
-    from pycore.utils import ControlInterruptHandler
     from pycore.introspection import copy_private_properties
     from pycore.introspection import print_private_properties
     from pycore.collections_utils import nvl
     from pycore.collections_utils import commas
     from pymath.model.file_data_source import FileDataSource
-    from pymath.model.data_vector_segmenter import DataVectorSegmenter
     from pymath.model.data_vector_parameters import DataVectorParameters
     from pymath.model.file_data_parameters import FileDataParameters
     from pymath.statistics.statistic_parameters import StatisticParameters
     from pymath.frequency_domain.fourier_parameters import FourierParameters
     from pymath.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
-    from pymath.utils.io_utils import NumpyCSVFile
-    from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.statistics import get_statistics_names
     from pymath.statistics.statistics import ALL_STATISTICS
     from pymath.statistics.summary_statistics import get_summary_statistics_names # @IgnorePep8
     from pymath.statistics.summary_statistics import ALL_SUMMARY_STATISTICS
-    from pymath.statistics.summary_statistics import SummaryStatisticsFactory
     from pymath.frequency_domain.fourier_parameters import getInterpolationNames # @IgnorePep8
-    from pymath.frequency_domain.fourier import FourierTransformationManager
     from pymath.frequency_domain.fourier_parameters import getFourierTransformationNames # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
-    from pymath.time_domain.poincare_plot.filters.filter_manager import FilterManager # @IgnorePep8
+    from pymath.time_domain.poincare_plot.poincare_plot_generator import PoincarePlotGenerator # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -117,119 +110,20 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                                annotation_index=self.annotation_index,
                                time_index=self.time_index)
         data_vector = file_data_source.getData()
-        parameters = {}
-        fourier = FourierTransformationManager(self.fourier_transformation,
-                                    self.fourier_transform_interpolation)
-        filter_manager = FilterManager(_shift=self.window_shift,
-                        _excluded_annotations=self.excluded_annotations,
-                        _filters=self.filters)
-        progress_mark = None
-        with NumpyCSVFile(output_dir=self.output_dir,
-                         reference_filename=_file,
-                         output_precision=self.output_precision,
-                         print_output_file=True,
-                         ordinal_column_name=self.ordinal_column_name,
-                         output_separator=self.output_separator,
-                         sort_headers=False,
-                         output_headers=self.output_headers,
-                         ordered_headers=self.statistics_names) as csv:
-            summaryStatisticsFactory = SummaryStatisticsFactory(
-                                                self.summary_statistics_names)
-            if self.skip_existing_outcomes:
-                #only used to check if summary output file exists
-                if summaryStatisticsFactory.has_summary_statistics > 0:
-                    summary_csv = NumpyCSVFile(output_dir=self.output_dir,
-                                           reference_filename=_file,
-                                           output_suffix='_sum')
-                    if os.path.exists(summary_csv.output_file):
-                        if disp:
-                            print('Skipping processing, the summary outcome file ' # @IgnorePep8
-                                  + str(summary_csv.output_file) + ' exists !')
-                            return True
 
-                if os.path.exists(csv.output_file):
-                    if disp:
-                        print('Skipping processing, the outcome file '
-                              + str(csv.output_file) + ' exists !')
-                    return True
-            statisticsFactory = StatisticsFactory(self.statistics_names,
-                            statistics_handlers=self.__statistics_handlers__,
-                            _use_identity_line=self.use_identity_line,
-                            use_buffer=self.use_buffer)
-            if not statisticsFactory.has_statistics:
-                return True
-            segmenter = DataVectorSegmenter(data_vector,
-                                    self.window_size,
-                                    shift=self.window_shift,
-                                    window_size_unit=self.window_size_unit)
-
-            segment_count = segmenter.segment_count()
+        pp_generator = PoincarePlotGenerator(file_data_parameters=self,
+                                             fourier_parameters=self,
+                                             data_vector_parameters=self,
+                                             filter_parameters=self,
+                                             statistic_parameters=self,
+                                             poincare_plot_parameters=self)
+        (ok, message) = pp_generator.precheck(reference_filename=_file)
+        if ok == False:
             if disp:
-                if self.progress_mark:
-                    progress_mark = ProgressMark(_label='Processing file '
-                                        + _file + ' ...',
-                                        _max_count=segment_count)
-                else:
-                    print('Processing file: ' + _file)
-            if segment_count == -1:
-                if disp:
-                    print("Window size can't be greater then data size !!!")
-                return False
+                print('\n' + message)
+            return True
 
-            interrupter = ControlInterruptHandler()
-            for data_segment in segmenter:
-                if interrupter.isInterrupted():
-                    break
-                if progress_mark:
-                    progress_mark.tick
-
-                data_segment = filter_manager.filter(data_segment)
-
-                #this could happened when for example annotation
-                #filter is used and all data are annotated that means
-                #all signal data are filtered out
-                if len(data_segment.signal) == 0:
-                    continue
-
-                fourier_params = fourier.calculate(data_segment,
-                                                   self.excluded_annotations)
-                parameters.update(fourier_params)
-
-                statistics = statisticsFactory.statistics(data_segment)
-                parameters.update(statistics)
-
-                csv.write(parameters, ordinal_value=segmenter.ordinal_value)
-
-                summaryStatisticsFactory.update(statistics, data_segment)
-                #print(str(statistics))
-
-        if interrupter.isInterrupted() == False:
-            if disp and csv.info_message:
-                print('\n' + csv.info_message)
-            if disp and csv.error_message:
-                print('\n' + csv.error_message)
-                return False
-
-            if summaryStatisticsFactory.has_summary_statistics > 0:
-                summary_headers = \
-                            summaryStatisticsFactory.summary_statistics.keys()
-                #save summary statistics into a file
-                with NumpyCSVFile(output_dir=self.output_dir,
-                         reference_filename=_file,
-                         output_precision=self.output_precision,
-                         print_output_file=True,
-                         output_separator=self.output_separator,
-                         sort_headers=False,
-                         output_headers=summary_headers,
-                         output_suffix='_sum',
-                         message='\nSummary statistics saved into the file: ') as summary_csv: # @IgnorePep8 
-                    summary_csv.write(summaryStatisticsFactory.summary_statistics) # @IgnorePep8
-
-        if progress_mark:
-            progress_mark.close
-        interrupted = interrupter.isInterrupted()
-        interrupter.clean()
-        return not interrupted
+        return pp_generator.generate(data_vector, reference_filename=_file)
 
     def getUniqueAnnotations(self):
         """
@@ -280,19 +174,6 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         else:
             return True
         return False
-
-    @property
-    def progress_mark(self):
-        """
-        [optional]
-        whether a progress mark have to be displayed during processing files
-        default False
-        """
-        return self.__progress_mark__
-
-    @progress_mark.setter
-    def progress_mark(self, _progress_mark):
-        self.__progress_mark__ = _progress_mark
 
     def print_members(self):
         """

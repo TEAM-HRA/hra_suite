@@ -21,7 +21,7 @@ class StatisticParameters(object):
     parameters concerning statistics
     """
     def __init__(self):
-        pass
+        self.__statistics_handlers__ = []
 
     @property
     def statistics_names(self):
@@ -102,7 +102,7 @@ class StatisticParameters(object):
                 del self.__statistics_handlers__[idx]
                 return
 
-    def setProperties(self, _object):
+    def setStatisticProperties(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'
@@ -110,3 +110,8 @@ class StatisticParameters(object):
         setattr(_object, 'statistics_names', self.statistics_names)
         setattr(_object, 'summary_statistics_names',
                 self.summary_statistics_names)
+        setattr(_object, 'statistics_handlers', self.statistics_handlers)
+
+    @property
+    def statistics_handlers(self):
+        return self.__statistics_handlers__

@@ -132,7 +132,7 @@ class DataVectorParameters(object):
     def ordinal_column_name(self, _ordinal_column_name):
         self.__ordinal_column_name__ = _ordinal_column_name
 
-    def setProperties(self, _object):
+    def setDataVectorProperties(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'

@@ -72,7 +72,7 @@ class FilterParameters(object):
     def filters(self):
         return self.__filters__
 
-    def setProperties(self, _object):
+    def setFilterProperties(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'

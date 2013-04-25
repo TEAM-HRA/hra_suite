@@ -135,7 +135,7 @@ class FileDataParameters(object):
     def skip_existing_outcomes(self, _skip_existing_outcomes):
         self.__skip_existing_outcomes__ = _skip_existing_outcomes
 
-    def setProperties(self, _object):
+    def setFileDataProperties(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'

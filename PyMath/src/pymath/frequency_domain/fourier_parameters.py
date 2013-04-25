@@ -65,7 +65,7 @@ class FourierParameters(object):
         self.__fourier_transform_interpolation__ = \
                 _fourier_transform_interpolation
 
-    def setProperties(self, _object):
+    def setFourierProperties(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'

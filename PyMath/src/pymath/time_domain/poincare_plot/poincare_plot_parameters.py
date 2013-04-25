@@ -44,10 +44,24 @@ class PoincarePlotParameters(object):
     def use_buffer(self, _use_buffer):
         self.__use_buffer__ = _use_buffer
 
-    def setProperties(self, _object):
+    @property
+    def progress_mark(self):
+        """
+        [optional]
+        whether a progress mark have to be displayed during processing files
+        default False
+        """
+        return self.__progress_mark__
+
+    @progress_mark.setter
+    def progress_mark(self, _progress_mark):
+        self.__progress_mark__ = _progress_mark
+
+    def setPoincarePlotProperties(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'
         """
         setattr(_object, 'use_identity_line', self.use_identity_line)
         setattr(_object, 'use_buffer', self.use_buffer)
+        setattr(_object, 'progress_mark', self.progress_mark)
