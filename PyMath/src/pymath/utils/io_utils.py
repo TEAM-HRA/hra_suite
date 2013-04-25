@@ -56,11 +56,11 @@ class NumpyCSVFile(CSVFile):
                 memory_file.close()
                 memory_file = None
                 if self.__print_output_file__:
-                    print(nvl(self.__message__, 'Data saved into the file: ')
-                          + self.output_file)
+                    self.info_message = nvl(self.__message__,
+                                        'Data saved into the file: ') + \
+                                        self.output_file
             else:
-                if self.__print_output_file__:
-                    print('No data saved !!!')
+                self.info_message = 'No data saved !!!'
         self.array_data = None
         gc.collect()
 

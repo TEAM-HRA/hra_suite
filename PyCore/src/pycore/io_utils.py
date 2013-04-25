@@ -205,12 +205,17 @@ class CSVFile(object):
             self.__output_file__ = fs.join(output_dir,
                                     fs.basename(reference_filename) +
                                       not_empty_nvl(output_suffix, '_out'))
+        if not self.__output_file__ == None:
+            dir_ = fs.dirname(self.__output_file__)
+            if fs.exists(dir_) == False:
+                makedirs(dir_)
 
-        dir_ = fs.dirname(self.__output_file__)
-        if fs.exists(dir_) == False:
-            makedirs(dir_)
+        self.__error_message__ = None
+        self.__info_message__ = None
 
     def __enter__(self):
+        self.__error_message__ = None
+        self.__info_message__ = None
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -252,7 +257,7 @@ class CSVFile(object):
     def write(self, _data):
         values = self.get_values(_data)
         if not values == None:
-            if self.__file__ == None and self.__output_file__:
+            if self.__file__ == None and not self.__output_file__ == None:
                 self.__file__ = open(self.__output_file__, "w")
             self.__file__.write(self.output_separator.join(values) + '\n')
 
@@ -271,3 +276,19 @@ class CSVFile(object):
     @property
     def output_headers(self):
         return self.__output_headers__
+
+    @property
+    def error_message(self):
+        return self.__error_message__
+
+    @error_message.setter
+    def error_message(self, _error_message):
+        self.__error_message__ = _error_message
+
+    @property
+    def info_message(self):
+        return self.__info_message__
+
+    @info_message.setter
+    def info_message(self, _info_message):
+        self.__info_message__ = _info_message
