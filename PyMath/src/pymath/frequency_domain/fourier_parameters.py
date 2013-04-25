@@ -64,3 +64,11 @@ class FourierParameters(object):
     def fourier_transform_interpolation(self, _fourier_transform_interpolation):  # @IgnorePep8
         self.__fourier_transform_interpolation__ = \
                 _fourier_transform_interpolation
+
+    def setProperties(self, _object):
+        """
+        method which set up some parameters from this object into
+        another object, it is some kind of 'copy constructor'
+        """
+        setattr(_object, 'fourier_transformation', self.fourier_transformation)
+        setattr(_object, 'fourier_transform_interpolation', self.fourier_transform_interpolation) # @IgnorePep8

@@ -43,3 +43,11 @@ class PoincarePlotParameters(object):
     @use_buffer.setter
     def use_buffer(self, _use_buffer):
         self.__use_buffer__ = _use_buffer
+
+    def setProperties(self, _object):
+        """
+        method which set up some parameters from this object into
+        another object, it is some kind of 'copy constructor'
+        """
+        setattr(_object, 'use_identity_line', self.use_identity_line)
+        setattr(_object, 'use_buffer', self.use_buffer)

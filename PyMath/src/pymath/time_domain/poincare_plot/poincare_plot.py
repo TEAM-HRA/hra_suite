@@ -101,7 +101,8 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                     file_counter = file_counter + 1
                     if disp:
                         print('=' * sign_multiplicator)
-                    _file_handler(_file, disp=disp, **params)
+                    if _file_handler(_file, disp=disp, **params) == False:
+                        break
         if disp:
             print('Processing finished')
             if file_counter == 0:
@@ -122,6 +123,7 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         filter_manager = FilterManager(_shift=self.window_shift,
                         _excluded_annotations=self.excluded_annotations,
                         _filters=self.filters)
+        progress_mark = None
         with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=_file,
                          output_precision=self.output_precision,
@@ -130,9 +132,9 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                          output_separator=self.output_separator,
                          sort_headers=False,
                          output_headers=self.output_headers,
-                         ordered_headers=self.statistics) as csv:
+                         ordered_headers=self.statistics_names) as csv:
             summaryStatisticsFactory = SummaryStatisticsFactory(
-                                                    self.summary_statistics)
+                                                self.summary_statistics_names)
             if self.skip_existing_outcomes:
                 #only used to check if summary output file exists
                 if summaryStatisticsFactory.has_summary_statistics > 0:
@@ -143,43 +145,43 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                         if disp:
                             print('Skipping processing, the summary outcome file ' # @IgnorePep8
                                   + str(summary_csv.output_file) + ' exists !')
-                            return
+                            return True
 
                 if os.path.exists(csv.output_file):
                     if disp:
                         print('Skipping processing, the outcome file '
                               + str(csv.output_file) + ' exists !')
-                    return
-            statisticsFactory = StatisticsFactory(self.statistics,
+                    return True
+            statisticsFactory = StatisticsFactory(self.statistics_names,
                             statistics_handlers=self.__statistics_handlers__,
                             _use_identity_line=self.use_identity_line,
                             use_buffer=self.use_buffer)
             if not statisticsFactory.has_statistics:
-                return
+                return True
             segmenter = DataVectorSegmenter(data_vector,
                                     self.window_size,
                                     shift=self.window_shift,
                                     window_size_unit=self.window_size_unit)
-            progress = None
+
             segment_count = segmenter.segment_count()
             if disp:
                 if self.progress_mark:
-                    progress = ProgressMark(_label='Processing file ' + _file
-                                             + ' ...',
+                    progress_mark = ProgressMark(_label='Processing file '
+                                        + _file + ' ...',
                                         _max_count=segment_count)
                 else:
                     print('Processing file: ' + _file)
             if segment_count == -1:
                 if disp:
                     print("Window size can't be greater then data size !!!")
-                return
+                return False
 
             interrupter = ControlInterruptHandler()
             for data_segment in segmenter:
                 if interrupter.isInterrupted():
                     break
-                if progress:
-                    progress.tick
+                if progress_mark:
+                    progress_mark.tick
 
                 data_segment = filter_manager.filter(data_segment)
 
@@ -201,6 +203,13 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                 summaryStatisticsFactory.update(statistics, data_segment)
                 #print(str(statistics))
 
+        if interrupter.isInterrupted() == False:
+            if disp and csv.info_message:
+                print('\n' + csv.info_message)
+            if disp and csv.error_message:
+                print('\n' + csv.error_message)
+                return False
+
             if summaryStatisticsFactory.has_summary_statistics > 0:
                 summary_headers = \
                             summaryStatisticsFactory.summary_statistics.keys()
@@ -216,9 +225,11 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                          message='\nSummary statistics saved into the file: ') as summary_csv: # @IgnorePep8 
                     summary_csv.write(summaryStatisticsFactory.summary_statistics) # @IgnorePep8
 
-            if progress:
-                progress.close
-            interrupter.clean()
+        if progress_mark:
+            progress_mark.close
+        interrupted = interrupter.isInterrupted()
+        interrupter.clean()
+        return not interrupted
 
     def getUniqueAnnotations(self):
         """
@@ -254,8 +265,8 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         _headers.append(file_data_source.headers_with_col_index)
 
     def __check__(self):
-        if self.statistics == None or len(self.statistics) == 0:
-            print('no statistics were been chosen [attribute statistics];')
+        if self.statistics_names == None or len(self.statistics_names) == 0:
+            print('no statistics names have been chosen [attribute statistics];') # @IgnorePep8
             print('available statistics [call method available_statistics()]:')
             self.available_statistics()
         elif self.data_file is None and self.data_dir is None:
@@ -293,13 +304,13 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         self.available_statistics()
 
     def __print_information__(self):
-        print('Using statistics: ' + self.statistics)
+        print('Using statistics: ' + self.statistics_names)
         if self.__statistics_handlers__:
             print('Using statistics handlers/functions:')
             for _handler in self.__statistics_handlers__:
                 print('   name: ' + _handler.name)
-        if self.summary_statistics:
-            print('Using summary statistics: ' + self.summary_statistics)
+        if self.summary_statistics_names:
+            print('Using summary statistics: ' + self.summary_statistics_names)
         print('Using output precision: ' + self.output_precision)
         print('Using buffer: ' + str(self.use_buffer))
         if not self.filters_names == None:
@@ -339,10 +350,10 @@ if __name__ == '__main__':
     parser.add_argument("-out_prec", "--output_precision",
                 help="precision for output data [default: 10,5]",
                 default="10,5")
-    parser.add_argument("-s", "--statistics",
+    parser.add_argument("-sn", "--statistics_names",
                 help="list of statistics names to calculate, available: " +
                         commas(get_statistics_names(ALL_STATISTICS)))
-    parser.add_argument("-ss", "--summary_statistics",
+    parser.add_argument("-ssn", "--summary_statistics_names",
                 help="list of summary statistics names to calculate, available: " + # @IgnorePep8
                 commas(get_summary_statistics_names(ALL_SUMMARY_STATISTICS)))
     parser.add_argument("-he", "--headers", type=to_bool,
@@ -411,8 +422,8 @@ if __name__ == '__main__':
     ppManager.window_size = __args.window_size
     ppManager.window_shift = __args.window_shift
     ppManager.output_dir = __args.output_dir
-    ppManager.statistics = __args.statistics
-    ppManager.summary_statistics = __args.summary_statistics
+    ppManager.statistics_names = __args.statistics_names
+    ppManager.summary_statistics_names = __args.summary_statistics_names
     ppManager.signal_index = __args.signal_index
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index

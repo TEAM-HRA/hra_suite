@@ -131,3 +131,14 @@ class DataVectorParameters(object):
     @ordinal_column_name.setter
     def ordinal_column_name(self, _ordinal_column_name):
         self.__ordinal_column_name__ = _ordinal_column_name
+
+    def setProperties(self, _object):
+        """
+        method which set up some parameters from this object into
+        another object, it is some kind of 'copy constructor'
+        """
+        setattr(_object, 'window_shift', self.window_shift)
+        setattr(_object, 'excluded_annotations', self.excluded_annotations)
+        setattr(_object, 'ordinal_column_name', self.ordinal_column_name)
+        setattr(_object, 'window_size', self.window_size)
+        setattr(_object, 'window_size_unit', self.window_size_unit)

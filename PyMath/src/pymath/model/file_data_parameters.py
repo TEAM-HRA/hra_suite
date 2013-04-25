@@ -134,3 +134,14 @@ class FileDataParameters(object):
     @skip_existing_outcomes.setter
     def skip_existing_outcomes(self, _skip_existing_outcomes):
         self.__skip_existing_outcomes__ = _skip_existing_outcomes
+
+    def setProperties(self, _object):
+        """
+        method which set up some parameters from this object into
+        another object, it is some kind of 'copy constructor'
+        """
+        setattr(_object, 'skip_existing_outcomes', self.skip_existing_outcomes)
+        setattr(_object, 'output_dir', self.output_dir)
+        setattr(_object, 'output_precision', self.output_precision)
+        setattr(_object, 'output_separator', self.output_separator)
+        setattr(_object, 'output_headers', self.output_headers)

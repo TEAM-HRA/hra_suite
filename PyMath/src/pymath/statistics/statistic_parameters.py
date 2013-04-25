@@ -6,7 +6,6 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     from pycore.collections_utils import commas
-    from pymath.model.utils import ALL_ANNOTATIONS
     from pymath.statistics.statistics import get_statistics_names
     from pymath.statistics.statistics import ALL_STATISTICS
     from pymath.statistics.statistics import CHECK_STATISTICS
@@ -25,7 +24,7 @@ class StatisticParameters(object):
         pass
 
     @property
-    def statistics(self):
+    def statistics_names(self):
         """
         [optional]
         names of statistics to be calculated (separated by ','),
@@ -37,12 +36,12 @@ class StatisticParameters(object):
         """
         return self.__statistics_names__
 
-    @statistics.setter
-    def statistics(self, _statistics_names):
+    @statistics_names.setter
+    def statistics_names(self, _statistics_names):
         self.__statistics_names__ = _statistics_names
 
     @property
-    def summary_statistics(self):
+    def summary_statistics_names(self):
         """
         [optional]
         names of summary_statistics to be calculated (separated by ','),
@@ -52,8 +51,8 @@ class StatisticParameters(object):
         """
         return self.__summary_statistics_names__
 
-    @summary_statistics.setter
-    def summary_statistics(self, _summary_statistics_names):
+    @summary_statistics_names.setter
+    def summary_statistics_names(self, _summary_statistics_names):
         self.__summary_statistics_names__ = _summary_statistics_names
 
     def available_statistics(self):
@@ -102,3 +101,12 @@ class StatisticParameters(object):
             if _handler.name == _name:
                 del self.__statistics_handlers__[idx]
                 return
+
+    def setProperties(self, _object):
+        """
+        method which set up some parameters from this object into
+        another object, it is some kind of 'copy constructor'
+        """
+        setattr(_object, 'statistics_names', self.statistics_names)
+        setattr(_object, 'summary_statistics_names',
+                self.summary_statistics_names)
