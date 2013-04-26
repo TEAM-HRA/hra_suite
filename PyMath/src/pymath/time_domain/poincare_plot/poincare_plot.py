@@ -11,7 +11,6 @@ try:
     from pycore.misc import Separator
     from pycore.introspection import copy_private_properties
     from pycore.introspection import print_private_properties
-    from pycore.collections_utils import nvl
     from pycore.collections_utils import commas
     from pymath.model.file_data_source import FileDataSource
     from pymath.model.data_vector_parameters import DataVectorParameters
@@ -57,19 +56,28 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         if not other == None:
             copy_private_properties(other, self)
 
+        self.__pp_generator__ = None
+
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
         return None
 
     def generate(self):
-        """
-        the method which starts to generate Poincare Plot parameters into
-        output files, names of the output files are the same as input files
-        plus '_out' suffix
-        """
-        if self.__check__():
-            self.__print_information__()
-            self.__process__(self.__process_file__)
+        if self.__pp_generator__ == None:
+            self.__pp_generator__ = PoincarePlotGenerator(
+                                            file_data_parameters=self,
+                                            fourier_parameters=self,
+                                            data_vector_parameters=self,
+                                            filter_parameters=self,
+                                            statistic_parameters=self,
+                                            poincare_plot_parameters=self)
+            message = self.__pp_generator__.checkParameters()
+            if message:
+                print(message)
+                return
+            self.__pp_generator__.parameters_info
+
+        self.__process__(self.__process_file__)
 
     def __process__(self, _file_handler, disp=True, **params):
         """
@@ -111,19 +119,14 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                                time_index=self.time_index)
         data_vector = file_data_source.getData()
 
-        pp_generator = PoincarePlotGenerator(file_data_parameters=self,
-                                             fourier_parameters=self,
-                                             data_vector_parameters=self,
-                                             filter_parameters=self,
-                                             statistic_parameters=self,
-                                             poincare_plot_parameters=self)
-        (ok, message) = pp_generator.precheck(reference_filename=_file)
+        (ok, message) = self.__pp_generator__.precheck(reference_filename=_file) # @IgnorePep8
         if ok == False:
             if disp:
                 print('\n' + message)
             return True
 
-        return pp_generator.generate(data_vector, reference_filename=_file)
+        return self.__pp_generator__.generate(data_vector,
+                                          reference_filename=_file)
 
     def getUniqueAnnotations(self):
         """
@@ -158,23 +161,6 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         _headers.append('File: ' + str(_file))
         _headers.append(file_data_source.headers_with_col_index)
 
-    def __check__(self):
-        if self.statistics_names == None or len(self.statistics_names) == 0:
-            print('no statistics names have been chosen [attribute statistics];') # @IgnorePep8
-            print('available statistics [call method available_statistics()]:')
-            self.available_statistics()
-        elif self.data_file is None and self.data_dir is None:
-            print('data_file or data_dir have to be set')
-        elif self.output_dir is None:
-            print('output_dir has to be set')
-        elif self.window_size is None:
-            print('window size has to be set')
-        elif self.signal_index is None:
-            print('signal index has to be set')
-        else:
-            return True
-        return False
-
     def print_members(self):
         """
         [optional]
@@ -183,24 +169,6 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         print_private_properties(self)
         print('\n available statistics:')
         self.available_statistics()
-
-    def __print_information__(self):
-        print('Using statistics: ' + self.statistics_names)
-        if self.__statistics_handlers__:
-            print('Using statistics handlers/functions:')
-            for _handler in self.__statistics_handlers__:
-                print('   name: ' + _handler.name)
-        if self.summary_statistics_names:
-            print('Using summary statistics: ' + self.summary_statistics_names)
-        print('Using output precision: ' + self.output_precision)
-        print('Using buffer: ' + str(self.use_buffer))
-        if not self.filters_names == None:
-            print('Using filters: ' + str(self.filters_names))
-        print('Window size: ' + str(self.window_size) +
-              nvl(self.window_size_unit, ''))
-        print('Using buffer: ' + str(self.use_buffer))
-        print('Skip for existing outcomes: '
-              + str(self.skip_existing_outcomes))
 
 
 if __name__ == '__main__':

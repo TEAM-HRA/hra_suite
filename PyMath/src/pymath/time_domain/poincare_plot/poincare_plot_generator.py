@@ -6,6 +6,7 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     import os
+    from pycore.collections_utils import nvl
     from pycore.misc import Params
     from pycore.utils import ProgressMark
     from pycore.utils import ControlInterruptHandler
@@ -27,6 +28,20 @@ class PoincarePlotGenerator():
         self.__prepare_parameters__(**params)
         self.__error_message__ = None
         self.__info_message__ = None
+
+    def checkParameters(self):
+        message = None
+        if self.statistics_names == None or len(self.statistics_names) == 0:
+            message = 'no statistics names has been chosen'
+        elif self.data_file is None and self.data_dir is None:
+            message = 'data_file or data_dir have to be set'
+        elif self.output_dir is None:
+            message = 'output_dir has to be set'
+        elif self.window_size is None:
+            message = 'window size has to be set'
+        elif self.signal_index is None:
+            message = 'signal index has to be set'
+        return message
 
     def precheck(self, reference_filename):
         message = None
@@ -187,3 +202,22 @@ class PoincarePlotGenerator():
 
     def summary_statistics(self):
         return self.__summary_statistics__
+
+    @property
+    def parameters_info(self):
+        print('Using statistics: ' + self.statistics_names)
+        if self.statistics_handlers:
+            print('Using statistics handlers/functions:')
+            for _handler in self.statistics_handlers:
+                print('   name: ' + _handler.name)
+        if self.summary_statistics_names:
+            print('Using summary statistics: ' + self.summary_statistics_names)
+        print('Using output precision: ' + self.output_precision)
+        print('Using buffer: ' + str(self.use_buffer))
+        if not self.filters_names == None:
+            print('Using filters: ' + str(self.filters_names))
+        print('Window size: ' + str(self.window_size) +
+              nvl(self.window_size_unit, ''))
+        print('Using buffer: ' + str(self.use_buffer))
+        print('Skip for existing outcomes: '
+              + str(self.skip_existing_outcomes))
