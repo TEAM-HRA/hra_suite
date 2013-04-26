@@ -145,3 +145,7 @@ class FileDataParameters(object):
         setattr(_object, 'output_precision', self.output_precision)
         setattr(_object, 'output_separator', self.output_separator)
         setattr(_object, 'output_headers', self.output_headers)
+        setattr(_object, 'extension', self.extension)
+        setattr(_object, 'data_dir', self.data_dir)
+        setattr(_object, 'data_file', self.data_file)
+        setattr(_object, 'separator', self.separator)

@@ -78,3 +78,4 @@ class FilterParameters(object):
         another object, it is some kind of 'copy constructor'
         """
         setattr(_object, 'filters', self.filters)
+        setattr(_object, 'filters_names', self.filters_names)

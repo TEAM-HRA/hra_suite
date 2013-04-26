@@ -142,3 +142,6 @@ class DataVectorParameters(object):
         setattr(_object, 'ordinal_column_name', self.ordinal_column_name)
         setattr(_object, 'window_size', self.window_size)
         setattr(_object, 'window_size_unit', self.window_size_unit)
+        setattr(_object, 'signal_index', self.signal_index)
+        setattr(_object, 'annotation_index', self.annotation_index)
+        setattr(_object, 'time_index', self.time_index)
