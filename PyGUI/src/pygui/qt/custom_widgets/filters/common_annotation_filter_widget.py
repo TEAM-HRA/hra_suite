@@ -157,3 +157,10 @@ class CommonAnnotationFilterWidget(GroupBoxWidget):
         self.action_button.setEnabled(_activate)
         if _activate == False and hasattr(self.action_button, 'setChecked'):
             self.action_button.setChecked(False)
+
+    def useFilter(self):
+        return self.action_button.isChecked() \
+            if hasattr(self.action_button, 'isChecked') else False
+
+    def getFilter(self):
+        return self.__filter__
