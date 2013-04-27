@@ -106,7 +106,7 @@ class SquareFilterWidget(GroupBoxWidget):
             return False
 
     def useFilter(self):
-        return self.__use_button__.isChecked() \
+        return self.__action_button__.isChecked() \
             if not self.params.use_apply_button else False
 
     def getFilter(self):
