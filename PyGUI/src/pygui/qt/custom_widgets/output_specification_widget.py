@@ -8,6 +8,9 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
+    from pycore.misc import Params
+    from pymath.model.data_vector_listener import DataVectorListener
+    from pymath.model.file_data_parameters import FileDataParameters
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.custom_widgets.decimal_precision_widget import DecimalPrecisionWidget # @IgnorePep8
@@ -29,8 +32,30 @@ class OutputSpecificationWidget(GroupBoxWidget):
         get_or_put(params, 'layout', QVBoxLayout())
         get_or_put(params, 'i18n_def', 'Output specification')
         super(OutputSpecificationWidget, self).__init__(parent, **params)
+        self.params = Params(**params)
+        if self.params.data_accessor:
+            self.params.data_accessor.addListener(self,
+                            __OutputSpecificationDataVectorListener__(self))
         self.__output_dir__ = DirWidget(self)
         self.__precision__ = DecimalPrecisionWidget(self)
         self.__separator__ = SeparatorWidget(self, i18n_def='Output separator',
                 no_custom_separator=params.get('no_custom_separator', None))
         self.__skip_existing__ = CheckBoxWidget(self, i18n_def='Skip existing outcomes') # @IgnorePep8
+
+
+class __OutputSpecificationDataVectorListener__(DataVectorListener):
+    """
+    data accessor listener used to set up some file data parameters
+    """
+    def __init__(self, _output_specification_widget):
+        self.__output_specification_widget__ = _output_specification_widget
+
+    def prepareParameters(self, data_vector_accessor):
+        container = data_vector_accessor.parameters_container
+        parameters = container.getParametersObject(
+                                FileDataParameters.NAME, FileDataParameters)
+        w = self.__output_specification_widget__  # alias
+        parameters.skip_existing_outcomes = w.__skip_existing__.isChecked()
+        parameters.output_dir = w.__output_dir__.directory
+        parameters.output_precision = (w.__precision__.precision, w.__precision__.scale) # @IgnorePep8
+        parameters.output_separator = w.__separator__.getSeparatorSign()

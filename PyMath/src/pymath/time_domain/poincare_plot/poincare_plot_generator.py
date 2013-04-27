@@ -10,8 +10,15 @@ try:
     from pycore.misc import Params
     from pycore.utils import ProgressMark
     from pycore.utils import ControlInterruptHandler
-    from pymath.model.data_vector_segmenter import DataVectorSegmenter
     from pymath.utils.io_utils import NumpyCSVFile
+    from pymath.model.core_parameters import CoreParameters
+    from pymath.model.data_vector_segmenter import DataVectorSegmenter
+    from pymath.model.data_vector_parameters import DataVectorParameters
+    from pymath.model.file_data_parameters import FileDataParameters
+    from pymath.statistics.statistic_parameters import StatisticParameters
+    from pymath.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
+    from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
+    from pymath.frequency_domain.fourier_parameters import FourierParameters
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.summary_statistics import SummaryStatisticsFactory
     from pymath.frequency_domain.fourier import FourierTransformationManager
@@ -20,7 +27,7 @@ except ImportError as error:
     print_import_error(__name__, error)
 
 
-class PoincarePlotGenerator():
+class PoincarePlotGenerator(object):
     """
     this is an engine to generate poincare plot statistics
     """
@@ -29,19 +36,21 @@ class PoincarePlotGenerator():
         self.__error_message__ = None
         self.__info_message__ = None
 
-    def checkParameters(self):
-        message = None
-        if self.statistics_names == None or len(self.statistics_names) == 0:
-            message = 'no statistics names has been chosen'
-        elif self.data_file is None and self.data_dir is None:
-            message = 'data_file or data_dir have to be set'
-        elif self.output_dir is None:
-            message = 'output_dir has to be set'
-        elif self.window_size is None:
-            message = 'window size has to be set'
-        elif self.signal_index is None:
-            message = 'signal index has to be set'
-        return message
+    # if parameter is not set in the __init__() this method then returns None
+    def __getattr__(self, name):
+        return None
+
+    def checkParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL):
+
+        for class_name, parameter_name in self.__parameters_ids__:
+            param_object = getattr(self.params, parameter_name, None)
+            if param_object:
+                validate_method = getattr(param_object,
+                                    'validate' + class_name, None)
+                if validate_method:
+                    message = validate_method(check_level)
+                    if message:
+                        return message
 
     def precheck(self, reference_filename):
         message = None
@@ -56,8 +65,7 @@ class PoincarePlotGenerator():
                                        output_suffix='_sum') as csv:
                         pass
             if os.path.exists(csv.output_file):
-                message = 'Skipping processing, the outcome file ' + \
-                              + str(csv.output_file) + ' exists !'
+                message = 'Skipping processing, the outcome file ' + str(csv.output_file) + ' exists !' # @IgnorePep8
                 self.params.info_handler(message)
         return (True, None,) if message == None else (False, message,)
 
@@ -182,24 +190,15 @@ class PoincarePlotGenerator():
         if self.params.info_handler == None:
             self.params.info_handler = self.__info_handler__
 
-        if self.params.file_data_parameters:
-            self.params.file_data_parameters.setFileDataProperties(self)
+        for class_name, parameter_name in self.__parameters_ids__:
+            param_object = getattr(self.params, parameter_name, None)
+            if param_object:
+                set_method = getattr(param_object,
+                                    'setObject' + class_name, None)
+                if set_method:
+                    set_method(self)
 
-        if self.params.fourier_parameters:
-            self.params.fourier_parameters.setFourierProperties(self)
-
-        if self.params.data_vector_parameters:
-            self.params.data_vector_parameters.setDataVectorProperties(self)
-
-        if self.params.filter_parameters:
-            self.params.filter_parameters.setFilterProperties(self)
-
-        if self.params.statistic_parameters:
-            self.params.statistic_parameters.setStatisticProperties(self)
-
-        if self.params.poincare_plot_parameters:
-            self.params.poincare_plot_parameters.setPoincarePlotProperties(self) # @IgnorePep8
-
+    @property
     def summary_statistics(self):
         return self.__summary_statistics__
 
@@ -212,7 +211,7 @@ class PoincarePlotGenerator():
                 print('   name: ' + _handler.name)
         if self.summary_statistics_names:
             print('Using summary statistics: ' + self.summary_statistics_names)
-        print('Using output precision: ' + self.output_precision)
+        print('Using output precision: ' + str(self.output_precision))
         print('Using buffer: ' + str(self.use_buffer))
         if not self.filters_names == None:
             print('Using filters: ' + str(self.filters_names))
@@ -221,3 +220,16 @@ class PoincarePlotGenerator():
         print('Using buffer: ' + str(self.use_buffer))
         print('Skip for existing outcomes: '
               + str(self.skip_existing_outcomes))
+
+    @property
+    def __parameters_ids__(self):
+        """
+        method returns class names and name identifiers of all parameter
+        classes used in poincare plot generator
+        """
+        return [(DataVectorParameters.__name__, DataVectorParameters.NAME),
+                (FileDataParameters.__name__, FileDataParameters.NAME),
+                (StatisticParameters.__name__, StatisticParameters.NAME),
+                (PoincarePlotParameters.__name__, PoincarePlotParameters.NAME),
+                (FilterParameters.__name__, FilterParameters.NAME),
+                (FourierParameters.__name__, FourierParameters.NAME)]

@@ -10,14 +10,18 @@ try:
     from pycore.collections_utils import nvl
     from pycore.collections_utils import get_as_list
     from pymath.model.utils import ALL_ANNOTATIONS
+    from pymath.model.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
 
 
-class DataVectorParameters(object):
+class DataVectorParameters(CoreParameters):
     """
     parameter concerning data vector
     """
+
+    NAME = "data_vector_parameters"
+
     def __init__(self):
         self.__window_shift__ = 1
         self.__excluded_annotations__ = ALL_ANNOTATIONS
@@ -132,7 +136,7 @@ class DataVectorParameters(object):
     def ordinal_column_name(self, _ordinal_column_name):
         self.__ordinal_column_name__ = _ordinal_column_name
 
-    def setDataVectorProperties(self, _object):
+    def setObjectDataVectorParameters(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'
@@ -145,3 +149,10 @@ class DataVectorParameters(object):
         setattr(_object, 'signal_index', self.signal_index)
         setattr(_object, 'annotation_index', self.annotation_index)
         setattr(_object, 'time_index', self.time_index)
+
+    def validateDataVectorParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
+        if self.window_size is None or self.window_size == 0:
+            return 'window size has to be set'
+        if check_level >= CoreParameters.NORMAL_CHECK_LEVEL:
+            if self.signal_index is None:
+                return 'signal index has to be set'

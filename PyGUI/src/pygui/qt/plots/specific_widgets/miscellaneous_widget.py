@@ -8,8 +8,11 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     import pylab as pl
+    from pycore.misc import Params
     from pycore.collections_utils import get_or_put
     from pymath.model.data_vector_listener import DataVectorListener
+    from pymath.model.data_vector_parameters import DataVectorParameters
+    from pymath.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
@@ -32,14 +35,17 @@ class MiscellaneousWidget(GroupBoxWidget):
         super(MiscellaneousWidget, self).__init__(parent, **params)
 
         LabelWidget(self, i18n_def='Data window shift: 1')
-        self.__window_size = __DataWindowSizeWidget__(self,
-                                                params.get('data_accessor'))
+        self.params = Params(**params)
+        self.params.data_accessor.addListener(self,
+                                    __MiscellaneousVectorListener__(self))
+        self.__window_size__ = __DataWindowSizeWidget__(self,
+                                                self.params.data_accessor)
 
-        self.__use_paramaters__ = CompositeWidget(self, layout=QHBoxLayout())
-        self.__use_buffer__ = CheckBoxWidget(self.__use_paramaters__,
+        self.__use_parameters__ = CompositeWidget(self, layout=QHBoxLayout())
+        self.__use_buffer__ = CheckBoxWidget(self.__use_parameters__,
                                              i18n_def='Use buffer',
                                              checked=True)
-        self.__use_identity_line__ = CheckBoxWidget(self.__use_paramaters__,
+        self.__use_identity_line__ = CheckBoxWidget(self.__use_parameters__,
                                              i18n_def='Use identity line',
                                              checked=True)
 
@@ -50,6 +56,10 @@ class MiscellaneousWidget(GroupBoxWidget):
     @property
     def use_identity_line(self):
         return self.__use_identity_line__.isChecked()
+
+    @property
+    def size(self):
+        return self.__window_size__.size
 
 
 class __DataWindowSizeWidget__(CompositeWidget):
@@ -89,6 +99,10 @@ class __DataWindowSizeWidget__(CompositeWidget):
     def resetUnit(self):
         self.__unit_value__.setText(self.data_accessor.signal_x_unit.name)
 
+    @property
+    def size(self):
+        return self.__size_slider__.value()
+
 
 class __DataWindowSizeDataVectorListener__(DataVectorListener):
     """
@@ -106,3 +120,28 @@ class __DataWindowSizeDataVectorListener__(DataVectorListener):
     def changeXSignalUnit(self, _signal_unit, **params):
         self.__data_window_widget__.resetUnit()
         self.__data_window_widget__.resetValue()
+
+
+class __MiscellaneousVectorListener__(DataVectorListener):
+    """
+    data accessor listener used to set up some poincare plot
+    and data vector parameters based on values of widgets included
+    in MiscellaneousWidget
+    """
+    def __init__(self, _miscellaneous_widget):
+        self.__miscellaneous_widget__ = _miscellaneous_widget
+
+    def prepareParameters(self, data_vector_accessor):
+        w = self.__miscellaneous_widget__  # alias
+
+        container = data_vector_accessor.parameters_container
+        parameters = container.getParametersObject(
+                        PoincarePlotParameters.NAME, PoincarePlotParameters)
+
+        parameters.use_buffer = w.use_buffer
+        parameters.use_identity_line = w.use_identity_line
+
+        parameters = container.getParametersObject(
+                        DataVectorParameters.NAME, DataVectorParameters)
+        parameters.window_size = w.size
+        parameters.window_shift = 1  # at this moment it's a constant value

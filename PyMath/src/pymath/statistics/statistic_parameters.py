@@ -6,6 +6,7 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     from pycore.collections_utils import commas
+    from pymath.model.core_parameters import CoreParameters
     from pymath.statistics.statistics import get_statistics_names
     from pymath.statistics.statistics import ALL_STATISTICS
     from pymath.statistics.statistics import CHECK_STATISTICS
@@ -16,12 +17,18 @@ except ImportError as error:
     print_import_error(__name__, error)
 
 
-class StatisticParameters(object):
+class StatisticParameters(CoreParameters):
     """
     parameters concerning statistics
     """
+
+    NAME = "statistic_parameters"
+
     def __init__(self):
         self.__statistics_handlers__ = []
+        self.__statistics_classes__ = []
+
+        self.__summary_statistics_classes__ = []
 
     @property
     def statistics_names(self):
@@ -68,7 +75,7 @@ class StatisticParameters(object):
         print(NON_CHECK_STATISTICS + ': ' + CORE_STATISTICS + ', '
                + ASYMMETRY_STATISTICS)
 
-    def addStatistic(self, _handler, _name):
+    def addStatisticHandler(self, _handler, _name):
         """
         [optional]
         add a statistic function (or handler) with optional _name
@@ -92,7 +99,7 @@ class StatisticParameters(object):
         _handler.name = _name
         self.__statistics_handlers__.append(_handler)
 
-    def removeStatistic(self, _name):
+    def removeStatisticHandler(self, _name):
         """
         [optional]
         remove statistic handler/function associated with a _name
@@ -102,16 +109,42 @@ class StatisticParameters(object):
                 del self.__statistics_handlers__[idx]
                 return
 
-    def setStatisticProperties(self, _object):
+    def setObjectStatisticParameters(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'
         """
         setattr(_object, 'statistics_names', self.statistics_names)
-        setattr(_object, 'summary_statistics_names',
-                self.summary_statistics_names)
+        setattr(_object, 'statistics_classes', self.statistics_classes)
         setattr(_object, 'statistics_handlers', self.statistics_handlers)
+
+        setattr(_object, 'summary_statistics_names', self.summary_statistics_names) # @IgnorePep8
+        setattr(_object, 'summary_statistics_classes', self.summary_statistics_classes) # @IgnorePep8
 
     @property
     def statistics_handlers(self):
         return self.__statistics_handlers__
+
+    @property
+    def summary_statistics_classes(self):
+        return self.__summary_statistics_classes__
+
+    @summary_statistics_classes.setter
+    def summary_statistics_classes(self, _summary_statistics_classes):
+        self.__summary_statistics_classes__ = _summary_statistics_classes
+
+    def clearSummaryStatisticsClasses(self):
+        self.__summary_statistics_classes__ = []
+
+    @property
+    def statistics_classes(self):
+        return self.__statistics_classes__
+
+    @statistics_classes.setter
+    def statistics_classes(self, _statistics_classes):
+        self.__statistics_classes__ = _statistics_classes
+
+    def validateStatisticParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
+        if self.statistics_names == None and self.statistics_classes \
+            and self.statistics_handlers:
+            return "Statistics names or classes or handlers are required"

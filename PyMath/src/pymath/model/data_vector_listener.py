@@ -18,3 +18,9 @@ class DataVectorListener(object):
 
     def changeXSignalUnit(self, _signal_unit, **params):
         pass
+
+    def prepareParameters(self, data_vector_accessor):
+        """
+        method used to set up some parameters objects
+        """
+        pass

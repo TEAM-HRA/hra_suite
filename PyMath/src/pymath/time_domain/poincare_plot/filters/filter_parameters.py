@@ -6,12 +6,16 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     from pycore.collections_utils import get_as_list
+    from pymath.model.core_parameters import CoreParameters
     from pymath.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
 
 
-class FilterParameters(object):
+class FilterParameters(CoreParameters):
+
+    NAME = 'filter_parameters'
+
     """
     parameters concerning filters
     """
@@ -72,10 +76,16 @@ class FilterParameters(object):
     def filters(self):
         return self.__filters__
 
-    def setFilterProperties(self, _object):
+    def setObjectFilterParameters(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'
         """
         setattr(_object, 'filters', self.filters)
         setattr(_object, 'filters_names', self.filters_names)
+
+    def clearFilters(self):
+        self.__filters__ = []
+
+    def validateFilterParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
+        pass

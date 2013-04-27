@@ -7,14 +7,18 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     from pycore.collections_utils import nvl
+    from pymath.model.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
 
 
-class PoincarePlotParameters(object):
+class PoincarePlotParameters(CoreParameters):
     """
     very specific parameters concerning poincare plot
     """
+
+    NAME = "poincare_plot_parameters"
+
     def __init__(self):
         self.__use_buffer__ = True
 
@@ -57,7 +61,7 @@ class PoincarePlotParameters(object):
     def progress_mark(self, _progress_mark):
         self.__progress_mark__ = _progress_mark
 
-    def setPoincarePlotProperties(self, _object):
+    def setObjectPoincarePlotParameters(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'
@@ -65,3 +69,6 @@ class PoincarePlotParameters(object):
         setattr(_object, 'use_identity_line', self.use_identity_line)
         setattr(_object, 'use_buffer', self.use_buffer)
         setattr(_object, 'progress_mark', self.progress_mark)
+
+    def validatePoincarePlotParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
+        pass

@@ -55,7 +55,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
 
     def __createOutputSpecificationWidget__(self, layout):
         OutputSpecificationWidget(self.__splitter__, no_custom_separator=True,
-                                  layout=layout)
+                            layout=layout, data_accessor=self.data_accessor)
         self.__splitter__.changeSplitterHandleColor(1, Qt.blue)
 
     def __createMiscellaneousWidget__(self, layout):
@@ -64,9 +64,11 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
         self.__splitter__.changeSplitterHandleColor(2, Qt.green)
 
     def __createStatisticsSelectionWidget__(self, layout):
-        StatisticsSelectionWidget(self.__splitter__, layout=layout)
+        StatisticsSelectionWidget(self.__splitter__, layout=layout,
+                                  data_accessor=self.data_accessor)
         self.__splitter__.changeSplitterHandleColor(3, Qt.black)
 
     def __createSummaryStatisticsCalculationWidget__(self, layout):
-        SummaryStatisticsCalculationWidget(self.__splitter__, layout=layout)
+        SummaryStatisticsCalculationWidget(self.__splitter__, layout=layout,
+                                           data_accessor=self.data_accessor)
         self.__splitter__.changeSplitterHandleColor(4, Qt.yellow)

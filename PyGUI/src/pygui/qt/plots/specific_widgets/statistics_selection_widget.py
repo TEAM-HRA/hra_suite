@@ -10,7 +10,9 @@ try:
     from pycore.collections_utils import get_or_put
     from pycore.introspection import get_subclasses
     from pycore.misc import Params
+    from pymath.model.data_vector_listener import DataVectorListener
     from pymath.statistics.statistics import Asymmetry
+    from pymath.statistics.statistic_parameters import StatisticParameters
     from pygui.qt.widgets.table_view_widget import TableViewWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
@@ -34,6 +36,10 @@ class StatisticsSelectionWidget(GroupBoxWidget):
         self.params = Params(**params)
         if self.params.statistics_base_classes == None:
             self.params.statistics_base_classes = [Asymmetry]
+
+        if self.params.data_accessor:
+            self.params.data_accessor.addListener(self,
+                                __StatisticsSelectionVectorListener__(self))
 
         self.__createButtons__()
         self.__createTable__()
@@ -100,6 +106,15 @@ class StatisticsSelectionWidget(GroupBoxWidget):
     def statistics_classes(self):
         return self.__statistics_classes__
 
+    def getSelectedStatisticsClasses(self):
+        selected_classes = []
+        model = self.__table__.model()
+        for idx in range(model.rowCount()):
+            item = model.item(idx)
+            if item.isCheckable() and item.checkState() == Qt.Checked:
+                selected_classes.append(self.__statistics_classes__[idx])
+        return selected_classes
+
     def setStatisticsValues(self, values_map):
         """
         method to set up statistics values
@@ -133,3 +148,20 @@ class __StatisticsSelectionModel__(QStandardItemModel):
         else:
             return super(__StatisticsSelectionModel__, self).data(_modelIndex,
                                                               _role)
+
+
+class __StatisticsSelectionVectorListener__(DataVectorListener):
+    """
+    data accessor listener used to set up statistic parameters
+    """
+    def __init__(self, _statistics_selection_widget):
+        self.__statistics_selection_widget__ = _statistics_selection_widget
+
+    def prepareParameters(self, data_vector_accessor):
+        w = self.__statistics_selection_widget__  # alias
+
+        container = data_vector_accessor.parameters_container
+        parameters = container.getParametersObject(
+                                StatisticParameters.NAME, StatisticParameters)
+
+        parameters.statistics_classes = w.getSelectedStatisticsClasses()

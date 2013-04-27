@@ -8,6 +8,7 @@ try:
     import gc
     import pylab as pl
     from pymath.utils.array_utils import arrays_equal
+    from pymath.model.parameters_container import ParametersContainer
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -24,6 +25,7 @@ class DataVectorAccessor(object):
         self.__data_vector_listeners__ = {}
         # this member represents signal unit for x axis of a plot
         self.__x_signal_unit__ = None
+        self.__parameters_container__ = ParametersContainer()
 
     @property
     def data_vector(self):
@@ -106,3 +108,14 @@ class DataVectorAccessor(object):
                                     self.__data_vector__.signal, **params)
             self.__data_vector_listeners__[host].changeAnnotation(
                                     self.__data_vector__.annotation, **params)
+
+    @property
+    def parameters_container(self):
+        return self.__parameters_container__
+
+    def prepareParametersContainer(self):
+        """
+        method invokes all data vector listeners prepareParameters method
+        """
+        for vector_listener in self.__data_vector_listeners__.values():
+            vector_listener.prepareParameters(self)

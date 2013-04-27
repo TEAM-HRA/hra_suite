@@ -6,6 +6,7 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     from pycore.collections_utils import commas
+    from pymath.model.core_parameters import CoreParameters
     from pymath.frequency_domain.fourier import FourierTransformation
     from pymath.interpolation import Interpolation
 except ImportError as error:
@@ -27,10 +28,12 @@ def getInterpolationNames():
     return commas(Interpolation.getSubclassesShortNames())
 
 
-class FourierParameters(object):
+class FourierParameters(CoreParameters):
     """
     parameters concerning fourier transformation
     """
+    NAME = "fourier_parameters"
+
     def __init__(self):
         pass
 
@@ -72,3 +75,6 @@ class FourierParameters(object):
         """
         setattr(_object, 'fourier_transformation', self.fourier_transformation)
         setattr(_object, 'fourier_transform_interpolation', self.fourier_transform_interpolation) # @IgnorePep8
+
+    def validateFourierParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
+        pass

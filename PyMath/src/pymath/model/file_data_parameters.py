@@ -6,11 +6,15 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     from pycore.collections_utils import nvl
+    from pycore.collections_utils import get_as_tuple
+    from pymath.model.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
 
 
-class FileDataParameters(object):
+class FileDataParameters(CoreParameters):
+    NAME = "file_data_parameters"
+
     """
     parameters concering file data source
     """
@@ -73,12 +77,16 @@ class FileDataParameters(object):
         [optional]
         precision for output data [default: 10,5]
         """
-        return '10,5' if self.__output_precision__ == None \
+        return (10, 5) if self.__output_precision__ == None \
                 else self.__output_precision__
 
     @output_precision.setter
     def output_precision(self, _output_precision):
-        self.__output_precision__ = _output_precision
+        if isinstance(_output_precision, str):
+            self.__output_precision__ = get_as_tuple(_output_precision,
+                                                     convert=int)
+        else:
+            self.__output_precision__ = _output_precision
 
     @property
     def output_separator(self):
@@ -135,7 +143,7 @@ class FileDataParameters(object):
     def skip_existing_outcomes(self, _skip_existing_outcomes):
         self.__skip_existing_outcomes__ = _skip_existing_outcomes
 
-    def setFileDataProperties(self, _object):
+    def setObjectFileDataParameters(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'
@@ -149,3 +157,7 @@ class FileDataParameters(object):
         setattr(_object, 'data_dir', self.data_dir)
         setattr(_object, 'data_file', self.data_file)
         setattr(_object, 'separator', self.separator)
+
+    def validateFileDataProperties(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
+        if self.output_precision == None:
+            return "Output precision is required"

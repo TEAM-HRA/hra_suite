@@ -9,6 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
     from pymath.model.data_vector_listener import DataVectorListener
+    from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
@@ -67,11 +68,24 @@ class __FilterActivatedDataVectorListener__(DataVectorListener):
     """
     this class is run when any filter is activated
     """
-    def __init__(self, _filter_widget):
-        self.__filter_widget__ = _filter_widget
+    def __init__(self, _filters_widget):
+        self.__filters_widget__ = _filters_widget
 
     def changeSignal(self, _signal, **params):
-        self.__filter_widget__.enableRestoreButton()
+        self.__filters_widget__.enableRestoreButton()
 
     def changeAnnotation(self, _annotation, **params):
-        self.__filter_widget__.enableRestoreButton()
+        self.__filters_widget__.enableRestoreButton()
+
+    def prepareParameters(self, data_vector_accessor):
+        container = data_vector_accessor.parameters_container
+        filter_parameters = container.getParametersObject(
+                                    FilterParameters.NAME, FilterParameters)
+
+        w = self.__filters_widget__  # alias
+        filter_parameters.clearFilters()
+        if w.__annotation_filter__.useFilter():
+            filter_parameters.addFilter(w.__annotation_filter__.getFilter())
+
+        if w.__square_filter__.useFilter():
+            filter_parameters.addFilter(w.__square_filter__.getFilter())

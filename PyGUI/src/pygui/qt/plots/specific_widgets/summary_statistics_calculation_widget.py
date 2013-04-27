@@ -9,6 +9,10 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
     from pycore.misc import Params
+    from pymath.model.data_vector_listener import DataVectorListener
+    from pymath.model.core_parameters import CoreParameters
+    from pymath.statistics.statistic_parameters import StatisticParameters
+    from pymath.time_domain.poincare_plot.poincare_plot_generator import PoincarePlotGenerator # @IgnorePep8
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
@@ -29,6 +33,9 @@ class SummaryStatisticsCalculationWidget(GroupBoxWidget):
         super(SummaryStatisticsCalculationWidget, self).__init__(parent,
                                                                  **params)
         self.params = Params(**params)
+        if self.params.data_accessor:
+            self.params.data_accessor.addListener(self,
+                          __SummaryStatisticsCalculationVectorListener__(self))
 
         self.__createButtons__()
         self.__statistics_selection__ = SummaryStatisticsSelectionWidget(self,
@@ -44,11 +51,39 @@ class SummaryStatisticsCalculationWidget(GroupBoxWidget):
                     enabled=False)
 
     def __calculate_statistics_handler__(self):
-        statistics_values = {}
-        self.__statistics_selection__.setStatisticsValues(statistics_values)
+        if self.params.data_accessor:
+            self.params.data_accessor.prepareParametersContainer()
+            container = self.params.data_accessor.parameters_container
+
+            pp_generator = PoincarePlotGenerator(**container.parameters)
+            message = pp_generator.checkParameters(CoreParameters.LOW_CHECK_LEVEL) # @IgnorePep8
+            if message:
+                print(message)
+                return
+
+#        statistics_values = {}
+#        self.__statistics_selection__.setStatisticsValues(statistics_values)
 
     def __change_selection_count_handler__(self, _count):
         """
         handler invoked when number of selected rows is changing
         """
         self.__calculate_button__.setEnabled(_count > 0)
+
+
+class __SummaryStatisticsCalculationVectorListener__(DataVectorListener):
+    """
+    data accessor listener used to set up some statistics parameters
+    concerning summary statistics
+    """
+    def __init__(self, _summary_statistics_calculation_widget):
+        self.__summary_statistics_calculation_widget__ = _summary_statistics_calculation_widget  # @IgnorePep8
+
+    def prepareParameters(self, data_vector_accessor):
+        w = self.__summary_statistics_calculation_widget__  # alias
+
+        container = data_vector_accessor.parameters_container
+        parameters = container.getParametersObject(
+                                StatisticParameters.NAME, StatisticParameters)
+        parameters.clearSummaryStatisticsClasses()
+        parameters.summary_statistics_classes = w.__statistics_selection__.getSelectedStatisticsClasses() # @IgnorePep8

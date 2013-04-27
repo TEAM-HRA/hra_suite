@@ -150,6 +150,7 @@ PyMath/src/pymath/imputuj.py -text
 PyMath/src/pymath/integrals.py -text
 PyMath/src/pymath/interpolation.py -text
 PyMath/src/pymath/model/__init__.py -text
+PyMath/src/pymath/model/core_parameters.py -text
 PyMath/src/pymath/model/data_vector.py -text
 PyMath/src/pymath/model/data_vector_accessor.py -text
 PyMath/src/pymath/model/data_vector_listener.py -text
@@ -157,6 +158,7 @@ PyMath/src/pymath/model/data_vector_parameters.py -text
 PyMath/src/pymath/model/data_vector_segmenter.py -text
 PyMath/src/pymath/model/file_data_parameters.py -text
 PyMath/src/pymath/model/file_data_source.py -text
+PyMath/src/pymath/model/parameters_container.py -text
 PyMath/src/pymath/model/utils.py -text
 PyMath/src/pymath/sampling.py -text
 PyMath/src/pymath/statistics/__init__.py -text
