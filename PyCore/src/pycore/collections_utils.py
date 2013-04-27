@@ -151,6 +151,8 @@ def get_as_tuple(_string, separator=',', strip_characters=' ', convert=None):
     """
     convert a string divided by a specified separator into a tuple
     """
+    if isinstance(_string, tuple):
+        return _string
     if _string is not None:
         _list = get_as_list(_string, separator, strip_characters)
         return tuple(_list if convert == None else map(convert, _list))
