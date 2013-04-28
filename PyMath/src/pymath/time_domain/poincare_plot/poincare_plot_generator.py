@@ -79,7 +79,7 @@ class PoincarePlotGenerator(object):
                          ordinal_column_name=self.ordinal_column_name,
                          output_separator=self.output_separator,
                          sort_headers=False,
-                         output_headers=self.output_headers,
+                         add_headers=self.add_headers,
                          ordered_headers=self.statistics_names) as csv:
 
             fourier = FourierTransformationManager(self.fourier_transformation,
@@ -162,9 +162,8 @@ class PoincarePlotGenerator(object):
                 return
 
             if summaryStatisticsFactory.has_summary_statistics > 0:
-                self.__summary_statistics__ = summaryStatisticsFactory.summary_statistics # @IgnorePep8
+                self.summary_statistics = summaryStatisticsFactory.summary_statistics # @IgnorePep8
                 if reference_filename:
-                    summary_headers = summaryStatisticsFactory.summary_statistics.keys() # @IgnorePep8
                     #save summary statistics into a file
                     with NumpyCSVFile(output_dir=self.output_dir,
                          reference_filename=reference_filename,
@@ -172,11 +171,11 @@ class PoincarePlotGenerator(object):
                          print_output_file=True,
                          output_separator=self.output_separator,
                          sort_headers=False,
-                         output_headers=summary_headers,
+                         add_headers=self.add_headers,
                          output_suffix='_sum',
                          message='\nSummary statistics saved into the file: ') as summary_csv: # @IgnorePep8
 
-                        summary_csv.write(self.__summary_statistics__)
+                        summary_csv.write(summaryStatisticsFactory.summary_statistics_for_csv) # @IgnorePep8
 
         if progress:
             progress.close
@@ -204,6 +203,10 @@ class PoincarePlotGenerator(object):
     @property
     def summary_statistics(self):
         return self.__summary_statistics__
+
+    @summary_statistics.setter
+    def summary_statistics(self, _summary_statistics):
+        self.__summary_statistics__ = _summary_statistics
 
     @property
     def parameters_info(self):

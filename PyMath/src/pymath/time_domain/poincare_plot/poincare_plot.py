@@ -249,7 +249,7 @@ if __name__ == '__main__':
     parser.add_argument("-out_sep", "--output_separator",
                 help="a separator for output data [default: ',']",
                 default=",")
-    parser.add_argument("-out_headers", "--output_headers",
+    parser.add_argument("-add_headers", "--add_headers",
                 help="headers in the output files [default: True]",
                 type=to_bool, default=True)
     parser.add_argument("-uil", "--use_identity_line",
@@ -285,7 +285,7 @@ if __name__ == '__main__':
     ppManager.excluded_annotations = __args.excluded_annotations
     ppManager.ordinal_column_name = __args.ordinal_column_name
     ppManager.output_separator = __args.output_separator
-    ppManager.output_headers = __args.output_headers
+    ppManager.add_headers = __args.add_headers
     ppManager.use_identity_line = __args.use_identity_line
     ppManager.skip_existing_outcomes = __args.skip_existing_outcomes
     ppManager.use_buffer = __args.use_buffer

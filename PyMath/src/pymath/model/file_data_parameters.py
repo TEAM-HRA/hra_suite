@@ -104,17 +104,17 @@ class FileDataParameters(CoreParameters):
         self.__output_separator__ = _output_separator
 
     @property
-    def output_headers(self):
+    def add_headers(self):
         """
         [optional]
-        headers in the output files
+        if there will be headers in the output files
         default: True
         """
-        return self.__output_headers__
+        return nvl(self.__add_headers__, True)
 
-    @output_headers.setter
-    def output_headers(self, _output_headers):
-        self.__output_headers__ = _output_headers
+    @add_headers.setter
+    def add_headers(self, _add_headers):
+        self.__add_headers__ = _add_headers
 
     @property
     def separator(self):
@@ -154,7 +154,7 @@ class FileDataParameters(CoreParameters):
         setattr(_object, 'output_dir', self.output_dir)
         setattr(_object, 'output_precision', self.output_precision)
         setattr(_object, 'output_separator', self.output_separator)
-        setattr(_object, 'output_headers', self.output_headers)
+        setattr(_object, 'add_headers', self.add_headers)
         setattr(_object, 'extension', self.extension)
         setattr(_object, 'data_dir', self.data_dir)
         setattr(_object, 'data_file', self.data_file)
