@@ -11,6 +11,7 @@ try:
     from pycore.misc import Params
     from pymath.model.data_vector_listener import DataVectorListener
     from pymath.model.file_data_parameters import FileDataParameters
+    from pymath.model.file_data_parameters import DEFAULT_OUTPUT_PRECISION
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.custom_widgets.decimal_precision_widget import DecimalPrecisionWidget # @IgnorePep8
@@ -37,10 +38,25 @@ class OutputSpecificationWidget(GroupBoxWidget):
             self.params.data_accessor.addListener(self,
                             __OutputSpecificationDataVectorListener__(self))
         self.__output_dir__ = DirWidget(self)
-        self.__precision__ = DecimalPrecisionWidget(self)
+        precision = self.__get_output_precision__()
+        self.__precision__ = DecimalPrecisionWidget(self,
+                                                    precision=precision[0],
+                                                    scale=precision[1])
         self.__separator__ = SeparatorWidget(self, i18n_def='Output separator',
                 no_custom_separator=params.get('no_custom_separator', None))
         self.__skip_existing__ = CheckBoxWidget(self, i18n_def='Skip existing outcomes') # @IgnorePep8
+
+    def __get_output_precision__(self):
+        """
+        return precision defined in FileDataParameters object or a default one
+        """
+        if self.params.data_accessor:
+            container = self.params.data_accessor.parameters_container
+            parameters = container.getParametersObject(
+                                FileDataParameters.NAME, FileDataParameters)
+            return parameters.output_precision
+        else:
+            return DEFAULT_OUTPUT_PRECISION
 
 
 class __OutputSpecificationDataVectorListener__(DataVectorListener):
