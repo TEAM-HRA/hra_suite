@@ -141,7 +141,8 @@ def get_method_arguments_count(_method):
     method returns number of parameters of passed _method
     """
     return len(inspect.getargspec(_method).args) \
-        if hasattr(_method, '__func__') or hasattr(_method, 'func_name') \
+        if not (getattr(_method, '__func__', None) == None
+                 and getattr(_method, 'func_name', None) == None)\
         else -1
 
 
