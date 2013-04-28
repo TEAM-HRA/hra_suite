@@ -25,7 +25,7 @@ class FilterManager(object):
                     _filter.excluded_annotations = _excluded_annotations
                 self.addFilter(_filter)
 
-    def filter(self, _data_vector):
+    def run_filters(self, _data_vector):
         """
         method which runs all filters as objects or as methods;
         when a method has two parameters it returns two values also

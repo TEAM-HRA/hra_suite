@@ -60,9 +60,9 @@ class SummaryStatisticsCalculationWidget(GroupBoxWidget):
             if message:
                 print(message)
                 return
-
-#        statistics_values = {}
-#        self.__statistics_selection__.setStatisticsValues(statistics_values)
+            pp_generator.generate(self.params.data_accessor.data_vector)
+            self.__statistics_selection__.setStatisticsValues(
+                                        pp_generator.summary_statistics)
 
     def __change_selection_count_handler__(self, _count):
         """

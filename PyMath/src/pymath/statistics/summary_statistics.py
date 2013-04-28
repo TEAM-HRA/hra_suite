@@ -23,34 +23,39 @@ class SummaryStatisticsFactory(object):
     statistics which embrace statistics for the while input data
     """
 
-    def __init__(self, summary_statistics_classes_or_names):
+    def __init__(self, summary_statistics_names=None,
+                 summary_statistics_classes=None):
         '''
         Constructor
         '''
-        self.__summary_statistics_objects__ = None
-        if summary_statistics_classes_or_names == None:
-            return
-        #if summary_statistics_classes_or_names is a string object which
-        #included names of statistics separater by comma we change it into
-        #list of names
-        if isinstance(summary_statistics_classes_or_names, str):
-            summary_statistics_classes_or_names = \
-                expand_to_real_summary_statistics_names(summary_statistics_classes_or_names)  # @IgnorePep8
-
         self.__summary_statistics_objects__ = []
-        for type_or_name in summary_statistics_classes_or_names:
-            #if type_or_name is a string
-            if isinstance(type_or_name, str):
-                type_or_name = create_class_object_with_suffix(
-                                    'pymath.statistics.summary_statistics',
-                                    type_or_name, 'SummaryStatistic')
-            if isinstance(type_or_name, __Inner__):
-                continue
-            #if type_or_name is a class type
-            if isinstance(type_or_name, type):
-                summary_statistic_object = type_or_name.__new__(type_or_name)
-                summary_statistic_object.__init__()
+        if not summary_statistics_classes == None:
+            for summary_statistic_class in summary_statistics_classes:
                 self.__summary_statistics_objects__.append(
+                                                summary_statistic_class())
+        if not summary_statistics_names == None:
+
+            #if summary_statistics_names is a string object which
+            #included names of statistics separater by comma we change it into
+            #list of names
+            if isinstance(summary_statistics_names, str):
+                summary_statistics_names = \
+                    expand_to_real_summary_statistics_names(
+                                                    summary_statistics_names)
+
+            for type_or_name in summary_statistics_names:
+                #if type_or_name is a string
+                if isinstance(type_or_name, str):
+                    type_or_name = create_class_object_with_suffix(
+                                        'pymath.statistics.summary_statistics',
+                                        type_or_name, 'SummaryStatistic')
+                if isinstance(type_or_name, __Inner__):
+                    continue
+                #if type_or_name is a class type
+                if isinstance(type_or_name, type):
+                    summary_statistic_object = type_or_name.__new__(type_or_name) # @IgnorePep8
+                    summary_statistic_object.__init__()
+                    self.__summary_statistics_objects__.append(
                                                     summary_statistic_object)
 
     def update(self, statistics, data_vector):
@@ -63,9 +68,9 @@ class SummaryStatisticsFactory(object):
         if not self.__summary_statistics_objects__ == None:
             ss = self.__summary_statistics_objects__  # alias
             s_statistics = {}
-            for name, value in \
-                [(s1.__class__.__name__, s1.summary_statistic) for s1 in ss]:
-                    s_statistics[name[:name.rfind('SummaryStatistic')]] = value
+            for _class, value in \
+                [(s1.__class__, s1.summary_statistic) for s1 in ss]:
+                    s_statistics[_class] = value
             return s_statistics
 
     @property

@@ -88,14 +88,17 @@ class PoincarePlotGenerator(object):
                             _excluded_annotations=self.excluded_annotations,
                             _filters=self.filters)
 
-            statisticsFactory = StatisticsFactory(self.statistics_names,
+            statisticsFactory = StatisticsFactory(
+                            statistics_names=self.statistics_names,
+                            statistics_classes=self.statistics_classes,
                             statistics_handlers=self.statistics_handlers,
                             _use_identity_line=self.use_identity_line,
                             use_buffer=self.use_buffer)
             if not statisticsFactory.has_statistics:
                 return True
             summaryStatisticsFactory = SummaryStatisticsFactory(
-                                                self.summary_statistics_names)
+                    summary_statistics_names=self.summary_statistics_names,
+                    summary_statistics_classes=self.summary_statistics_classes)
 
             segmenter = DataVectorSegmenter(data_vector,
                                     self.window_size,
@@ -129,7 +132,7 @@ class PoincarePlotGenerator(object):
                 if progress:
                     progress.tick
 
-                data_segment = filter_manager.filter(data_segment)
+                data_segment = filter_manager.run_filters(data_segment)
 
                 #this could happened when for example annotation
                 #filter is used and all data are annotated that means

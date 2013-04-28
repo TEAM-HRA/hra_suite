@@ -7,6 +7,7 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.misc import Params
     from pycore.collections_utils import get_or_put
     from pymath.model.data_vector_listener import DataVectorListener
     from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
@@ -27,8 +28,10 @@ class FiltersWidget(CompositeWidget):
     def __init__(self, parent, **params):
         get_or_put(params, 'layout', QVBoxLayout())
         super(FiltersWidget, self).__init__(parent, **params)
+        self.params = Params(**params)
         self.data_accessor = self.params.data_accessor  # alias
-        self.data_accessor.addListener(self,
+        if not self.params.use_apply_button == True:
+            self.data_accessor.addListener(self,
                                 __FilterActivatedDataVectorListener__(self))
 
         filtersGroup = GroupBoxWidget(self, layout=QVBoxLayout(),
@@ -41,10 +44,9 @@ class FiltersWidget(CompositeWidget):
             self.__annotation_filter__ = CommonAnnotationFilterWidget(
                                 filtersGroup, data_accessor=self.data_accessor)
 
-        use_apply_button = params.get('use_apply_button', False)
         self.__square_filter__ = SquareFilterWidget(filtersGroup,
-                                    data_accessor=self.data_accessor,
-                                    use_apply_button=use_apply_button)
+                                data_accessor=self.data_accessor,
+                                use_apply_button=self.params.use_apply_button)
 
         if params.get('restore_button', False):
             self.__restore_button__ = PushButtonWidget(filtersGroup,

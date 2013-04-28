@@ -9,6 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     import pylab as pl
     from pycore.misc import Params
+    from pycore.units import OrderUnit
     from pycore.collections_utils import get_or_put
     from pymath.model.data_vector_listener import DataVectorListener
     from pymath.model.data_vector_parameters import DataVectorParameters
@@ -143,5 +144,9 @@ class __MiscellaneousVectorListener__(DataVectorListener):
 
         parameters = container.getParametersObject(
                         DataVectorParameters.NAME, DataVectorParameters)
-        parameters.window_size = w.size
+        if data_vector_accessor.signal_x_unit == OrderUnit:
+            parameters.window_size = w.size
+        else:
+            #window size has to include window signal unit
+            parameters.window_size = str(w.size) + data_vector_accessor.signal_x_unit.label # @IgnorePep8
         parameters.window_shift = 1  # at this moment it's a constant value

@@ -16,10 +16,6 @@ class Filter(object):
         '''
         self.__shift__ = _shift
 
-    # if parameter is not set in the __init__() this method then returns None
-    def __getattr__(self, name):
-        return None
-
     def check(self, _data_vector):
         """
         method returns None if a filter will be used or a text message

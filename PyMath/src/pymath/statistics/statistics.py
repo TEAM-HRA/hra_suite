@@ -728,39 +728,42 @@ class C1d50C2d50Statistic(Statistic, Asymmetry):
 
 class StatisticsFactory(object):
 
-    def __init__(self, statistics_classes_or_names, statistics_handlers=None,
-                 _use_identity_line=True, use_buffer=True):
+    def __init__(self, statistics_names=None, statistics_handlers=None,
+                 _use_identity_line=True, use_buffer=True,
+                 statistics_classes=None):
         '''
         Constructor
         '''
-        self.__statistics_classes__ = []
+        self.__statistics_classes__ = statistics_classes \
+                                        if statistics_classes else []
+        self.__statistics_objects__ = []
         self.__statistics_handlers__ = statistics_handlers
         self.__use_identity_line__ = _use_identity_line
         self.__use_buffer__ = nvl(use_buffer, True)
         global USE_IDENTITY_LINE
         USE_IDENTITY_LINE = self.__use_identity_line__
 
-        #if statistics_classes_or_names is a string object which included
+        #if statistics_names is a string object which included
         #names of statistics separater by comma we change it into list of names
-        if isinstance(statistics_classes_or_names, str):
-            statistics_classes_or_names = expand_to_real_statistics_names(
-                                            statistics_classes_or_names)
+        if not statistics_names == None:
+            if isinstance(statistics_names, str):
+                statistics_names = expand_to_real_statistics_names(
+                                                            statistics_names)
 
-        for type_or_name in statistics_classes_or_names:
-            #if type_or_name is a string
-            if isinstance(type_or_name, str):
-                type_or_name = create_class_object_with_suffix(
+            for type_or_name in statistics_names:
+                #if type_or_name is a string
+                if isinstance(type_or_name, str):
+                    type_or_name = create_class_object_with_suffix(
                                                 'pymath.statistics.statistics',
                                                 type_or_name, 'Statistic')
-            #if type_or_name is a class type
-            if isinstance(type_or_name, type):
-                self.__statistics_classes__.append(type_or_name)
-        self.__statistics_objects__ = []
+                #if type_or_name is a class type
+                if isinstance(type_or_name, type):
+                    self.__statistics_classes__.append(type_or_name)
 
     def statistics(self, _data):
         __statistics = {}
         _buffer = {} if self.__use_buffer__ else None
-        with StatisticsFactory(self.statistics_classes,
+        with StatisticsFactory(statistics_classes=self.statistics_classes,
                 statistics_handlers=self.__statistics_handlers__,
                 _use_identity_line=self.__use_identity_line__,
                 use_buffer=self.__use_buffer__) as factory:
