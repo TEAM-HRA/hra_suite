@@ -62,7 +62,7 @@ class SummaryStatisticsCalculationWidget(GroupBoxWidget):
                 return
             pp_generator.generate(self.params.data_accessor.data_vector)
             self.__statistics_selection__.setStatisticsValues(
-                                        pp_generator.summary_statistics)
+                                    pp_generator.formatted_summary_statistics)
 
     def __change_selection_count_handler__(self, _count):
         """

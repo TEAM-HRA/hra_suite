@@ -8,6 +8,7 @@ try:
     import os
     from pycore.collections_utils import nvl
     from pycore.misc import Params
+    from pycore.misc import format_decimal
     from pycore.utils import ProgressMark
     from pycore.utils import ControlInterruptHandler
     from pymath.utils.io_utils import NumpyCSVFile
@@ -285,6 +286,14 @@ class PoincarePlotGenerator(object):
     @summary_statistics.setter
     def summary_statistics(self, _summary_statistics):
         self.__summary_statistics__ = _summary_statistics
+
+    @property
+    def formatted_summary_statistics(self):
+        formatted_statistics = {}
+        for statistic, value in self.summary_statistics.items():
+            formatted_statistics[statistic] = format_decimal(value,
+                                                self.output_precision)
+        return formatted_statistics
 
     @property
     def parameters_info(self):

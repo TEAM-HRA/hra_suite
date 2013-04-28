@@ -200,3 +200,14 @@ class Separator(object):
                 and separator.sign == sign:
                 return separator
         return Separator.CUSTOM if not sign == None else Separator.NONE
+
+
+def format_decimal(value, precision):
+    """
+    function formatting decimal value according to passed precision
+    """
+    if isinstance(precision, tuple):
+        return "%{prec}.{scale}f".format(prec=precision[0],
+                                scale=precision[1]) % value
+    else:
+        return value
