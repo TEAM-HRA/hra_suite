@@ -125,8 +125,7 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                 print('\n' + message)
             return True
 
-        return self.__pp_generator__.generate(data_vector,
-                                          reference_filename=_file)
+        return self.__pp_generator__.generate_CSV(data_vector, _file)
 
     def getUniqueAnnotations(self):
         """

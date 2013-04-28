@@ -23,7 +23,6 @@ class ProgressMark(object):
     def reset(self):
         self.__counter__ = 0
 
-    @property
     def tick(self):
         print('\r', end='')
         if self.__label__:
@@ -54,7 +53,6 @@ class ProgressMark(object):
     def max_count(self, _max_count):
         self.__max_count__ = _max_count
 
-    @property
     def close(self):
         """
         force of outcome of the next print statement in the next line

@@ -79,10 +79,7 @@ class SummaryStatisticsFactory(object):
         method change keys of summary statistics value's dictionary to
         short names of statistics summary classes
         """
-        s_statistics = {}
-        for _class, value in self.summary_statistics.items():
-            s_statistics[_class.__name__[:-len('SummaryStatistic')]] = value
-        return s_statistics
+        return get_summary_statistics_for_csv(self.summary_statistics)
 
     @property
     def has_summary_statistics(self):
@@ -274,3 +271,14 @@ class CdMeanSummaryStatistic(__MeanInnerSummaryStatistic__, Asymmetry):
     """
     def __init__(self):
         __MeanInnerSummaryStatistic__.__init__(self, 'Cd')
+
+
+def get_summary_statistics_for_csv(summary_statistics):
+    """
+    method change keys of summary statistics value's dictionary to
+    short names of statistics summary classes
+    """
+    statistics = {}
+    for _class, value in summary_statistics.items():
+        statistics[_class.__name__[:-len('SummaryStatistic')]] = value
+    return statistics
