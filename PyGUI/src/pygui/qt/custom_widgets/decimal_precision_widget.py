@@ -17,7 +17,7 @@ except ImportError as error:
 class DecimalPrecisionWidget(CompositeWidget):
     MAX_PRECISION = 36
     """
-    widget aimed to choose precision (ans sclae) for decimal numbers
+    widget aimed to choose precision (and scale) for decimal numbers
     """
     def __init__(self, parent, **params):
         params['layout'] = QHBoxLayout()
@@ -31,8 +31,8 @@ class DecimalPrecisionWidget(CompositeWidget):
         for row in range(1, DecimalPrecisionWidget.MAX_PRECISION):
             self.__precision_choice__.addItem(str(row))
         precision = params.get('precision',
-                               DecimalPrecisionWidget.MAX_PRECISION) - 1
-        self.__precision_choice__.setCurrentIndex(precision)
+                               DecimalPrecisionWidget.MAX_PRECISION)
+        self.__precision_choice__.setCurrentIndex(precision - 1)
 
         LabelWidget(self, i18n_def='.',
                     sizePolicy=QSizePolicy(QSizePolicy.Fixed,
@@ -43,8 +43,8 @@ class DecimalPrecisionWidget(CompositeWidget):
         self.__rescale__()
         scale = params.get('scale', None)
         if scale:
-            if scale <= self.__precision_choice__.count():
-                self.__precision_choice__.setCurrentIndex(scale - 1)
+            if scale <= self.__scale_choice__.count():
+                self.__scale_choice__.setCurrentIndex(scale)
         self.layout().addStretch(1)
 
     def __precision_change_handler__(self, idx):
