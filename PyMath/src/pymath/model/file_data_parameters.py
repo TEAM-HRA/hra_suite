@@ -11,6 +11,8 @@ try:
 except ImportError as error:
     print_import_error(__name__, error)
 
+DEFAULT_OUTPUT_PRECISION = (10, 5)
+
 
 class FileDataParameters(CoreParameters):
     NAME = "file_data_parameters"
@@ -77,7 +79,7 @@ class FileDataParameters(CoreParameters):
         [optional]
         precision for output data [default: 10,5]
         """
-        return (10, 5) if self.__output_precision__ == None \
+        return DEFAULT_OUTPUT_PRECISION if self.__output_precision__ == None \
                 else self.__output_precision__
 
     @output_precision.setter
