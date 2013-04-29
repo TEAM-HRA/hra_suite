@@ -16,7 +16,7 @@ try:
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.plots.specific_widgets.summary_statistics_selection_widget import SummaryStatisticsSelectionWidget # @IgnorePep8
-    from pygui.qt.plots.specific_widgets.statistics_calculation_progress_dialog_manager import PoincarePlotGeneratorProgressBar # @IgnorePep8    
+    from pygui.qt.plots.specific_widgets.poincare_plot_generator_progress_bar import PoincarePlotGeneratorProgressBar # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
