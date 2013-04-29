@@ -61,7 +61,13 @@ class DataVectorAccessor(object):
         """
         if self.signal_unit == self.signal_x_unit:
             return self.signal
-        multiplier = self.signal_unit.expressInUnit(self.signal_x_unit)
+        return self.signal_in_unit(self, self.signal_x_unit)
+
+    def signal_in_unit(self, _unit):
+        """
+        method expresses signal in unit
+        """
+        multiplier = self.signal_unit.expressInUnit(_unit)
         return pl.cumsum(self.signal) * multiplier
 
     def addListener(self, _host, _data_vector_listener):

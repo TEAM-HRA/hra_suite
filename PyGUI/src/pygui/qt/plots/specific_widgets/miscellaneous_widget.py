@@ -19,6 +19,7 @@ try:
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.widgets.slider_widget import SliderWidget
+    from pygui.qt.custom_widgets.units import TimeUnitsWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -42,6 +43,12 @@ class MiscellaneousWidget(GroupBoxWidget):
         self.__window_size__ = __DataWindowSizeWidget__(self,
                                                 self.params.data_accessor)
 
+        self.__unitsWidget__ = TimeUnitsWidget(self, i18n_def='Units',
+                        default_unit=self.params.data_accessor.signal_x_unit,
+                        change_unit_handler=self.changeUnit,
+                        layout=QHBoxLayout())
+        self.__unitsWidget__.addUnit(OrderUnit)
+
         self.__use_parameters__ = CompositeWidget(self, layout=QHBoxLayout())
         self.__use_buffer__ = CheckBoxWidget(self.__use_parameters__,
                                              i18n_def='Use buffer',
@@ -62,6 +69,14 @@ class MiscellaneousWidget(GroupBoxWidget):
     def size(self):
         return self.__window_size__.size
 
+    def changeUnit(self, _unit):
+        self.__window_size__.setUnit(_unit)
+        self.__window_size__.setValueInUnit(_unit)
+
+    @property
+    def unit(self):
+        return self.__unitsWidget__.getUnit()
+
 
 class __DataWindowSizeWidget__(CompositeWidget):
     """
@@ -72,8 +87,6 @@ class __DataWindowSizeWidget__(CompositeWidget):
                                             layout=QVBoxLayout())
 
         self.data_accessor = data_accessor
-        self.data_accessor.addListener(self,
-                    __DataWindowSizeDataVectorListener__(self))
 
         info_group = CompositeWidget(self, layout=QHBoxLayout())
         LabelWidget(info_group, i18n_def='Data window size:')
@@ -85,42 +98,24 @@ class __DataWindowSizeWidget__(CompositeWidget):
                                                QSizePolicy.Fixed),
                         value_changed_handler=self.__value_changed__)
         self.__size_slider__.setTickPosition(QSlider.TicksBelow)
-        self.resetValue()
-        self.resetUnit()
+        self.setValueInUnit(self.data_accessor.signal_x_unit)
+        self.setUnit(self.data_accessor.signal_x_unit)
 
     def __value_changed__(self, _value):
         self.__size_value__.setText(str(_value))
 
-    def resetValue(self):
-        signal = self.data_accessor.signal_in_x_unit
+    def setValueInUnit(self, _unit):
+        signal = self.data_accessor.signal_in_unit(_unit)
         self.__size_slider__.setMaximum(int(pl.amax(signal)))
         self.__size_slider__.setValue(0)
         self.__size_slider__.setTickInterval(self.__size_slider__.maximum() / 10 ) # @IgnorePep8
 
-    def resetUnit(self):
-        self.__unit_value__.setText(self.data_accessor.signal_x_unit.name)
+    def setUnit(self, _unit):
+        self.__unit_value__.setText(_unit.name)
 
     @property
     def size(self):
         return self.__size_slider__.value()
-
-
-class __DataWindowSizeDataVectorListener__(DataVectorListener):
-    """
-    listener to change maximum of data window size slider
-    """
-    def __init__(self, _data_window_widget):
-        self.__data_window_widget__ = _data_window_widget
-
-    def changeAnnotation(self, _annotation, **params):
-        self.__data_window_widget__.resetValue()
-
-    def changeSignal(self, _signal, **params):
-        self.__data_window_widget__.resetValue()
-
-    def changeXSignalUnit(self, _signal_unit, **params):
-        self.__data_window_widget__.resetUnit()
-        self.__data_window_widget__.resetValue()
 
 
 class __MiscellaneousVectorListener__(DataVectorListener):
@@ -144,9 +139,10 @@ class __MiscellaneousVectorListener__(DataVectorListener):
 
         parameters = container.getParametersObject(
                         DataVectorParameters.NAME, DataVectorParameters)
-        if data_vector_accessor.signal_x_unit == OrderUnit:
+        unit = w.unit
+        if unit == OrderUnit:
             parameters.window_size = w.size
         else:
             #window size has to include window signal unit
-            parameters.window_size = str(w.size) + data_vector_accessor.signal_x_unit.label # @IgnorePep8
+            parameters.window_size = str(w.size) + unit.label
         parameters.window_shift = 1  # at this moment it's a constant value
