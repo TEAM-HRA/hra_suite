@@ -12,12 +12,11 @@ try:
     from pymath.model.data_vector_listener import DataVectorListener
     from pymath.model.core_parameters import CoreParameters
     from pymath.statistics.statistic_parameters import StatisticParameters
-    from pymath.time_domain.poincare_plot.poincare_plot_generator import PoincarePlotGenerator # @IgnorePep8
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
-    from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
     from pygui.qt.plots.specific_widgets.summary_statistics_selection_widget import SummaryStatisticsSelectionWidget # @IgnorePep8
+    from pygui.qt.plots.specific_widgets.statistics_calculation_progress_dialog_manager import PoincarePlotGeneratorProgressBar # @IgnorePep8    
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -46,23 +45,24 @@ class SummaryStatisticsCalculationWidget(GroupBoxWidget):
         buttons_composite = CompositeWidget(self, layout=QHBoxLayout())
         self.__calculate_button__ = PushButtonWidget(
                     buttons_composite,
-                    i18n_def="Calculate statistics",
+                    i18n_def="Calculate summary statistics",
                     clicked_handler=self.__calculate_statistics_handler__,
                     enabled=False)
 
     def __calculate_statistics_handler__(self):
         if self.params.data_accessor:
             self.params.data_accessor.prepareParametersContainer()
-            container = self.params.data_accessor.parameters_container
 
-            pp_generator = PoincarePlotGenerator(**container.parameters)
-            message = pp_generator.checkParameters(CoreParameters.LOW_CHECK_LEVEL) # @IgnorePep8
-            if message:
-                print(message)
-                return
-            pp_generator.generate(self.params.data_accessor.data_vector)
-            self.__statistics_selection__.setStatisticsValues(
-                                    pp_generator.formatted_summary_statistics)
+            formatted_summary_statistics = []
+            pp_generator_progress_bar = PoincarePlotGeneratorProgressBar(self,
+                                [self.params.data_accessor],
+                                label_text='Summary statistics calculation',
+                                check_level=CoreParameters.LOW_CHECK_LEVEL,
+                    formatted_summary_statistics=formatted_summary_statistics)
+            pp_generator_progress_bar.start()
+            if pp_generator_progress_bar.interrupted() == False:
+                self.__statistics_selection__.setStatisticsValues(
+                                            formatted_summary_statistics[0])
 
     def __change_selection_count_handler__(self, _count):
         """

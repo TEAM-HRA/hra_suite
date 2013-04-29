@@ -42,8 +42,10 @@ class PoincarePlotGenerator(object):
     def __getattr__(self, name):
         return None
 
-    def checkParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL):
+    def checkParameters(self, check_level=None):
 
+        if check_level == None:
+            check_level = CoreParameters.NORMAL_CHECK_LEVEL
         for class_name, parameter_name in self.__parameters_ids__:
             param_object = getattr(self.params, parameter_name, None)
             if param_object:
@@ -114,7 +116,19 @@ class PoincarePlotGenerator(object):
                 else:
                     self.info_handler('Processing file: ' + self.reference_filename) # @IgnorePep8
 
-    class __CSVProgressHandler__(object):
+    class __ProgressHandler__(object):
+        """
+        the base class for progress handler in poincare plot processing loop
+        """
+
+        @property
+        def interrupted(self):
+            """
+            returns true if process is interrupted
+            """
+            return False
+
+    class __CSVProgressHandler__(__ProgressHandler__):
         """
         callable class used during creation of csv files of
         poincare plot processing
@@ -123,15 +137,18 @@ class PoincarePlotGenerator(object):
             self.csv.write(self.parameters,
                            ordinal_value=self.segmenter.ordinal_value)
 
-    def generate(self, data_vector):
+    def generate(self, data_vector, start_progress=None,
+                 progress_handler=None):
         """
         generate poincare plots
         """
-        start_progress = self.__StartProgress__()
+        if start_progress == None:
+            start_progress = self.__StartProgress__()
         start_progress.progress_mark = self.progress_mark
         start_progress.info_handler = self.params.info_handler
         return self.__generate_core__(data_vector,
-                                       start_progress=start_progress)
+                                       start_progress=start_progress,
+                                       progress_handler=progress_handler)
 
     def generate_CSV(self, data_vector, reference_filename):
         """
@@ -245,6 +262,11 @@ class PoincarePlotGenerator(object):
                 progress_handler.parameters = parameters
                 progress_handler.segmenter = segmenter
                 progress_handler()
+                if progress_handler.interrupted:
+                    #mark interrupt state of interrupter to give consistent
+                    #behaviour to the rest of the code
+                    interrupter.interrupt()
+                    break
 
             summaryStatisticsFactory.update(statistics, data_segment)
             parameters.clear()
@@ -262,14 +284,14 @@ class PoincarePlotGenerator(object):
         interrupter.clean()
         return not interrupted
 
-    def __info_handler__(self, info):
+    def __default_info_handler__(self, info):
         print('\n' + info)
 
     def __prepare_parameters__(self, **params):
         self.params = Params(**params)
 
         if self.params.info_handler == None:
-            self.params.info_handler = self.__info_handler__
+            self.params.info_handler = self.__default_info_handler__
 
         for class_name, parameter_name in self.__parameters_ids__:
             param_object = getattr(self.params, parameter_name, None)
@@ -326,3 +348,14 @@ class PoincarePlotGenerator(object):
                 (PoincarePlotParameters.__name__, PoincarePlotParameters.NAME),
                 (FilterParameters.__name__, FilterParameters.NAME),
                 (FourierParameters.__name__, FourierParameters.NAME)]
+
+    def segment_count(self, data_vector):
+        """
+        calculates approximate number of segments count during
+        processing of poincare plot
+        """
+        segmenter = DataVectorSegmenter(data_vector,
+                                self.window_size,
+                                shift=self.window_shift,
+                                window_size_unit=self.window_size_unit)
+        return segmenter.segment_count()
