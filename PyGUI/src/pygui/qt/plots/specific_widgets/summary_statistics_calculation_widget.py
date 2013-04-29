@@ -60,7 +60,8 @@ class SummaryStatisticsCalculationWidget(GroupBoxWidget):
                                 check_level=CoreParameters.LOW_CHECK_LEVEL,
                     formatted_summary_statistics=formatted_summary_statistics)
             pp_generator_progress_bar.start()
-            if pp_generator_progress_bar.interrupted() == False:
+            if pp_generator_progress_bar.interrupted() == False and \
+                len(formatted_summary_statistics) == 1:
                 self.__statistics_selection__.setStatisticsValues(
                                             formatted_summary_statistics[0])
 
