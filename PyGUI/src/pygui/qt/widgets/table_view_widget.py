@@ -76,3 +76,5 @@ class TableViewWidget(QTableView, Common):
                 self.__checked_count__ = self.__checked_count__ - 1
             if self.params.change_check_count_handler:
                 self.params.change_check_count_handler(self.__checked_count__)
+            if self.params.check_handler:
+                self.params.check_handler(item)
