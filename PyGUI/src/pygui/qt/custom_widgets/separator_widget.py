@@ -60,6 +60,9 @@ class SeparatorWidget(object):
                 #def setSeparator(self, _separator) method
                 predefinedSeparatorCheckBox.separator_spec = separatorSpec
                 predefinedSeparatorCheckBox.setText(label)
+                if self.params.default_separator and \
+                    separatorSpec.id_ == self.params.default_separator.id_:
+                    predefinedSeparatorCheckBox.setChecked(True)
                 self.predefinedSeparatorsButtonsGroup.addButton(
                                                 predefinedSeparatorCheckBox)
 

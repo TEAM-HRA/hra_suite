@@ -139,3 +139,10 @@ class FileDataSource(object):
 
     def getUniqueAnnotations(self):
         return get_unique_annotations(self.getData().annotation)
+
+    @property
+    def source_filename(self):
+        """
+        returns source filename
+        """
+        return os.path.basename(self.__file__) if self.__file__ else None

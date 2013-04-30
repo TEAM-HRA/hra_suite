@@ -9,6 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
     from pycore.misc import Params
+    from pycore.misc import Separator
     from pymath.model.data_vector_listener import DataVectorListener
     from pymath.model.file_data_parameters import FileDataParameters
     from pymath.model.file_data_parameters import DEFAULT_OUTPUT_PRECISION
@@ -43,8 +44,11 @@ class OutputSpecificationWidget(GroupBoxWidget):
                                                     precision=precision[0],
                                                     scale=precision[1])
         self.__separator__ = SeparatorWidget(self, i18n_def='Output separator',
-                no_custom_separator=params.get('no_custom_separator', None))
-        self.__skip_existing__ = CheckBoxWidget(self, i18n_def='Skip existing outcomes') # @IgnorePep8
+                no_custom_separator=params.get('no_custom_separator', None),
+                default_separator=Separator.WHITE_SPACE)
+        self.__skip_existing__ = CheckBoxWidget(self,
+                                            i18n_def='Skip existing outcomes',
+                                            checked=True)
 
     def __get_output_precision__(self):
         """

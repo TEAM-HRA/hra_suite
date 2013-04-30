@@ -71,6 +71,7 @@ class __TachogramPlot__(CompositeWidget):
         self.setLayout(layout)
         data = file_data_source.getData()
         data_accessor = DataVectorAccessor(data)
+        data_accessor.source_name = file_data_source.source_filename
         data_accessor.changeXSignalUnit(self, OrderUnit)
         self.canvas = TachogramPlotCanvas(self, data_accessor=data_accessor)
         layout.addWidget(self.canvas)

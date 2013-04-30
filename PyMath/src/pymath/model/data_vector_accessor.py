@@ -26,6 +26,7 @@ class DataVectorAccessor(object):
         # this member represents signal unit for x axis of a plot
         self.__x_signal_unit__ = None
         self.__parameters_container__ = ParametersContainer()
+        self.__source_name__ = None
 
     @property
     def data_vector(self):
@@ -125,3 +126,11 @@ class DataVectorAccessor(object):
         """
         for vector_listener in self.__data_vector_listeners__.values():
             vector_listener.prepareParameters(self)
+
+    @property
+    def source_name(self):
+        return self.__source_name__
+
+    @source_name.setter
+    def source_name(self, _source_name):
+        self.__source_name__ = _source_name
