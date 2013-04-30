@@ -48,7 +48,8 @@ class StatisticsSelectionWidget(GroupBoxWidget):
 
     def __createTable__(self):
         self.__table__ = TableViewWidget(self,
-            change_check_count_handler=self.params.change_selection_count_handler) # @IgnorePep8
+            change_check_count_handler=self.params.change_selection_count_handler,  # @IgnorePep8
+            check_handler=self.__check_handler__)
         self.__table__.setSelectionMode(QAbstractItemView.MultiSelection)
         self.__table__.setSelectionBehavior(QAbstractItemView.SelectRows)
 
@@ -127,6 +128,29 @@ class StatisticsSelectionWidget(GroupBoxWidget):
             self.__table__.model().setItem(row,
                             StatisticsSelectionWidget.VALUE_COLUMN,
                             QStandardItem(str(values_map[statistic_class])))
+
+    def __check_handler__(self, item):
+        """
+        handler invoked when a user check selected row in statistics
+        table view, the parameter is an model's item
+        """
+        if self.params.check_handler:
+            if item.isCheckable():
+                statistic_class = self.__statistics_classes__[item.row()]
+                #parameters of outer handler check_handler are
+                #statistics object and whether is checked or unchecked
+                self.params.check_handler(statistic_class(),
+                                          item.checkState() == Qt.Checked)
+
+    def checkStatistic(self, _statistic):
+        """
+        method checks statistic identified by a parameter - statistic class
+        """
+        row = self.__statistics_classes__.index(_statistic)
+        if row >= 0:
+            item = self.__table__.model().item(row)
+            if item.isCheckable():
+                item.setCheckState(Qt.Checked)
 
 
 class __StatisticsSelectionModel__(QStandardItemModel):

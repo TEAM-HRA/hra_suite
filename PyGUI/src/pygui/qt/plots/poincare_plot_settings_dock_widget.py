@@ -64,11 +64,21 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
         self.__splitter__.changeSplitterHandleColor(2, Qt.green)
 
     def __createStatisticsSelectionWidget__(self, layout):
-        StatisticsSelectionWidget(self.__splitter__, layout=layout,
-                                  data_accessor=self.data_accessor)
+        self.__statistics_widget__ = StatisticsSelectionWidget(
+                                    self.__splitter__, layout=layout,
+                                    data_accessor=self.data_accessor)
         self.__splitter__.changeSplitterHandleColor(3, Qt.black)
 
     def __createSummaryStatisticsCalculationWidget__(self, layout):
         SummaryStatisticsCalculationWidget(self.__splitter__, layout=layout,
-                                           data_accessor=self.data_accessor)
+                    data_accessor=self.data_accessor,
+                    check_statistic_handler=self.__check_statistic_handler__)
         self.__splitter__.changeSplitterHandleColor(4, Qt.yellow)
+
+    def __check_statistic_handler__(self, summary_statistic, checked):
+        """
+        method checks dependent statistics in summary statistic table view
+        """
+        if checked:
+            for statistic_dependent in summary_statistic.statistics_dependence:
+                self.__statistics_widget__.checkStatistic(statistic_dependent)

@@ -39,7 +39,8 @@ class SummaryStatisticsCalculationWidget(GroupBoxWidget):
         self.__createButtons__()
         self.__statistics_selection__ = SummaryStatisticsSelectionWidget(self,
                     layout=QVBoxLayout(), i18n_def='Selection',
-                    change_selection_count_handler=self.__change_selection_count_handler__) # @IgnorePep8
+                    change_selection_count_handler=self.__change_selection_count_handler__, # @IgnorePep8
+                    check_handler=self.params.check_statistic_handler)
 
     def __createButtons__(self):
         buttons_composite = CompositeWidget(self, layout=QHBoxLayout())
