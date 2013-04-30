@@ -14,7 +14,7 @@ try:
     from pygui.qt.custom_widgets.filters.slave_annotation_filter_widget import SlaveAnnotationFilterWidget # @IgnorePep8
     from pygui.qt.custom_widgets.output_specification_widget import OutputSpecificationWidget  # @IgnorePep8
     from pygui.qt.plots.specific_widgets.miscellaneous_widget import MiscellaneousWidget # @IgnorePep8
-    from pygui.qt.plots.specific_widgets.statistics_selection_widget import StatisticsSelectionWidget # @IgnorePep8
+    from pygui.qt.plots.specific_widgets.statistics_calculation_widget import StatisticsCalculationWidget # @IgnorePep8
     from pygui.qt.plots.specific_widgets.summary_statistics_calculation_widget import SummaryStatisticsCalculationWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -64,7 +64,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
         self.__splitter__.changeSplitterHandleColor(2, Qt.green)
 
     def __createStatisticsSelectionWidget__(self, layout):
-        self.__statistics_widget__ = StatisticsSelectionWidget(
+        self.__statistics_widget__ = StatisticsCalculationWidget(
                                     self.__splitter__, layout=layout,
                                     data_accessor=self.data_accessor)
         self.__splitter__.changeSplitterHandleColor(3, Qt.black)

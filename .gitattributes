@@ -86,6 +86,7 @@ PyGUI/src/pygui/qt/plots/poincare_plot_settings_dock_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/__init__.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/miscellaneous_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/poincare_plot_generator_progress_bar.py -text
+PyGUI/src/pygui/qt/plots/specific_widgets/statistics_calculation_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/statistics_selection_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/summary_statistics_calculation_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/summary_statistics_selection_widget.py -text

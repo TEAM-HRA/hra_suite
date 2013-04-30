@@ -148,3 +148,6 @@ class StatisticParameters(CoreParameters):
         if self.statistics_names == None and self.statistics_classes \
             and self.statistics_handlers:
             return "Statistics names or classes or handlers are required"
+
+    def clearStatisticsClasses(self):
+        self.__statistics_classes__ = []
