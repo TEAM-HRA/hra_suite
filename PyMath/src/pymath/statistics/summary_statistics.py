@@ -11,6 +11,9 @@ try:
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_subclasses_names_with_suffix
     from pycore.introspection import expand_to_real_class_names
+    from pymath.statistics.statistics import C1dStatistic
+    from pymath.statistics.statistics import C2dStatistic
+    from pymath.statistics.statistics import CdStatistic
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -117,6 +120,13 @@ class SummaryStatistic(object):
         """
         return self.__class__.__name__
 
+    @property
+    def statistics_dependence(self):
+        """
+        methods returns statistics on which summary statistic depends
+        """
+        return None
+
 
 class __Inner__(object):
     """
@@ -207,6 +217,9 @@ class C1dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asy
     def __init__(self):
         __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'C1d')
 
+    @property
+    def statistics_dependence(self):
+        return [C1dStatistic]
 
 class C2dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
@@ -217,6 +230,9 @@ class C2dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asy
     def __init__(self):
         __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'C2d')
 
+    @property
+    def statistics_dependence(self):
+        return [C2dStatistic]
 
 class CdTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
@@ -226,6 +242,10 @@ class CdTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asym
     """
     def __init__(self):
         __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'Cd')
+
+    @property
+    def statistics_dependence(self):
+        return [CdStatistic]
 
 
 class __MeanInnerSummaryStatistic__(SummaryStatistic, __Inner__):
@@ -256,6 +276,10 @@ class C1dMeanSummaryStatistic(__MeanInnerSummaryStatistic__, Asymmetry):
     def __init__(self):
         __MeanInnerSummaryStatistic__.__init__(self, 'C1d')
 
+    @property
+    def statistics_dependence(self):
+        return [C1dStatistic]
+
 
 class C2dMeanSummaryStatistic(__MeanInnerSummaryStatistic__, Asymmetry):
     """
@@ -264,6 +288,10 @@ class C2dMeanSummaryStatistic(__MeanInnerSummaryStatistic__, Asymmetry):
     def __init__(self):
         __MeanInnerSummaryStatistic__.__init__(self, 'C2d')
 
+    @property
+    def statistics_dependence(self):
+        return [C2dStatistic]
+
 
 class CdMeanSummaryStatistic(__MeanInnerSummaryStatistic__, Asymmetry):
     """
@@ -271,6 +299,10 @@ class CdMeanSummaryStatistic(__MeanInnerSummaryStatistic__, Asymmetry):
     """
     def __init__(self):
         __MeanInnerSummaryStatistic__.__init__(self, 'Cd')
+
+    @property
+    def statistics_dependence(self):
+        return [CdStatistic]
 
 
 def get_summary_statistics_for_csv(summary_statistics):
