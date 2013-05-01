@@ -37,7 +37,8 @@ class PoincarePlotGeneratorProgressBar(object):
 
         #parameter formatted_summary_statistics is used to store
         #calculated summary statistics
-        self.params.formatted_summary_statistics[:] = []
+        if not self.params.formatted_summary_statistics == None:
+            self.params.formatted_summary_statistics[:] = []
 
         for data_vector_accessor in self.__data_vector_accessor_list__:
             pp_generator = PoincarePlotGenerator(
