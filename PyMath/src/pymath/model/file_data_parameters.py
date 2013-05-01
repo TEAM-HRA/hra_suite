@@ -7,6 +7,7 @@ from pymath.utils.utils import print_import_error
 try:
     from pycore.collections_utils import nvl
     from pycore.collections_utils import get_as_tuple
+    from pycore.misc import Separator
     from pymath.model.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
@@ -95,9 +96,9 @@ class FileDataParameters(CoreParameters):
         """
         [optional]
         output separator between data columns
-        default: ',' (comma)
+        default: ' ' (space)
         """
-        return self.__output_separator__
+        return nvl(self.__output_separator__, Separator.WHITE_SPACE.sign) # @UndefinedVariable # @IgnorePep8
 
     @output_separator.setter
     def output_separator(self, _output_separator):
@@ -160,7 +161,7 @@ class FileDataParameters(CoreParameters):
         setattr(_object, 'data_file', self.data_file)
         setattr(_object, 'separator', self.separator)
 
-    def validateFileDataProperties(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
+    def validateFileDataParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.output_precision == None:
             return "Output precision is required"
         if check_level >= CoreParameters.MEDIUM_CHECK_LEVEL:
