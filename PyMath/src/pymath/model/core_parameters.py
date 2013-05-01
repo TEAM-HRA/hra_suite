@@ -11,7 +11,7 @@ class CoreParameters(object):
     used during generation of poincare plots
     """
 
-    (LOW_CHECK_LEVEL, NORMAL_CHECK_LEVEL) = (-1, 0)
+    (LOW_CHECK_LEVEL, MEDIUM_CHECK_LEVEL, NORMAL_CHECK_LEVEL) = (-1, 0, 1)
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):

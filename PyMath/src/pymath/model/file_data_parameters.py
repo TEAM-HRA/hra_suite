@@ -163,3 +163,8 @@ class FileDataParameters(CoreParameters):
     def validateFileDataProperties(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.output_precision == None:
             return "Output precision is required"
+        if check_level >= CoreParameters.MEDIUM_CHECK_LEVEL:
+            if self.output_separator == None:
+                return "Output separator is required"
+            if self.output_dir == None:
+                return "Output directory is required"
