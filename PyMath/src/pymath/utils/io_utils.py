@@ -75,8 +75,8 @@ class NumpyCSVFile(CSVFile):
 
     def __format_headers__(self, referenced_line):
         if not self.headers == None:
-            separator = self.output_separator.strip() \
-                        if len(self.output_separator.strip()) > 0 \
-                        else self.output_separator
-            sizes = map(len, referenced_line.split(separator))
-            return separator.join(map(fixed_size_string, self.headers, sizes)) + '\n'  # @IgnorePep8
+            if len(self.output_separator.strip()) == 0:
+                sizes = map(len, referenced_line.split())
+            else:
+                sizes = map(len, referenced_line.split(self.output_separator))
+            return self.output_separator.join(map(fixed_size_string, self.headers, sizes)) + '\n'  # @IgnorePep8
