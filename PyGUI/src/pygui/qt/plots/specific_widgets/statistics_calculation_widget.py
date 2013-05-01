@@ -56,7 +56,8 @@ class StatisticsCalculationWidget(GroupBoxWidget):
             pp_generator_progress_bar = PoincarePlotGeneratorProgressBar(self,
                                 [self.params.data_accessor],
                                 label_text='Statistics calculation',
-                                check_level=CoreParameters.LOW_CHECK_LEVEL)
+                                check_level=CoreParameters.MEDIUM_CHECK_LEVEL,
+                                save_csv=True)
             pp_generator_progress_bar.start()
 
     def __change_selection_count_handler__(self, _count):

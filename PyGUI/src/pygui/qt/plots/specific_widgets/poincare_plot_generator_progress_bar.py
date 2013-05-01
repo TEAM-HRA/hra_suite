@@ -10,6 +10,8 @@ try:
     from pycore.misc import Params
     from pycore.collections_utils import nvl
     from pymath.time_domain.poincare_plot.poincare_plot_generator import PoincarePlotGenerator # @IgnorePep8
+    from pymath.time_domain.poincare_plot.poincare_plot_generator import ProgressHandlerGenerator # @IgnorePep8
+    from pymath.time_domain.poincare_plot.poincare_plot_generator import StartProgressGenerator # @IgnorePep8
     from pygui.qt.utils.windows import ErrorWindow
     from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
 except ImportError as error:
@@ -58,11 +60,21 @@ class PoincarePlotGeneratorProgressBar(object):
                                             label_text=self.label_text,
                                             max_value=count)
             with progressManager as progress:
-                progress_handler = self.__ProgressHandler__()
+                start_progress = self.__StartProgress__()
+                if self.params.save_csv == True:
+                    progress_handler = self.__CSVProgressHandler__()
+                else:
+                    progress_handler = self.__ProgressHandler__()
                 progress_handler.progress = progress
-                pp_generator.generate(data_vector_accessor.data_vector,
-                                      start_progress=None,
-                                      progress_handler=progress_handler)
+                if self.params.save_csv == True:
+                    pp_generator.generate_CSV(data_vector_accessor.data_vector,
+                                            data_vector_accessor.source_name,
+                                            start_progress=start_progress,
+                                            progress_handler=progress_handler)
+                else:
+                    pp_generator.generate(data_vector_accessor.data_vector,
+                                          start_progress=start_progress,
+                                          progress_handler=progress_handler)
                 #store information about interrupt signal if it has happened
                 self.__interrupted__ = progress_handler.interrupted
 
@@ -85,7 +97,12 @@ class PoincarePlotGeneratorProgressBar(object):
             self.__interrupted__ = False
         return interrupted
 
-    class __ProgressHandler__(object):
+    class __StartProgress__(StartProgressGenerator):
+        def __call__(self):
+            #ProgressDialogManager fulfills this role
+            pass
+
+    class __ProgressHandler__(ProgressHandlerGenerator):
         """
         callable class used during processing of poincare plots
         to increase a counter or intercept cancel signal
@@ -96,3 +113,13 @@ class PoincarePlotGeneratorProgressBar(object):
         @property
         def interrupted(self):
             return self.progress.wasCanceled()
+
+    class __CSVProgressHandler__(__ProgressHandler__):
+        """
+        callable class used during processing of poincare plots
+        to increase a counter or intercept cancel signal
+        """
+        def __call__(self):
+            self.progress.increaseCounter()
+            self.csv.write(self.parameters,
+                       ordinal_value=self.segmenter.ordinal_value)

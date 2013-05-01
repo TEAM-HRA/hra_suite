@@ -27,6 +27,8 @@ try:
     from pymath.frequency_domain.fourier_parameters import getFourierTransformationNames # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
     from pymath.time_domain.poincare_plot.poincare_plot_generator import PoincarePlotGenerator # @IgnorePep8
+    from pymath.time_domain.poincare_plot.poincare_plot_generator import CSVStartProgressGenerator # @IgnorePep8
+    from pymath.time_domain.poincare_plot.poincare_plot_generator import CSVProgressHandlerGenerator # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -125,7 +127,9 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                 print('\n' + message)
             return True
 
-        return self.__pp_generator__.generate_CSV(data_vector, _file)
+        return self.__pp_generator__.generate_CSV(data_vector, _file,
+                            start_progress=CSVStartProgressGenerator(),
+                            progress_handler=CSVProgressHandlerGenerator())
 
     def getUniqueAnnotations(self):
         """

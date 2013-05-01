@@ -73,84 +73,24 @@ class PoincarePlotGenerator(object):
                 self.params.info_handler(message)
         return (True, None,) if message == None else (False, message,)
 
-    class __StartProgress__(object):
-        """
-        callable class used when process of poincare plots generation is
-        started
-        """
-        def __init__(self):
-            self.__progress__ = None
-
-        def check(self):
-            segment_count = self.segmenter.segment_count()
-            if segment_count == -1:
-                self.params.info_handler("Window size can't be greater then data size !!!") # @IgnorePep8
-                self.__progress__ = False
-                return False
-            return True
-
-        def __call__(self):
-            if self.check():
-                if self.progress_mark:
-                    self.__progress__ = ProgressMark(_label='Processing data...', # @IgnorePep8
-                                    _max_count=self.segmenter.segment_count())
-                else:
-                    self.info_handler('Processing data')
-
-        @property
-        def progress(self):
-            return self.__progress__
-
-    class __CSVStartProgress__(__StartProgress__):
-        """
-        callable class used when process of poincare plots generation is
-        started and csv files have to be created
-        """
-        def __call__(self):
-            if self.check():
-                if self.progress_mark:
-                    self.__progress__ = ProgressMark(
-                                    _label='Processing file ' +
-                                    self.reference_filename + ' ...',
-                                    _max_count=self.segmenter.segment_count())
-                else:
-                    self.info_handler('Processing file: ' + self.reference_filename) # @IgnorePep8
-
-    class __ProgressHandler__(object):
-        """
-        the base class for progress handler in poincare plot processing loop
-        """
-
-        @property
-        def interrupted(self):
-            """
-            returns true if process is interrupted
-            """
-            return False
-
-    class __CSVProgressHandler__(__ProgressHandler__):
-        """
-        callable class used during creation of csv files of
-        poincare plot processing
-        """
-        def __call__(self):
-            self.csv.write(self.parameters,
-                           ordinal_value=self.segmenter.ordinal_value)
-
     def generate(self, data_vector, start_progress=None,
                  progress_handler=None):
         """
         generate poincare plots
         """
-        if start_progress == None:
-            start_progress = self.__StartProgress__()
-        start_progress.progress_mark = self.progress_mark
-        start_progress.info_handler = self.params.info_handler
+        if not start_progress == None:
+            if hasattr(start_progress, 'progress_mark'):
+                if start_progress.progress_mark == None:
+                    start_progress.progress_mark = self.progress_mark
+            if hasattr(start_progress, 'info_handler'):
+                if start_progress.info_handler == None:
+                    start_progress.info_handler = self.params.info_handler
         return self.__generate_core__(data_vector,
                                        start_progress=start_progress,
                                        progress_handler=progress_handler)
 
-    def generate_CSV(self, data_vector, reference_filename):
+    def generate_CSV(self, data_vector, reference_filename,
+                                  start_progress=None, progress_handler=None):
         """
         generates poincare plots and saves outcomes to csv files
         """
@@ -164,13 +104,17 @@ class PoincarePlotGenerator(object):
                         add_headers=self.add_headers,
                         ordered_headers=self.statistics_names) as csv:
 
-            start_progress = self.__CSVStartProgress__()
-            start_progress.reference_filename = reference_filename
-            start_progress.progress_mark = self.progress_mark
-            start_progress.info_handler = self.params.info_handler
+            if not start_progress == None:
+                start_progress.reference_filename = reference_filename
+                if hasattr(start_progress, 'progress_mark'):
+                    if start_progress.progress_mark == None:
+                        start_progress.progress_mark = self.progress_mark
+                if hasattr(start_progress, 'info_handler'):
+                    if start_progress.info_handler == None:
+                        start_progress.info_handler = self.params.info_handler
 
-            progress_handler = self.__CSVProgressHandler__()
-            progress_handler.csv = csv
+            if not progress_handler == None:
+                progress_handler.csv = csv
 
             not_interrupted = self.__generate_core__(data_vector,
                                         start_progress=start_progress,
@@ -359,3 +303,71 @@ class PoincarePlotGenerator(object):
                                 shift=self.window_shift,
                                 window_size_unit=self.window_size_unit)
         return segmenter.segment_count()
+
+
+class StartProgressGenerator(object):
+    """
+    callable class used when process of poincare plots generation is
+    started
+    """
+    def __init__(self):
+        self.__progress__ = None
+
+    def check(self):
+        segment_count = self.segmenter.segment_count()
+        if segment_count == -1:
+            self.params.info_handler("Window size can't be greater then data size !!!") # @IgnorePep8
+            self.__progress__ = False
+            return False
+        return True
+
+    def __call__(self):
+        if self.check():
+            if self.progress_mark:
+                self.__progress__ = ProgressMark(_label='Processing data...', # @IgnorePep8
+                                _max_count=self.segmenter.segment_count())
+            else:
+                self.info_handler('Processing data')
+
+    @property
+    def progress(self):
+        return self.__progress__
+
+
+class ProgressHandlerGenerator(object):
+    """
+    the base class for progress handler in poincare plot processing loop
+    """
+
+    @property
+    def interrupted(self):
+        """
+        returns true if process is interrupted
+        """
+        return False
+
+
+class CSVStartProgressGenerator(StartProgressGenerator):
+    """
+    callable class used when process of poincare plots generation is
+    started and csv files have to be created
+    """
+    def __call__(self):
+        if self.check():
+            if self.progress_mark:
+                self.__progress__ = ProgressMark(
+                                _label='Processing file ' +
+                                self.reference_filename + ' ...',
+                                _max_count=self.segmenter.segment_count())
+            else:
+                self.info_handler('Processing file: ' + self.reference_filename) # @IgnorePep8
+
+
+class CSVProgressHandlerGenerator(ProgressHandlerGenerator):
+    """
+    callable class used during creation of csv files of
+    poincare plot processing
+    """
+    def __call__(self):
+        self.csv.write(self.parameters,
+                       ordinal_value=self.segmenter.ordinal_value)
