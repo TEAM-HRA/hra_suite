@@ -211,3 +211,10 @@ def format_decimal(value, precision):
                                 scale=precision[1]) % value
     else:
         return value
+
+
+def raw_string(_str):
+    """
+    get string in a raw format
+    """
+    return "%r" % _str
