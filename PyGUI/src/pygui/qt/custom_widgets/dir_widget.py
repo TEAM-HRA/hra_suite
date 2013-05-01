@@ -7,6 +7,7 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.misc import is_empty
     from pycore.collections_utils import get_or_put
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
@@ -14,6 +15,8 @@ try:
     from pygui.qt.utils.windows import ErrorWindow
 except ImportError as error:
     ImportErrorMessage(error, __name__)
+
+__NOT_SET_LABEL__ = '[not set]'
 
 
 class DirWidget(CompositeWidget):
@@ -28,7 +31,7 @@ class DirWidget(CompositeWidget):
 
         LabelWidget(self, i18n_def='Directory:')
 
-        self.__dir_label__ = LabelWidget(self, i18n_def='[not set]',
+        self.__dir_label__ = LabelWidget(self, i18n_def=__NOT_SET_LABEL__,
                         sizePolicy=QSizePolicy(QSizePolicy.MinimumExpanding,
                                                QSizePolicy.Minimum))
 
@@ -38,17 +41,21 @@ class DirWidget(CompositeWidget):
     def __clicked_handler__(self):
         _dir = self.__dir_label__.text() if self.__dir_label__.text() else '.'
         output_dir = QFileDialog.getExistingDirectory(self,
-                                        caption='Choose dir', directory=_dir)
+                                    caption='Choose dir', directory=_dir,
+                                    options=QFileDialog.ShowDirsOnly
+                                           | QFileDialog.DontResolveSymlinks)
         if output_dir:
             self.__dir_label__.setText("[%s]" % output_dir)
 
     @property
     def directory(self):
-        _dir = self.__dir_label__.text()
-        return None if _dir == None or len(_dir) == 0 else _dir
+        _dir = str(self.__dir_label__.text())
+        if not (is_empty(_dir) or __NOT_SET_LABEL__ == _dir):
+            _dir = str(QDir(_dir[1:-1]).path())
+            return _dir
 
     def validate(self):
-        if not self.directory:
+        if self.directory == None:
             ErrorWindow(message="The directory must be selected !")
             return False
         return True
