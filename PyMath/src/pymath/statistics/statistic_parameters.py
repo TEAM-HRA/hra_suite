@@ -151,3 +151,18 @@ class StatisticParameters(CoreParameters):
 
     def clearStatisticsClasses(self):
         self.__statistics_classes__ = []
+
+    def extended_statistics_classes(self):
+        """
+        method extends statistics classes by dependence statistics
+        from summary statistics
+        """
+        statistics_classses = []
+        statistics_classses[:] = self.__statistics_classes__
+        if len(self.summary_statistics_classes) > 0:
+            for summary_statistic_class in self.summary_statistics_classes:
+                summary_statistic = summary_statistic_class()
+                for statistic_class in summary_statistic.statistics_dependence:
+                    if statistics_classses.count(statistic_class) == 0:
+                        statistics_classses.append(statistic_class)
+        return statistics_classses
