@@ -13,6 +13,7 @@ try:
     from pymath.time_domain.poincare_plot.poincare_plot_generator import ProgressHandlerGenerator # @IgnorePep8
     from pymath.time_domain.poincare_plot.poincare_plot_generator import StartProgressGenerator # @IgnorePep8
     from pygui.qt.utils.windows import ErrorWindow
+    from pygui.qt.utils.windows import InformationWindow
     from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -67,6 +68,11 @@ class PoincarePlotGeneratorProgressBar(object):
                     progress_handler = self.__ProgressHandler__()
                 progress_handler.progress = progress
                 if self.params.save_csv == True:
+                    (ok, message) = pp_generator.precheck(
+                                            data_vector_accessor.source_name)
+                    if ok == False:
+                        InformationWindow(message=message)
+                        continue
                     pp_generator.generate_CSV(data_vector_accessor.data_vector,
                                             data_vector_accessor.source_name,
                                             start_progress=start_progress,
