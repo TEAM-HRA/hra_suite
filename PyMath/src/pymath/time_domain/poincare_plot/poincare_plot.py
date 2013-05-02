@@ -127,8 +127,10 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                 print('\n' + message)
             return True
 
+        start_progress = CSVStartProgressGenerator()
+        start_progress.progress_mark = self.progress_mark
         return self.__pp_generator__.generate_CSV(data_vector, _file,
-                            start_progress=CSVStartProgressGenerator(),
+                            start_progress=start_progress,
                             progress_handler=CSVProgressHandlerGenerator())
 
     def getUniqueAnnotations(self):
