@@ -182,6 +182,17 @@ def expand_to_real_summary_statistics_names(statistics_summary_names):
                                       _class_suffix='summarystatistic')
 
 
+def expand_to_real_summary_statistics_classes(statistics_summary_names):
+    """
+    function converts user's inputed summary statistics names into
+    summary statistics classes
+    """
+    summary_classes = []
+    for summary_class_name in expand_to_real_summary_statistics_names(statistics_summary_names): # @IgnorePep8
+        summary_classes.append(eval(summary_class_name + '()').__class__)
+    return summary_classes
+
+
 class __TimeOver50PercentageInnerSummaryStatistic__(SummaryStatistic, __Inner__): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
