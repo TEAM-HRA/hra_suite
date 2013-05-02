@@ -159,6 +159,8 @@ def extended_statistics_classes(_statistics_classes,
     method extends statistics classes by dependence statistics
     from summary statistics
     """
+    if _statistics_classes == None or _summary_statistics_classes == None:
+        return _statistics_classes
     statistics_classses = []
     statistics_classses[:] = _statistics_classes
     if len(_summary_statistics_classes) > 0:
