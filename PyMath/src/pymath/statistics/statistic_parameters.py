@@ -6,6 +6,7 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     from pycore.collections_utils import commas
+    from pycore.collections_utils import is_empty
     from pymath.model.core_parameters import CoreParameters
     from pymath.statistics.statistics import get_statistics_names
     from pymath.statistics.statistics import ALL_STATISTICS
@@ -145,8 +146,11 @@ class StatisticParameters(CoreParameters):
         self.__statistics_classes__ = _statistics_classes
 
     def validateStatisticParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
-        if self.statistics_names == None and self.statistics_classes \
-            and self.statistics_handlers:
+        if is_empty(self.statistics_names) and \
+            is_empty(self.statistics_classes) and \
+            is_empty(self.statistics_handlers) and \
+            is_empty(self.summary_statistics_names) and \
+            is_empty(self.summary_statistics_classes):
             return "Statistics names or classes or handlers are required"
 
     def clearStatisticsClasses(self):
