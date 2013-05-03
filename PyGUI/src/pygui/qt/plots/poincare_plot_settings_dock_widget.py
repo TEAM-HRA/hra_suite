@@ -14,8 +14,7 @@ try:
     from pygui.qt.custom_widgets.filters.slave_annotation_filter_widget import SlaveAnnotationFilterWidget # @IgnorePep8
     from pygui.qt.custom_widgets.output_specification_widget import OutputSpecificationWidget  # @IgnorePep8
     from pygui.qt.plots.specific_widgets.miscellaneous_widget import MiscellaneousWidget # @IgnorePep8
-    from pygui.qt.plots.specific_widgets.statistics_calculation_widget import StatisticsCalculationWidget # @IgnorePep8
-    from pygui.qt.plots.specific_widgets.summary_statistics_calculation_widget import SummaryStatisticsCalculationWidget # @IgnorePep8
+    from pygui.qt.plots.specific_widgets.statistics_widget import StatisticsWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -36,8 +35,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
         self.__createFiltersWidget__(QHBoxLayout())
         self.__createOutputSpecificationWidget__(QVBoxLayout())
         self.__createMiscellaneousWidget__(QVBoxLayout())
-        self.__createStatisticsSelectionWidget__(QVBoxLayout())
-        self.__createSummaryStatisticsCalculationWidget__(QVBoxLayout())
+        self.__createStatisticsWidget__(QVBoxLayout())
 
         parent.addDockWidget(Qt.LeftDockWidgetArea, self)
 
@@ -63,22 +61,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
                             data_accessor=self.data_accessor)
         self.__splitter__.changeSplitterHandleColor(2, Qt.green)
 
-    def __createStatisticsSelectionWidget__(self, layout):
-        self.__statistics_widget__ = StatisticsCalculationWidget(
-                                    self.__splitter__, layout=layout,
-                                    data_accessor=self.data_accessor)
+    def __createStatisticsWidget__(self, layout):
+        self.__statistics_widget__ = StatisticsWidget(self.__splitter__,
+                            layout=layout, data_accessor=self.data_accessor)
         self.__splitter__.changeSplitterHandleColor(3, Qt.black)
-
-    def __createSummaryStatisticsCalculationWidget__(self, layout):
-        SummaryStatisticsCalculationWidget(self.__splitter__, layout=layout,
-                    data_accessor=self.data_accessor,
-                    check_statistic_handler=self.__check_statistic_handler__)
-        self.__splitter__.changeSplitterHandleColor(4, Qt.yellow)
-
-    def __check_statistic_handler__(self, summary_statistic, checked):
-        """
-        method checks dependent statistics in summary statistic table view
-        """
-        if checked:
-            for statistic_dependent in summary_statistic.statistics_dependence:
-                self.__statistics_widget__.checkStatistic(statistic_dependent)
