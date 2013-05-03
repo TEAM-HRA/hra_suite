@@ -23,6 +23,7 @@ try:
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.summary_statistics import SummaryStatisticsFactory
     from pymath.statistics.summary_statistics import get_summary_statistics_for_csv # @IgnorePep8
+    from pymath.statistics.statistic_parameters import extended_statistics_classes # @IgnorePep8
     from pymath.frequency_domain.fourier import FourierTransformationManager
     from pymath.time_domain.poincare_plot.filters.filter_manager import FilterManager # @IgnorePep8
 except ImportError as error:
@@ -153,9 +154,15 @@ class PoincarePlotGenerator(object):
                         _excluded_annotations=self.excluded_annotations,
                         _filters=self.filters)
 
+        #there could be the case when only statistics name are defined
+        #and then we have to extract from the names corresponding classes
+        statistics_classes = extended_statistics_classes(
+                self.statistics_classes, self.statistics_names,
+                self.summary_statistics_classes, self.summary_statistics_names)
+
         statisticsFactory = StatisticsFactory(
                         statistics_names=self.statistics_names,
-                        statistics_classes=self.statistics_classes,
+                        statistics_classes=statistics_classes,
                         statistics_handlers=self.statistics_handlers,
                         _use_identity_line=self.use_identity_line,
                         use_buffer=self.use_buffer)
@@ -263,7 +270,9 @@ class PoincarePlotGenerator(object):
 
     @property
     def parameters_info(self):
-        print('Using statistics: ' + self.statistics_names)
+        print('')
+        if self.statistics_names:
+            print('Using statistics: ' + self.statistics_names)
         if self.statistics_handlers:
             print('Using statistics handlers/functions:')
             for _handler in self.statistics_handlers:

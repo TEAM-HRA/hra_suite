@@ -14,6 +14,7 @@ try:
     from pymath.statistics.statistics import CORE_STATISTICS
     from pymath.statistics.statistics import ASYMMETRY_STATISTICS
     from pymath.statistics.statistics import NON_CHECK_STATISTICS
+    from pymath.statistics.summary_statistics import expand_to_real_summary_statistics_classes # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -158,11 +159,17 @@ class StatisticParameters(CoreParameters):
 
 
 def extended_statistics_classes(_statistics_classes,
-                                _summary_statistics_classes):
+                                _statistics_names,
+                                _summary_statistics_classes,
+                                _summary_statistics_names):
     """
     method extends statistics classes by dependence statistics
-    from summary statistics
+    from summary statistics classes o summary statistics names
     """
+    if _summary_statistics_names and _statistics_names == None:
+        _summary_statistics_classes = \
+            expand_to_real_summary_statistics_classes(
+                                                _summary_statistics_names)
     if _statistics_classes == None or _summary_statistics_classes == None:
         return _statistics_classes
     statistics_classses = []
