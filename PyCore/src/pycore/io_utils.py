@@ -213,6 +213,7 @@ class CSVFile(object):
         self.__info_message__ = None
 
     def __enter__(self):
+        self.__saved__ = False
         self.__error_message__ = None
         self.__info_message__ = None
         return self
@@ -291,3 +292,11 @@ class CSVFile(object):
     @info_message.setter
     def info_message(self, _info_message):
         self.__info_message__ = _info_message
+
+    @property
+    def saved(self):
+        return self.__saved__
+
+    @saved.setter
+    def saved(self, _saved):
+        self.__saved__ = _saved

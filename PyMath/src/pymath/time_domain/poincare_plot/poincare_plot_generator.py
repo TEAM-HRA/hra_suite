@@ -121,26 +121,34 @@ class PoincarePlotGenerator(object):
                                         start_progress=start_progress,
                                         progress_handler=progress_handler)
 
-            if not_interrupted:
-                if csv.info_message:
-                    self.params.info_handler(csv.info_message)
-                if csv.error_message:
-                    self.params.info_handler(csv.error_message)
-                    return
+        if not_interrupted:
+            if csv.info_message:
+                self.params.info_handler(csv.info_message)
+            if csv.error_message:
+                self.params.info_handler(csv.error_message)
+                return
 
-                if not self.summary_statistics == None:
-                    with NumpyCSVFile(output_dir=self.output_dir,
-                         reference_filename=reference_filename,
-                         output_precision=self.output_precision,
-                         print_output_file=True,
-                         output_separator=self.output_separator,
-                         sort_headers=False,
-                         add_headers=self.add_headers,
-                         output_suffix='_sum',
-                         message='\nSummary statistics saved into the file: ') as summary_csv: # @IgnorePep8
-                        summary_csv.write(get_summary_statistics_for_csv(self.summary_statistics)) # @IgnorePep8
+            #give info about saved file
+            if csv.saved and self.params.output_file_listener:
+                self.params.output_file_listener(csv.output_file)
 
-            return not_interrupted
+            if not self.summary_statistics == None:
+                with NumpyCSVFile(output_dir=self.output_dir,
+                     reference_filename=reference_filename,
+                     output_precision=self.output_precision,
+                     print_output_file=True,
+                     output_separator=self.output_separator,
+                     sort_headers=False,
+                     add_headers=self.add_headers,
+                     output_suffix='_sum',
+                     message='\nSummary statistics saved into the file: ') as summary_csv: # @IgnorePep8
+                    summary_csv.write(get_summary_statistics_for_csv(self.summary_statistics)) # @IgnorePep8
+
+                #give info about saved summary file
+                if summary_csv.saved and self.params.output_file_listener:
+                    self.params.output_file_listener(
+                                                summary_csv.output_file)
+        return not_interrupted
 
     def __generate_core__(self, data_vector, start_progress,
                           progress_handler=None):

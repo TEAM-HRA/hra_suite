@@ -53,6 +53,7 @@ class NumpyCSVFile(CSVFile):
                     _file.write(self.__format_headers__(contents[:contents.find('\n')])) # @IgnorePep8
                 _file.write(contents)
                 _file.close()
+                self.saved = True
                 memory_file.close()
                 memory_file = None
                 if self.__print_output_file__:
