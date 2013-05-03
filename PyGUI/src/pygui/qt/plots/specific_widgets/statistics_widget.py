@@ -65,7 +65,8 @@ class StatisticsWidget(GroupBoxWidget):
                     [self.params.data_accessor],
                     label_text='Statistics calculation',
                     check_level=check_level, save_csv=save_csv,
-                    formatted_summary_statistics=formatted_summary_statistics)
+                    formatted_summary_statistics=formatted_summary_statistics,
+                    output_file_listener=self.params.output_file_listener)
             pp_generator_progress_bar.start()
             if pp_generator_progress_bar.interrupted() == False and \
                 len(formatted_summary_statistics) == 1:

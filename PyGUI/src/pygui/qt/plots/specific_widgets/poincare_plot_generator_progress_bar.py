@@ -45,6 +45,7 @@ class PoincarePlotGeneratorProgressBar(object):
 
         for data_vector_accessor in self.__data_vector_accessor_list__:
             pp_generator = PoincarePlotGenerator(
+                        output_file_listener=self.params.output_file_listener,
                         **data_vector_accessor.parameters_container.parameters)
             message = pp_generator.checkParameters(self.params.check_level)
             if message:
