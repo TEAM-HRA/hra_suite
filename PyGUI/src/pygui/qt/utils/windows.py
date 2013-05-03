@@ -5,7 +5,7 @@ Created on 13-12-2012
 '''
 from pycore.special import ImportErrorMessage
 try:
-    from os.path import join
+    import os.path as fs
     import sys
     import re
     from PyQt4.QtGui import *  # @UnusedWildImport
@@ -187,7 +187,8 @@ class FilesPreviewDialog(QDialog):
                 if (progress.wasCanceled()):
                     break
                 progress.increaseCounter()
-                filename = join(filepath.pathname, filepath.filename)
+                filename = fs.join(filepath.pathname, filepath.filename)
+                filename = fs.normpath(filename)
                 tab = self.__createFilePreview__(filesPreviewTabWidget,
                                                  filename)
                 filesPreviewTabWidget.addTab(tab, 'File: ' + filename)

@@ -204,6 +204,7 @@ class CSVFile(object):
             self.__output_file__ = fs.join(output_dir,
                                     fs.basename(reference_filename) +
                                       not_empty_nvl(output_suffix, '_out'))
+            self.__output_file__ = fs.normpath(self.__output_file__)
         if not self.__output_file__ == None:
             dir_ = fs.dirname(self.__output_file__)
             if fs.exists(dir_) == False:
