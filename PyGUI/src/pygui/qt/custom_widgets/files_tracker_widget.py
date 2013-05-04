@@ -86,6 +86,19 @@ class __FilesTrackerModel__(QStandardItemModel):
 
         file_info = QFileInfo(_filename)
 
+        #update existing row (with the same filename)
+        for row in range(self.rowCount()):
+            filename_column = self.item(row, 0)
+            if filename_column.text() == _filename:
+                size_column = self.item(row, 1)
+                size_column.setText(str(file_info.size()))
+
+                file_time_column = self.item(row, 2)
+                file_time = file_info.lastModified()
+                file_time = file_time.toString(DATE_TIME_FORMAT) if file_time else "" # @IgnorePep8
+                file_time_column.setText(str(file_time))
+                return
+
         filename_column = QStandardItem('%s' % _filename)
         filename_column.setCheckState(Qt.Unchecked)
         filename_column.setCheckable(True)
