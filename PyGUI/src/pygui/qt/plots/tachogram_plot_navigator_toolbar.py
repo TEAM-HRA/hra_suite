@@ -11,12 +11,12 @@ try:
     from pycore.misc import Params
     from pycommon.actions import ActionSpec
     from pygui.qt.actions.actions_utils import create_action
-    #from pygui.qt.custom_widgets.filters import FiltersWidget
     from pygui.qt.plots.tachogram_plot_canvas import NormalTachogramPlotEngine
     from pygui.qt.plots.tachogram_plot_canvas import ScatterTachogramPlotEngine
     from pygui.qt.plots.tachogram_plot_settings_dock_widget import TachogramPlotSettingsDockWidget # @IgnorePep8
     from pygui.qt.plots.tachogram_plot_statistics_dock_widget import TachogramPlotStatisticsDockWidget # @IgnorePep8
     from pygui.qt.plots.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget # @IgnorePep8
+    from pygui.qt.plots.outcome_files_tracker_dock_widget import OutcomeFilesTrackerDockWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -99,5 +99,15 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
             parent = self.params.dock_parent \
                     if self.params.dock_parent else self.parent()
             self.__poincare_settings__ = PoincarePlotSettingsDockWidget(
-                                parent, data_accessor=self.data_accessor)
+                        parent, data_accessor=self.data_accessor,
+                        output_file_listener=self.__output_file_listener__)
         self.__poincare_settings__.show()
+
+    def __output_file_listener__(self, _filename):
+        if not hasattr(self, '__outcome_files_tracker__'):
+            parent = self.params.dock_parent \
+                    if self.params.dock_parent else self.parent()
+            self.__outcome_files_tracker__ = OutcomeFilesTrackerDockWidget(
+                                                                        parent)
+        self.__outcome_files_tracker__.show()
+        self.__outcome_files_tracker__.appendFile(_filename)

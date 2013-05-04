@@ -82,6 +82,7 @@ PyGUI/src/pygui/qt/menu/menus.py -text
 PyGUI/src/pygui/qt/models/__init__.py -text
 PyGUI/src/pygui/qt/models/datasources.py -text
 PyGUI/src/pygui/qt/plots/__init__.py -text
+PyGUI/src/pygui/qt/plots/outcome_files_tracker_dock_widget.py -text
 PyGUI/src/pygui/qt/plots/plots_signals.py -text
 PyGUI/src/pygui/qt/plots/poincare_plot_settings_dock_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/__init__.py -text
@@ -100,6 +101,7 @@ PyGUI/src/pygui/qt/plots/tachogram_plot_statistics_dock_widget.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_tab_widget.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_window.py -text
 PyGUI/src/pygui/qt/utils/__init__.py -text
+PyGUI/src/pygui/qt/utils/constants.py -text
 PyGUI/src/pygui/qt/utils/context.py -text
 PyGUI/src/pygui/qt/utils/dnd.py -text
 PyGUI/src/pygui/qt/utils/graphics.py -text
