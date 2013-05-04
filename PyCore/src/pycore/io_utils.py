@@ -320,7 +320,11 @@ def normalize_filenames(*iterator):
             else:
                 filenames.append(normalized)
         else:
-            fileparts.append(item)
+            #item could be a file already
+            if fs.isfile(item):
+                filenames.append(item)
+            else:
+                fileparts.append(item)
     if len(fileparts) > 0:
         filenames.append(fs.normpath(fs.join(*fileparts)))
     if len(filenames) == 1:
