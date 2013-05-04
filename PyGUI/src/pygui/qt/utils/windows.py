@@ -5,7 +5,6 @@ Created on 13-12-2012
 '''
 from pycore.special import ImportErrorMessage
 try:
-    import os.path as fs
     import sys
     import re
     from PyQt4.QtGui import *  # @UnusedWildImport
@@ -16,6 +15,7 @@ try:
     from pycore.collections_utils import or_values
     from pycore.globals import GLOBALS
     from pycore.introspection import get_class_object
+    from pycore.io_utils import normalize_filenames
     from pygui.qt.utils.qt_i18n import QT_I18N
     from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
     from pygui.qt.activities.activities import ActivityDockWidget
@@ -163,32 +163,30 @@ def showFilesPreviewDialog(filespaths, parent=None):
     if filespaths == None or len(filespaths) == 0:
         InformationWindow(message="No files selected !")
     else:
-        dialog = FilesPreviewDialog(filespaths, parent)
+        dialog = FilesPreviewDialog(normalize_filenames(filespaths), parent)
         dialog.exec_()
 
 
 class FilesPreviewDialog(QDialog):
 
-    def __init__(self, filespaths, parent=None):
+    def __init__(self, filesnames, parent=None):
         super(FilesPreviewDialog, self).__init__(parent)
         self.setWindowTitle('File(s) preview')
         self.setGeometry(QRect(50, 50, 1000, 600))
         self.setLayout(QVBoxLayout())
         #a list object has attribute 'insert'
-        filespaths = filespaths if hasattr(filespaths, 'insert') \
-                        else [filespaths]
+        filesnames = filesnames if hasattr(filesnames, 'insert') \
+                        else [filesnames]
 
         filesPreviewTabWidget = TabWidgetCommon(self)
         progressManager = ProgressDialogManager(self,
                                         label_text="Opening files ...",
-                                        max_value=len(filespaths))
+                                        max_value=len(filesnames))
         with progressManager as progress:
-            for filepath in filespaths:
+            for filename in filesnames:
                 if (progress.wasCanceled()):
                     break
                 progress.increaseCounter()
-                filename = fs.join(filepath.pathname, filepath.filename)
-                filename = fs.normpath(filename)
                 tab = self.__createFilePreview__(filesPreviewTabWidget,
                                                  filename)
                 filesPreviewTabWidget.addTab(tab, 'File: ' + filename)

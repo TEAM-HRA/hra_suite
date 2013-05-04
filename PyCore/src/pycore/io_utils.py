@@ -201,10 +201,9 @@ class CSVFile(object):
         elif not reference_filename == None:
             if output_dir == None:
                 output_dir = fs.dirname(reference_filename)
-            self.__output_file__ = fs.join(output_dir,
+            self.__output_file__ = normalize_filenames(output_dir,
                                     fs.basename(reference_filename) +
-                                      not_empty_nvl(output_suffix, '_out'))
-            self.__output_file__ = fs.normpath(self.__output_file__)
+                                        not_empty_nvl(output_suffix, '_out'))
         if not self.__output_file__ == None:
             dir_ = fs.dirname(self.__output_file__)
             if fs.exists(dir_) == False:
@@ -301,3 +300,32 @@ class CSVFile(object):
     @saved.setter
     def saved(self, _saved):
         self.__saved__ = _saved
+
+
+def normalize_filenames(*iterator):
+    """
+    function normalized filenames
+    """
+    filenames = []
+    fileparts = []
+    for item in iterator:
+        #special treatment item which have members filename and pathname
+        if hasattr(item, 'filename') and hasattr(item, 'pathname'):
+            filenames.append(fs.normpath(fs.join(item.pathname,
+                                                 item.filename)))
+        elif isinstance(item, list) or isinstance(item, tuple):
+            normalized = normalize_filenames(*item)
+            if isinstance(normalized, list) or isinstance(normalized, tuple):
+                filenames[len(filenames):] = normalized
+            else:
+                filenames.append(normalized)
+        else:
+            fileparts.append(item)
+    if len(fileparts) > 0:
+        filenames.append(fs.normpath(fs.join(*fileparts)))
+    if len(filenames) == 1:
+        return filenames[0]
+    elif len(filenames) > 1:
+        return filenames
+    else:
+        return None
