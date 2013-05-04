@@ -78,3 +78,12 @@ class TableViewWidget(QTableView, Common):
                 self.params.change_check_count_handler(self.__checked_count__)
             if self.params.check_handler:
                 self.params.check_handler(item)
+
+    def clearRows(self):
+        """
+        method deletes all rows
+        """
+        model = self.model()
+        if model:
+            if hasattr(model, 'removeRows'):
+                model.removeRows(0, model.rowCount())
