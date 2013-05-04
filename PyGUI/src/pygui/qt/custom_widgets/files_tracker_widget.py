@@ -9,6 +9,8 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.collections_utils import get_or_put
     from pycore.misc import Params
+    from pycore.io_utils import normalize_filenames
+    from pygui.qt.utils.windows import FilesPreviewDialog
     from pygui.qt.utils.constants import DATE_TIME_FORMAT
     from pygui.qt.widgets.table_view_widget import TableViewWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
@@ -28,9 +30,10 @@ class FilesTrackerWidget(CompositeWidget):
 
         self.params = Params(**params)
 
-        self.__createButtons__()
+        self.__create_oper_buttons__()
         self.__createTable__()
         self.__createModel__()
+        self.__create_misc_buttons__()
 
     def __createTable__(self):
         self.__table__ = TableViewWidget(self)
@@ -40,7 +43,7 @@ class FilesTrackerWidget(CompositeWidget):
     def __createModel__(self):
         self.__table__.setModel(__FilesTrackerModel__(self))
 
-    def __createButtons__(self):
+    def __create_oper_buttons__(self):
         buttons_composite = CompositeWidget(self, layout=QHBoxLayout())
         PushButtonWidget(buttons_composite, i18n_def="Select all",
                     clicked_handler=self.__select_all_handler__)
@@ -62,6 +65,16 @@ class FilesTrackerWidget(CompositeWidget):
 
     def appendFile(self, _filename):
         self.__table__.model().appendFile(_filename)
+
+    def __create_misc_buttons__(self):
+        buttons_composite = CompositeWidget(self, layout=QHBoxLayout())
+        PushButtonWidget(buttons_composite, i18n_def="Plain view",
+                    clicked_handler=self.__plain_view_handler__)
+
+    def __plain_view_handler__(self):
+        filesnames = self.__table__.model().getSelectedFiles()
+        dialog = FilesPreviewDialog(normalize_filenames(filesnames), self)
+        dialog.exec_()
 
 
 class __FilesTrackerModel__(QStandardItemModel):
@@ -108,3 +121,14 @@ class __FilesTrackerModel__(QStandardItemModel):
         file_time_column = QStandardItem(str(file_time))
 
         self.appendRow([filename_column, size_column, file_time_column])
+
+    def getSelectedFiles(self):
+        """
+        return selected filenames
+        """
+        selected_files = []
+        for row in range(self.rowCount()):
+            item = self.item(row)
+            if item.isCheckable() and item.checkState() == Qt.Checked:
+                selected_files.append(str(item.text()))
+        return selected_files
