@@ -58,6 +58,9 @@ VALUE_CHANGED_SIGNAL = SIGNAL("valueChanged(int)")
 #signal emitted when item is check (check/uncheck) in a table view
 ITEM_CHANGED_SIGNAL = SIGNAL('itemChanged(QStandardItem *)')
 
+#signal emitted when rows are inserted into table view
+ROWS_INSERTED_SIGNAL = SIGNAL('rowsInserted(const QModelIndex&,int,int)')
+
 
 class SignalDispatcher(QObject):
     """

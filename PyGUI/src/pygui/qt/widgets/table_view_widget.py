@@ -9,6 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pygui.qt.utils.signals import ITEM_CHANGED_SIGNAL
+    from pygui.qt.utils.signals import ROWS_INSERTED_SIGNAL
     from pygui.qt.widgets.commons import Common
     from pygui.qt.widgets.commons import prepareWidget
     from pygui.qt.custom_widgets.progress_bar import ProgressDialogManager
@@ -67,6 +68,9 @@ class TableViewWidget(QTableView, Common):
         super(TableViewWidget, self).setModel(model)
         #signal used when selected row check state is changed
         self.connect(self.model(), ITEM_CHANGED_SIGNAL, self.__itemChanged__)
+        if self.params.rows_inserted_handler:
+            self.connect(self.model(), ROWS_INSERTED_SIGNAL,
+                         self.params.rows_inserted_handler)
 
     def __itemChanged__(self, item):
         if item.isCheckable():
@@ -86,4 +90,5 @@ class TableViewWidget(QTableView, Common):
         model = self.model()
         if model:
             if hasattr(model, 'removeRows'):
+                self.__checked_count__ = 0
                 model.removeRows(0, model.rowCount())

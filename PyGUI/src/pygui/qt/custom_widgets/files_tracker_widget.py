@@ -36,7 +36,9 @@ class FilesTrackerWidget(CompositeWidget):
         self.__create_misc_buttons__()
 
     def __createTable__(self):
-        self.__table__ = TableViewWidget(self)
+        self.__table__ = TableViewWidget(self,
+                change_check_count_handler=self.__change_check_count_handler__,
+                rows_inserted_handler=self.__rows_inserted_handler__)
         self.__table__.setSelectionMode(QAbstractItemView.MultiSelection)
         self.__table__.setSelectionBehavior(QAbstractItemView.SelectRows)
 
@@ -45,14 +47,19 @@ class FilesTrackerWidget(CompositeWidget):
 
     def __create_oper_buttons__(self):
         buttons_composite = CompositeWidget(self, layout=QHBoxLayout())
-        PushButtonWidget(buttons_composite, i18n_def="Select all",
-                    clicked_handler=self.__select_all_handler__)
+        self.__select_all__ = PushButtonWidget(buttons_composite,
+                    i18n_def="Select all",
+                    clicked_handler=self.__select_all_handler__,
+                    enabled=False)
 
-        PushButtonWidget(buttons_composite, i18n_def="Unselect all",
-                    clicked_handler=self.__unselect_all_handler__)
+        self.__unselect_all__ = PushButtonWidget(buttons_composite,
+                    i18n_def="Unselect all",
+                    clicked_handler=self.__unselect_all_handler__,
+                    enabled=False)
 
-        PushButtonWidget(buttons_composite, i18n_def="Clear",
-                    clicked_handler=self.__clear_handler__)
+        self.__clear__ = PushButtonWidget(buttons_composite, i18n_def="Clear",
+                    clicked_handler=self.__clear_handler__,
+                    enabled=False)
 
     def __select_all_handler__(self):
         self.__table__.changeCheckStatForAll(True)
@@ -62,19 +69,33 @@ class FilesTrackerWidget(CompositeWidget):
 
     def __clear_handler__(self):
         self.__table__.clearRows()
+        self.__select_all__.setEnabled(False)
+        self.__unselect_all__.setEnabled(False)
+        self.__clear__.setEnabled(False)
+        self.__plain_view__.setEnabled(False)
 
     def appendFile(self, _filename):
         self.__table__.model().appendFile(_filename)
 
     def __create_misc_buttons__(self):
         buttons_composite = CompositeWidget(self, layout=QHBoxLayout())
-        PushButtonWidget(buttons_composite, i18n_def="Plain view",
-                    clicked_handler=self.__plain_view_handler__)
+        self.__plain_view__ = PushButtonWidget(buttons_composite,
+                    i18n_def="Plain view",
+                    clicked_handler=self.__plain_view_handler__,
+                    enabled=False)
 
     def __plain_view_handler__(self):
         filesnames = self.__table__.model().getSelectedFiles()
         dialog = FilesPreviewDialog(normalize_filenames(filesnames), self)
         dialog.exec_()
+
+    def __change_check_count_handler__(self, count):
+        self.__plain_view__.setEnabled(count > 0)
+
+    def __rows_inserted_handler__(self, model_index, start_row, end_row):
+        self.__select_all__.setEnabled(True)
+        self.__unselect_all__.setEnabled(True)
+        self.__clear__.setEnabled(True)
 
 
 class __FilesTrackerModel__(QStandardItemModel):
