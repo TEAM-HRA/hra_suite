@@ -62,7 +62,9 @@ class TachogramPlotTabWidget(TabWidgetItemCommon):
     def __createTachogramPlotManager__(self):
         self.__tachogramsManager__ = TachogramPlotManager(self.__splitter__,
                                                      add_widget_to_parent=True)
-        self.__tachogramsManager__.createInitialPlot()
+        self.__initial_tachogram_plot__ = \
+                        self.__tachogramsManager__.createInitialPlot()
+
         if self.__splitter__.sizesLoaded() == False:
             idx = self.__splitter__.indexOf(self.__tachogramsManager__)
             self.__splitter__.setStretchFactor(idx, 20)
@@ -77,12 +79,16 @@ class TachogramPlotTabWidget(TabWidgetItemCommon):
                                              RESTORE_TACHOGRAM_PLOT_SIGNAL,
                                              self.__restoreTachogramPlot__)
 
-    def __addTachogramPlot__(self, files_specifications, allow_duplication,
+    def __addTachogramPlot__(self, file_specification, allow_duplication,
                              first_focus):
-        return self.__tachogramsManager__.addTachogramPlot(
-                                        files_specifications,
+        added = self.__tachogramsManager__.addTachogramPlot(
+                                        file_specification,
                                         allow_duplication=allow_duplication,
                                         first_focus=first_focus)
+        if added:
+            self.__initial_tachogram_plot__.addFileSpecification(
+                                                        file_specification)
+        return added
 
     def __closeTachogramsHandler__(self):
         if AreYouSureWindow(self, title='Closing all tachograms plots'):

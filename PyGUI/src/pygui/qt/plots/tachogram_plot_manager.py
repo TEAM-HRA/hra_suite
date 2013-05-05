@@ -9,11 +9,10 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import TAB_WIDGET_ADDED_SIGNAL
-    from pygui.qt.widgets.main_window_widget import MainWindowWidget
-    from pygui.qt.widgets.label_widget import LabelWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.tachogram_plot_window import TachogramPlotWindow
+    from pygui.qt.plots.tachogram_plots_group_window_widget import TachogramPlotsGroupWindowWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -37,16 +36,10 @@ class TachogramPlotManager(TabWidgetCommon):
             return tab
 
     def createInitialPlot(self):
-        self.__initial_tab__ = MainWindowWidget(self)
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        label = LabelWidget(self.__initial_tab__,
-                            i18n="tachogram.initial.page.label",
-                            i18n_def="Tachogram area",
-                            sizePolicy=sizePolicy,
-                            not_add_widget_to_parent_layout=True)
-        self.__initial_tab__.setCentralWidget(label)
+        self.__initial_tab__ = TachogramPlotsGroupWindowWidget(self)
         self.addTab(self.__initial_tab__, 'Welcome')
         self.markTabAsNotClose(self.__initial_tab__)
+        return self.__initial_tab__
 
     def __createTachogramTab__(self, file_specification, object_name):
         tachogramTabWidget = TachogramPlotWindow(self,
