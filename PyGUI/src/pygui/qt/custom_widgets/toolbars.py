@@ -9,7 +9,6 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pycore.collections_utils import all_true_values
     from pycore.collections_utils import nvl
     from pycommon.actions import ActionSpec
     from pygui.qt.actions.actions_utils import create_action
@@ -18,6 +17,10 @@ try:
     from pygui.qt.widgets.commons import CommonWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
+
+
+OPERATIONAL_BUTTON_GROUP = 'operational'
+CHECKABLE_BUTTON_GROUP = 'checkable'
 
 
 class ToolButtonCommon(QToolButton, Common):
@@ -35,7 +38,7 @@ class ToolButtonCommon(QToolButton, Common):
 
 
 class ToolBarCommon(QToolBar, Common):
-    def __init__(self, parent, _button_types=[], _check_fields=[], **params):
+    def __init__(self, parent, _button_types=[], _check_groups=[], **params):
         if params.get('not_add_widget_to_parent_layout', None) == None:
             params['not_add_widget_to_parent_layout'] = True
         super(ToolBarCommon, self).__init__(parent)
@@ -48,9 +51,13 @@ class ToolBarCommon(QToolBar, Common):
         button_type_classes = [_button.__class__ for _button in button_types]
         for _class in ToolButtonType.__subclasses__():  # @UndefinedVariable
             button_type = _class()
+            group_ok = False
+            if len(_check_groups) > 0 and len(button_type.button_groups) > 0:
+                for check_group in _check_groups:
+                    if check_group in button_type.button_groups:
+                        group_ok = True
             if _class not in button_type_classes and \
-                (all_true_values(button_type, _check_fields) or
-                 len(_check_fields) == 0):
+                (len(_check_groups) == 0 or group_ok):
                 button_types.append(button_type)
 
         for _button_type in button_types:
@@ -58,7 +65,7 @@ class ToolBarCommon(QToolBar, Common):
 
 
 DefaultToolButtonType = collections.namedtuple('ToolButtonType',
-    'active operational checkable handler_name icon_id title handler_callable_name') # @IgnorePep8
+    'active button_groups handler_name icon_id title handler_callable_name')
 
 
 def create_toolbar_button(parent, toolbar, button_type, **params):
@@ -119,23 +126,22 @@ class ToolBarManager(CommonWidget):
 class CheckUncheckToolBarWidget(ToolBarCommon):
     def __init__(self, parent=None, **params):
         super(CheckUncheckToolBarWidget, self).__init__(parent,
-                                                _check_fields=['checkable'],
-                                                 **params)
+                                    _check_groups=[CHECKABLE_BUTTON_GROUP],
+                                    **params)
 
 
 class OperationalToolBarWidget(ToolBarCommon):
     def __init__(self, parent=None, _button_types=[], **params):
         super(OperationalToolBarWidget, self).__init__(parent,
-                                                _check_fields=['operational'],
-                                                **params)
+                                    _check_groups=[OPERATIONAL_BUTTON_GROUP],
+                                    **params)
 
 
 class ToolButtonType(object):
     def __init__(self, default, **params):
         params = Params(**params)
         self.active = nvl(params.active, default.active)
-        self.operational = nvl(params.operational, default.operational)
-        self.checkable = nvl(params.checkable, default.checkable)
+        self.button_groups = nvl(params.button_groups, default.button_groups)
         self.handler_name = nvl(params.handler_name, default.handler_name)
         self.icon_id = nvl(params.icon_id, default.icon_id)
         self.title = nvl(params.title, default.title)
@@ -144,7 +150,7 @@ class ToolButtonType(object):
 
 class MaximumToolButton(ToolButtonType):
     def __init__(self, **params):
-        default = DefaultToolButtonType(True, True, False,
+        default = DefaultToolButtonType(True, [OPERATIONAL_BUTTON_GROUP],
             'toolbar_maximum_handler', 'toolbar_maximum_button',
             'Maximize', 'toolbar_maximum_handler_callable')
         super(MaximumToolButton, self).__init__(default, **params)
@@ -152,7 +158,7 @@ class MaximumToolButton(ToolButtonType):
 
 class RestoreToolButton(ToolButtonType):
     def __init__(self, **params):
-        default = DefaultToolButtonType(True, True, False,
+        default = DefaultToolButtonType(True, [OPERATIONAL_BUTTON_GROUP],
             'toolbar_restore_handler', 'toolbar_restore_button',
             'Restore', 'toolbar_restore_handler_callable')
         super(RestoreToolButton, self).__init__(default, **params)
@@ -160,7 +166,7 @@ class RestoreToolButton(ToolButtonType):
 
 class CloseToolButton(ToolButtonType):
     def __init__(self, **params):
-        default = DefaultToolButtonType(True, True, False,
+        default = DefaultToolButtonType(True, [OPERATIONAL_BUTTON_GROUP],
             'toolbar_close_handler', 'toolbar_close_button',
             'Close', 'toolbar_close_handler_callable')
         super(CloseToolButton, self).__init__(default, **params)
@@ -176,7 +182,7 @@ class CloseToolButton(ToolButtonType):
 
 class HideToolButton(ToolButtonType):
     def __init__(self, **params):
-        default = DefaultToolButtonType(True, True, False,
+        default = DefaultToolButtonType(True, [OPERATIONAL_BUTTON_GROUP],
             'toolbar_hide_handler', 'toolbar_hide_button',
             'Hide', 'toolbar_hide_handler_callable')
         super(HideToolButton, self).__init__(default, **params)
@@ -184,7 +190,7 @@ class HideToolButton(ToolButtonType):
 
 class CheckToolButton(ToolButtonType):
     def __init__(self, **params):
-        default = DefaultToolButtonType(True, False, True,
+        default = DefaultToolButtonType(True, [CHECKABLE_BUTTON_GROUP],
             'toolbar_check_handler', 'toolbar_check_button',
             'Check', 'toolbar_check_handler_callable')
         super(CheckToolButton, self).__init__(default, **params)
@@ -192,7 +198,7 @@ class CheckToolButton(ToolButtonType):
 
 class UncheckToolButton(ToolButtonType):
     def __init__(self, **params):
-        default = DefaultToolButtonType(True, False, True,
+        default = DefaultToolButtonType(True, [CHECKABLE_BUTTON_GROUP],
             'toolbar_uncheck_handler', 'toolbar_uncheck_button',
             'Uncheck', 'toolbar_uncheck_handler_callable')
         super(UncheckToolButton, self).__init__(default, **params)
