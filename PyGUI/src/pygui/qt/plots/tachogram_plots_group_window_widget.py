@@ -8,6 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
+    from pymath.model.data_vector_accessor import get_data_accessor_from_file_specification # @IgnorePep8
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
@@ -15,6 +16,9 @@ try:
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import RESTORE_TACHOGRAM_PLOT_SIGNAL
+    from pygui.qt.plots.specific_widgets.poincare_toolbar_widget import PoincareToolBarWidget # @IgnorePep8
+    from pygui.qt.plots.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget # @IgnorePep8
+    from pygui.qt.plots.outcome_files_tracker_dock_widget import OutcomeFilesTrackerDockWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -29,6 +33,7 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
         self.params = Params(**params)
 
         self.addToolBar(OperationalToolBarWidget(self))
+        self.addToolBar(PoincareToolBarWidget(self))
 
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         composite = CompositeWidget(self,
@@ -53,14 +58,40 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
     def addFileSpecification(self, _file_specification):
         if self.__file_specifications__.count(_file_specification) == 0:
             self.__file_specifications__.append(_file_specification)
-#    def __change_unit_handler__(self, _unit):
-#        self.tachogramPlot.changeXUnit(_unit)
-#        statusbar = StatusBarWidget(self.__initial_tab__)
-#        self.__initial_tab__.setStatusBar(statusbar)
-#        statusLabel = LabelWidget(statusbar,
-#                    i18n_def="STATUS",
-#                    add_widget_to_parent=True)
-#
+
+    def show_poincare_settings_handler(self):
+        """
+        handler call by PoincareToolBarWidget toolbar
+        """
+        if len(self.__file_specifications__) == 0:
+            return
+        if not hasattr(self, '__poincare_settings__'):
+
+            #create data accessor object based on file specification objects
+            data_accessors = []
+            for file_specification in self.__file_specifications__:
+                data_accessors.append(
+                        get_data_accessor_from_file_specification(self,
+                                                     file_specification))
+
+            #the first element is reference data accessor object
+            data_accessor = data_accessors[0]
+            #remaining elements (if any) constitute data accessors group
+            data_accessors_group = data_accessors[1:] if len(data_accessors) > 1 else None # @IgnorePep8
+
+            self.__poincare_settings__ = PoincarePlotSettingsDockWidget(
+                        self, data_accessor=data_accessor,
+                        data_accessors_group=data_accessors_group,
+                        output_file_listener=self.__output_file_listener__
+                        )
+        self.__poincare_settings__.show()
+
+    def __output_file_listener__(self, _filename):
+        if not hasattr(self, '__outcome_files_tracker__'):
+            self.__outcome_files_tracker__ = OutcomeFilesTrackerDockWidget(
+                                                                        self)
+        self.__outcome_files_tracker__.show()
+        self.__outcome_files_tracker__.appendFile(_filename)
 
 
 #class __TachogramPlot__(CompositeWidget):

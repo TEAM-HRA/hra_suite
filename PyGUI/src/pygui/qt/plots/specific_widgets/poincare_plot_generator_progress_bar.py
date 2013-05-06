@@ -58,8 +58,13 @@ class PoincarePlotGeneratorProgressBar(object):
             #is greater then total count calculated by segment_count method
             count = count + int(count * (1 / 100))
 
+            #extends label text with source name (if not None)
+            label_text = self.label_text + " [" + (
+                        data_vector_accessor.source_name
+                            if data_vector_accessor.source_name else "") + "]"
+
             progressManager = ProgressDialogManager(self.parent,
-                                            label_text=self.label_text,
+                                            label_text=label_text,
                                             max_value=count)
             with progressManager as progress:
                 start_progress = self.__StartProgress__()
@@ -90,10 +95,9 @@ class PoincarePlotGeneratorProgressBar(object):
                     self.params.formatted_summary_statistics.append(
                                   pp_generator.formatted_summary_statistics)
 
-#            for idx in range(count):
-#                if (progress.wasCanceled()):
-#                    break
-#                progress.increaseCounter()
+                #if interrupted break the whole loop
+                if self.__interrupted__:
+                    return
 
     def interrupted(self, clear=True):
         """
