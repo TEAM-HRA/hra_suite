@@ -7,8 +7,11 @@ from pymath.utils.utils import print_import_error
 try:
     import gc
     import pylab as pl
+    from pycore.units import get_unit_by_class_name
+    from pycore.units import OrderUnit
     from pymath.utils.array_utils import arrays_equal
     from pymath.model.parameters_container import ParametersContainer
+    from pymath.model.file_data_source import FileDataSource
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -120,6 +123,10 @@ class DataVectorAccessor(object):
     def parameters_container(self):
         return self.__parameters_container__
 
+    @parameters_container.setter
+    def parameters_container(self, _parameters_container):
+        self.__parameters_container__ = _parameters_container
+
     def prepareParametersContainer(self):
         """
         method invokes all data vector listeners prepareParameters method
@@ -134,3 +141,20 @@ class DataVectorAccessor(object):
     @source_name.setter
     def source_name(self, _source_name):
         self.__source_name__ = _source_name
+
+
+def get_data_accessor_from_file_specification(parent, file_specification,
+                                             set_parent_signal_unit=True):
+    """
+    function which creates data accessor object from file specification object
+    """
+    file_data_source_params = file_specification._asdict()
+    if set_parent_signal_unit and hasattr(parent, 'signal_unit'):
+        parent.signal_unit = get_unit_by_class_name(
+                    file_data_source_params.get('signal_unit_class_name'))
+    file_data_source = FileDataSource(**file_data_source_params)
+    data = file_data_source.getData()
+    data_accessor = DataVectorAccessor(data)
+    data_accessor.source_name = file_data_source.source_filename
+    data_accessor.changeXSignalUnit(parent, OrderUnit)
+    return data_accessor
