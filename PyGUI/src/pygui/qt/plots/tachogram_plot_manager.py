@@ -37,7 +37,7 @@ class TachogramPlotManager(TabWidgetCommon):
 
     def createInitialPlot(self):
         self.__initial_tab__ = TachogramPlotsGroupWindowWidget(self)
-        self.addTab(self.__initial_tab__, 'Welcome')
+        self.addTab(self.__initial_tab__, 'Summary')
         self.markTabAsNotClose(self.__initial_tab__)
         return self.__initial_tab__
 
