@@ -8,10 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pycore.units import get_unit_by_class_name
-    from pycore.units import OrderUnit
-    from pymath.model.file_data_source import FileDataSource
-    from pymath.model.data_vector_accessor import DataVectorAccessor
+    from pymath.model.data_vector_accessor import get_data_accessor_from_file_specification # @IgnorePep8
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
@@ -63,16 +60,13 @@ class __TachogramPlot__(CompositeWidget):
         super(__TachogramPlot__, self).__init__(parent,
                                         not_add_widget_to_parent_layout=True)
         self.params = Params(**params)
-        file_data_source_params = self.params.file_specification._asdict()
-        self.signal_unit = get_unit_by_class_name(
-                        file_data_source_params.get('signal_unit_class_name'))
-        file_data_source = FileDataSource(**file_data_source_params)
+
+        data_accessor = get_data_accessor_from_file_specification(self,
+                                                self.params.file_specification,
+                                                set_parent_signal_unit=True)
+
         layout = QVBoxLayout()
         self.setLayout(layout)
-        data = file_data_source.getData()
-        data_accessor = DataVectorAccessor(data)
-        data_accessor.source_name = file_data_source.source_filename
-        data_accessor.changeXSignalUnit(self, OrderUnit)
         self.canvas = TachogramPlotCanvas(self, data_accessor=data_accessor)
         layout.addWidget(self.canvas)
         self.navigation_toolbar = TachogramPlotNavigationToolbar(
