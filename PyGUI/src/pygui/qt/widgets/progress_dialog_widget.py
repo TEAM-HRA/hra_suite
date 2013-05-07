@@ -17,18 +17,18 @@ except ImportError as error:
 
 class ProgressDialogWidget(QProgressDialog, Common):
     def __init__(self, parent, **params):
-        local_params = Params(**params)
-        local_params.label_text = nvl(local_params.label_text, 'Processing...')
-        local_params.cancel_text = nvl(local_params.cancel_text, 'Abort')
-        self.min_value = nvl(local_params.min_value, 0)
-        self.max_value = nvl(local_params.max_value, 10000)
+        self.params = Params(**params)
+        self.params.label_text = nvl(self.params.label_text, 'Processing...')
+        self.params.cancel_text = nvl(self.params.cancel_text, 'Abort')
+        self.min_value = nvl(self.params.min_value, 0)
+        self.max_value = nvl(self.params.max_value, 10000)
         self.counter = self.min_value
-        super(ProgressDialogWidget, self).__init__(local_params.label_text,
-                                                   local_params.cancel_text,
+        super(ProgressDialogWidget, self).__init__(self.params.label_text,
+                                                   self.params.cancel_text,
                                                    self.min_value,
                                                    self.max_value,
                                                    parent)
-        self.setWindowTitle(nvl(local_params.title, 'Progress'))
+        self.setWindowTitle(nvl(self.params.title, 'Progress'))
         if params.get('not_add_widget_to_parent_layout', None) == None:
             params['not_add_widget_to_parent_layout'] = True
         prepareWidget(parent=parent, widget=self, **params)
@@ -38,3 +38,6 @@ class ProgressDialogWidget(QProgressDialog, Common):
         self.counter = self.counter + step
         if self.counter > self.max_value:
             self.counter = 0
+        self.setLabelText("{0} [{1}/{2}]".format(self.params.label_text,
+                                              self.counter,
+                                              self.max_value))
