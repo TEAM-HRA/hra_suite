@@ -61,6 +61,7 @@ PyGUI/src/pygui/qt/custom_widgets/__init__.py -text
 PyGUI/src/pygui/qt/custom_widgets/checkable_table_header_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/decimal_precision_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/dir_widget.py -text
+PyGUI/src/pygui/qt/custom_widgets/file_specification_to_data_accessor_progress_bar.py -text
 PyGUI/src/pygui/qt/custom_widgets/files_tracker_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/__init__.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/common_annotation_filter_widget.py -text
