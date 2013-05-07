@@ -8,6 +8,7 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
+    from pycore.units import get_unit_by_class_name
     from pymath.model.data_vector_accessor import get_data_accessor_from_file_specification # @IgnorePep8
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
@@ -30,13 +31,14 @@ class TachogramPlotWindow(MainWindowWidget):
         super(TachogramPlotWindow, self).__init__(parent, **params)
         self.params = Params(**params)
         self.data_accessor = get_data_accessor_from_file_specification(self,
-                                                self.params.file_specification,
-                                                set_parent_signal_unit=True)
+                                                self.params.file_specification)
 
         self.addToolBar(OperationalToolBarWidget(self))
         self.addToolBar(PoincareToolBarWidget(self))
 
-        self.setCentralWidget(__TachogramPlot__(self))
+        signal_unit = get_unit_by_class_name(
+                        self.params.file_specification.signal_unit_class_name)
+        self.setCentralWidget(__TachogramPlot__(self, signal_unit=signal_unit))
 
     def toolbar_maximum_handler(self):
         SignalDispatcher.broadcastSignal(MAXIMIZE_TACHOGRAM_PLOT_SIGNAL)
@@ -78,6 +80,7 @@ class __TachogramPlot__(CompositeWidget):
         super(__TachogramPlot__, self).__init__(parent,
                                         not_add_widget_to_parent_layout=True)
         self.params = Params(**params)
+        self.signal_unit = self.params.signal_unit
 
         layout = QVBoxLayout()
         self.setLayout(layout)
