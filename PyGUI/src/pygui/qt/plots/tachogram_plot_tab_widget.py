@@ -64,6 +64,8 @@ class TachogramPlotTabWidget(TabWidgetItemCommon):
                                                      add_widget_to_parent=True)
         self.__initial_tachogram_plot__ = \
                         self.__tachogramsManager__.createInitialPlot()
+        self.__initial_tachogram_plot__.setSelectedFilesSpecificationsHandler(
+                            self.__selected_files_specifications_handler__)
 
         if self.__splitter__.sizesLoaded() == False:
             idx = self.__splitter__.indexOf(self.__tachogramsManager__)
@@ -114,3 +116,6 @@ class TachogramPlotTabWidget(TabWidgetItemCommon):
 
     def __restoreTachogramPlot__(self):
         restore_widget(self.__tachogramsManager__)
+
+    def __selected_files_specifications_handler__(self):
+        return self.__datasourceListWidget__.getSelectedFilesSpecifications()

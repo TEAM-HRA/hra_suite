@@ -8,9 +8,10 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
-    from pymath.model.data_vector_accessor import get_data_accessor_from_file_specification # @IgnorePep8
     from pygui.qt.utils.signals import SignalDispatcher
+    from pygui.qt.utils.windows import InformationWindow
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
+    from pygui.qt.custom_widgets.toolbars import CloseToolButton
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.main_window_widget import MainWindowWidget
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
@@ -19,6 +20,7 @@ try:
     from pygui.qt.plots.specific_widgets.poincare_toolbar_widget import PoincareToolBarWidget # @IgnorePep8
     from pygui.qt.plots.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget # @IgnorePep8
     from pygui.qt.plots.outcome_files_tracker_dock_widget import OutcomeFilesTrackerDockWidget # @IgnorePep8
+    from pygui.qt.custom_widgets.file_specification_to_data_accessor_progress_bar import FileSpecificationToDataAccessorProgressBar # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -32,7 +34,8 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
         super(TachogramPlotsGroupWindowWidget, self).__init__(parent, **params)
         self.params = Params(**params)
 
-        self.addToolBar(OperationalToolBarWidget(self))
+        self.addToolBar(OperationalToolBarWidget(self,
+                                        excluded_buttons=[CloseToolButton]))
         self.addToolBar(PoincareToolBarWidget(self))
 
         sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
@@ -41,6 +44,7 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
                             not_add_widget_to_parent_layout=True)
         self.setCentralWidget(composite)
         self.__file_specifications__ = []
+        self.__selected_files_specifications_handler__ = None
 
 #        self.tachogramPlot = __TachogramPlot__(self,
 #                        file_specification=_files_specifications[0])
@@ -63,16 +67,26 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
         """
         handler call by PoincareToolBarWidget toolbar
         """
+
+        if self.__selected_files_specifications_handler__:
+            selected_files_specifications = \
+                        self.__selected_files_specifications_handler__()
+            if len(selected_files_specifications) > 0:
+                for file_specification in selected_files_specifications:
+                    self.addFileSpecification(file_specification)
+
         if len(self.__file_specifications__) == 0:
+            InformationWindow(message='No data sources selected !')
             return
         if not hasattr(self, '__poincare_settings__'):
 
-            #create data accessor object based on file specification objects
-            data_accessors = []
-            for file_specification in self.__file_specifications__:
-                data_accessors.append(
-                        get_data_accessor_from_file_specification(self,
-                                                     file_specification))
+            #create data accessor objects based on file specification objects
+            #to inform a user about progression special kind of progress bar
+            #is used
+            data_accessor_progress_bar = FileSpecificationToDataAccessorProgressBar( # @IgnorePep8
+                                            self, self.__file_specifications__)
+            data_accessor_progress_bar.start()
+            data_accessors = data_accessor_progress_bar.data_accessors
 
             #the first element is reference data accessor object
             data_accessor = data_accessors[0]
@@ -93,7 +107,10 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
         self.__outcome_files_tracker__.show()
         self.__outcome_files_tracker__.appendFile(_filename)
 
-
+    def setSelectedFilesSpecificationsHandler(self,
+                                    _selected_files_specifications_handler):
+        self.__selected_files_specifications_handler__ = \
+                                    _selected_files_specifications_handler
 #class __TachogramPlot__(CompositeWidget):
 #    """
 #    this class represents core of the tachogram plot that is a plot itself
