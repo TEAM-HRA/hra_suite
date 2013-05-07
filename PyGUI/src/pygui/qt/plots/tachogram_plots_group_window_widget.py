@@ -93,11 +93,15 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
             #remaining elements (if any) constitute data accessors group
             data_accessors_group = data_accessors[1:] if len(data_accessors) > 1 else None # @IgnorePep8
 
+            #save outcomes button in PoincarePlotSettingsDockWidget have to be
+            #in fixed check state
+            save_outcomes_fixed_state = True
+
             self.__poincare_settings__ = PoincarePlotSettingsDockWidget(
                         self, data_accessor=data_accessor,
                         data_accessors_group=data_accessors_group,
-                        output_file_listener=self.__output_file_listener__
-                        )
+                        output_file_listener=self.__output_file_listener__,
+                        save_outcomes_fixed_state=save_outcomes_fixed_state)
         self.__poincare_settings__.show()
 
     def __output_file_listener__(self, _filename):

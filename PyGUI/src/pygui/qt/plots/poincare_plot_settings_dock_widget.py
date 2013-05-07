@@ -64,7 +64,8 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
 
     def __createStatisticsWidget__(self, layout):
         self.__statistics_widget__ = StatisticsWidget(self.__splitter__,
-                        layout=layout, data_accessor=self.data_accessor,
-                        data_accessors_group=self.data_accessors_group,
-                        output_file_listener=self.params.output_file_listener)
+            layout=layout, data_accessor=self.data_accessor,
+            data_accessors_group=self.data_accessors_group,
+            output_file_listener=self.params.output_file_listener,
+            save_outcomes_fixed_state=self.params.save_outcomes_fixed_state)
         self.__splitter__.changeSplitterHandleColor(3, Qt.black)

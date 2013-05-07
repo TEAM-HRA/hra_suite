@@ -55,6 +55,13 @@ class StatisticsWidget(GroupBoxWidget):
         self.__save_outcomes_button__ = CheckBoxWidget(buttons_composite,
                                     i18n_def="Save outcomes", enabled=False)
 
+        #if parameter save_outcomes_fixed_state is not None
+        #then it's equal to checked state of save outcomes button
+        #and this state couldn't be change later by a user
+        if self.params.save_outcomes_fixed_state:
+            self.__save_outcomes_button__.setChecked(
+                                        self.params.save_outcomes_fixed_state)
+
     def __calculate_statistics_handler__(self):
         if self.params.data_accessor:
             self.params.data_accessor.prepareParametersContainer()
@@ -98,7 +105,11 @@ class StatisticsWidget(GroupBoxWidget):
                 len(self.getSelectedSummaryStatisticsClasses()) > 0:
                 _checked = True
         self.__calculate_button__.setEnabled(_checked)
-        self.__save_outcomes_button__.setEnabled(_checked)
+
+        #only if this parameter is None save outcomes button's check state
+        #could be changed
+        if self.params.save_outcomes_fixed_state == None:
+            self.__save_outcomes_button__.setEnabled(_checked)
 
     def getSelectedStatisticsClasses(self):
         return self.__statistics_widget__.getSelectedStatisticsClasses()
