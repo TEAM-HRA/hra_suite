@@ -146,3 +146,10 @@ class FileDataSource(object):
         returns source filename
         """
         return os.path.basename(self.__file__) if self.__file__ else None
+
+    @property
+    def source_pathname(self):
+        """
+        returns source pathname
+        """
+        return os.path.dirname(self.__file__) if self.__file__ else None

@@ -7,6 +7,7 @@ from pycore.special import ImportErrorMessage
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.io_utils import normalize_filenames
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import TAB_WIDGET_ADDED_SIGNAL
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
@@ -46,13 +47,13 @@ class TachogramPlotManager(TabWidgetCommon):
                                     file_specification=file_specification)
         tachogramTabWidget.setObjectName(object_name)
         self.addTab(tachogramTabWidget,
-                    self.getNextTitle(file_specification.filename))
+                    self.getNextTitle(object_name))
         SignalDispatcher.broadcastSignal(TAB_WIDGET_ADDED_SIGNAL)
         return tachogramTabWidget
 
     def __getObjectName__(self, file_specification):
-        return ".".join([file_specification.pathname,
-                         file_specification.filename])
+        return normalize_filenames(file_specification.pathname,
+                                   file_specification.filename)
 
     def __closeTachogramPlotTab__(self, _tachogram_plot_tab):
         idx = self.indexOf(_tachogram_plot_tab)

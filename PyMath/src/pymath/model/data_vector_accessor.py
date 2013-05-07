@@ -29,6 +29,7 @@ class DataVectorAccessor(object):
         self.__x_signal_unit__ = None
         self.__parameters_container__ = ParametersContainer()
         self.__source_name__ = None
+        self.__path_name__ = None
 
     @property
     def data_vector(self):
@@ -141,6 +142,14 @@ class DataVectorAccessor(object):
     def source_name(self, _source_name):
         self.__source_name__ = _source_name
 
+    @property
+    def path_name(self):
+        return self.__path_name__
+
+    @path_name.setter
+    def path_name(self, _path_name):
+        self.__path_name__ = _path_name
+
 
 def get_data_accessor_from_file_specification(parent, file_specification):
     """
@@ -151,5 +160,6 @@ def get_data_accessor_from_file_specification(parent, file_specification):
     data = file_data_source.getData()
     data_accessor = DataVectorAccessor(data)
     data_accessor.source_name = file_data_source.source_filename
+    data_accessor.path_name = file_data_source.source_pathname
     data_accessor.changeXSignalUnit(parent, OrderUnit)
     return data_accessor
