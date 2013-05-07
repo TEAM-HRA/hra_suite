@@ -46,10 +46,6 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
         self.__file_specifications__ = []
         self.__selected_files_specifications_handler__ = None
 
-#        self.tachogramPlot = __TachogramPlot__(self,
-#                        file_specification=_files_specifications[0])
-#        self.setCentralWidget(self.tachogramPlot)
-
     def toolbar_maximum_handler(self):
         SignalDispatcher.broadcastSignal(MAXIMIZE_TACHOGRAM_PLOT_SIGNAL)
 
