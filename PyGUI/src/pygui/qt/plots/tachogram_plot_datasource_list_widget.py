@@ -146,3 +146,10 @@ class TachogramPlotDatasourceListWidget(CommonWidget):
             list_items = self.__datasourceList__.selectedItems()
         #acquired from data buffer of list items file specification objects
         return [list_item.getData() for list_item in list_items]
+
+    def getSelectedFilesSpecifications(self):
+        """
+        method returns selected files specifications in tachogram plot
+        list widget
+        """
+        return self.__getFilesSpecifications__(selected=True)
