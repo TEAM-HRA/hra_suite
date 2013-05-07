@@ -48,8 +48,13 @@ class ToolBarCommon(QToolBar, Common):
         #in this toolbar buttons from the previous one
         button_types = _button_types[:]
 
+        exclude_buttons_classes = params.get('excluded_buttons', None)
         button_type_classes = [_button.__class__ for _button in button_types]
         for _class in ToolButtonType.__subclasses__():  # @UndefinedVariable
+            #some buttons could be excluded
+            if exclude_buttons_classes:
+                if _class in exclude_buttons_classes:
+                    continue
             button_type = _class()
             group_ok = False
             if len(_check_groups) > 0 and len(button_type.button_groups) > 0:
