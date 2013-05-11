@@ -59,7 +59,7 @@ class DataVectorSegmenter(object):
             signal_size = max_index - self.__index__
         else:
             signal_size = self.__window_size__
-        if self.__index__ + signal_size + self.__shift__ <= len(self.__data__.signal): # @IgnorePep8
+        if self.__index__ + signal_size <= len(self.__data__.signal):
             indexes = np.arange(self.__index__, self.__index__ + signal_size)
             signal = self.__data__.signal.take(indexes)
 
