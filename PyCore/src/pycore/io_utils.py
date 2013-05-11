@@ -5,6 +5,7 @@ Created on 20-10-2012
 '''
 
 import sys
+import collections
 from os import walk
 from os import makedirs
 import os.path as fs
@@ -333,3 +334,15 @@ def normalize_filenames(*iterator):
         return filenames
     else:
         return None
+
+PathAndFile = collections.namedtuple('PathAndFile', ["pathname", "filename"])
+
+
+def path_and_file(_fullfilename):
+    """
+    tool function which splits full filename into named tuple PathAndFile
+    """
+    pathname = fs.dirname(_fullfilename)
+    filename = fs.basename(_fullfilename)
+    if pathname and filename:
+        return PathAndFile(pathname, filename)
