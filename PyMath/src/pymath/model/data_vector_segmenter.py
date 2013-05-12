@@ -7,6 +7,7 @@ from pymath.utils.utils import print_import_error
 try:
     import numpy as np
     from pycore.units import get_time_unit
+    from pymath.statistics.statistics import MeanStatistic
     from pymath.model.data_vector import DataVector
     from pymath.utils.array_utils import \
         get_max_index_for_cumulative_sum_greater_then_value
@@ -18,29 +19,15 @@ except ImportError as error:
 
 class DataVectorSegmenter(object):
 
-    def __init__(self, data, window_size,  shift=1, window_size_unit=None):
+    def __init__(self, data, window_size,  shift=1, window_size_unit=None,
+                 filter_manager=None, normalize_window_size=True):
         self.__data__ = data
-        self.__window_size__ = window_size
         self.__shift__ = shift
         self.__index__ = 0
-        self.__window_size_unit__ = window_size_unit
         self.__window_unit__ = None
 
-        #this means a user put window size in some unit
-        if self.__window_size_unit__:
-            #get time unit of window size
-            self.__window_unit__ = get_time_unit(self.__window_size_unit__)
-
-            #convert signal unit into window size unit,
-            #for example express milliseconds in minutes
-            multiplier = self.__window_unit__.expressInUnit(
-                                                    self.__data__.signal_unit)
-
-            #express window size in units of a signal
-            self.__window_size__ = multiplier * window_size
-        else:
-            if self.__window_size__ > len(self.__data__.signal):
-                raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
+        self.__calculate_window_size__(window_size, window_size_unit,
+                                       normalize_window_size, filter_manager)
 
     def __iter__(self):
         return self
@@ -113,3 +100,50 @@ class DataVectorSegmenter(object):
             size = self.__window_size__
         return ((len(self.__data__.signal) - size) / self.__shift__) + 1 \
                 if size > 0 else size
+
+    def __calculate_window_size__(self, window_size, window_size_unit,
+                                  normalize_window_size, filter_manager):
+        """
+        method calculates correct window size
+        """
+        self.__window_size_unit__ = window_size_unit
+        self.__window_size__ = window_size
+        data = self.__data__
+        if self.__window_size__:
+
+            #get time unit of window size
+            self.__window_unit__ = get_time_unit(self.__window_size_unit__)
+            if not self.__window_unit__:
+                raise Exception('Unknown window size unit !!! ['
+                                + self.__window_unit__ + ']')
+
+            #calculate multiplier of conversion between data signal unit
+            #and window size unit
+            multiplier = self.__window_unit__.expressInUnit(data.signal_unit)
+            window_size_in_signal_unit = multiplier * window_size
+
+            #express window size put in some unit in normalized
+            #number of data, normalized means calculate a mean of a signal
+            #(filtered signal if required) and calculate how many means
+            #divide the whole window size
+            if normalize_window_size:
+                if filter_manager:
+                    data = filter_manager.run_filters(data)
+
+                mean_stat = MeanStatistic()
+                mean_stat.data = data
+                mean_signal = mean_stat.compute()
+
+                #number of means per window_size_in_signal_unit
+                window_size_in_signal_unit = int(
+                                    window_size_in_signal_unit / mean_signal)
+                #because window size is expressed in number of data points,
+                #window size unit is not required any more
+                self.__window_size_unit__ = None
+                print('Using normalized window size: ' +
+                                            str(window_size_in_signal_unit))
+
+            self.__window_size__ = window_size_in_signal_unit
+        else:
+            if self.__window_size__ > len(data.signal):
+                raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8

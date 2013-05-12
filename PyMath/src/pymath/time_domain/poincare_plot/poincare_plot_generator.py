@@ -181,9 +181,11 @@ class PoincarePlotGenerator(object):
                 summary_statistics_classes=self.summary_statistics_classes)
 
         segmenter = DataVectorSegmenter(data_vector,
-                                self.window_size,
-                                shift=self.window_shift,
-                                window_size_unit=self.window_size_unit)
+                            self.window_size,
+                            shift=self.window_shift,
+                            window_size_unit=self.window_size_unit,
+                            normalize_window_size=self.normalize_window_size,
+                            filter_manager=filter_manager)
 
         start_progress.segmenter = segmenter
         start_progress()
@@ -315,10 +317,15 @@ class PoincarePlotGenerator(object):
         calculates approximate number of segments count during
         processing of poincare plot
         """
+        filter_manager = FilterManager(_shift=self.window_shift,
+                        _excluded_annotations=self.excluded_annotations,
+                        _filters=self.filters)
         segmenter = DataVectorSegmenter(data_vector,
-                                self.window_size,
-                                shift=self.window_shift,
-                                window_size_unit=self.window_size_unit)
+                            self.window_size,
+                            shift=self.window_shift,
+                            window_size_unit=self.window_size_unit,
+                            normalize_window_size=self.normalize_window_size,
+                            filter_manager=filter_manager)
         return segmenter.segment_count()
 
 

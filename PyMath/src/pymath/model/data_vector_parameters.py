@@ -25,6 +25,7 @@ class DataVectorParameters(CoreParameters):
     def __init__(self):
         self.__window_shift__ = 1
         self.__excluded_annotations__ = ALL_ANNOTATIONS
+        self.__normalize_window_size__ = True
 
     @property
     def window_size(self):
@@ -149,6 +150,7 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'signal_index', self.signal_index)
         setattr(_object, 'annotation_index', self.annotation_index)
         setattr(_object, 'time_index', self.time_index)
+        setattr(_object, 'normalize_window_size', self.normalize_window_size)
 
     def validateDataVectorParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.window_size is None or self.window_size == 0:
@@ -156,3 +158,18 @@ class DataVectorParameters(CoreParameters):
         if check_level >= CoreParameters.NORMAL_CHECK_LEVEL:
             if self.signal_index is None:
                 return 'signal index has to be set'
+
+    @property
+    def normalize_window_size(self):
+        """
+        [optional]
+        if a window size is expressed in units then the real window size
+        is normalize to number of data corresponds to mean value of signal per
+        given window size
+        values: [True - default], False
+        """
+        return nvl(self.__normalize_window_size__, True)
+
+    @normalize_window_size.setter
+    def normalize_window_size(self, _normalize_window_size):
+        self.__normalize_window_size__ = _normalize_window_size
