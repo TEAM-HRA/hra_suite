@@ -315,8 +315,8 @@ class SD2InnerStatistic(Statistic, Inner):
 
         sd2 = (self.signal_plus - mean_plus
                    + self.signal_minus - mean_minus) / pl.sqrt(2)
-        return pl.sqrt((pl.sum(sd2[self.indexes(sd1)] ** 2)
-                + (pl.sum(sd2[nochange_indexes] ** 2) / 2)) / pl.size(sd2))
+        return pl.sqrt((pl.sum(sd2[self.indexes()] ** 2)
+                + (pl.sum(sd2[nochange_indexes] ** 2)) / 2) / pl.size(sd2))
 
     def indexes(self, sd):
         return None
@@ -326,16 +326,16 @@ class SD2aStatistic(SD2InnerStatistic, Asymmetry):
     """
     for accelerations
     """
-    def indexes(self, sd):
-        return pl.find(sd > 0)
+    def indexes(self):
+        return pl.find(self.signal_minus > self.signal_plus)
 
 
 class SD2dStatistic(SD2InnerStatistic, Asymmetry):
     """
     for decelerations
     """
-    def indexes(self, sd):
-        return pl.find(sd < 0)
+    def indexes(self):
+        return pl.find(self.signal_minus < self.signal_plus)
 
 
 class SDNNStatistic(Statistic, Asymmetry):
@@ -724,6 +724,22 @@ class C1d50C2d50Statistic(Statistic, Asymmetry):
                             signal_minus=self.signal_minus,
                             buffer=self.buffer).compute()
         return C1d > 0.5 and C2d < 0.5
+
+
+class CountAboveLineIdentityStatistic(Statistic, Asymmetry):
+    """
+    calculate number of points above line of identity
+    """
+    def __calculate__(self):
+        return len(pl.where(self.signal_minus > self.signal_plus)[0])
+
+
+class CountBelowLineIdentityStatistic(Statistic, Asymmetry):
+    """
+    calculate number of points below line of identity
+    """
+    def __calculate__(self):
+        return len(pl.where(self.signal_minus < self.signal_plus)[0])
 
 
 class StatisticsFactory(object):

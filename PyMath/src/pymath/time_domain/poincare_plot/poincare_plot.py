@@ -129,6 +129,7 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
 
         start_progress = CSVStartProgressGenerator()
         start_progress.progress_mark = self.progress_mark
+        start_progress.info_handler = self.info_handler
         return self.__pp_generator__.generate_CSV(data_vector, _file,
                             start_progress=start_progress,
                             progress_handler=CSVProgressHandlerGenerator())
@@ -174,6 +175,9 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         print_private_properties(self)
         print('\n available statistics:')
         self.available_statistics()
+
+    def info_handler(self, _message):
+        print(_message)
 
 
 if __name__ == '__main__':

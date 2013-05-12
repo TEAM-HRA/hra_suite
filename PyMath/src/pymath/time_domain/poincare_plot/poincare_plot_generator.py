@@ -24,7 +24,7 @@ try:
     from pymath.statistics.summary_statistics import SummaryStatisticsFactory
     from pymath.statistics.summary_statistics import get_summary_statistics_for_csv # @IgnorePep8
     from pymath.statistics.statistic_parameters import extended_statistics_classes # @IgnorePep8
-    from pymath.frequency_domain.fourier import FourierTransformationManager
+    #from pymath.frequency_domain.fourier import FourierTransformationManager
     from pymath.time_domain.poincare_plot.filters.filter_manager import FilterManager # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
@@ -156,8 +156,8 @@ class PoincarePlotGenerator(object):
         core functionality to generate poincare plots
         """
 
-        fourier = FourierTransformationManager(self.fourier_transformation,
-                                    self.fourier_transform_interpolation)
+#        fourier = FourierTransformationManager(self.fourier_transformation,
+#                                    self.fourier_transform_interpolation)
         filter_manager = FilterManager(_shift=self.window_shift,
                         _excluded_annotations=self.excluded_annotations,
                         _filters=self.filters)
@@ -210,9 +210,9 @@ class PoincarePlotGenerator(object):
             if len(data_segment.signal) == 0:
                 continue
 
-            fourier_params = fourier.calculate(data_segment,
-                                               self.excluded_annotations)
-            parameters.update(fourier_params)
+            #fourier_params = fourier.calculate(data_segment,
+            #                                   self.excluded_annotations)
+            #parameters.update(fourier_params)
 
             statistics = statisticsFactory.statistics(data_segment)
             parameters.update(statistics)
@@ -344,7 +344,7 @@ class StartProgressGenerator(object):
                 self.__progress__ = ProgressMark(_label='Processing data...', # @IgnorePep8
                                 _max_count=self.segmenter.segment_count())
             else:
-                self.info_handler('Processing data')
+                self.params.info_handler('Processing data')
 
     @property
     def progress(self):

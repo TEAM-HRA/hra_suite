@@ -14,6 +14,11 @@ try:
     from pymath.statistics.statistics import C1dStatistic
     from pymath.statistics.statistics import C2dStatistic
     from pymath.statistics.statistics import CdStatistic
+    from pymath.statistics.statistics import CountAboveLineIdentityStatistic
+    from pymath.statistics.statistics import CountBelowLineIdentityStatistic
+    from pymath.statistics.statistics import CaStatistic
+    from pymath.statistics.statistics import C1aStatistic
+    from pymath.statistics.statistics import C2aStatistic
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -205,7 +210,7 @@ class __TimeOver50PercentageInnerSummaryStatistic__(SummaryStatistic, __Inner__)
         self.__stat_name__ = _stat_name
 
     def calculate(self, statistics, data_vector):
-        signal_time = pl.sum(data_vector.signal_plus)
+        signal_time = pl.sum(data_vector.signal)
         self.__summary_time__ = self.__summary_time__ + signal_time
         stat = statistics.get(self.__stat_name__, None)
         if stat == None:
@@ -217,6 +222,33 @@ class __TimeOver50PercentageInnerSummaryStatistic__(SummaryStatistic, __Inner__)
     def summary_statistic(self):
         return self.__summary_stat_time__ / self.__summary_time__ \
                 if self.__summary_time__ > 0 else 0
+
+
+class C1aTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary statistic which calculates percentage of time when
+    C1a is greater then 50% of the whole time during processing/moving
+    the window data over the whole recording
+    """
+    def __init__(self):
+        __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'C1a')
+
+    @property
+    def statistics_dependence(self):
+        return [C1aStatistic]
+
+class C2aTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary statistic which calculates percentage of time when
+    C2a is greater then 50% of the whole time during processing/moving
+    the window data over the whole recording
+    """
+    def __init__(self):
+        __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'C2a')
+
+    @property
+    def statistics_dependence(self):
+        return [C2aStatistic]
 
 
 class C1dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
@@ -257,6 +289,50 @@ class CdTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asym
     @property
     def statistics_dependence(self):
         return [CdStatistic]
+
+
+class CaTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary statistic which calculates percentage of time when
+    Ca is greater then 50% of the whole time during processing/moving
+    the window data over the whole recording
+    """
+    def __init__(self):
+        __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'Ca')
+
+    @property
+    def statistics_dependence(self):
+        return [CaStatistic]
+
+
+class AboveBelowDifferenceSummaryStatistic(SummaryStatistic,  Asymmetry):
+    """
+    summary statistic which computes difference in amount of points
+    below and above line of identity
+    """
+    def __init__(self):
+        self.__summary_difference__ = 0
+
+    def calculate(self, statistics, data_vector):
+        stat_below = statistics.get('CountBelowLineIdentity', None)
+        if stat_below == None:
+            raise ValueError('CountBelowLineIdentity statistic is required to calculate AboveBelowDifferenceSummaryStatistic') # @IgnorePep8
+        stat_above = statistics.get('CountAboveLineIdentity', None)
+        if stat_above == None:
+            raise ValueError('CountAboveLineIdentity statistic is required to calculate AboveBelowDifferenceSummaryStatistic') # @IgnorePep8        
+        if stat_above > stat_below:
+            self.__summary_difference__ = self.__summary_difference__ + 1
+        else:
+            self.__summary_difference__ = self.__summary_difference__ - 1
+
+    @property
+    def summary_statistic(self):
+        return self.__summary_difference__
+
+    @property
+    def statistics_dependence(self):
+        return [CountBelowLineIdentityStatistic,
+                CountAboveLineIdentityStatistic]
 
 
 class __MeanInnerSummaryStatistic__(SummaryStatistic, __Inner__):
