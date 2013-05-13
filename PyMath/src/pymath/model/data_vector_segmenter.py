@@ -26,6 +26,10 @@ class DataVectorSegmenter(object):
         self.__index__ = 0
         self.__window_unit__ = None
 
+        self.__index_start_old__ = -1
+        self.__index_stop_old__ = -1
+        self.__data_segment_old__ = None
+
         self.__calculate_window_size__(window_size, window_size_unit,
                                        normalize_window_size, filter_manager)
 
@@ -33,6 +37,7 @@ class DataVectorSegmenter(object):
         return self
 
     def next(self):
+        self.__data_changed__ = True
         #this means a user expresses window size in a unit
         if self.__window_size_unit__:
             max_index = get_max_index_for_cumulative_sum_greater_then_value(
@@ -47,27 +52,33 @@ class DataVectorSegmenter(object):
         else:
             signal_size = self.__window_size__
         if self.__index__ + signal_size <= len(self.__data__.signal):
-            indexes = np.arange(self.__index__, self.__index__ + signal_size)
-            signal = self.__data__.signal.take(indexes)
 
-            indexes_plus = np.arange(self.__index__,
-                                 self.__index__ + signal_size - self.__shift__)
-            signal_plus = self.__data__.signal.take(indexes_plus)
+            index_start = self.__index__
+            self.__index__ += self.__shift__
+            index_stop = index_start + signal_size
+            if self.__index_start_old__ == index_start \
+                and self.__index_stop_old__ == index_stop:
+                self.__data_changed__ = False
+                return self.__data_segment_old__
+            self.__index_start_old__ = index_start
+            self.__index_stop_old__ = index_stop
 
-            indexes_minus = np.arange(self.__index__ + self.__shift__,
-                                  self.__index__ + signal_size)
-            signal_minus = self.__data__.signal.take(indexes_minus)
+            shift = self.__shift__
+
+            signal = self.__data__.signal[index_start:index_stop]
+            signal_plus = self.__data__.signal[index_start:index_stop - shift]
+            signal_minus = self.__data__.signal[index_start + shift:index_stop]
 
             annotation = (None if self.__data__.annotation == None else
-                          self.__data__.annotation.take(indexes))
+                          self.__data__.annotation[index_start:index_stop])
 
-            self.__index__ += self.__shift__
-
-            return DataVector(signal=signal,
+            self.__data_segment__ = DataVector(signal=signal,
                               signal_plus=signal_plus,
                               signal_minus=signal_minus,
                               annotation=annotation,
                               signal_unit=self.__data__.signal_unit)
+            self.__data_segment_old__ = self.__data_segment__
+            return self.__data_segment__
         else:
             raise StopIteration
 
@@ -147,3 +158,9 @@ class DataVectorSegmenter(object):
         else:
             if self.__window_size__ > len(data.signal):
                 raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
+
+    def data_changed(self):
+        """
+        method which returns True if data is changed otherwise False
+        """
+        return self.__data_changed__
