@@ -7,6 +7,7 @@ from pymath.utils.utils import print_import_error
 try:
     import numpy as np
     from pycore.units import get_time_unit
+    from pymath.model.data_vector_parameters import DEFAULT_WINDOW_RESAMPLING_STEP # @IgnorePep8
     from pymath.statistics.statistics import MeanStatistic
     from pymath.model.data_vector import DataVector
     from pymath.utils.array_utils import \
@@ -20,15 +21,18 @@ except ImportError as error:
 class DataVectorSegmenter(object):
 
     def __init__(self, data, window_size,  shift=1, window_size_unit=None,
-                 filter_manager=None, normalize_window_size=True):
+                 filter_manager=None, normalize_window_size=True,
+                 window_resampling_step=DEFAULT_WINDOW_RESAMPLING_STEP):
         self.__data__ = data
         self.__shift__ = shift
         self.__index__ = 0
         self.__window_unit__ = None
+        self.__signal_size__ = len(self.__data__.signal)
 
         self.__index_start_old__ = -1
         self.__index_stop_old__ = -1
         self.__data_segment_old__ = None
+        self.__window_resampling_step__ = window_resampling_step
 
         self.__calculate_window_size__(window_size, window_size_unit,
                                        normalize_window_size, filter_manager)
@@ -48,18 +52,23 @@ class DataVectorSegmenter(object):
                 raise StopIteration
 
             #new window size is a difference between max_index a start index
-            signal_size = max_index - self.__index__
-        else:
-            signal_size = self.__window_size__
-        if self.__index__ + signal_size <= len(self.__data__.signal):
-
+            window_size = max_index - self.__index__
             index_start = self.__index__
+            index_stop = index_start + window_size
+        else:
+            window_size = self.__window_size__
+            index_start = self.__index__
+            index_stop = index_start + window_size
+
+        if self.__index__ + window_size <= self.__signal_size__:
+
             self.__index__ += self.__shift__
-            index_stop = index_start + signal_size
+
             if self.__index_start_old__ == index_start \
                 and self.__index_stop_old__ == index_stop:
                 self.__data_changed__ = False
                 return self.__data_segment_old__
+
             self.__index_start_old__ = index_start
             self.__index_stop_old__ = index_stop
 
@@ -109,7 +118,7 @@ class DataVectorSegmenter(object):
                                                     self.__window_size__)
         else:
             size = self.__window_size__
-        return ((len(self.__data__.signal) - size) / self.__shift__) + 1 \
+        return ((self.__signal_size__ - size) / self.__shift__) + 1 \
                 if size > 0 else size
 
     def __calculate_window_size__(self, window_size, window_size_unit,
@@ -120,7 +129,11 @@ class DataVectorSegmenter(object):
         self.__window_size_unit__ = window_size_unit
         self.__window_size__ = window_size
         data = self.__data__
-        if self.__window_size__:
+
+        if self.__window_resampling_step__ > 0 and not self.__window_size_unit__: # @IgnorePep8
+            raise Exception('For window resampling step a window size unit is required !!!') # @IgnorePep8
+
+        if self.__window_size_unit__:
 
             #get time unit of window size
             self.__window_unit__ = get_time_unit(self.__window_size_unit__)

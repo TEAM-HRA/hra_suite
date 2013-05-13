@@ -14,6 +14,8 @@ try:
 except ImportError as error:
     print_import_error(__name__, error)
 
+DEFAULT_WINDOW_RESAMPLING_STEP = 10
+
 
 class DataVectorParameters(CoreParameters):
     """
@@ -26,6 +28,7 @@ class DataVectorParameters(CoreParameters):
         self.__window_shift__ = 1
         self.__excluded_annotations__ = ALL_ANNOTATIONS
         self.__normalize_window_size__ = True
+        self.__window_resampling_step__ = DEFAULT_WINDOW_RESAMPLING_STEP
 
     @property
     def window_size(self):
@@ -151,6 +154,7 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'annotation_index', self.annotation_index)
         setattr(_object, 'time_index', self.time_index)
         setattr(_object, 'normalize_window_size', self.normalize_window_size)
+        setattr(_object, 'window_resampling_step', self.window_resampling_step)
 
     def validateDataVectorParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.window_size is None or self.window_size == 0:
@@ -173,3 +177,18 @@ class DataVectorParameters(CoreParameters):
     @normalize_window_size.setter
     def normalize_window_size(self, _normalize_window_size):
         self.__normalize_window_size__ = _normalize_window_size
+
+    @property
+    def window_resampling_step(self):
+        """
+        [optional]
+        how big have to be a step for window resampling size;
+        it is assumed that this quantity is expressed in signal unit;
+        value 0 means no use of window resampling size at all
+        [default: 10]"""
+        return nvl(self.__window_resampling_step__,
+                   DEFAULT_WINDOW_RESAMPLING_STEP)
+
+    @window_resampling_step.setter
+    def window_resampling_step(self, _window_resampling_step):
+        self.__window_resampling_step__ = _window_resampling_step

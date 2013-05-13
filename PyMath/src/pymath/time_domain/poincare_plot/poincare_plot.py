@@ -15,6 +15,7 @@ try:
     from pymath.model.file_data_source import FileDataSource
     from pymath.model.data_vector_parameters import DataVectorParameters
     from pymath.model.file_data_parameters import FileDataParameters
+    from pymath.model.data_vector_parameters import DEFAULT_WINDOW_RESAMPLING_STEP # @IgnorePep8
     from pymath.statistics.statistic_parameters import StatisticParameters
     from pymath.frequency_domain.fourier_parameters import FourierParameters
     from pymath.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
@@ -276,6 +277,12 @@ if __name__ == '__main__':
                 size is normalize to number of data corresponds to mean value
                 of signal per given window size [default: True]""",
             type=to_bool, default=True)
+    parser.add_argument("-wrs", "--window_resampling_step",
+            help="""how big have to be a step for window resampling size;
+                it is assumed that this quantity is expressed in signal unit
+                value 0 means no use of window resampling size at all
+                [default: """ + str(DEFAULT_WINDOW_RESAMPLING_STEP) + "]",
+            type=int, default=DEFAULT_WINDOW_RESAMPLING_STEP)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -304,6 +311,7 @@ if __name__ == '__main__':
     ppManager.skip_existing_outcomes = __args.skip_existing_outcomes
     ppManager.normalize_window_size = __args.normalize_window_size
     ppManager.use_buffer = __args.use_buffer
+    ppManager.window_resampling_step = __args.window_resampling_step
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:
