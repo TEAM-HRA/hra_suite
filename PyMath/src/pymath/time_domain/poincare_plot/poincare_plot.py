@@ -15,7 +15,6 @@ try:
     from pymath.model.file_data_source import FileDataSource
     from pymath.model.data_vector_parameters import DataVectorParameters
     from pymath.model.file_data_parameters import FileDataParameters
-    from pymath.model.data_vector_parameters import DEFAULT_WINDOW_RESAMPLING_STEP # @IgnorePep8
     from pymath.statistics.statistic_parameters import StatisticParameters
     from pymath.frequency_domain.fourier_parameters import FourierParameters
     from pymath.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
@@ -66,19 +65,18 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         return None
 
     def generate(self):
-        if self.__pp_generator__ == None:
-            self.__pp_generator__ = PoincarePlotGenerator(
-                                            file_data_parameters=self,
-                                            fourier_parameters=self,
-                                            data_vector_parameters=self,
-                                            filter_parameters=self,
-                                            statistic_parameters=self,
-                                            poincare_plot_parameters=self)
-            message = self.__pp_generator__.checkParameters()
-            if message:
-                print(message)
-                return
-            self.__pp_generator__.parameters_info
+        self.__pp_generator__ = PoincarePlotGenerator(
+                                        file_data_parameters=self,
+                                        fourier_parameters=self,
+                                        data_vector_parameters=self,
+                                        filter_parameters=self,
+                                        statistic_parameters=self,
+                                        poincare_plot_parameters=self)
+        message = self.__pp_generator__.checkParameters()
+        if message:
+            print(message)
+            return
+        self.__pp_generator__.parameters_info
 
         self.__process__(self.__process_file__)
 
@@ -281,8 +279,8 @@ if __name__ == '__main__':
             help="""how big have to be a step for window resampling size;
                 it is assumed that this quantity is expressed in signal unit
                 value 0 means no use of window resampling size at all
-                [default: """ + str(DEFAULT_WINDOW_RESAMPLING_STEP) + "]",
-            type=int, default=DEFAULT_WINDOW_RESAMPLING_STEP)
+                [optional]""",
+            type=int)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()

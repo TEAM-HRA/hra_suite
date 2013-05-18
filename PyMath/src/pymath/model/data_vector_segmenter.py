@@ -6,8 +6,8 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     import numpy as np
+    from pycore.collections_utils import nvl
     from pycore.units import get_time_unit
-    from pymath.model.data_vector_parameters import DEFAULT_WINDOW_RESAMPLING_STEP # @IgnorePep8
     from pymath.statistics.statistics import MeanStatistic
     from pymath.model.data_vector import DataVector
     from pymath.utils.array_utils import \
@@ -22,7 +22,7 @@ class DataVectorSegmenter(object):
 
     def __init__(self, data, window_size,  shift=1, window_size_unit=None,
                  filter_manager=None, normalize_window_size=True,
-                 window_resampling_step=DEFAULT_WINDOW_RESAMPLING_STEP):
+                 window_resampling_step=None):
         self.__data__ = data
         self.__shift__ = shift
         self.__index__ = 0
@@ -32,18 +32,28 @@ class DataVectorSegmenter(object):
         self.__index_start_old__ = -1
         self.__index_stop_old__ = -1
         self.__data_segment_old__ = None
-        self.__window_resampling_step__ = window_resampling_step
+        # 0 value means no resampling
+        self.__window_resampling_step__ = nvl(window_resampling_step, 0)
 
         self.__calculate_window_size__(window_size, window_size_unit,
                                        normalize_window_size, filter_manager)
+
+        #optimization tricks, the methods below will not be searched in python
+        #paths but access to them, because of below assignments, will be local
+        #and for this reason much faster
+        self.SEARCHSORTED = np.searchsorted
+        self.ARANGE = np.arange
 
     def __iter__(self):
         return self
 
     def next(self):
         self.__data_changed__ = True
+        if self.__window_resampling_step__ > 0:
+            return self.__resampled_next__()
+
         #this means a user expresses window size in a unit
-        if self.__window_size_unit__:
+        elif self.__window_size_unit__:
             max_index = get_max_index_for_cumulative_sum_greater_then_value(
                                                 self.__data__.signal,
                                                 self.__window_size__,
@@ -53,14 +63,50 @@ class DataVectorSegmenter(object):
 
             #new window size is a difference between max_index a start index
             window_size = max_index - self.__index__
-            index_start = self.__index__
-            index_stop = index_start + window_size
         else:
             window_size = self.__window_size__
+
+        if self.__index__ + window_size <= self.__signal_size__:
+
             index_start = self.__index__
             index_stop = index_start + window_size
 
-        if self.__index__ + window_size <= self.__signal_size__:
+            self.__index__ += self.__shift__
+
+            shift = self.__shift__
+
+            indexes = self.ARANGE(index_start, index_stop + 1)
+            signal = self.__data__.signal.take(indexes)
+
+            indexes_plus = self.ARANGE(index_start, index_stop + 1 - shift)
+            signal_plus = self.__data__.signal.take(indexes_plus)
+
+            indexes_minus = self.ARANGE(index_start + shift, index_stop + 1)
+            signal_minus = self.__data__.signal.take(indexes_minus)
+
+            annotation = (None if self.__data__.annotation == None else
+                          self.__data__.annotation.take(indexes))
+
+            return DataVector(signal=signal,
+                              signal_plus=signal_plus,
+                              signal_minus=signal_minus,
+                              annotation=annotation,
+                              signal_unit=self.__data__.signal_unit)
+        else:
+            raise StopIteration
+
+    def __resampled_next__(self):
+
+        if self.__index__ + self.__resampled_window_size__ > self.__signal_size__ - self.__shift__: # @IgnorePep8
+            raise StopIteration
+
+        index_start = self.SEARCHSORTED(self.__cumsum_data__,
+                                    self.__resampled_data__[self.__index__])
+        index_stop = self.SEARCHSORTED(self.__cumsum_data__,
+                                       self.__resampled_data__[self.__index__ +
+                                            self.__resampled_window_size__])
+
+        if self.__index__ + self.__resampled_window_size__ < self.__signal_size__: # @IgnorePep8
 
             self.__index__ += self.__shift__
 
@@ -74,18 +120,23 @@ class DataVectorSegmenter(object):
 
             shift = self.__shift__
 
-            signal = self.__data__.signal[index_start:index_stop]
-            signal_plus = self.__data__.signal[index_start:index_stop - shift]
-            signal_minus = self.__data__.signal[index_start + shift:index_stop]
+            indexes = self.ARANGE(index_start, index_stop + 1)
+            signal = self.__data__.signal.take(indexes)
+
+            indexes_plus = self.ARANGE(index_start, index_stop + 1 - shift)
+            signal_plus = self.__data__.signal.take(indexes_plus)
+
+            indexes_minus = self.ARANGE(index_start + shift, index_stop + 1)
+            signal_minus = self.__data__.signal.take(indexes_minus)
 
             annotation = (None if self.__data__.annotation == None else
-                          self.__data__.annotation[index_start:index_stop])
+                          self.__data__.annotation.take(indexes))
 
             self.__data_segment__ = DataVector(signal=signal,
-                              signal_plus=signal_plus,
-                              signal_minus=signal_minus,
-                              annotation=annotation,
-                              signal_unit=self.__data__.signal_unit)
+                                    signal_plus=signal_plus,
+                                    signal_minus=signal_minus,
+                                    annotation=annotation,
+                                    signal_unit=self.__data__.signal_unit)
             self.__data_segment_old__ = self.__data_segment__
             return self.__data_segment__
         else:
@@ -112,14 +163,19 @@ class DataVectorSegmenter(object):
         time units a number of segments is an approximation value to avoid
         costly (in time) calculations
         """
-        if self.__window_size_unit__:
-            size = get_max_index_for_cumulative_sum_of_means_greater_then_value(  # @IgnorePep8
+        if self.__window_resampling_step__ > 0:
+            window_size = self.__resampled_window_size__
+            signal_size = self.__signal_size__
+        elif self.__window_size_unit__:
+            window_size = get_max_index_for_cumulative_sum_of_means_greater_then_value(  # @IgnorePep8
                                                     self.__data__.signal,
                                                     self.__window_size__)
+            signal_size = self.__signal_size__
         else:
-            size = self.__window_size__
-        return ((self.__signal_size__ - size) / self.__shift__) + 1 \
-                if size > 0 else size
+            window_size = self.__window_size__
+            signal_size = self.__signal_size__
+        return ((signal_size - window_size) / self.__shift__) + 1 \
+                if window_size > 0 else window_size
 
     def __calculate_window_size__(self, window_size, window_size_unit,
                                   normalize_window_size, filter_manager):
@@ -146,11 +202,20 @@ class DataVectorSegmenter(object):
             multiplier = self.__window_unit__.expressInUnit(data.signal_unit)
             window_size_in_signal_unit = multiplier * window_size
 
+            if self.__window_resampling_step__ > 0:
+                self.__resampled_data__ = np.arange(0,
+                                            np.sum(self.__data__.signal),
+                                            self.__window_resampling_step__)
+                self.__signal_size__ = len(self.__resampled_data__)
+                self.__cumsum_data__ = np.cumsum(self.__data__.signal)
+                self.__window_size__ = window_size_in_signal_unit
+                self.__resampled_window_size__ = window_size_in_signal_unit / self.__window_resampling_step__ # @IgnorePep8
+
             #express window size put in some unit in normalized
             #number of data, normalized means calculate a mean of a signal
             #(filtered signal if required) and calculate how many means
             #divide the whole window size
-            if normalize_window_size:
+            elif normalize_window_size:
                 if filter_manager:
                     data = filter_manager.run_filters(data)
 
@@ -164,14 +229,16 @@ class DataVectorSegmenter(object):
                 #because window size is expressed in number of data points,
                 #window size unit is not required any more
                 self.__window_size_unit__ = None
+                self.__window_size__ = window_size_in_signal_unit
                 print('Using normalized window size: ' +
-                                            str(window_size_in_signal_unit))
-
-            self.__window_size__ = window_size_in_signal_unit
+                                                    str(self.__window_size__))
+            else:
+                self.__window_size__ = window_size_in_signal_unit
         else:
             if self.__window_size__ > len(data.signal):
                 raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
 
+    @property
     def data_changed(self):
         """
         method which returns True if data is changed otherwise False

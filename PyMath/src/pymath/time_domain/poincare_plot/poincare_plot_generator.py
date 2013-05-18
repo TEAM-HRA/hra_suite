@@ -196,16 +196,26 @@ class PoincarePlotGenerator(object):
 
         interrupter = ControlInterruptHandler()
         parameters = {}
+        parameters_old = None
+        data_segment_old = None
         for data_segment in segmenter:
             if interrupter.isInterrupted():
                 break
+            if segmenter.data_changed:
+                parameters.clear()
+                parameters_old = None
+                data_segment_old = None
+            else:
+                parameters = parameters_old
+                data_segment = data_segment_old
 
             if progress:
                 tick = getattr(progress, 'tick')
                 if tick:
                     tick()
 
-            data_segment = filter_manager.run_filters(data_segment)
+            if segmenter.data_changed:
+                data_segment = filter_manager.run_filters(data_segment)
 
             #this could happened when for example annotation
             #filter is used and all data are annotated that means
@@ -217,21 +227,25 @@ class PoincarePlotGenerator(object):
             #                                   self.excluded_annotations)
             #parameters.update(fourier_params)
 
-            statistics = statisticsFactory.statistics(data_segment)
-            parameters.update(statistics)
+            if segmenter.data_changed:
+                statistics = statisticsFactory.statistics(data_segment)
+                parameters.update(statistics)
 
             if progress_handler:
-                progress_handler.parameters = parameters
-                progress_handler.segmenter = segmenter
-                progress_handler()
+                if segmenter.data_changed:
+                    progress_handler.parameters = parameters
+                    progress_handler.segmenter = segmenter
+                    progress_handler()
                 if progress_handler.interrupted:
                     #mark interrupt state of interrupter to give consistent
                     #behaviour to the rest of the code
                     interrupter.interrupt()
                     break
 
-            summaryStatisticsFactory.update(statistics, data_segment)
-            parameters.clear()
+            summaryStatisticsFactory.update(parameters, data_segment)
+            if segmenter.data_changed:
+                parameters_old = parameters
+                data_segment_old = data_segment
 
         self.summary_statistics = None
         if interrupter.isInterrupted() == False:
