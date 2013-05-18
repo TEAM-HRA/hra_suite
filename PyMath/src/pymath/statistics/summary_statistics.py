@@ -217,6 +217,12 @@ class __TimeOver50PercentageInnerSummaryStatistic__(SummaryStatistic, __Inner__)
             raise ValueError(self.__stat_name__ + ' statistic is required to calculate ' + self.__class__.__name__) # @IgnorePep8
         if stat > 0.5:
             self.__summary_stat_time__ = self.__summary_stat_time__ + signal_time # @IgnorePep8
+        elif stat < 0.5:
+            pass
+        else:
+            #this is a case when statistic value equals exactly 0.5
+            #so we have to take a half of the signal time
+            self.__summary_stat_time__ = self.__summary_stat_time__ + signal_time / 2 # @IgnorePep8        
 
     @property
     def summary_statistic(self):
