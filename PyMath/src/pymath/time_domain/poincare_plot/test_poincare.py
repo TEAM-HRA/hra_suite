@@ -264,6 +264,13 @@ if __name__ == '__main__':
     titles = [
              "sampled shuffled: ",
              ]
+
+    katalog = "o:\\dane\\30m\\normal"
+    pliki = []
+    titles = [
+             "sampled shuffled: ",
+             ]
+
     test_poincare = test_poincare_resampled
 
     if len(pliki) == 0:
@@ -280,7 +287,7 @@ if __name__ == '__main__':
         print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=3000, step=100))  # @IgnorePep8
         #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=30000, step=10))  # @IgnorePep8
         #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=300000, step=1))  # @IgnorePep8
-        print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=1200, step=1000))  # @IgnorePep8
+        #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=1200, step=1000))  # @IgnorePep8
         print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=600, step=1000))  # @IgnorePep8
         print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=300, step=500))  # @IgnorePep8
         print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=111, step=700))  # @IgnorePep8
