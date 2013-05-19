@@ -166,27 +166,32 @@ def commas(*iterable, **params):
     return params.get('_default', None) if len(c) == 0 else ', '.join(c)
 
 
-def get_ordered_list_of_strings(order_identifiers, list_to_order,
+def get_ordered_list_of_strings(ordered_identifiers, list_to_order,
                         order_identifier_separator=',', case_sensitive=False):
     """
     functions sorts a list of string items according to sorted
-    strings included in order_identifiers parameter;
+    strings included in ordered_identifiers parameter;
     this function returns a new list object
+    ordered_identifiers parameter could be a string of identifiers
+    separated by separator or a list of identifiers
     """
-    if order_identifiers == None or list_to_order == None \
-        or len(order_identifiers) == 0 or len(list_to_order) == 0:
+    if ordered_identifiers == None or list_to_order == None \
+        or len(ordered_identifiers) == 0 or len(list_to_order) == 0:
         return list_to_order
-    if case_sensitive is False:
-        order_identifiers = order_identifiers.lower()
     list_ordered = []
-    for ordered_name in get_as_list(order_identifiers,
-                                    separator=order_identifier_separator):
+    if isinstance(ordered_identifiers, list):
+        ordered_names = ordered_identifiers
+    else:
+        ordered_names = get_as_list(
+                    ordered_identifiers, separator=order_identifier_separator)
+    for ordered_name in ordered_names:
         for name in list_to_order:
-            if (case_sensitive is False and name.lower() == ordered_name) \
+            if (case_sensitive is False
+                    and name.lower() == ordered_name.lower()) \
                 or (case_sensitive is True and name == ordered_name):
                 list_ordered.append(name)
                 break
-    #append to the end items not founded in order_identifiers
+    #append to the end items not founded in ordered_identifiers
     list_ordered[len(list_ordered):] = \
                 [name for name in list_to_order if name not in list_ordered]
     if not len(list_ordered) == len(list_to_order):
