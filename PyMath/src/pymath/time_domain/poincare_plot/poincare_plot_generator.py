@@ -23,6 +23,7 @@ try:
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.summary_statistics import SummaryStatisticsFactory
     from pymath.statistics.summary_statistics import get_summary_statistics_for_csv # @IgnorePep8
+    from pymath.statistics.summary_statistics import get_summary_statistics_order_for_csv # @IgnorePep8
     from pymath.statistics.statistic_parameters import extended_statistics_classes # @IgnorePep8
     #from pymath.frequency_domain.fourier import FourierTransformationManager
     from pymath.time_domain.poincare_plot.filters.filter_manager import FilterManager # @IgnorePep8
@@ -133,6 +134,9 @@ class PoincarePlotGenerator(object):
                 self.params.output_file_listener(csv.output_file)
 
             if not self.summary_statistics == None:
+                #get ordered headers for summary statistics
+                ordered_headers = get_summary_statistics_order_for_csv(
+                                            self.summary_statistics_order)
                 with NumpyCSVFile(output_dir=self.output_dir,
                      reference_filename=reference_filename,
                      output_precision=self.output_precision,
@@ -141,6 +145,7 @@ class PoincarePlotGenerator(object):
                      sort_headers=False,
                      add_headers=self.add_headers,
                      output_suffix='_sum',
+                     ordered_headers=ordered_headers,
                      message='\nSummary statistics saved into the file: ') as summary_csv: # @IgnorePep8
                     summary_csv.write(get_summary_statistics_for_csv(self.summary_statistics)) # @IgnorePep8
 
@@ -251,6 +256,7 @@ class PoincarePlotGenerator(object):
         if interrupter.isInterrupted() == False:
             if summaryStatisticsFactory.has_summary_statistics > 0:
                 self.summary_statistics = summaryStatisticsFactory.summary_statistics # @IgnorePep8
+                self.summary_statistics_order = summaryStatisticsFactory.summary_statistics_order # @IgnorePep8
 
         if progress:
             close = getattr(progress, 'close')

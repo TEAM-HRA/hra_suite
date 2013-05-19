@@ -97,6 +97,14 @@ class SummaryStatisticsFactory(object):
         return 0 if self.__summary_statistics_objects__ == None else \
                 len(self.__summary_statistics_objects__) > 0
 
+    @property
+    def summary_statistics_order(self):
+        """
+        method gives list of ordered of summary statistics classes
+        """
+        return [statistic_object.__class__
+                for statistic_object in self.__summary_statistics_objects__]
+
 
 class SummaryStatistic(object):
     """
@@ -509,3 +517,12 @@ def get_summary_statistics_for_csv(summary_statistics):
     for _class, value in summary_statistics.items():
         statistics[_class.__name__[:-len('SummaryStatistic')]] = value
     return statistics
+
+
+def get_summary_statistics_order_for_csv(summary_statistics_classes_order):
+    """
+    method returns short names of summary statistics in specified order
+    """
+    if not summary_statistics_classes_order == None:
+        return [summary_statistic_class.__name__[:-len('SummaryStatistic')]
+            for summary_statistic_class in summary_statistics_classes_order]
