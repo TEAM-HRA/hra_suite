@@ -222,7 +222,7 @@ class __TimeOver50PercentageInnerSummaryStatistic__(SummaryStatistic, __Inner__)
         else:
             #this is a case when statistic value equals exactly 0.5
             #so we have to take a half of the signal time
-            self.__summary_stat_time__ = self.__summary_stat_time__ + signal_time / 2 # @IgnorePep8        
+            self.__summary_stat_time__ = self.__summary_stat_time__ + signal_time / 2 # @IgnorePep8
 
     @property
     def summary_statistic(self):
@@ -230,7 +230,7 @@ class __TimeOver50PercentageInnerSummaryStatistic__(SummaryStatistic, __Inner__)
                 if self.__summary_time__ > 0 else 0
 
 
-class C1aTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+class C1aTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     C1a is greater then 50% of the whole time during processing/moving
@@ -243,7 +243,8 @@ class C1aTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asy
     def statistics_dependence(self):
         return [C1aStatistic]
 
-class C2aTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+
+class C2aTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     C2a is greater then 50% of the whole time during processing/moving
@@ -257,7 +258,7 @@ class C2aTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asy
         return [C2aStatistic]
 
 
-class C1dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+class C1dTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     C1d is greater then 50% of the whole time during processing/moving
@@ -270,7 +271,8 @@ class C1dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asy
     def statistics_dependence(self):
         return [C1dStatistic]
 
-class C2dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+
+class C2dTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     C2d is greater then 50% of the whole time during processing/moving
@@ -283,7 +285,7 @@ class C2dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asy
     def statistics_dependence(self):
         return [C2dStatistic]
 
-class CdTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+class CdTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     Cd is greater then 50% of the whole time during processing/moving
@@ -297,7 +299,7 @@ class CdTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asym
         return [CdStatistic]
 
 
-class CaTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+class CaTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     Ca is greater then 50% of the whole time during processing/moving
@@ -305,6 +307,106 @@ class CaTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asym
     """
     def __init__(self):
         __TimeOver50PercentageInnerSummaryStatistic__.__init__(self, 'Ca')
+
+    @property
+    def statistics_dependence(self):
+        return [CaStatistic]
+
+
+class __TimePercentageInnerSummaryStatistic__(SummaryStatistic, __Inner__): # @IgnorePep8
+    """
+    summary statistic which calculates percentage of time
+    of the whole data recording corresponding to statistic _stat_name
+    """
+    def __init__(self, _stat_name):  # , cd_name):
+        self.__summary_time__ = 0
+        self.__summary_stat_time__ = 0
+        self.__stat_name__ = _stat_name
+
+    def calculate(self, statistics, data_vector):
+        signal_time = pl.sum(data_vector.signal)
+        self.__summary_time__ = self.__summary_time__ + signal_time
+        stat = statistics.get(self.__stat_name__, None)
+        if stat == None:
+            raise ValueError(self.__stat_name__ + ' statistic is required to calculate ' + self.__class__.__name__) # @IgnorePep8
+        self.__summary_stat_time__ = self.__summary_stat_time__ + signal_time * stat  # @IgnorePep8
+
+    @property
+    def summary_statistic(self):
+        return self.__summary_stat_time__ / self.__summary_time__ \
+                if self.__summary_time__ > 0 else 0
+
+
+class C1aTimeSummaryStatistic(__TimePercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary C1a statistic which calculates percentage of time
+    of the whole data recording corresponding to C1a statistic
+    """
+    def __init__(self):
+        __TimePercentageInnerSummaryStatistic__.__init__(self, 'C1a')
+
+    @property
+    def statistics_dependence(self):
+        return [C1aStatistic]
+
+
+class C2aTimeSummaryStatistic(__TimePercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary C2a statistic which calculates percentage of time
+    of the whole data recording corresponding to C2a statistic
+    """
+    def __init__(self):
+        __TimePercentageInnerSummaryStatistic__.__init__(self, 'C2a')
+
+    @property
+    def statistics_dependence(self):
+        return [C2aStatistic]
+
+
+class C1dTimeSummaryStatistic(__TimePercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary C1d statistic which calculates percentage of time
+    of the whole data recording corresponding to C1d statistic
+    """
+    def __init__(self):
+        __TimePercentageInnerSummaryStatistic__.__init__(self, 'C1d')
+
+    @property
+    def statistics_dependence(self):
+        return [C1dStatistic]
+
+class C2dTimeSummaryStatistic(__TimePercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary C2d statistic which calculates percentage of time
+    of the whole data recording corresponding to C2d statistic
+    """
+    def __init__(self):
+        __TimePercentageInnerSummaryStatistic__.__init__(self, 'C2d')
+
+    @property
+    def statistics_dependence(self):
+        return [C2dStatistic]
+
+class CdTimeSummaryStatistic(__TimePercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary Cd statistic which calculates percentage of time
+    of the whole data recording corresponding to Cd statistic
+    """
+    def __init__(self):
+        __TimePercentageInnerSummaryStatistic__.__init__(self, 'Cd')
+
+    @property
+    def statistics_dependence(self):
+        return [CdStatistic]
+
+
+class CaTimeSummaryStatistic(__TimePercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+    """
+    summary Ca statistic which calculates percentage of time
+    of the whole data recording corresponding to Ca statistic
+    """
+    def __init__(self):
+        __TimePercentageInnerSummaryStatistic__.__init__(self, 'Ca')
 
     @property
     def statistics_dependence(self):
