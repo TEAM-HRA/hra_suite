@@ -49,6 +49,7 @@ class DataVectorSegmenter(object):
 
     def next(self):
         self.__data_changed__ = True
+
         if self.__window_resampling_step__ > 0:
             return self.__resampled_next__()
 
@@ -115,9 +116,6 @@ class DataVectorSegmenter(object):
                 self.__data_changed__ = False
                 return self.__data_segment_old__
 
-            self.__index_start_old__ = index_start
-            self.__index_stop_old__ = index_stop
-
             shift = self.__shift__
 
             indexes = self.ARANGE(index_start, index_stop + 1)
@@ -138,6 +136,9 @@ class DataVectorSegmenter(object):
                                     annotation=annotation,
                                     signal_unit=self.__data__.signal_unit)
             self.__data_segment_old__ = self.__data_segment__
+            self.__index_start_old__ = index_start
+            self.__index_stop_old__ = index_stop
+
             return self.__data_segment__
         else:
             raise StopIteration
