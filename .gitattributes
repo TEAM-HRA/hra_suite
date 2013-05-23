@@ -29,6 +29,7 @@ PyConsole/build_pyconsole.xml -text
 PyConsole/src/pyconsole/__init__.py -text
 PyConsole/src/pyconsole/programs/__init__.py -text
 PyConsole/src/pyconsole/programs/main_curses_med.py -text
+PyConsole/src/pyconsole/programs/szufelka.py -text
 PyConsole/src/pyconsole/programs/test_curses.py -text
 PyConsole/src/pyconsole/programs/test_poincare.py -text
 PyCore/.project -text
