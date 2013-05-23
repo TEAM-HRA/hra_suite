@@ -226,7 +226,15 @@ class PoincarePlotGenerator(object):
             #filter is used and all data are annotated that means
             #all signal data are filtered out
             if len(data_segment.signal) == 0:
+                parameters_old = parameters
+                data_segment_old = data_segment
                 continue
+
+            #this situation could occur when there is a normal signal after
+            #a long series of annotated signals
+            if segmenter.data_changed:
+                if len(data_segment.signal) == 1:
+                    continue
 
             #fourier_params = fourier.calculate(data_segment,
             #                                   self.excluded_annotations)
