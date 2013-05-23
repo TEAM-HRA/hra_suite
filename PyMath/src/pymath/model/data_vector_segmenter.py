@@ -109,7 +109,7 @@ class DataVectorSegmenter(object):
 
         if self.__index__ + self.__resampled_window_size__ < self.__signal_size__: # @IgnorePep8
 
-            self.__index__ += self.__shift__
+            self.__index__ += 1
 
             if self.__index_start_old__ == index_start \
                 and self.__index_stop_old__ == index_stop:
