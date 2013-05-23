@@ -72,18 +72,18 @@ class DataVectorSegmenter(object):
             index_start = self.__index__
             index_stop = index_start + window_size
 
-            self.__index__ += self.__shift__
+            self.__index__ += 1
 
             shift = self.__shift__
 
             indexes = self.ARANGE(index_start, index_stop + 1)
             signal = self.__data__.signal.take(indexes)
 
-            indexes_plus = self.ARANGE(index_start, index_stop + 1 - shift)
-            signal_plus = self.__data__.signal.take(indexes_plus)
+            indexes_plus = self.ARANGE(0, len(signal) - shift)
+            signal_plus = signal.take(indexes_plus)
 
-            indexes_minus = self.ARANGE(index_start + shift, index_stop + 1)
-            signal_minus = self.__data__.signal.take(indexes_minus)
+            indexes_minus = self.ARANGE(shift, len(signal))
+            signal_minus = signal.take(indexes_minus)
 
             annotation = (None if self.__data__.annotation == None else
                           self.__data__.annotation.take(indexes))
@@ -121,11 +121,11 @@ class DataVectorSegmenter(object):
             indexes = self.ARANGE(index_start, index_stop + 1)
             signal = self.__data__.signal.take(indexes)
 
-            indexes_plus = self.ARANGE(index_start, index_stop + 1 - shift)
-            signal_plus = self.__data__.signal.take(indexes_plus)
+            indexes_plus = self.ARANGE(0, len(signal) - shift)
+            signal_plus = signal.take(indexes_plus)
 
-            indexes_minus = self.ARANGE(index_start + shift, index_stop + 1)
-            signal_minus = self.__data__.signal.take(indexes_minus)
+            indexes_minus = self.ARANGE(shift, len(signal))
+            signal_minus = signal.take(indexes_minus)
 
             annotation = (None if self.__data__.annotation == None else
                           self.__data__.annotation.take(indexes))
