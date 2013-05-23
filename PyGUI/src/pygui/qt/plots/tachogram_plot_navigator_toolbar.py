@@ -13,6 +13,7 @@ try:
     from pygui.qt.actions.actions_utils import create_action
     from pygui.qt.plots.tachogram_plot_canvas import NormalTachogramPlotEngine
     from pygui.qt.plots.tachogram_plot_canvas import ScatterTachogramPlotEngine
+    from pygui.qt.plots.tachogram_plot_canvas import HistogramTachogramPlotEngine # @IgnorePep8
     from pygui.qt.plots.tachogram_plot_settings_dock_widget import TachogramPlotSettingsDockWidget # @IgnorePep8
     from pygui.qt.plots.tachogram_plot_statistics_dock_widget import TachogramPlotStatisticsDockWidget # @IgnorePep8
 except ImportError as error:
@@ -39,6 +40,11 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
                                             iconId='scatter_plot_button')
         self.addAction(scatter_plot_action)
 
+        histogram_plot_action = self.__createAction__(title="Histogram plot",
+                                            handler=self.__histogramPlot__,
+                                            iconId='histogram_plot_button')
+        self.addAction(histogram_plot_action)
+
         tachogram_plot_settings_action = self.__createAction__(
                                     title="Tachogram plot settings",
                                     handler=self.__showTachogramPlotSettings__,
@@ -59,6 +65,9 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
 
     def __scatterPlot__(self):
         self.canvas.plot(ScatterTachogramPlotEngine)
+
+    def __histogramPlot__(self):
+        self.canvas.plot(HistogramTachogramPlotEngine)
 
     def __showTachogramPlotSettings__(self):
         if not hasattr(self, '__tachogram_settings__'):

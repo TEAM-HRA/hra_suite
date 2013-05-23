@@ -150,6 +150,17 @@ class ScatterTachogramPlotEngine(object):
         _canvas.axes.plot(_canvas.x, _canvas.y, 'bo')
 
 
+class HistogramTachogramPlotEngine(object):
+    """
+    action invoked for histogram plot
+    """
+    def plot(self, _canvas):
+        _canvas.axes.grid(True)
+        _canvas.axes.hist(_canvas.y, bins=20)
+        #plt.hist(x, bins=10)
+        #_canvas.axes.plot(_canvas.x, _canvas.y, 'bo')
+
+
 class TachogramPlotCanvasTitle(object):
     """
     class used to create tachogram plot title

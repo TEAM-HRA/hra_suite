@@ -225,6 +225,7 @@ PySettings/src/settings/i18n/i18n_en.properties -text
 PySettings/src/settings/icons/User-Group.ico -text
 PySettings/src/settings/icons/__init__.py -text
 PySettings/src/settings/icons/graph_button.ico -text
+PySettings/src/settings/icons/histogram_plot_button.ico -text
 PySettings/src/settings/icons/poincare_plot_settings.ico -text
 PySettings/src/settings/icons/scatter_plot_button.ico -text
 PySettings/src/settings/icons/tachogram_plot_settings.ico -text
