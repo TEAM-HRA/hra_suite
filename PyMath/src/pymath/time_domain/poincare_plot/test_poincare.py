@@ -7,6 +7,8 @@ Created on 11 maj 2013
 import pylab as pl
 import glob
 
+A_HALF = pl.float64(0.5)
+
 
 def get_max_index_for_cumulative_sum_greater_then_value(_array, value,
                                                      start_index=0):
@@ -20,6 +22,9 @@ def get_max_index_for_cumulative_sum_greater_then_value(_array, value,
     cumulative_array = pl.cumsum(sub_array)
     indexes = pl.where(cumulative_array >= value)[0]
     return indexes[0] + start_index if len(indexes) > 0 else -1
+
+LICZNIK = 0
+LICZNIK_ALL = 0
 
 
 def calculate(signal, rr_start, rr_stop, shift, suma_time, counter,
@@ -35,7 +40,7 @@ def calculate(signal, rr_start, rr_stop, shift, suma_time, counter,
     signal0_minus = signal.take(indexes_minus)
     #print(signal0_minus)
 
-    signal0_time = pl.sum(signal0)
+    signal0_time = 1  # pl.sum(signal0)
     suma_time = suma_time + signal0_time
 
     __sd1 = (signal0_plus - signal0_minus) / pl.sqrt(2)
@@ -43,9 +48,24 @@ def calculate(signal, rr_start, rr_stop, shift, suma_time, counter,
     sd1_equal = pl.find(__sd1 == 0)
 #            if len(sd1_equal) > 0:
 #                print('sd1 equal: ' + str(sd1_equal))
-    sd1d = pl.sqrt(pl.sum(__sd1[pl.find(__sd1 < 0)] ** 2) / len(__sd1)) # @IgnorePep8
-    sd1a = pl.sqrt(pl.sum(__sd1[pl.find(__sd1 > 0)] ** 2) / len(__sd1)) # @IgnorePep8            
-    #c1d = (sd1d / sd1) ** 2
+    sd1d = pl.sqrt(pl.sum( ( __sd1[pl.find(__sd1 < 0)] ) ** 2) / len(__sd1)) # @IgnorePep8
+    sd1a = pl.sqrt(pl.sum( ( __sd1[pl.find(__sd1 > 0)] ) ** 2) / len(__sd1)) # @IgnorePep8
+
+    #sd1d = pl.var(__sd1[pl.find(__sd1 < 0)])
+    #sd1a = pl.var(__sd1[pl.find(__sd1 > 0)])
+    #print('sd1d: ' + str(sd1d) + ' sd1a: ' + str(sd1a))
+    global LICZNIK, LICZNIK_ALL
+    #fraction = sd1a / (sd1a + sd1d)
+    c1d = (sd1d ** 2) / (sd1a ** 2 + sd1d ** 2)
+    #print(str(c1d))
+    if c1d > 0.5:
+        LICZNIK = LICZNIK + 1
+        LICZNIK_ALL = LICZNIK_ALL + 1
+    elif c1d < 0.5:
+        LICZNIK_ALL = LICZNIK_ALL + 1
+    else:
+        print('EQUAL')
+        #LICZNIK = LICZNIK + 0.5
     #c1a = (sd1a / sd1) ** 2
 
     #
@@ -54,7 +74,7 @@ def calculate(signal, rr_start, rr_stop, shift, suma_time, counter,
     #sd2 = pl.sqrt(pl.var(__sd2))
 
     #sd1 = (signal0_plus - signal0_minus) / pl.sqrt(2)
-    nochange_indexes = pl.find(sd1 == 0)
+    nochange_indexes = pl.find(__sd1 == 0)
 
     mean0_plus = pl.mean(signal0_plus)
     mean0_minus = pl.mean(signal0_minus)
@@ -94,13 +114,13 @@ def calculate(signal, rr_start, rr_stop, shift, suma_time, counter,
     #print(c)
     #print('c2d: ' + str(c2d))
 
-    if ca > 0.5:
+    if ca > A_HALF:
         ca_time = ca_time + signal0_time
-    elif cd > 0.5:
+    elif cd > A_HALF:
         cd_time = cd_time + signal0_time
     else:
-        ca_time = ca_time + signal0_time / 2
-        cd_time = cd_time + signal0_time / 2
+        ca_time = ca_time + 0.5
+        cd_time = cd_time + 0.5
 
     return (counter, ca_count, cd_count, equal_count, ca_time, cd_time,
             suma_time)
@@ -111,7 +131,12 @@ def test_poincare_resampled(_file, _window_size, _cols=[1, 2],
     shift = 1
     _data = pl.loadtxt(_file, skiprows=1, usecols=_cols, unpack=True)
     signal = _data if len(_cols) == 1 else _data[0:1][0]
+    print(signal)
     signal_time = pl.sum(signal)
+
+    global LICZNIK, LICZNIK_ALL
+    LICZNIK = 0
+    LICZNIK_ALL = 0
 
     sample = pl.arange(0, sum(signal), step)
     cumsum = pl.cumsum(signal)
@@ -128,11 +153,34 @@ def test_poincare_resampled(_file, _window_size, _cols=[1, 2],
 
     counter = 0
     equal_count = 0
+    rr_start_old = -1
+    rr_stop_old = -1
+    #size = 300
     for i in range(len(sample) - count):
+    #for i in range(len(signal)):
+    #for i in range(len(sample) - size):
 
         rr_start = pl.searchsorted(cumsum, sample[i])
-        #rr_stop = pl.searchsorted(cs, sample[i + count], side='left')
         rr_stop = pl.searchsorted(cumsum, sample[i + count])
+
+        #rr_start = i
+        #rr_stop = get_max_index_for_cumulative_sum_greater_then_value(
+        #                                    signal,
+        #                                    _size,
+        #                                    i
+        #                                   #rr_start
+        #                                    )
+        if rr_stop == -1:
+            break
+
+        #if rr_start_old == rr_start and rr_stop_old == rr_stop:
+        #    continue
+
+        #rr_start = i
+        #rr_stop = rr_start + size
+
+        #rr_stop = pl.searchsorted(cs, sample[i + count], side='left')
+
         #if index + _window_size + shift <= len(signal):
         #if index + _window_size + shift <= len(signal):
         #if index + _window_size <= len(signal):
@@ -144,7 +192,8 @@ def test_poincare_resampled(_file, _window_size, _cols=[1, 2],
              equal_count, ca_time, cd_time, suma_time) = \
                 calculate(signal, rr_start, rr_stop, shift, suma_time, counter,
                       ca_count, cd_count, equal_count, ca_time, cd_time)
-
+            rr_start_old = rr_start
+            rr_stop_old = rr_stop
             index += 1
         else:
             break
@@ -152,53 +201,9 @@ def test_poincare_resampled(_file, _window_size, _cols=[1, 2],
     print('counter: ' + str(counter) + ' step: ' + str(step)
           + ' count: ' + str(count)
           + ' window size [in ms]: ' + str(step * count))
+    print('LICZNIK: ' + str(LICZNIK) + '  LICZNIK_ALL: ' + str(LICZNIK_ALL))
+    print('sd1a < sd1d: ' + str((1.0 * LICZNIK) / LICZNIK_ALL))
 
-    #suma_time = signal_time
-    return 'ca_summary_time: ' + str(ca_time / suma_time) + \
-        ' cd_summary_time: ' + str(cd_time / suma_time) + \
-        ' ca_count: ' + str(ca_count) + ' cd_count: ' + str(cd_count) + \
-        ' equal_count: ' + str(equal_count) + ' counter: ' + str(counter) + '\n' # @IgnorePep8
-
-
-def test_poincare_timed(_file, _window_size, _cols=[1, 2],
-                _dynamic_shift=None, step=10, count=1000):
-    shift = 1
-    _data = pl.loadtxt(_file, skiprows=1, usecols=_cols, unpack=True)
-    signal = _data if len(_cols) == 1 else _data[0:1][0]
-    signal_time = pl.sum(signal)
-
-    #print(annotation)
-    suma_time = 0.0
-    ca_time = 0.0
-    cd_time = 0.0
-    ca_count = 0
-    cd_count = 0
-    #while (True):
-    #_size = len(signal0_plus)
-    _size = step * count
-
-    counter = 0
-    equal_count = 0
-    rr_start = 0
-    while(True):
-
-        rr_stop = get_max_index_for_cumulative_sum_greater_then_value(
-                                            signal,
-                                            _size,
-                                            rr_start)
-        if rr_stop == -1:
-            break
-
-        (counter, ca_count, cd_count,
-         equal_count, ca_time, cd_time, suma_time) = \
-            calculate(signal, rr_start, rr_stop, shift, suma_time, counter,
-                  ca_count, cd_count, equal_count, ca_time, cd_time)
-
-        rr_start += 1
-
-    print('counter: ' + str(counter) + ' step: ' + str(step)
-          + ' count: ' + str(count)
-          + ' window size [in ms]: ' + str(step * count))
     #suma_time = signal_time
     return 'ca_summary_time: ' + str(ca_time / suma_time) + \
         ' cd_summary_time: ' + str(cd_time / suma_time) + \
@@ -246,8 +251,6 @@ if __name__ == '__main__':
              ]
     #'o:\\dane\\30m\\shuffled\\S0009.rea'
 
-    test_poincare = test_poincare_timed
-
     katalog = "o:\\test_poincare\\"
     pliki = [
              "regular_even_0.rea",
@@ -265,8 +268,12 @@ if __name__ == '__main__':
              "sampled shuffled: ",
              ]
 
-    katalog = "o:\\dane\\30m\\normal"
-    pliki = []
+    katalog = "o:\\test_0004\\"
+    #katalog = "o:\\dane\\30m\\shuffled\\"
+    pliki = [
+             #"S0004.rea"
+             #"S0004.rea_6"
+             ]
     titles = [
              "sampled shuffled: ",
              ]
@@ -283,16 +290,67 @@ if __name__ == '__main__':
     for plik in pliki:
         print('****************************************************')
         print('plik: ' + plik)
-        print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=300, step=1000))  # @IgnorePep8
-        print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=3000, step=100))  # @IgnorePep8
-        #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=30000, step=10))  # @IgnorePep8
+        #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=300, step=1000))  # @IgnorePep8
+        #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=3000, step=100))  # @IgnorePep8
+        print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=30000, step=10))  # @IgnorePep8
         #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=300000, step=1))  # @IgnorePep8
         #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=1200, step=1000))  # @IgnorePep8
-        print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=600, step=1000))  # @IgnorePep8
-        print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=300, step=500))  # @IgnorePep8
-        print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=111, step=700))  # @IgnorePep8
-        print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=10, step=1000))  # @IgnorePep8
-        print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=10, step=500))  # @IgnorePep8
+        #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=600, step=1000))  # @IgnorePep8
+        #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=300, step=500))  # @IgnorePep8
+        #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=111, step=700))  # @IgnorePep8
+        #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=10, step=1000))  # @IgnorePep8
+        #print(titles[i] + test_poincare(katalog + plik, 18, [1,2], _dynamic_shift=3, count=10, step=500))  # @IgnorePep8
         i += 1
         #print('timed even: ' + test_poincare_timed(katalog + plik, 18, [0], _dynamic_shift=3, count=300, step=1000))  # @IgnorePep8        
         #print('shuffled: ' + test_poincare(katalog + "S_" + plik, 300))  # @IgnorePep8    
+
+
+
+
+
+
+
+#def test_poincare_timed(_file, _window_size, _cols=[1, 2],
+#                _dynamic_shift=None, step=10, count=1000):
+#    shift = 1
+#    _data = pl.loadtxt(_file, skiprows=1, usecols=_cols, unpack=True)
+#    signal = _data if len(_cols) == 1 else _data[0:1][0]
+#    signal_time = 1  # pl.sum(signal)
+#
+#    #print(annotation)
+#    suma_time = 0.0
+#    ca_time = 0.0
+#    cd_time = 0.0
+#    ca_count = 0
+#    cd_count = 0
+#    #while (True):
+#    #_size = len(signal0_plus)
+#    _size = step * count
+#
+#    counter = 0
+#    equal_count = 0
+#    rr_start = 0
+#    while(True):
+#
+#        rr_stop = get_max_index_for_cumulative_sum_greater_then_value(
+#                                            signal,
+#                                            _size,
+#                                            rr_start)
+#        if rr_stop == -1:
+#            break
+#
+#        (counter, ca_count, cd_count,
+#         equal_count, ca_time, cd_time, suma_time) = \
+#            calculate(signal, rr_start, rr_stop, shift, suma_time, counter,
+#                  ca_count, cd_count, equal_count, ca_time, cd_time)
+#
+#        rr_start += 1
+#
+#    print('counter: ' + str(counter) + ' step: ' + str(step)
+#          + ' count: ' + str(count)
+#          + ' window size [in ms]: ' + str(step * count))
+#    #suma_time = signal_time
+#    return 'ca_summary_time: ' + str(ca_time / suma_time) + \
+#        ' cd_summary_time: ' + str(cd_time / suma_time) + \
+#        ' ca_count: ' + str(ca_count) + ' cd_count: ' + str(cd_count) + \
+#        ' equal_count: ' + str(equal_count) + ' counter: ' + str(counter) + '\n' # @IgnorePep8
