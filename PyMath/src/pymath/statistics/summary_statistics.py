@@ -235,7 +235,7 @@ class __TimeOver50PercentageInnerSummaryStatistic__(SummaryStatistic, __Inner__)
                 if self.__summary_time__ > 0 else 0
 
 
-class C1aTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+class C1aTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     C1a is greater then 50% of the whole time during processing/moving
@@ -249,7 +249,7 @@ class C1aTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic_
         return [C1aStatistic]
 
 
-class C2aTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+class C2aTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     C2a is greater then 50% of the whole time during processing/moving
@@ -263,7 +263,7 @@ class C2aTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic_
         return [C2aStatistic]
 
 
-class C1dTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+class C1dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     C1d is greater then 50% of the whole time during processing/moving
@@ -277,7 +277,7 @@ class C1dTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic_
         return [C1dStatistic]
 
 
-class C2dTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+class C2dTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     C2d is greater then 50% of the whole time during processing/moving
@@ -290,7 +290,7 @@ class C2dTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic_
     def statistics_dependence(self):
         return [C2dStatistic]
 
-class CdTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+class CdTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     Cd is greater then 50% of the whole time during processing/moving
@@ -304,7 +304,7 @@ class CdTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__
         return [CdStatistic]
 
 
-class CaTimeOver50SummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
+class CaTimeSummaryStatistic(__TimeOver50PercentageInnerSummaryStatistic__, Asymmetry): # @IgnorePep8
     """
     summary statistic which calculates percentage of time when
     Ca is greater then 50% of the whole time during processing/moving
