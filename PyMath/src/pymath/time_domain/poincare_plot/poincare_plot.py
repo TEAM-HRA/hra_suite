@@ -281,6 +281,10 @@ if __name__ == '__main__':
                 value 0 means no use of window resampling size at all
                 [optional]""",
             type=int)
+    parser.add_argument("-jump", "--jump_step",
+                help="""jumping window size expressed in number of data items
+                or in time units by suffix: s - second, m - minute, h - hour;
+                examples: 100, 5m""")
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -310,6 +314,7 @@ if __name__ == '__main__':
     ppManager.normalize_window_size = __args.normalize_window_size
     ppManager.use_buffer = __args.use_buffer
     ppManager.window_resampling_step = __args.window_resampling_step
+    ppManager.jump_step = __args.jump_step
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:

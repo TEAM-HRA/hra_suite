@@ -27,6 +27,7 @@ class DataVectorParameters(CoreParameters):
         self.__excluded_annotations__ = ALL_ANNOTATIONS
         self.__normalize_window_size__ = True
         self.__window_resampling_step__ = None
+        self.__jump_step__ = None
 
     @property
     def window_size(self):
@@ -153,6 +154,8 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'time_index', self.time_index)
         setattr(_object, 'normalize_window_size', self.normalize_window_size)
         setattr(_object, 'window_resampling_step', self.window_resampling_step)
+        setattr(_object, 'jump_step', self.jump_step)
+        setattr(_object, 'jump_step_unit', self.jump_step_unit)
 
     def validateDataVectorParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.window_size is None or self.window_size == 0:
@@ -187,3 +190,33 @@ class DataVectorParameters(CoreParameters):
     @window_resampling_step.setter
     def window_resampling_step(self, _window_resampling_step):
         self.__window_resampling_step__ = _window_resampling_step
+
+    @property
+    def jump_step(self):
+        """
+        [optional]
+        to create jumping window user have to define jump step which could be
+        expressed in number of data items or in time units by suffix:
+        s - second, m - minute, h - hour; examples: 100, 5m
+        """
+        return self.__jump_step__
+
+    @jump_step.setter
+    def jump_step(self, _jump_step):
+        if not _jump_step == None:
+            self.__jump_step__ = extract_number(_jump_step, convert=int)
+            self.__jump_step_unit__ = extract_alphabetic(_jump_step,
+                                                       convert=str.lower)
+
+    @property
+    def jump_step_unit(self):
+        """
+        [optional]
+        jump step unit, as a separate property,
+        acceptable values: s - second, m - minute, h - hour
+        """
+        return self.__jump_step_unit__
+
+    @jump_step_unit.setter
+    def jump_step_unit(self, _jump_step_unit):
+        self.__jump_step_unit__ = _jump_step_unit

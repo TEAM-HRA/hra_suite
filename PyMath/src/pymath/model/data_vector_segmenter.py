@@ -22,7 +22,8 @@ class DataVectorSegmenter(object):
 
     def __init__(self, data, window_size,  shift=1, window_size_unit=None,
                  filter_manager=None, normalize_window_size=True,
-                 window_resampling_step=None):
+                 window_resampling_step=None,
+                 jump_step=None, jump_step_unit=None):
         self.__data__ = data
         self.__shift__ = shift
         self.__index__ = 0
@@ -34,6 +35,8 @@ class DataVectorSegmenter(object):
         self.__data_segment_old__ = None
         # 0 value means no resampling
         self.__window_resampling_step__ = nvl(window_resampling_step, 0)
+
+        self.__calculate_jump_step_size__(jump_step, jump_step_unit)
 
         self.__calculate_window_size__(window_size, window_size_unit,
                                        normalize_window_size, filter_manager)
@@ -67,6 +70,8 @@ class DataVectorSegmenter(object):
         else:
             window_size = self.__window_size__
 
+        self.__calculate_jump_step_index__()
+
         if self.__index__ + window_size <= self.__signal_size__:
 
             index_start = self.__index__
@@ -98,7 +103,7 @@ class DataVectorSegmenter(object):
 
     def __resampled_next__(self):
 
-        if self.__index__ + self.__resampled_window_size__ > self.__signal_size__ - self.__shift__: # @IgnorePep8
+        if self.__index__ + self.__resampled_window_size__ > self.__signal_size__ - 1: # @IgnorePep8
             raise StopIteration
 
         index_start = self.SEARCHSORTED(self.__cumsum_data__,
@@ -106,6 +111,8 @@ class DataVectorSegmenter(object):
         index_stop = self.SEARCHSORTED(self.__cumsum_data__,
                                        self.__resampled_data__[self.__index__ +
                                             self.__resampled_window_size__])
+
+        self.__calculate_jump_step_index__()
 
         if self.__index__ + self.__resampled_window_size__ < self.__signal_size__: # @IgnorePep8
 
@@ -245,3 +252,27 @@ class DataVectorSegmenter(object):
         method which returns True if data is changed otherwise False
         """
         return self.__data_changed__
+
+    def __calculate_jump_step_size__(self, jump_step, jump_step_unit):
+        self.__jump_step__ = nvl(jump_step, 0)
+        self.__jump_step_unit__ = jump_step_unit
+        if not self.__jump_step_unit__ == None:
+            self.__jump_unit__ = get_time_unit(self.__jump_step_unit__)
+            multiplier = self.__jump_unit__.expressInUnit(
+                                                    self.__data__.signal_unit)
+            self.__jump_step_in_signal_unit__ = multiplier * self.__jump_step__
+
+    def __calculate_jump_step_index__(self):
+        if self.__index__ > 0 and self.__jump_step__ > 0:
+            #there is no jump step unit
+            if self.__jump_step_unit__ == None:
+                self.__index__ = self.__index__ + self.__jump_step__ - 1
+            else:
+                max_index = \
+                    get_max_index_for_cumulative_sum_greater_then_value(
+                                        self.__data__.signal,
+                                        self.__jump_step_in_signal_unit__,
+                                        self.__index__)
+                if max_index == -1:
+                    raise StopIteration
+                self.__index__ = self.__index__ + max_index - 1

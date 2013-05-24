@@ -191,7 +191,9 @@ class PoincarePlotGenerator(object):
                             window_size_unit=self.window_size_unit,
                             normalize_window_size=self.normalize_window_size,
                             filter_manager=filter_manager,
-                            window_resampling_step=self.window_resampling_step)
+                            window_resampling_step=self.window_resampling_step,
+                            jump_step=self.jump_step,
+                            jump_step_unit=self.jump_step_unit)
 
         start_progress.segmenter = segmenter
         start_progress()
@@ -355,7 +357,9 @@ class PoincarePlotGenerator(object):
                             window_size_unit=self.window_size_unit,
                             normalize_window_size=self.normalize_window_size,
                             filter_manager=filter_manager,
-                            window_resampling_step=self.window_resampling_step)
+                            window_resampling_step=self.window_resampling_step,
+                            jump_step=self.jump_step,
+                            jump_step_unit=self.jump_step_unit)
         return segmenter.segment_count()
 
 
