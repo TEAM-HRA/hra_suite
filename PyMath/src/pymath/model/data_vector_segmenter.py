@@ -319,17 +319,28 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
         self.__stepped_signal_size__ = len(self.__stepped_data__)
         self.__cumsum_data__ = np.cumsum(self.data.signal)
 
-        self.__index__ = 0
+        self.__stepper_index__ = 0
 
     def next(self):
 
-        if self.__index__ + 1 < self.__stepped_signal_size__:
-            index_start = self.SEARCHSORTED(self.__cumsum_data__,
-                                    self.__stepped_data__[self.__index__])
-            index_stop = self.SEARCHSORTED(self.__cumsum_data__,
-                                    self.__stepped_data__[self.__index__ + 1])
+        if self.__stepper_index__ < self.__stepped_signal_size__:
+            if self.__stepper_index__ == 0:
+                index_start = 0
+            else:
+                #to avoid overlapping with previous index_stop
+                #one have to add plus 1 index
+                index_start = self.SEARCHSORTED(self.__cumsum_data__,
+                        self.__stepped_data__[self.__stepper_index__]) + 1
 
-            self.__index__ = self.__index__ + 1
+            #index_stop ends where the window size ends
+            index_stop = self.SEARCHSORTED(self.__cumsum_data__,
+                        self.__stepped_data__[self.__stepper_index__] +
+                                    self.window_size_in_signal_unit)
+
+            if index_stop >= self.signal_size:
+                raise StopIteration
+
+            self.__stepper_index__ = self.__stepper_index__ + 1
 
             return self.__getDataVactor__(index_start, index_stop)
         else:
