@@ -8,7 +8,6 @@ try:
     import numpy as np
     from pycore.collections_utils import nvl
     from pycore.units import get_time_unit
-    from pymath.statistics.statistics import MeanStatistic
     from pymath.model.data_vector import DataVector
     from pymath.utils.array_utils import \
         get_max_index_for_cumulative_sum_greater_then_value
@@ -21,7 +20,6 @@ except ImportError as error:
 class DataVectorSegmenter(object):
 
     def __init__(self, data, window_size,  shift=1, window_size_unit=None,
-                 filter_manager=None, normalize_window_size=True,
                  window_resampling_step=None,
                  jump_step=None, jump_step_unit=None):
         self.__data__ = data
@@ -38,8 +36,7 @@ class DataVectorSegmenter(object):
 
         self.__calculate_jump_step_size__(jump_step, jump_step_unit)
 
-        self.__calculate_window_size__(window_size, window_size_unit,
-                                       normalize_window_size, filter_manager)
+        self.__calculate_window_size__(window_size, window_size_unit)
 
         #optimization tricks, the methods below will not be searched in python
         #paths but access to them, because of below assignments, will be local
@@ -185,8 +182,7 @@ class DataVectorSegmenter(object):
         return ((signal_size - window_size) / self.__shift__) + 1 \
                 if window_size > 0 else window_size
 
-    def __calculate_window_size__(self, window_size, window_size_unit,
-                                  normalize_window_size, filter_manager):
+    def __calculate_window_size__(self, window_size, window_size_unit):
         """
         method calculates correct window size
         """
@@ -218,28 +214,6 @@ class DataVectorSegmenter(object):
                 self.__cumsum_data__ = np.cumsum(self.__data__.signal)
                 self.__window_size__ = window_size_in_signal_unit
                 self.__resampled_window_size__ = window_size_in_signal_unit / self.__window_resampling_step__ # @IgnorePep8
-
-            #express window size put in some unit in normalized
-            #number of data, normalized means calculate a mean of a signal
-            #(filtered signal if required) and calculate how many means
-            #divide the whole window size
-            elif normalize_window_size:
-                if filter_manager:
-                    data = filter_manager.run_filters(data)
-
-                mean_stat = MeanStatistic()
-                mean_stat.data = data
-                mean_signal = mean_stat.compute()
-
-                #number of means per window_size_in_signal_unit
-                window_size_in_signal_unit = int(
-                                    window_size_in_signal_unit / mean_signal)
-                #because window size is expressed in number of data points,
-                #window size unit is not required any more
-                self.__window_size_unit__ = None
-                self.__window_size__ = window_size_in_signal_unit
-                print('Using normalized window size: ' +
-                                                    str(self.__window_size__))
             else:
                 self.__window_size__ = window_size_in_signal_unit
         else:

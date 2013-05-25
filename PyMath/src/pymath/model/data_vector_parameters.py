@@ -25,7 +25,6 @@ class DataVectorParameters(CoreParameters):
     def __init__(self):
         self.__window_shift__ = 1
         self.__excluded_annotations__ = ALL_ANNOTATIONS
-        self.__normalize_window_size__ = True
         self.__window_resampling_step__ = None
         self.__jump_step__ = None
 
@@ -152,7 +151,6 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'signal_index', self.signal_index)
         setattr(_object, 'annotation_index', self.annotation_index)
         setattr(_object, 'time_index', self.time_index)
-        setattr(_object, 'normalize_window_size', self.normalize_window_size)
         setattr(_object, 'window_resampling_step', self.window_resampling_step)
         setattr(_object, 'jump_step', self.jump_step)
         setattr(_object, 'jump_step_unit', self.jump_step_unit)
@@ -163,21 +161,6 @@ class DataVectorParameters(CoreParameters):
         if check_level >= CoreParameters.NORMAL_CHECK_LEVEL:
             if self.signal_index is None:
                 return 'signal index has to be set'
-
-    @property
-    def normalize_window_size(self):
-        """
-        [optional]
-        if a window size is expressed in units then the real window size
-        is normalize to number of data corresponds to mean value of signal per
-        given window size
-        values: [True - default], False
-        """
-        return nvl(self.__normalize_window_size__, True)
-
-    @normalize_window_size.setter
-    def normalize_window_size(self, _normalize_window_size):
-        self.__normalize_window_size__ = _normalize_window_size
 
     @property
     def window_resampling_step(self):

@@ -270,11 +270,6 @@ if __name__ == '__main__':
                 help="skip processing data file if there are corresponding \
                         outcome files [True|False]",
                 type=to_bool, default=True)
-    parser.add_argument("-nws", "--normalize_window_size",
-            help="""if a window size is expressed in units then the real window
-                size is normalize to number of data corresponds to mean value
-                of signal per given window size [default: True]""",
-            type=to_bool, default=True)
     parser.add_argument("-wrs", "--window_resampling_step",
             help="""how big have to be a step for window resampling size;
                 it is assumed that this quantity is expressed in signal unit
@@ -311,7 +306,6 @@ if __name__ == '__main__':
     ppManager.add_headers = __args.add_headers
     ppManager.use_identity_line = __args.use_identity_line
     ppManager.skip_existing_outcomes = __args.skip_existing_outcomes
-    ppManager.normalize_window_size = __args.normalize_window_size
     ppManager.use_buffer = __args.use_buffer
     ppManager.window_resampling_step = __args.window_resampling_step
     ppManager.jump_step = __args.jump_step
