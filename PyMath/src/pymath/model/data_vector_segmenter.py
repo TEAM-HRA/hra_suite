@@ -20,18 +20,18 @@ class SegmenterManager(object):
 
     @staticmethod
     def getDataVectorSegmenter(data, window_size,
-                     window_size_unit=None, window_resampling_step=None,
-                     shift=1, jump_step=None, jump_step_unit=None):
+                     window_size_unit=None, sample_step=None,
+                     shift=1, stepper_size=None, stepper_unit=None):
 
-        if not jump_step == None:
+        if not stepper_size == None:
             return __SteppedDataVectorSegmenter__(data, window_size,
-                                                window_size_unit,
-                                                jump_step, jump_step_unit,
-                                                shift)
-        elif not window_resampling_step == None:
+                                            window_size_unit,
+                                            stepper_size, stepper_unit,
+                                            shift)
+        elif not sample_step == None:
             return __SampledDataVectorSegmenter__(data, window_size,
                                                 window_size_unit,
-                                                window_resampling_step, shift)
+                                                sample_step, shift)
         else:
             return __BitDataVectorSegmenter__(data, window_size,
                                               window_size_unit,
@@ -223,8 +223,7 @@ class __SampledDataVectorSegmenter__(__DataVectorSegmenter__):
     """
     class used to calculate segments of data vector based on sample step
     """
-    def __init__(self, data, window_size, window_size_unit,
-                 window_resampling_step, shift):
+    def __init__(self, data, window_size, window_size_unit, sample_step, shift): # @IgnorePep8
         super(__SampledDataVectorSegmenter__, self).__init__(data, window_size,
                                                              window_size_unit,
                                                              shift)
@@ -233,10 +232,10 @@ class __SampledDataVectorSegmenter__(__DataVectorSegmenter__):
             raise Exception('For window resampling step a window size unit is required !!!') # @IgnorePep8
 
         self.__sampled_data__ = np.arange(0, np.sum(self.data.signal),
-                                          window_resampling_step)
+                                          sample_step)
         self.__sampled_signal_size__ = len(self.__sampled_data__)
         self.__cumsum_data__ = np.cumsum(self.data.signal)
-        self.__sampled_window_size__ = self.window_size_in_signal_unit / window_resampling_step # @IgnorePep8
+        self.__sampled_window_size__ = self.window_size_in_signal_unit / sample_step # @IgnorePep8
 
         self.__index__ = 0
         self.__index_start_old__ = -1
@@ -293,7 +292,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
     value of stepping size
     """
     def __init__(self, data, window_size, window_size_unit,
-                 step_size, step_size_unit, shift):
+                 stepper_size, stepper_unit, shift):
         super(__SteppedDataVectorSegmenter__, self).__init__(data, window_size,
                                                              window_size_unit,
                                                              shift)
@@ -301,15 +300,15 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
         if not self.window_size_unit:
             raise Exception('For stepping window a window size unit is required !!!') # @IgnorePep8
 
-        if step_size_unit:
-            step_unit = get_time_unit(step_size_unit)
+        if stepper_unit:
+            step_unit = get_time_unit(stepper_unit)
             if not step_unit:
-                raise Exception('Unknown step size unit !!! ['
-                                + step_size_unit + ']')
+                raise Exception('Unknown stepper size unit !!! ['
+                                + stepper_unit + ']')
             multiplier = step_unit.expressInUnit(self.data.signal_unit)
-            self.__step_size_in_signal_unit__ = multiplier * step_size
+            self.__step_size_in_signal_unit__ = multiplier * stepper_size
         else:
-            self.__step_size_in_signal_unit__ = step_size
+            self.__step_size_in_signal_unit__ = stepper_size
 
         sum_signal = np.sum(self.data.signal)
         if self.__step_size_in_signal_unit__ > sum_signal:

@@ -25,8 +25,10 @@ class DataVectorParameters(CoreParameters):
     def __init__(self):
         self.__window_shift__ = 1
         self.__excluded_annotations__ = ALL_ANNOTATIONS
-        self.__window_resampling_step__ = None
-        self.__jump_step__ = None
+        self.__sample_step__ = None
+        self.__stepper__ = None
+        self.__stepper_size__ = None
+        self.__stepper_unit__ = None
 
     @property
     def window_size(self):
@@ -151,9 +153,10 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'signal_index', self.signal_index)
         setattr(_object, 'annotation_index', self.annotation_index)
         setattr(_object, 'time_index', self.time_index)
-        setattr(_object, 'window_resampling_step', self.window_resampling_step)
-        setattr(_object, 'jump_step', self.jump_step)
-        setattr(_object, 'jump_step_unit', self.jump_step_unit)
+        setattr(_object, 'sample_step', self.sample_step)
+        setattr(_object, 'stepper', self.stepper)
+        setattr(_object, 'stepper_size', self.stepper_size)
+        setattr(_object, 'stepper_unit', self.stepper_unit)
 
     def validateDataVectorParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.window_size is None or self.window_size == 0:
@@ -163,43 +166,57 @@ class DataVectorParameters(CoreParameters):
                 return 'signal index has to be set'
 
     @property
-    def window_resampling_step(self):
+    def sample_step(self):
         """
         [optional, positive integer]
         how big have to be a step for window resampling size;
         it is assumed that this quantity is expressed in signal unit"""
-        return self.__window_resampling_step__
+        return self.__sample_step__
 
-    @window_resampling_step.setter
-    def window_resampling_step(self, _window_resampling_step):
-        self.__window_resampling_step__ = _window_resampling_step
+    @sample_step.setter
+    def sample_step(self, _sample_step):
+        self.__sample_step__ = _sample_step
 
     @property
-    def jump_step(self):
+    def stepper(self):
         """
         [optional]
-        to create jumping window user have to define jump step which could be
-        expressed in number of data items or in time units by suffix:
+        stepper size is an amount by which processing window will be jump
+        during processing of data, this value could be expressed in
+        number of data items or in time units by suffix:
         s - second, m - minute, h - hour; examples: 100, 5m
         """
-        return self.__jump_step__
+        return self.__stepper__
 
-    @jump_step.setter
-    def jump_step(self, _jump_step):
-        if not _jump_step == None:
-            self.__jump_step__ = extract_number(_jump_step, convert=int)
-            self.__jump_step_unit__ = extract_alphabetic(_jump_step,
+    @stepper.setter
+    def stepper(self, _stepper):
+        if not _stepper == None:
+            self.__stepper__ = _stepper
+            self.__stepper_size__ = extract_number(_stepper, convert=int)
+            self.__stepper_unit__ = extract_alphabetic(_stepper,
                                                        convert=str.lower)
 
     @property
-    def jump_step_unit(self):
+    def stepper_unit(self):
         """
         [optional]
-        jump step unit, as a separate property,
+        stepper unit, as a separate property,
         acceptable values: s - second, m - minute, h - hour
         """
-        return self.__jump_step_unit__
+        return self.__stepper_unit__
 
-    @jump_step_unit.setter
-    def jump_step_unit(self, _jump_step_unit):
-        self.__jump_step_unit__ = _jump_step_unit
+    @stepper_unit.setter
+    def stepper_unit(self, _stepper_unit):
+        self.__stepper_unit__ = _stepper_unit
+
+    @property
+    def stepper_size(self):
+        """
+        [optional]
+        stepper size, as a separate property
+        """
+        return self.__stepper_size__
+
+    @stepper_size.setter
+    def stepper_size(self, _stepper_size):
+        self.__stepper_size__ = _stepper_size

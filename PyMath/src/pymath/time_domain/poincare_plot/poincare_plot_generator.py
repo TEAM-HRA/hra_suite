@@ -188,10 +188,10 @@ class PoincarePlotGenerator(object):
         segmenter = SegmenterManager.getDataVectorSegmenter(data_vector,
                                                 self.window_size,
                                                 self.window_size_unit,
-                                                self.window_resampling_step,
+                                                self.sample_step,
                                                 self.window_shift,
-                                                self.jump_step,
-                                                self.jump_step_unit)
+                                                self.stepper_size,
+                                                self.stepper_unit)
 
         start_progress.segmenter = segmenter
         start_progress()
@@ -349,10 +349,10 @@ class PoincarePlotGenerator(object):
         segmenter = SegmenterManager.getDataVectorSegmenter(data_vector,
                                                 self.window_size,
                                                 self.window_size_unit,
-                                                self.window_resampling_step,
+                                                self.sample_step,
                                                 self.window_shift,
-                                                self.jump_step,
-                                                self.jump_step_unit)
+                                                self.stepper_size,
+                                                self.stepper_unit)
         return segmenter.segment_count()
 
 

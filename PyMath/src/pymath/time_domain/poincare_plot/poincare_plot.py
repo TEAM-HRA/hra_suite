@@ -270,16 +270,17 @@ if __name__ == '__main__':
                 help="skip processing data file if there are corresponding \
                         outcome files [True|False]",
                 type=to_bool, default=True)
-    parser.add_argument("-wrs", "--window_resampling_step",
+    parser.add_argument("-sample", "--sample_step",
             help="""how big have to be a step for window resampling size;
                 it is assumed that this quantity is expressed in signal unit
                 value 0 means no use of window resampling size at all
                 [optional]""",
             type=int)
-    parser.add_argument("-jump", "--jump_step",
-                help="""jumping window size expressed in number of data items
+    parser.add_argument("-stepper", "--stepper",
+                help="""to define amount by which data window have to jump
+                during process of data expressed in number of data items
                 or in time units by suffix: s - second, m - minute, h - hour;
-                examples: 100, 5m""")
+                examples: 100, 5m [optional]""")
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -307,8 +308,8 @@ if __name__ == '__main__':
     ppManager.use_identity_line = __args.use_identity_line
     ppManager.skip_existing_outcomes = __args.skip_existing_outcomes
     ppManager.use_buffer = __args.use_buffer
-    ppManager.window_resampling_step = __args.window_resampling_step
-    ppManager.jump_step = __args.jump_step
+    ppManager.sample_step = __args.sample_step
+    ppManager.stepper = __args.stepper
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:
