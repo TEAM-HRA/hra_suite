@@ -13,7 +13,7 @@ try:
     from pycore.utils import ControlInterruptHandler
     from pymath.utils.io_utils import NumpyCSVFile
     from pymath.model.core_parameters import CoreParameters
-    from pymath.model.data_vector_segmenter import DataVectorSegmenter
+    from pymath.model.data_vector_segmenter import SegmenterManager
     from pymath.model.data_vector_parameters import DataVectorParameters
     from pymath.model.file_data_parameters import FileDataParameters
     from pymath.statistics.statistic_parameters import StatisticParameters
@@ -185,13 +185,13 @@ class PoincarePlotGenerator(object):
                 summary_statistics_names=self.summary_statistics_names,
                 summary_statistics_classes=self.summary_statistics_classes)
 
-        segmenter = DataVectorSegmenter(data_vector,
-                            self.window_size,
-                            shift=self.window_shift,
-                            window_size_unit=self.window_size_unit,
-                            window_resampling_step=self.window_resampling_step,
-                            jump_step=self.jump_step,
-                            jump_step_unit=self.jump_step_unit)
+        segmenter = SegmenterManager.getDataVectorSegmenter(data_vector,
+                                                self.window_size,
+                                                self.window_size_unit,
+                                                self.window_resampling_step,
+                                                self.window_shift,
+                                                self.jump_step,
+                                                self.jump_step_unit)
 
         start_progress.segmenter = segmenter
         start_progress()
@@ -346,13 +346,13 @@ class PoincarePlotGenerator(object):
         calculates approximate number of segments count during
         processing of poincare plot
         """
-        segmenter = DataVectorSegmenter(data_vector,
-                            self.window_size,
-                            shift=self.window_shift,
-                            window_size_unit=self.window_size_unit,
-                            window_resampling_step=self.window_resampling_step,
-                            jump_step=self.jump_step,
-                            jump_step_unit=self.jump_step_unit)
+        segmenter = SegmenterManager.getDataVectorSegmenter(data_vector,
+                                                self.window_size,
+                                                self.window_size_unit,
+                                                self.window_resampling_step,
+                                                self.window_shift,
+                                                self.jump_step,
+                                                self.jump_step_unit)
         return segmenter.segment_count()
 
 

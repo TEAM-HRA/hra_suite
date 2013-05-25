@@ -6,7 +6,6 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     import numpy as np
-    from pycore.collections_utils import nvl
     from pycore.units import get_time_unit
     from pymath.model.data_vector import DataVector
     from pymath.utils.array_utils import \
@@ -17,26 +16,56 @@ except ImportError as error:
     print_import_error(__name__, error)
 
 
-class DataVectorSegmenter(object):
+class SegmenterManager(object):
 
-    def __init__(self, data, window_size,  shift=1, window_size_unit=None,
-                 window_resampling_step=None,
-                 jump_step=None, jump_step_unit=None):
-        self.__data__ = data
-        self.__shift__ = shift
-        self.__index__ = 0
-        self.__window_unit__ = None
-        self.__signal_size__ = len(self.__data__.signal)
+    @staticmethod
+    def getDataVectorSegmenter(data, window_size,
+                     window_size_unit=None, window_resampling_step=None,
+                     shift=1, jump_step=None, jump_step_unit=None):
 
-        self.__index_start_old__ = -1
-        self.__index_stop_old__ = -1
-        self.__data_segment_old__ = None
-        # 0 value means no resampling
-        self.__window_resampling_step__ = nvl(window_resampling_step, 0)
+        if not jump_step == None:
+            return __SteppedDataVectorSegmenter__(data, window_size,
+                                                window_size_unit,
+                                                jump_step, jump_step_unit,
+                                                shift)
+        elif not window_resampling_step == None:
+            return __SampledDataVectorSegmenter__(data, window_size,
+                                                window_size_unit,
+                                                window_resampling_step, shift)
+        else:
+            return __BitDataVectorSegmenter__(data, window_size,
+                                              window_size_unit,
+                                              shift)
 
-        self.__calculate_jump_step_size__(jump_step, jump_step_unit)
 
-        self.__calculate_window_size__(window_size, window_size_unit)
+class __DataVectorSegmenter__(object):
+
+    def __init__(self, data, window_size, window_size_unit, shift=1):
+        self.data = data
+        self.window_size = window_size
+        self.window_size_unit = window_size_unit
+        self.shift = shift
+        self.__counter__ = 0
+
+        self.window_unit = None
+
+        if self.window_size_unit:
+            #get time unit of window size
+            self.window_unit = get_time_unit(self.window_size_unit)
+            if not self.window_unit:
+                raise Exception('Unknown window size unit !!! ['
+                                + self.window_size_unit + ']')
+
+        if self.window_unit:
+
+            #calculate multiplier of conversion between data signal unit
+            #and window size unit
+            multiplier = self.window_unit.expressInUnit(self.data.signal_unit)
+            self.window_size_in_signal_unit = multiplier * self.window_size
+
+        else:
+            if self.window_size > len(self.data.signal):
+                raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
 
         #optimization tricks, the methods below will not be searched in python
         #paths but access to them, because of below assignments, will be local
@@ -47,71 +76,183 @@ class DataVectorSegmenter(object):
     def __iter__(self):
         return self
 
+    def __getDataVactor__(self, index_start, index_stop):
+
+        if index_stop > self.signal_size:
+            raise StopIteration
+
+        indexes = self.ARANGE(index_start, index_stop + 1)
+        signal = self.data.signal.take(indexes)
+
+        indexes_plus = self.ARANGE(0, len(signal) - self.shift)
+        signal_plus = signal.take(indexes_plus)
+
+        indexes_minus = self.ARANGE(self.shift, len(signal))
+        signal_minus = signal.take(indexes_minus)
+
+        annotation = (None if self.data.annotation == None else
+                      self.data.annotation.take(indexes))
+
+        self.__counter__ += 1
+
+        return DataVector(signal=signal,
+                          signal_plus=signal_plus,
+                          signal_minus=signal_minus,
+                          annotation=annotation,
+                          signal_unit=self.data.signal_unit)
+
+    @property
+    def ordinal_value(self):
+        return self.__counter__ + 1
+
+    @property
+    def data_changed(self):
+        """
+        method which returns True if data is changed otherwise False
+        """
+        return True
+
+    @property
+    def data(self):
+        return self.__data__
+
+    @data.setter
+    def data(self, _data):
+        self.__data__ = _data
+
+    @property
+    def signal_size(self):
+        return len(self.data.signal)
+
+    @property
+    def shift(self):
+        return self.__shift__
+
+    @shift.setter
+    def shift(self, _shift):
+        self.__shift__ = _shift
+
+    @property
+    def window_size_unit(self):
+        return self.__window_size_unit__
+
+    @window_size_unit.setter
+    def window_size_unit(self, _window_size_unit):
+        self.__window_size_unit__ = _window_size_unit
+
+    @property
+    def window_unit(self):
+        return self.__window_unit__
+
+    @window_unit.setter
+    def window_unit(self, _window_unit):
+        self.__window_unit__ = _window_unit
+
+    @property
+    def window_size(self):
+        return self.__window_size__
+
+    @window_size.setter
+    def window_size(self, _window_size):
+        self.__window_size__ = _window_size
+
+    @property
+    def window_size_in_signal_unit(self):
+        return self.__window_size_in_signal_unit__
+
+    @window_size_in_signal_unit.setter
+    def window_size_in_signal_unit(self, _window_size_in_signal_unit):
+        self.__window_size_in_signal_unit__ = _window_size_in_signal_unit
+
+
+class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
+
+    """
+    class used to calculate segments of data vector based on number of bits
+    """
+    def __init__(self, data, window_size, window_size_unit, shift):
+        super(__BitDataVectorSegmenter__, self).__init__(data, window_size,
+                                                         window_size_unit,
+                                                         shift)
+        self.__index__ = 0
+
     def next(self):
-        self.__data_changed__ = True
-
-        if self.__window_resampling_step__ > 0:
-            return self.__resampled_next__()
-
-        #this means a user expresses window size in a unit
-        elif self.__window_size_unit__:
+        #this means a user expressed window size in a unit
+        if self.window_size_unit:
             max_index = get_max_index_for_cumulative_sum_greater_then_value(
-                                                self.__data__.signal,
-                                                self.__window_size__,
-                                                self.__index__)
+                                            self.data.signal,
+                                            self.window_size_in_signal_unit,
+                                            self.__index__)
             if max_index == -1:
                 raise StopIteration
 
-            #new window size is a difference between max_index a start index
+            #a new window size is a difference between max_index
+            #and current index
             window_size = max_index - self.__index__
         else:
-            window_size = self.__window_size__
+            window_size = self.window_size
 
-        self.__calculate_jump_step_index__()
+        index_start = self.__index__
+        index_stop = index_start + window_size
 
-        if self.__index__ + window_size <= self.__signal_size__:
+        self.__index__ += 1
 
-            index_start = self.__index__
-            index_stop = index_start + window_size
-
-            self.__index__ += 1
-
-            shift = self.__shift__
-
-            indexes = self.ARANGE(index_start, index_stop + 1)
-            signal = self.__data__.signal.take(indexes)
-
-            indexes_plus = self.ARANGE(0, len(signal) - shift)
-            signal_plus = signal.take(indexes_plus)
-
-            indexes_minus = self.ARANGE(shift, len(signal))
-            signal_minus = signal.take(indexes_minus)
-
-            annotation = (None if self.__data__.annotation == None else
-                          self.__data__.annotation.take(indexes))
-
-            return DataVector(signal=signal,
-                              signal_plus=signal_plus,
-                              signal_minus=signal_minus,
-                              annotation=annotation,
-                              signal_unit=self.__data__.signal_unit)
+        if index_stop < self.signal_size:
+            return self.__getDataVactor__(index_start, index_stop)
         else:
             raise StopIteration
 
-    def __resampled_next__(self):
+    def segment_count(self):
+        """
+        the method calculates number of segments, if a window size is put in
+        time units then the number of segments is an approximated value
+        to avoid costly (in time) calculations
+        """
+        if self.window_size_unit:
+            window_size = get_max_index_for_cumulative_sum_of_means_greater_then_value(  # @IgnorePep8
+                                            self.data.signal,
+                                            self.window_size_in_signal_unit)
+        else:
+            window_size = self.window_size
+        return ((self.signal_size - window_size) / self.shift) + 1 \
+                if window_size > 0 else window_size
 
-        if self.__index__ + self.__resampled_window_size__ > self.__signal_size__ - 1: # @IgnorePep8
-            raise StopIteration
 
-        index_start = self.SEARCHSORTED(self.__cumsum_data__,
-                                    self.__resampled_data__[self.__index__])
-        index_stop = self.SEARCHSORTED(self.__cumsum_data__,
-                                       self.__resampled_data__[self.__index__ +
-                                            self.__resampled_window_size__])
+class __SampledDataVectorSegmenter__(__DataVectorSegmenter__):
 
-        self.__calculate_jump_step_index__()
+    """
+    class used to calculate segments of data vector based on sample step
+    """
+    def __init__(self, data, window_size, window_size_unit,
+                 window_resampling_step, shift):
+        super(__SampledDataVectorSegmenter__, self).__init__(data, window_size,
+                                                             window_size_unit,
+                                                             shift)
 
-        if self.__index__ + self.__resampled_window_size__ < self.__signal_size__: # @IgnorePep8
+        if not self.window_size_unit: # @IgnorePep8
+            raise Exception('For window resampling step a window size unit is required !!!') # @IgnorePep8
+
+        self.__sampled_data__ = np.arange(0, np.sum(self.data.signal),
+                                          window_resampling_step)
+        self.__sampled_signal_size__ = len(self.__sampled_data__)
+        self.__cumsum_data__ = np.cumsum(self.data.signal)
+        self.__sampled_window_size__ = self.window_size_in_signal_unit / window_resampling_step # @IgnorePep8
+
+        self.__index__ = 0
+        self.__index_start_old__ = -1
+        self.__index_stop_old__ = -1
+        self.__data_segment_old__ = None
+
+    def next(self):
+
+        self.__data_changed__ = True
+
+        if self.__index__ + self.__sampled_window_size__ <= self.__sampled_signal_size__: # @IgnorePep8
+            index_start = self.SEARCHSORTED(self.__cumsum_data__,
+                                self.__sampled_data__[self.__index__])
+            index_stop = self.SEARCHSORTED(self.__cumsum_data__,
+                        self.__sampled_data__[
+                            self.__index__ + self.__sampled_window_size__ - 1])
 
             self.__index__ += 1
 
@@ -120,105 +261,22 @@ class DataVectorSegmenter(object):
                 self.__data_changed__ = False
                 return self.__data_segment_old__
 
-            shift = self.__shift__
+            data_segment = self.__getDataVactor__(index_start, index_stop)
 
-            indexes = self.ARANGE(index_start, index_stop + 1)
-            signal = self.__data__.signal.take(indexes)
-
-            indexes_plus = self.ARANGE(0, len(signal) - shift)
-            signal_plus = signal.take(indexes_plus)
-
-            indexes_minus = self.ARANGE(shift, len(signal))
-            signal_minus = signal.take(indexes_minus)
-
-            annotation = (None if self.__data__.annotation == None else
-                          self.__data__.annotation.take(indexes))
-
-            self.__data_segment__ = DataVector(signal=signal,
-                                    signal_plus=signal_plus,
-                                    signal_minus=signal_minus,
-                                    annotation=annotation,
-                                    signal_unit=self.__data__.signal_unit)
-            self.__data_segment_old__ = self.__data_segment__
+            self.__data_segment_old__ = data_segment
             self.__index_start_old__ = index_start
             self.__index_stop_old__ = index_stop
 
-            return self.__data_segment__
+            return data_segment
         else:
             raise StopIteration
 
-    @property
-    def data_index(self):
-        #self.__shift have to be subtracted because it was added in next()
-        #method
-        return self.__index__ - self.__shift__
-
-    @property
-    def ordinal_value(self):
-        if self.__window_size_unit__:
-            multiplier = self.__data__.signal_unit.expressInUnit(
-                                                    self.__window_unit__)
-            return multiplier * np.sum(self.__data__.signal[:self.data_index])
-        else:
-            return self.data_index
-
     def segment_count(self):
         """
-        the method calculates number of segments, if a window size is put in
-        time units a number of segments is an approximation value to avoid
-        costly (in time) calculations
+        a method calculates number of segments
         """
-        if self.__window_resampling_step__ > 0:
-            window_size = self.__resampled_window_size__
-            signal_size = self.__signal_size__
-        elif self.__window_size_unit__:
-            window_size = get_max_index_for_cumulative_sum_of_means_greater_then_value(  # @IgnorePep8
-                                                    self.__data__.signal,
-                                                    self.__window_size__)
-            signal_size = self.__signal_size__
-        else:
-            window_size = self.__window_size__
-            signal_size = self.__signal_size__
-        return ((signal_size - window_size) / self.__shift__) + 1 \
-                if window_size > 0 else window_size
-
-    def __calculate_window_size__(self, window_size, window_size_unit):
-        """
-        method calculates correct window size
-        """
-        self.__window_size_unit__ = window_size_unit
-        self.__window_size__ = window_size
-        data = self.__data__
-
-        if self.__window_resampling_step__ > 0 and not self.__window_size_unit__: # @IgnorePep8
-            raise Exception('For window resampling step a window size unit is required !!!') # @IgnorePep8
-
-        if self.__window_size_unit__:
-
-            #get time unit of window size
-            self.__window_unit__ = get_time_unit(self.__window_size_unit__)
-            if not self.__window_unit__:
-                raise Exception('Unknown window size unit !!! ['
-                                + self.__window_unit__ + ']')
-
-            #calculate multiplier of conversion between data signal unit
-            #and window size unit
-            multiplier = self.__window_unit__.expressInUnit(data.signal_unit)
-            window_size_in_signal_unit = multiplier * window_size
-
-            if self.__window_resampling_step__ > 0:
-                self.__resampled_data__ = np.arange(0,
-                                            np.sum(self.__data__.signal),
-                                            self.__window_resampling_step__)
-                self.__signal_size__ = len(self.__resampled_data__)
-                self.__cumsum_data__ = np.cumsum(self.__data__.signal)
-                self.__window_size__ = window_size_in_signal_unit
-                self.__resampled_window_size__ = window_size_in_signal_unit / self.__window_resampling_step__ # @IgnorePep8
-            else:
-                self.__window_size__ = window_size_in_signal_unit
-        else:
-            if self.__window_size__ > len(data.signal):
-                raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
+        size = self.__sampled_window_size__
+        return self.__sampled_signal_size__ - size + 1 if size > 0 else size
 
     @property
     def data_changed(self):
@@ -227,26 +285,59 @@ class DataVectorSegmenter(object):
         """
         return self.__data_changed__
 
-    def __calculate_jump_step_size__(self, jump_step, jump_step_unit):
-        self.__jump_step__ = nvl(jump_step, 0)
-        self.__jump_step_unit__ = jump_step_unit
-        if not self.__jump_step_unit__ == None:
-            self.__jump_unit__ = get_time_unit(self.__jump_step_unit__)
-            multiplier = self.__jump_unit__.expressInUnit(
-                                                    self.__data__.signal_unit)
-            self.__jump_step_in_signal_unit__ = multiplier * self.__jump_step__
 
-    def __calculate_jump_step_index__(self):
-        if self.__index__ > 0 and self.__jump_step__ > 0:
-            #there is no jump step unit
-            if self.__jump_step_unit__ == None:
-                self.__index__ = self.__index__ + self.__jump_step__ - 1
-            else:
-                max_index = \
-                    get_max_index_for_cumulative_sum_greater_then_value(
-                                        self.__data__.signal,
-                                        self.__jump_step_in_signal_unit__,
-                                        self.__index__)
-                if max_index == -1:
-                    raise StopIteration
-                self.__index__ = self.__index__ + max_index - 1
+class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
+
+    """
+    class used to calculate segments of data vector based on
+    value of stepping size
+    """
+    def __init__(self, data, window_size, window_size_unit,
+                 step_size, step_size_unit, shift):
+        super(__SteppedDataVectorSegmenter__, self).__init__(data, window_size,
+                                                             window_size_unit,
+                                                             shift)
+
+        if not self.window_size_unit:
+            raise Exception('For stepping window a window size unit is required !!!') # @IgnorePep8
+
+        if step_size_unit:
+            step_unit = get_time_unit(step_size_unit)
+            if not step_unit:
+                raise Exception('Unknown step size unit !!! ['
+                                + step_size_unit + ']')
+            multiplier = step_unit.expressInUnit(self.data.signal_unit)
+            self.__step_size_in_signal_unit__ = multiplier * step_size
+        else:
+            self.__step_size_in_signal_unit__ = step_size
+
+        sum_signal = np.sum(self.data.signal)
+        if self.__step_size_in_signal_unit__ > sum_signal:
+            raise Exception('The step size is greater then the signal size !!!') # @IgnorePep8
+
+        self.__stepped_data__ = np.arange(0, sum_signal,
+                                          self.__step_size_in_signal_unit__)
+        self.__stepped_signal_size__ = len(self.__stepped_data__)
+        self.__cumsum_data__ = np.cumsum(self.data.signal)
+
+        self.__index__ = 0
+
+    def next(self):
+
+        if self.__index__ + 1 < self.__stepped_signal_size__:
+            index_start = self.SEARCHSORTED(self.__cumsum_data__,
+                                    self.__stepped_data__[self.__index__])
+            index_stop = self.SEARCHSORTED(self.__cumsum_data__,
+                                    self.__stepped_data__[self.__index__ + 1])
+
+            self.__index__ = self.__index__ + 1
+
+            return self.__getDataVactor__(index_start, index_stop)
+        else:
+            raise StopIteration
+
+    def segment_count(self):
+        """
+        a method calculates number of segments
+        """
+        return self.__stepped_signal_size__
