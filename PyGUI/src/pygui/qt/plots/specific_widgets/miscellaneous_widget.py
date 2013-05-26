@@ -57,6 +57,9 @@ class MiscellaneousWidget(GroupBoxWidget):
                                              i18n_def='Use identity line',
                                              checked=True)
 
+        self.__sample_step__ = __SampleStepWidget__(self,
+                                                self.params.data_accessor)
+
     @property
     def use_buffer(self):
         return self.__use_buffer__.isChecked()
@@ -76,6 +79,10 @@ class MiscellaneousWidget(GroupBoxWidget):
     @property
     def unit(self):
         return self.__unitsWidget__.getUnit()
+
+    @property
+    def sample_step(self):
+        return self.__sample_step__
 
 
 class __DataWindowSizeWidget__(CompositeWidget):
@@ -139,6 +146,7 @@ class __MiscellaneousVectorListener__(DataVectorListener):
 
         parameters = container.getParametersObject(
                         DataVectorParameters.NAME, DataVectorParameters)
+        parameters.sample_step = w.sample_step.step
         unit = w.unit
         if unit == OrderUnit:
             parameters.window_size = w.size
@@ -146,3 +154,45 @@ class __MiscellaneousVectorListener__(DataVectorListener):
             #window size has to include window signal unit
             parameters.window_size = str(w.size) + unit.label
         parameters.window_shift = 1  # at this moment it's a constant value
+
+
+class __SampleStepWidget__(CompositeWidget):
+    """
+    widget used to change sample step value
+    """
+    def __init__(self, parent, data_accessor):
+        super(__SampleStepWidget__, self).__init__(parent,
+                                            layout=QVBoxLayout())
+
+        self.data_accessor = data_accessor
+
+        info_group = CompositeWidget(self, layout=QHBoxLayout())
+        LabelWidget(info_group, i18n_def='Sample step:')
+        self.__step_value__ = LabelWidget(info_group, i18n_def='<value>')
+        self.__unit_value__ = LabelWidget(info_group, i18n_def='')
+
+        self.__step_slider__ = SliderWidget(self, orientation=Qt.Horizontal,
+                        sizePolicy=QSizePolicy(QSizePolicy.MinimumExpanding,
+                                               QSizePolicy.Fixed),
+                        value_changed_handler=self.__value_changed__)
+        self.__step_slider__.setTickPosition(QSlider.TicksBelow)
+        self.setValueInSignalUnit()
+        self.setUnit()
+
+    def __value_changed__(self, _value):
+        self.__step_value__.setText(str(_value))
+
+    def setValueInSignalUnit(self):
+        signal = self.data_accessor.signal
+        self.__step_slider__.setMaximum(int(pl.amax(signal)))
+        self.__step_slider__.setValue(0)
+        self.__step_slider__.setTickInterval(self.__step_slider__.maximum() / 10 ) # @IgnorePep8
+
+    def setUnit(self):
+        self.__unit_value__.setText(
+                            self.data_accessor.signal_unit.display_label)
+
+    @property
+    def step(self):
+        value = self.__step_slider__.value()
+        return None if value == 0 else value
