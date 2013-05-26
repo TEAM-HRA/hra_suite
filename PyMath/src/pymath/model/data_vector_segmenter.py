@@ -337,8 +337,13 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
                         self.__stepped_data__[self.__stepper_index__] +
                                     self.window_size_in_signal_unit)
 
-            if index_stop >= self.signal_size:
+            if index_stop > self.signal_size:
                 raise StopIteration
+
+            if index_stop == self.signal_size:
+                index_stop = self.signal_size - 1
+                if index_start > index_stop:
+                    raise StopIteration
 
             self.__stepper_index__ = self.__stepper_index__ + 1
 
