@@ -76,6 +76,7 @@ PyGUI/src/pygui/qt/custom_widgets/modelviews.py -text
 PyGUI/src/pygui/qt/custom_widgets/output_specification_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/progress_bar.py -text
 PyGUI/src/pygui/qt/custom_widgets/separator_widget.py -text
+PyGUI/src/pygui/qt/custom_widgets/tabular_data_vector_preview_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/tabwidget.py -text
 PyGUI/src/pygui/qt/custom_widgets/toolbars.py -text
 PyGUI/src/pygui/qt/custom_widgets/units.py -text
@@ -95,6 +96,7 @@ PyGUI/src/pygui/qt/plots/specific_widgets/poincare_toolbar_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/statistics_selection_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/statistics_widget.py -text
 PyGUI/src/pygui/qt/plots/specific_widgets/summary_statistics_selection_widget.py -text
+PyGUI/src/pygui/qt/plots/specific_widgets/tabular_data_vector_preview_dock_widget.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_canvas.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_const.py -text
 PyGUI/src/pygui/qt/plots/tachogram_plot_datasource_list_widget.py -text
@@ -224,6 +226,7 @@ PySettings/src/settings/i18n/__init__.py -text
 PySettings/src/settings/i18n/i18n_en.properties -text
 PySettings/src/settings/icons/User-Group.ico -text
 PySettings/src/settings/icons/__init__.py -text
+PySettings/src/settings/icons/data_vector_preview.ico -text
 PySettings/src/settings/icons/graph_button.ico -text
 PySettings/src/settings/icons/histogram_plot_button.ico -text
 PySettings/src/settings/icons/poincare_plot_settings.ico -text

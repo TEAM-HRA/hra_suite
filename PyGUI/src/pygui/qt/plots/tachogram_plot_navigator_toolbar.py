@@ -16,6 +16,7 @@ try:
     from pygui.qt.plots.tachogram_plot_canvas import HistogramTachogramPlotEngine # @IgnorePep8
     from pygui.qt.plots.tachogram_plot_settings_dock_widget import TachogramPlotSettingsDockWidget # @IgnorePep8
     from pygui.qt.plots.tachogram_plot_statistics_dock_widget import TachogramPlotStatisticsDockWidget # @IgnorePep8
+    from pygui.qt.plots.specific_widgets.tabular_data_vector_preview_dock_widget import TabularDataVectorPreviewDockWidget # @IgnorePep8    
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -57,6 +58,12 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
                                 iconId='tachogram_plot_statistics')
         self.addAction(tachogram_plot_statistics_action)
 
+        data_vector_preview_action = self.__createAction__(
+                                title="Data preview",
+                                handler=self.__showDataVectorPreview__,
+                                iconId='data_vector_preview')
+        self.addAction(data_vector_preview_action)
+
     def __createAction__(self, **params):
         return create_action(self.parent(), ActionSpec(**params))
 
@@ -84,3 +91,11 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
             self.__tachogram_statistics__ = TachogramPlotStatisticsDockWidget(
                                 parent, data_accessor=self.data_accessor)
         self.__tachogram_statistics__.show()
+
+    def __showDataVectorPreview__(self):
+        if not hasattr(self, '__data_vector_preview__'):
+            parent = self.params.dock_parent \
+                    if self.params.dock_parent else self.parent()
+            self.__data_vector_preview__ = TabularDataVectorPreviewDockWidget(
+                                parent, data_accessor=self.data_accessor)
+        self.__data_vector_preview__.show()
