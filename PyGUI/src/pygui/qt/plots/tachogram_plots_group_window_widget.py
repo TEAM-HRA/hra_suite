@@ -21,6 +21,7 @@ try:
     from pygui.qt.plots.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget # @IgnorePep8
     from pygui.qt.plots.outcome_files_tracker_dock_widget import OutcomeFilesTrackerDockWidget # @IgnorePep8
     from pygui.qt.custom_widgets.file_specification_to_data_accessor_progress_bar import FileSpecificationToDataAccessorProgressBar # @IgnorePep8
+    from pygui.qt.plots.specific_widgets.poincare_plot_datasources_table_widget import PoincarePlotDatasourcesTableWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -38,11 +39,11 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
                                         excluded_buttons=[CloseToolButton]))
         self.addToolBar(PoincareToolBarWidget(self))
 
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        composite = CompositeWidget(self,
-                            sizePolicy=sizePolicy,
+        self.__central_widget__ = CompositeWidget(self,
                             not_add_widget_to_parent_layout=True)
-        self.setCentralWidget(composite)
+        layout = QVBoxLayout()
+        self.__central_widget__.setLayout(layout)
+        self.setCentralWidget(self.__central_widget__)
         self.__file_specifications__ = []
         self.__selected_files_specifications_handler__ = None
 
@@ -100,12 +101,21 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
                         save_outcomes_fixed_state=save_outcomes_fixed_state)
         self.__poincare_settings__.show()
 
+        if not hasattr(self, '__poincare_datasources_table__'):
+            self.__poincare_datasources_table__ = \
+                    PoincarePlotDatasourcesTableWidget(self.__central_widget__,
+                                                data_accessors=data_accessors)
+        self.__poincare_datasources_table__.show()
+
     def __output_file_listener__(self, _filename):
         if not hasattr(self, '__outcome_files_tracker__'):
             self.__outcome_files_tracker__ = OutcomeFilesTrackerDockWidget(
                                                                         self)
         self.__outcome_files_tracker__.show()
         self.__outcome_files_tracker__.appendFile(_filename)
+
+        if hasattr(self, '__poincare_datasources_table__'):
+            self.__poincare_datasources_table__.checkMarkFile(_filename)
 
     def setSelectedFilesSpecificationsHandler(self,
                                     _selected_files_specifications_handler):
