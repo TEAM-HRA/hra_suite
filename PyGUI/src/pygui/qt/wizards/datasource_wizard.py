@@ -25,7 +25,7 @@ class DatasourceWizard(QWizard):
         QWizard.__init__(self, _parent)
         self.setOptions(QWizard.NoBackButtonOnStartPage)
         self.setWizardStyle(QWizard.ModernStyle)
-        self.setGeometry(QRect(50, 50, 1000, 600))
+        self.setWindowState(Qt.WindowMaximized)
         self.setWindowTitle(QT_I18N("datasource.import.title",
                                     _default="Datasource import"))
 
