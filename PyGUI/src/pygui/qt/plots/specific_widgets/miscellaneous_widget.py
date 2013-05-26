@@ -60,6 +60,9 @@ class MiscellaneousWidget(GroupBoxWidget):
         self.__sample_step__ = __SampleStepWidget__(self,
                                                 self.params.data_accessor)
 
+        self.__stepper_size__ = __StepperSizeWidget__(self,
+                                                self.params.data_accessor)
+
     @property
     def use_buffer(self):
         return self.__use_buffer__.isChecked()
@@ -83,6 +86,10 @@ class MiscellaneousWidget(GroupBoxWidget):
     @property
     def sample_step(self):
         return self.__sample_step__
+
+    @property
+    def stepper_size(self):
+        return self.__stepper_size__
 
 
 class __DataWindowSizeWidget__(CompositeWidget):
@@ -147,6 +154,13 @@ class __MiscellaneousVectorListener__(DataVectorListener):
         parameters = container.getParametersObject(
                         DataVectorParameters.NAME, DataVectorParameters)
         parameters.sample_step = w.sample_step.step
+
+        if not w.stepper_size.size == None:
+            if w.stepper_size.unit == OrderUnit:
+                parameters.stepper = str(w.stepper_size.size)
+            else:
+                parameters.stepper = str(w.stepper_size.size) + w.stepper_size.unit.label # @IgnorePep8
+
         unit = w.unit
         if unit == OrderUnit:
             parameters.window_size = w.size
@@ -196,3 +210,58 @@ class __SampleStepWidget__(CompositeWidget):
     def step(self):
         value = self.__step_slider__.value()
         return None if value == 0 else value
+
+
+class __StepperSizeWidget__(CompositeWidget):
+    """
+    widget used to change stepper size
+    """
+    def __init__(self, parent, data_accessor):
+        super(__StepperSizeWidget__, self).__init__(parent,
+                                            layout=QVBoxLayout())
+
+        self.data_accessor = data_accessor
+
+        info_group = CompositeWidget(self, layout=QHBoxLayout())
+        LabelWidget(info_group, i18n_def='Stepper size:')
+        self.__size_value__ = LabelWidget(info_group, i18n_def='<value>')
+        self.__unit_value__ = LabelWidget(info_group, i18n_def='')
+
+        self.__size_slider__ = SliderWidget(self, orientation=Qt.Horizontal,
+                        sizePolicy=QSizePolicy(QSizePolicy.MinimumExpanding,
+                                               QSizePolicy.Fixed),
+                        value_changed_handler=self.__value_changed__)
+        self.__size_slider__.setTickPosition(QSlider.TicksBelow)
+        self.setValueInUnit(self.data_accessor.signal_x_unit)
+        self.setUnit(self.data_accessor.signal_x_unit)
+
+        self.__unitsWidget__ = TimeUnitsWidget(self, i18n_def='Units',
+                        default_unit=self.data_accessor.signal_x_unit,
+                        change_unit_handler=self.changeUnit,
+                        layout=QHBoxLayout())
+        self.__unitsWidget__.addUnit(OrderUnit)
+
+    def __value_changed__(self, _value):
+        self.__size_value__.setText(str(_value))
+
+    def setValueInUnit(self, _unit):
+        signal = self.data_accessor.signal_in_unit(_unit)
+        self.__size_slider__.setMaximum(int(pl.amax(signal)))
+        self.__size_slider__.setValue(0)
+        self.__size_slider__.setTickInterval(self.__size_slider__.maximum() / 10 ) # @IgnorePep8
+
+    def setUnit(self, _unit):
+        self.__unit_value__.setText(_unit.name)
+
+    @property
+    def size(self):
+        value = self.__size_slider__.value()
+        return None if value == 0 else value
+
+    def changeUnit(self, _unit):
+        self.setValueInUnit(_unit)
+        self.setUnit(_unit)
+
+    @property
+    def unit(self):
+        return self.__unitsWidget__.getUnit()
