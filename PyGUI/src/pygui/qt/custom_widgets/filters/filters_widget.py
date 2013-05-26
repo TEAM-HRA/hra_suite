@@ -30,7 +30,7 @@ class FiltersWidget(CompositeWidget):
         super(FiltersWidget, self).__init__(parent, **params)
         self.params = Params(**params)
         self.data_accessor = self.params.data_accessor  # alias
-        if not self.params.use_apply_button == True:
+        if self.params.use_apply_button == True:
             self.data_accessor.addListener(self,
                                 __FilterActivatedDataVectorListener__(self))
 
