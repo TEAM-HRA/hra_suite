@@ -1,31 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <menus>
-	<menu ident="menu1" title="Menu1">
-		<menu ident="sub_menu2" title="Sub Menu11">
-			<menuItem ident="item1" title="Item 11"/>
-			<menu ident="sub_menu2" title="Sub Menu111">
-				<menuItem ident="item101" title="Item 1111"/>
-			</menu>			
-		</menu>
-		<menu ident="sub_menu12" title="Sub Menu12">
-			<menuItem ident="item51" title="Item 121">
-				<actions>
-					<action title="Action 000" iconId="users" 
-						slot="pymed.qt.test01.small.WindowTest.show"/>
-				</actions>
-			</menuItem>
-			<menuItem ident="item52" title="Item 122"/>
-			<menuItem ident="item53" title="Item 123"/>
-			<menuItem ident="item54" title="Item 124"/>
-		</menu>		
+	<menu ident="file" title="File">
+		<menuItem ident="exit" title="Exit">
+			<actions>
+				<action title="Exit"
+					slot="pygui.qt.actions.actions.exitApplication" />
+			</actions>
+		</menuItem>
 	</menu>
-	<menu ident="menu2" title="Menu2">
-		<menu ident="sub_menu21" title="Sub Menu22">
-			<menuItem ident="item123" title="Item 221"/>
-		</menu>
-		<menuItem ident="item33" title="Item 21"/>
-		<menuItem ident="item44" title="Item 22"/>		
-	</menu>	
 	<menu ident="datasource" title="Datasources">
 		<menuItem ident="datasource_import" title="Import datasource">
 			<actions>
@@ -47,5 +29,5 @@
 					slot="pygui.qt.actions.actions.clearActivities" />
 			</actions>
 		</menuItem>	
-	</menu>		
+	</menu>
 </menus>

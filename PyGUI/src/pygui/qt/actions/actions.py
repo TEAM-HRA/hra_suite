@@ -11,6 +11,7 @@ try:
     from pygui.qt.utils.windows import InformationWindow
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.signals import CLEAR_ACTIVITIES_SIGNAL
+    from pygui.qt.utils.signals import EXIT_APPLICATION_SIGNAL
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -27,3 +28,9 @@ def clearActivities(dargs):
     if AreYouSureWindow(parent, title='Clearing activities'):
         SignalDispatcher.broadcastSignal(CLEAR_ACTIVITIES_SIGNAL)
         InformationWindow(message="Activities cleared !")
+
+
+def exitApplication(dargs):
+    parent = dargs.get('parent', None)
+    if AreYouSureWindow(parent, title='Exit application ?'):
+        SignalDispatcher.broadcastSignal(EXIT_APPLICATION_SIGNAL)

@@ -4,6 +4,7 @@ Created on 21 kwi 2013
 @author: jurek
 '''
 from pycore.special import ImportErrorMessage
+from pygui.qt.utils.signals import EXIT_APPLICATION_SIGNAL
 try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
@@ -19,6 +20,10 @@ class ApplicationWidget(QApplication):
         super(ApplicationWidget, self).__init__(*params)
         #set up main dispatcher as a QApplication object
         SignalDispatcher.setMainDispatcher(self)
+
+        SignalDispatcher.addSignalSubscriber(self,
+                                             EXIT_APPLICATION_SIGNAL,
+                                             self.quit)
 
         #set up USE_NUMPY_EQUIVALENT property
         if not Globals.USE_NUMPY_EQUIVALENT == None:

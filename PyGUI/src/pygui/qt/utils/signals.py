@@ -61,6 +61,9 @@ ITEM_CHANGED_SIGNAL = SIGNAL('itemChanged(QStandardItem *)')
 #signal emitted when rows are inserted into table view
 ROWS_INSERTED_SIGNAL = SIGNAL('rowsInserted(const QModelIndex&,int,int)')
 
+#exit application signal
+EXIT_APPLICATION_SIGNAL = SIGNAL('clicked()')
+
 
 class SignalDispatcher(QObject):
     """
