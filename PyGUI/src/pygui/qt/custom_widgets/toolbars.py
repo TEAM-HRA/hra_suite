@@ -185,12 +185,12 @@ class CloseToolButton(ToolButtonType):
         toolbar.close()
 
 
-class HideToolButton(ToolButtonType):
-    def __init__(self, **params):
-        default = DefaultToolButtonType(True, [OPERATIONAL_BUTTON_GROUP],
-            'toolbar_hide_handler', 'toolbar_hide_button',
-            'Hide', 'toolbar_hide_handler_callable')
-        super(HideToolButton, self).__init__(default, **params)
+#class HideToolButton(ToolButtonType):
+#    def __init__(self, **params):
+#        default = DefaultToolButtonType(True, [OPERATIONAL_BUTTON_GROUP],
+#            'toolbar_hide_handler', 'toolbar_hide_button',
+#            'Hide', 'toolbar_hide_handler_callable')
+#        super(HideToolButton, self).__init__(default, **params)
 
 
 class CheckToolButton(ToolButtonType):
