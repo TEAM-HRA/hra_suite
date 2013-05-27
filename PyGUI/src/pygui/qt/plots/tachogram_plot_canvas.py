@@ -20,6 +20,8 @@ try:
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
+__TACHOGRAM_PLOT_TITLE__ = 'Tachogram plot'
+
 
 class TachogramPlotCanvas(FigureCanvas):
     """
@@ -29,7 +31,7 @@ class TachogramPlotCanvas(FigureCanvas):
         #super(TachogramPlotCanvas, self).__init__(parent,
         #                                not_add_widget_to_parent_layout=True)
         self.params = Params(**params)
-        self.canvas_title = TachogramPlotCanvasTitle()
+        self.title_manager = __TitleManager__(__TACHOGRAM_PLOT_TITLE__)
         self.data_accessor = self.params.data_accessor  # alias
         self.data_accessor.addListener(self, __CanvasDataVectorListener__(self)) # @IgnorePep8
         self.fig = Figure()
@@ -38,7 +40,7 @@ class TachogramPlotCanvas(FigureCanvas):
         self.__current_plot_engine__ = None
 
         FigureCanvas.__init__(self, self.fig)
-        self.title_text = self.fig.suptitle(self.canvas_title.title,
+        self.title_text = self.fig.suptitle(self.title_manager.title,
                                             fontsize=12)
 
         self.plot(NormalTachogramPlotEngine)
@@ -73,7 +75,7 @@ class TachogramPlotCanvas(FigureCanvas):
 
         self.axes.set_xlabel(self.data_accessor.signal_x_unit.display_label)
         self.axes.set_ylabel(self.data_accessor.signal_unit.display_label)
-        self.title_text.set_text(self.canvas_title.title)
+        self.title_text.set_text(self.title_manager.title)
         self.draw()
 
     def dropEvent(self, event):
@@ -100,12 +102,12 @@ class TachogramPlotCanvas(FigureCanvas):
             self.x = np.cumsum(self.y) * multiplier
 
     @property
-    def canvas_title(self):
-        return self.__canvas_title__
+    def title_manager(self):
+        return self.__title_manager__
 
-    @canvas_title.setter
-    def canvas_title(self, _canvas_title):
-        self.__canvas_title__ = _canvas_title
+    @title_manager.setter
+    def title_manager(self, _title_manager):
+        self.__title_manager__ = _title_manager
 
 
 class __CanvasDataVectorListener__(DataVectorListener):
@@ -128,10 +130,10 @@ class __CanvasDataVectorListener__(DataVectorListener):
     def __set_title__(self, **params):
         params = Params(**params)
         if params.filter_name:
-            self.__canvas__.canvas_title.addTitlePart('filtered',
+            self.__canvas__.title_manager.addTitlePart('filtered',
                                                     params.filter_name)
         if params.remove_filter_names:
-            self.__canvas__.canvas_title.removeTitlePart('filtered')
+            self.__canvas__.title_manager.removeTitlePart('filtered')
 
 
 class NormalTachogramPlotEngine(object):
@@ -139,6 +141,7 @@ class NormalTachogramPlotEngine(object):
     action invoked for 'normal' plot
     """
     def plot(self, _canvas):
+        _canvas.title_manager.setMainTitle(__TACHOGRAM_PLOT_TITLE__)
         _canvas.axes.plot(_canvas.x, _canvas.y)
 
 
@@ -147,26 +150,30 @@ class ScatterTachogramPlotEngine(object):
     action invoked for scatter plot
     """
     def plot(self, _canvas):
+        _canvas.title_manager.setMainTitle(__TACHOGRAM_PLOT_TITLE__)
         _canvas.axes.plot(_canvas.x, _canvas.y, 'bo')
 
 
 class HistogramTachogramPlotEngine(object):
+    __HISTOGRAM_PLOT_TITLE__ = 'Histogram plot'
     """
     action invoked for histogram plot
     """
     def plot(self, _canvas):
+        _canvas.title_manager.setMainTitle(
+                    HistogramTachogramPlotEngine.__HISTOGRAM_PLOT_TITLE__)
         _canvas.axes.grid(True)
         _canvas.axes.hist(_canvas.y, bins=20)
         #plt.hist(x, bins=10)
         #_canvas.axes.plot(_canvas.x, _canvas.y, 'bo')
 
 
-class TachogramPlotCanvasTitle(object):
+class __TitleManager__(object):
     """
     class used to create tachogram plot title
     """
-    def __init__(self):
-        self.__main_title__ = 'Tachogram plot'
+    def __init__(self, _main_title):
+        self.__main_title__ = _main_title
         self.__title_parts__ = {}
 
     def addTitlePart(self, group, text):
@@ -180,6 +187,9 @@ class TachogramPlotCanvasTitle(object):
             pop_from_list(self.__title_parts__.get(group), text)
         else:
             self.__title_parts__.pop(group, None)
+
+    def setMainTitle(self, _main_title):
+        self.__main_title__ = _main_title
 
     @property
     def title(self):
