@@ -10,6 +10,7 @@ try:
     from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas # @IgnorePep8
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
+    from pycore.collections_utils import nvl
     from pycore.misc import Params
     from pycore.units import OrderUnit
     from pycore.collections_utils import pop_from_list
@@ -203,7 +204,9 @@ class HistogramTachogramPlotEngine(__PlotEngine__):
     def preparePlot(self, _canvas):
         _canvas.title_manager.setMainTitle(
                                     HistogramTachogramPlotEngine.DEFAULT_TITLE)
-        self.x_label = 'RR'
+        header = nvl(_canvas.data_accessor.data_vector.signal_header, '')
+        unit = _canvas.data_accessor.data_vector.signal_unit
+        self.x_label = "{0} [{1}]".format(header, unit.label if unit else '')
         self.y_label = 'Amount'
 
 
