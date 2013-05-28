@@ -20,8 +20,6 @@ try:
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
-__TACHOGRAM_PLOT_TITLE__ = 'Tachogram plot'
-
 
 class TachogramPlotCanvas(FigureCanvas):
     """
@@ -31,7 +29,8 @@ class TachogramPlotCanvas(FigureCanvas):
         #super(TachogramPlotCanvas, self).__init__(parent,
         #                                not_add_widget_to_parent_layout=True)
         self.params = Params(**params)
-        self.title_manager = __TitleManager__(__TACHOGRAM_PLOT_TITLE__)
+        self.title_manager = __TitleManager__(
+                                    NormalTachogramPlotEngine.DEFAULT_TITLE)
         self.data_accessor = self.params.data_accessor  # alias
         self.data_accessor.addListener(self, __CanvasDataVectorListener__(self)) # @IgnorePep8
         self.fig = Figure()
@@ -73,8 +72,9 @@ class TachogramPlotCanvas(FigureCanvas):
         self.__current_plot_engine__.plot(self)
         print('PLOTTING')
 
-        self.axes.set_xlabel(self.data_accessor.signal_x_unit.display_label)
-        self.axes.set_ylabel(self.data_accessor.signal_unit.display_label)
+        self.axes.set_xlabel(self.__current_plot_engine__.x_label)
+        self.axes.set_ylabel(self.__current_plot_engine__.y_label)
+
         self.title_text.set_text(self.title_manager.title)
         self.draw()
 
@@ -136,36 +136,75 @@ class __CanvasDataVectorListener__(DataVectorListener):
             self.__canvas__.title_manager.removeTitlePart('filtered')
 
 
-class NormalTachogramPlotEngine(object):
+class __PlotEngine__(object):
+    """
+    common functionality for all plot engines
+    """
+
+    @property
+    def x_label(self):
+        return self.__x_label__
+
+    @x_label.setter
+    def x_label(self, _x_label):
+        self.__x_label__ = _x_label
+
+    @property
+    def y_label(self):
+        return self.__y_label__
+
+    @y_label.setter
+    def y_label(self, _y_label):
+        self.__y_label__ = _y_label
+
+
+class __TachogramPlotEngine__(__PlotEngine__):
+    DEFAULT_TITLE = 'Tachogram plot'
+    """
+    common functionality for tachogram plot engines
+    """
+    def preparePlot(self, _canvas):
+        _canvas.title_manager.setMainTitle(
+                                    __TachogramPlotEngine__.DEFAULT_TITLE)
+        self.x_label = _canvas.data_accessor.signal_x_unit.display_label
+        self.y_label = _canvas.data_accessor.signal_unit.display_label
+
+
+class NormalTachogramPlotEngine(__TachogramPlotEngine__):
     """
     action invoked for 'normal' plot
     """
     def plot(self, _canvas):
-        _canvas.title_manager.setMainTitle(__TACHOGRAM_PLOT_TITLE__)
+        self.preparePlot(_canvas)
         _canvas.axes.plot(_canvas.x, _canvas.y)
 
 
-class ScatterTachogramPlotEngine(object):
+class ScatterTachogramPlotEngine(__TachogramPlotEngine__):
     """
     action invoked for scatter plot
     """
     def plot(self, _canvas):
-        _canvas.title_manager.setMainTitle(__TACHOGRAM_PLOT_TITLE__)
+        self.preparePlot(_canvas)
         _canvas.axes.plot(_canvas.x, _canvas.y, 'bo')
 
 
-class HistogramTachogramPlotEngine(object):
-    __HISTOGRAM_PLOT_TITLE__ = 'Histogram plot'
+class HistogramTachogramPlotEngine(__PlotEngine__):
+    DEFAULT_TITLE = 'Histogram plot'
     """
     action invoked for histogram plot
     """
     def plot(self, _canvas):
-        _canvas.title_manager.setMainTitle(
-                    HistogramTachogramPlotEngine.__HISTOGRAM_PLOT_TITLE__)
+        self.preparePlot(_canvas)
         _canvas.axes.grid(True)
         _canvas.axes.hist(_canvas.y, bins=20)
         #plt.hist(x, bins=10)
         #_canvas.axes.plot(_canvas.x, _canvas.y, 'bo')
+
+    def preparePlot(self, _canvas):
+        _canvas.title_manager.setMainTitle(
+                                    HistogramTachogramPlotEngine.DEFAULT_TITLE)
+        self.x_label = 'RR'
+        self.y_label = 'Amount'
 
 
 class __TitleManager__(object):
