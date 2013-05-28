@@ -50,7 +50,10 @@ class SquareFilter(Filter):
             return DataVector(signal=signal, signal_plus=signal_plus,
                           signal_minus=signal_minus,
                           time=time, annotation=annotation,
-                          signal_unit=_data_vector.signal_unit)
+                          signal_unit=_data_vector.signal_unit,
+                          signal_header=_data_vector.signal_header,
+                          annotation_header=_data_vector.annotation_header,
+                          time_header=_data_vector.time_header)
 
     @property
     def min_value(self):

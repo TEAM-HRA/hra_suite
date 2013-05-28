@@ -99,7 +99,10 @@ class __DataVectorSegmenter__(object):
                           signal_plus=signal_plus,
                           signal_minus=signal_minus,
                           annotation=annotation,
-                          signal_unit=self.data.signal_unit)
+                          signal_unit=self.data.signal_unit,
+                          signal_header=self.data.signal_header,
+                          annotation_header=self.data.annotation_header,
+                          time_header=self.data.time_header)
 
     @property
     def ordinal_value(self):

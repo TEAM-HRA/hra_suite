@@ -133,7 +133,10 @@ class FileDataSource(object):
             annotation = annotation.astype(int)
 
         data_source = DataVector(signal=signal, annotation=annotation,
-                                 time=time)
+                        time=time,
+                        signal_header=self.__h__(self.params.signal_index),
+                        annotation_header=self.__h__(self.params.annotation_index), # @IgnorePep8
+                        time_header=self.__h__(self.params.time_index))
         data_source.filename = self.__file__  # set up an additional property
         return data_source
 
@@ -153,3 +156,7 @@ class FileDataSource(object):
         returns source pathname
         """
         return os.path.dirname(self.__file__) if self.__file__ else None
+
+    def __h__(self, idx):
+        if len(self.headers) > 0:
+            return self.headers[0][idx] if idx is not None and idx >= 0 else None # @IgnorePep8

@@ -82,7 +82,10 @@ class DataVector(object):
                                  signal_minus=_data.signal_minus,
                                  annotation=_data.annotation,
                                  signal_unit=_data.signal_unit,
-                                 time=_data.time)
+                                 time=_data.time,
+                                 signal_header=_data.signal_header,
+                                 annotation_header=_data.annotation_header,
+                                 time_header=_data.time_header)
         #raise Exception('Parameter data have to be of DataSource type !!!')
 
     def __str__(self):
@@ -117,9 +120,38 @@ class DataVector(object):
             signal_minus=array_copy(self.signal_minus),
             annotation=array_copy(self.annotation),
             signal_unit=self.signal_unit,
-            time=array_copy(self.time))
+            time=array_copy(self.time),
+            signal_header=self.signal_header,
+            annotation_header=self.annotation_header,
+            time_header=self.time_header)
+
+    @property
+    def signal_header(self):
+        return self.__params__.signal_header
+
+    @signal_header.setter
+    def signal_header(self, _signal_header):
+        self.__params__.signal_header = _signal_header
+
+    @property
+    def annotation_header(self):
+        return self.__params__.annotation_header
+
+    @annotation_header.setter
+    def annotation_header(self, _annotation_header):
+        self.__params__.annotation_header = _annotation_header
+
+    @property
+    def time_header(self):
+        return self.__params__.annotation_header
+
+    @time_header.setter
+    def time_header(self, _time_header):
+        self.__params__.time_header = _time_header
 
 
 EMPTY_DATA_VECTOR = DataVector(signal=EMPTY_ARRAY, signal_plus=EMPTY_ARRAY,
                                signal_minus=EMPTY_ARRAY, time=EMPTY_ARRAY,
-                               annotation=EMPTY_ARRAY, signal_unit=None)
+                               annotation=EMPTY_ARRAY, signal_unit=None,
+                               signal_header=None, annotation_header=None,
+                               time_header=None)
