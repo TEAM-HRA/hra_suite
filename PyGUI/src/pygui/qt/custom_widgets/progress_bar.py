@@ -17,7 +17,34 @@ class ProgressDialogManager(object):
         self.parent = parent
         self.params = params
 
+        #if present means how many times a progress dialog will be called
+        self.__count__ = params.get('count', None)
+        self.__idx__ = self.__count__
+
+    def initialize(self, **params):
+        """
+        this method could be used in context managers,
+        the scenario is the following:
+        progressManager = ProgressDialogManager(..., count=value)
+        for something in iterator:
+            with progressManager.initialize(...) as progress:
+        """
+        if self.params:  # update existing params
+            self.params.update(params)
+        else:
+            self.params = params
+        #this method have to return self object in order to be used
+        #in context manager
+        return self
+
     def __enter__(self):
+
+        if self.__count__:  # add counter indicator
+            label_text = self.params.get('label_text', '')
+            self.params['label_text'] = "[{0}/{1}] {2}".format(
+                        self.__idx__, self.__count__, label_text)
+            self.__idx__ -= 1
+
         self.progress_bar = ProgressDialogWidget(self.parent, **self.params)
         self.progress_bar.setWindowModality(Qt.WindowModal)
         self.progress_bar.setMinimumDuration(0)
