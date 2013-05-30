@@ -60,6 +60,7 @@ class PoincarePlotGenerator(object):
 
     def precheck(self, reference_filename):
         message = None
+        self.__outcome_exists__ = False
         if self.skip_existing_outcomes and reference_filename:
             #check if output file for normal statistics exists already
             with NumpyCSVFile(output_dir=self.output_dir,
@@ -72,8 +73,14 @@ class PoincarePlotGenerator(object):
                         pass
             if os.path.exists(csv.output_file):
                 message = 'Skipping processing, the outcome file ' + str(csv.output_file) + ' exists !' # @IgnorePep8
+                self.__outcome_exists__ = True
                 self.params.info_handler(message)
         return (True, None,) if message == None else (False, message,)
+
+    @property
+    def outcome_exists(self):
+        return self.__outcome_exists__ \
+                if hasattr(self, '__outcome_exists__') else False
 
     def generate(self, data_vector, start_progress=None,
                  progress_handler=None):
