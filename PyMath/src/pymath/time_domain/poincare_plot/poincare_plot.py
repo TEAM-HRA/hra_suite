@@ -12,7 +12,7 @@ try:
     from pycore.introspection import copy_private_properties
     from pycore.introspection import print_private_properties
     from pycore.collections_utils import commas
-    from pymath.model.file_data_source import FileDataSource
+    from pymath.model.data_vector_file_data_source import DataVectorFileDataSource # @IgnorePep8
     from pymath.model.data_vector_parameters import DataVectorParameters
     from pymath.model.file_data_parameters import FileDataParameters
     from pymath.statistics.statistic_parameters import StatisticParameters
@@ -114,11 +114,11 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                 print('Number of processed files: ' + str(file_counter))
 
     def __process_file__(self, _file, disp=False):
-        file_data_source = FileDataSource(_file=_file,
+        file_data_source = DataVectorFileDataSource(_file=_file,
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
                                time_index=self.time_index)
-        data_vector = file_data_source.getData()
+        data_vector = file_data_source.getDataVector()
 
         (ok, message) = self.__pp_generator__.precheck(reference_filename=_file) # @IgnorePep8
         if ok == False:
@@ -145,7 +145,7 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         return set(unique_annotations)
 
     def __process_annotations__(self, _file, _unique_annotations=None):
-        file_data_source = FileDataSource(_file=_file,
+        file_data_source = DataVectorFileDataSource(_file=_file,
                                 annotation_index=self.annotation_index)
         _unique_annotations[len(_unique_annotations):] = \
                     file_data_source.getUniqueAnnotations()
@@ -162,7 +162,7 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         return headers
 
     def __process_headers__(self, _file, _headers=None):
-        file_data_source = FileDataSource(_file=_file)
+        file_data_source = DataVectorFileDataSource(_file=_file)
         _headers.append('File: ' + str(_file))
         _headers.append(file_data_source.headers_with_col_index)
 

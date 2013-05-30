@@ -10,7 +10,7 @@ try:
     from pycore.units import OrderUnit
     from pymath.utils.array_utils import arrays_equal
     from pymath.model.parameters_container import ParametersContainer
-    from pymath.model.file_data_source import FileDataSource
+    from pymath.model.data_vector_file_data_source import DataVectorFileDataSource # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -156,8 +156,8 @@ def get_data_accessor_from_file_specification(parent, file_specification):
     function which creates data accessor object from file specification object
     """
     file_data_source_params = file_specification._asdict()
-    file_data_source = FileDataSource(**file_data_source_params)
-    data = file_data_source.getData()
+    file_data_source = DataVectorFileDataSource(**file_data_source_params)
+    data = file_data_source.getDataVector()
     data_accessor = DataVectorAccessor(data)
     data_accessor.source_name = file_data_source.source_filename
     data_accessor.path_name = file_data_source.source_pathname
