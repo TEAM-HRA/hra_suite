@@ -44,8 +44,8 @@ class PoincarePlotGeneratorProgressBar(object):
             self.params.formatted_summary_statistics[:] = []
 
         outcomes_exist_info = []
-        files_number = len(self.__data_vector_accessor_list__)
-        files_counter = files_number
+        progressManager = ProgressDialogManager(self.parent,
+                                count=len(self.__data_vector_accessor_list__))
         for data_vector_accessor in self.__data_vector_accessor_list__:
             pp_generator = PoincarePlotGenerator(
                         output_file_listener=self.params.output_file_listener,
@@ -71,16 +71,10 @@ class PoincarePlotGeneratorProgressBar(object):
             count = count + int(count * (1 / 100))
 
             #extends label text with source name (if not None)
-            label_text = "[{0}/{1}] {2} [{3}]".format(
-                                    files_counter,
-                                    files_number,
-                                    self.label_text,
+            label_text = "{0} [{1}]".format(self.label_text,
                                     nvl(data_vector_accessor.source_name, ""))
-            files_counter -= 1
-            progressManager = ProgressDialogManager(self.parent,
-                                            label_text=label_text,
-                                            max_value=count)
-            with progressManager as progress:
+            with progressManager.initialize(label_text=label_text,
+                                            max_value=count) as progress:
                 start_progress = self.__StartProgress__()
                 if self.params.save_csv == True:
                     progress_handler = self.__CSVProgressHandler__()
