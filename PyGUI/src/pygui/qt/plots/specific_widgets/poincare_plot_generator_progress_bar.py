@@ -43,10 +43,22 @@ class PoincarePlotGeneratorProgressBar(object):
         if not self.params.formatted_summary_statistics == None:
             self.params.formatted_summary_statistics[:] = []
 
+        outcomes_exist_info = []
+        files_number = len(self.__data_vector_accessor_list__)
+        files_counter = files_number
         for data_vector_accessor in self.__data_vector_accessor_list__:
             pp_generator = PoincarePlotGenerator(
                         output_file_listener=self.params.output_file_listener,
                         **data_vector_accessor.parameters_container.parameters)
+            if self.params.save_csv == True:
+                (ok, _) = pp_generator.precheck(
+                                        data_vector_accessor.source_name)
+                if ok == False:
+                    if pp_generator.outcome_exists:
+                        outcomes_exist_info.append(
+                                        data_vector_accessor.source_name)
+                    continue
+
             message = pp_generator.checkParameters(self.params.check_level)
             if message:
                 ErrorWindow(message=message)
@@ -59,10 +71,12 @@ class PoincarePlotGeneratorProgressBar(object):
             count = count + int(count * (1 / 100))
 
             #extends label text with source name (if not None)
-            label_text = self.label_text + " [" + (
-                        data_vector_accessor.source_name
-                            if data_vector_accessor.source_name else "") + "]"
-
+            label_text = "[{0}/{1}] {2} [{3}]".format(
+                                    files_counter,
+                                    files_number,
+                                    self.label_text,
+                                    nvl(data_vector_accessor.source_name, ""))
+            files_counter -= 1
             progressManager = ProgressDialogManager(self.parent,
                                             label_text=label_text,
                                             max_value=count)
@@ -74,11 +88,6 @@ class PoincarePlotGeneratorProgressBar(object):
                     progress_handler = self.__ProgressHandler__()
                 progress_handler.progress = progress
                 if self.params.save_csv == True:
-                    (ok, message) = pp_generator.precheck(
-                                            data_vector_accessor.source_name)
-                    if ok == False:
-                        InformationWindow(message=message)
-                        continue
                     pp_generator.generate_CSV(data_vector_accessor.data_vector,
                                             data_vector_accessor.source_name,
                                             start_progress=start_progress,
@@ -98,6 +107,11 @@ class PoincarePlotGeneratorProgressBar(object):
                 #if interrupted break the whole loop
                 if self.__interrupted__:
                     return
+        if len(outcomes_exist_info) > 0:
+            message = "For the following files, outcomes already exist:"
+            for outcome in outcomes_exist_info:
+                message += ("\n" + outcome)
+            InformationWindow(message=message)
 
     def interrupted(self, clear=True):
         """
