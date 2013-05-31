@@ -20,8 +20,8 @@ try:
     from pygui.qt.plots.specific_widgets.poincare_toolbar_widget import PoincareToolBarWidget # @IgnorePep8
     from pygui.qt.plots.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget # @IgnorePep8
     from pygui.qt.plots.outcome_files_tracker_dock_widget import OutcomeFilesTrackerDockWidget # @IgnorePep8
-    from pygui.qt.custom_widgets.file_specification_to_data_accessor_progress_bar import FileSpecificationToDataAccessorProgressBar # @IgnorePep8
     from pygui.qt.plots.specific_widgets.poincare_plot_datasources_table_widget import PoincarePlotDatasourcesTableWidget # @IgnorePep8
+    from pygui.qt.custom_widgets.files_specifications_to_data_accessors_group_converter import FilesSpecificationsToDataAccessorsGroupConverter  # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -77,34 +77,29 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
             return
         if not hasattr(self, '__poincare_settings__'):
 
-            #create data accessor objects based on file specification objects
-            #to inform a user about progression special kind of progress bar
-            #is used
-            data_accessor_progress_bar = FileSpecificationToDataAccessorProgressBar( # @IgnorePep8
+            #to convert data accessor objects based on file specification
+            #objects to inform a user about progression special kind of
+            #progress bar is used
+            data_accessors_group_converter = \
+                FilesSpecificationsToDataAccessorsGroupConverter(
                                             self, self.__file_specifications__)
-            data_accessor_progress_bar.start()
-            data_accessors = data_accessor_progress_bar.data_accessors
 
-            #the first element is reference data accessor object
-            data_accessor = data_accessors[0]
-            #remaining elements (if any) constitute data accessors group
-            data_accessors_group = data_accessors[1:] if len(data_accessors) > 1 else None # @IgnorePep8
-
-            #save outcomes button in PoincarePlotSettingsDockWidget have to be
-            #in fixed check state
-            save_outcomes_fixed_state = True
+            data_vectors_accessor_group = \
+                data_accessors_group_converter.data_vectors_accessors_group
 
             self.__poincare_settings__ = PoincarePlotSettingsDockWidget(
-                        self, data_accessor=data_accessor,
-                        data_accessors_group=data_accessors_group,
-                        output_file_listener=self.__output_file_listener__,
-                        save_outcomes_fixed_state=save_outcomes_fixed_state)
+                    self,
+                    data_vectors_accessor_group=data_vectors_accessor_group,
+                    output_file_listener=self.__output_file_listener__,
+                    #save outcomes button in PoincarePlotSettingsDockWidget
+                    #have to be in fixed check state
+                    save_outcomes_fixed_state=True)
         self.__poincare_settings__.show()
 
         if not hasattr(self, '__poincare_datasources_table__'):
             self.__poincare_datasources_table__ = \
                     PoincarePlotDatasourcesTableWidget(self.__central_widget__,
-                                                data_accessors=data_accessors)
+                        data_accessors=data_vectors_accessor_group.data_vectors_accessors) # @IgnorePep8
         self.__poincare_datasources_table__.show()
 
     def __output_file_listener__(self, _filename):
@@ -121,28 +116,3 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
                                     _selected_files_specifications_handler):
         self.__selected_files_specifications_handler__ = \
                                     _selected_files_specifications_handler
-#class __TachogramPlot__(CompositeWidget):
-#    """
-#    this class represents core of the tachogram plot that is a plot itself
-#    """
-#    def __init__(self, parent, **params):
-#        super(__TachogramPlot__, self).__init__(parent,
-#                                        not_add_widget_to_parent_layout=True)
-#        self.params = Params(**params)
-#        file_data_source_params = self.params.file_specification._asdict()
-#        self.signal_unit = get_unit_by_class_name(
-#                        file_data_source_params.get('signal_unit_class_name'))
-#        file_data_source = FileDataSource(**file_data_source_params)
-#        layout = QVBoxLayout()
-#        self.setLayout(layout)
-#        data = file_data_source.getData()
-#        data_accessor = DataVectorAccessor(data)
-#        data_accessor.source_name = file_data_source.source_filename
-#        data_accessor.changeXSignalUnit(self, OrderUnit)
-#        self.canvas = TachogramPlotCanvas(self, data_accessor=data_accessor)
-#        layout.addWidget(self.canvas)
-#        self.navigation_toolbar = TachogramPlotNavigationToolbar(
-#                                                self, self.canvas,
-#                                                dock_parent=parent,
-#                                                data_accessor=data_accessor)
-#        layout.addWidget(self.navigation_toolbar)

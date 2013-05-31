@@ -63,6 +63,7 @@ PyGUI/src/pygui/qt/custom_widgets/checkable_table_header_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/decimal_precision_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/dir_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/file_specification_to_data_accessor_progress_bar.py -text
+PyGUI/src/pygui/qt/custom_widgets/files_specifications_to_data_accessors_group_converter.py -text
 PyGUI/src/pygui/qt/custom_widgets/files_tracker_widget.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/__init__.py -text
 PyGUI/src/pygui/qt/custom_widgets/filters/common_annotation_filter_widget.py -text
@@ -168,6 +169,7 @@ PyMath/src/pymath/model/data_vector_file_data_source.py -text
 PyMath/src/pymath/model/data_vector_listener.py -text
 PyMath/src/pymath/model/data_vector_parameters.py -text
 PyMath/src/pymath/model/data_vector_segmenter.py -text
+PyMath/src/pymath/model/data_vectors_accessors_group.py -text
 PyMath/src/pymath/model/file_data_parameters.py -text
 PyMath/src/pymath/model/numerical_file_data_source.py -text
 PyMath/src/pymath/model/parameters_container.py -text

@@ -32,10 +32,18 @@ class StatisticsWidget(GroupBoxWidget):
         get_or_put(params, 'i18n_def', 'Statistics')
         super(StatisticsWidget, self).__init__(parent, **params)
         self.params = Params(**params)
-        self.data_accessors_group = self.params.data_accessors_group  # alias
-        if self.params.data_accessor:
-            self.params.data_accessor.addListener(self,
-                                        __StatisticsVectorListener__(self))
+
+        self.data_accessors = []
+        self.main_data_accessor = None
+        if not self.params.data_vectors_accessor_group == None:
+            self.data_accessors = self.params.data_vectors_accessor_group.data_vectors_accessors # @IgnorePep8
+            self.main_data_accessor = self.params.data_vectors_accessor_group.main_data_vector_accessor # @IgnorePep8
+        elif not self.params.data_accessor == None:
+            self.main_data_accessor = self.params.data_accessor
+            self.data_accessors = [self.main_data_accessor]
+
+        for data_accessor in self.data_accessors:
+            data_accessor.addListener(self, __StatisticsVectorListener__(self))
 
         self.__createButtons__()
         self.__statistics_widget__ = StatisticsSelectionWidget(self,
@@ -63,38 +71,34 @@ class StatisticsWidget(GroupBoxWidget):
                                         self.params.save_outcomes_fixed_state)
 
     def __calculate_statistics_handler__(self):
-        if self.params.data_accessor:
-            self.params.data_accessor.prepareParametersContainer()
+        if len(self.data_accessors) == 0:
+            return
 
-            formatted_summary_statistics = []
-            save_csv = self.__save_outcomes_button__.isChecked()
-            check_level = CoreParameters.MEDIUM_CHECK_LEVEL if save_csv else CoreParameters.LOW_CHECK_LEVEL # @IgnorePep8
+        self.main_data_accessor.prepareParametersContainer()
+        #processing many data accessors objects:
+        #self.data_accessors object contains many data_accessor objects which
+        #have to be treated in the same way as self.main_data_accessor object,
+        #that means they must have the same parameters
+        for data_accessor in self.data_accessors:
+            if not data_accessor == self.main_data_accessor:
+                data_accessor.parameters_container = self.main_data_accessor.parameters_container # @IgnorePep8
 
-            data_accessor0 = self.params.data_accessor  # alias
-            data_accessors = [data_accessor0]
+        formatted_summary_statistics = []
+        save_csv = self.__save_outcomes_button__.isChecked()
+        check_level = CoreParameters.MEDIUM_CHECK_LEVEL if save_csv else CoreParameters.LOW_CHECK_LEVEL # @IgnorePep8
 
-            #processing many data accessors objects:
-            #data_accessors_group contains other data_accessor object which
-            #have to be treated in the same way as self.params.data_accessor
-            #object, that means they must have the same parameters
-            if self.data_accessors_group:
-                for data_accessor in self.data_accessors_group:
-                    data_accessor.parameters_container = data_accessor0.parameters_container # @IgnorePep8
-                #add all data_accessors to progress bar
-                data_accessors[1:] = self.data_accessors_group
-
-            pp_generator_progress_bar = PoincarePlotGeneratorProgressBar(self,
-                    data_accessors, label_text='Statistics calculation',
-                    check_level=check_level, save_csv=save_csv,
-                    formatted_summary_statistics=formatted_summary_statistics,
-                    output_file_listener=self.params.output_file_listener)
-            pp_generator_progress_bar.start()
-            if pp_generator_progress_bar.interrupted() == False and \
-                len(formatted_summary_statistics) == 1:
-                #summary statistics values are updated only in the case
-                #of one data accessor object
-                self.__summary_statistics_widget__.setStatisticsValues(
-                                            formatted_summary_statistics[0])
+        pp_generator_progress_bar = PoincarePlotGeneratorProgressBar(self,
+                self.data_accessors, label_text='Statistics calculation',
+                check_level=check_level, save_csv=save_csv,
+                formatted_summary_statistics=formatted_summary_statistics,
+                output_file_listener=self.params.output_file_listener)
+        pp_generator_progress_bar.start()
+        if pp_generator_progress_bar.interrupted() == False and \
+            len(formatted_summary_statistics) == 1:
+            #summary statistics values are updated only in the case
+            #of one data accessor object
+            self.__summary_statistics_widget__.setStatisticsValues(
+                                        formatted_summary_statistics[0])
 
     def __change_statistics_handler__(self, _statistic, _checked):
         """
