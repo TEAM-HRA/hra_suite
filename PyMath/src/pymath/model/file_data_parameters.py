@@ -134,24 +134,25 @@ class FileDataParameters(CoreParameters):
         self.__separator__ = _separator
 
     @property
-    def skip_existing_outcomes(self):
+    def override_existing_outcomes(self):
         """
         [optional]
-        skip processing data file for existing outcomes
+        override existing outcomes
         default: False
         """
-        return nvl(self.__skip_existing_outcomes__, False)
+        return nvl(self.__override_existing_outcomes__, False)
 
-    @skip_existing_outcomes.setter
-    def skip_existing_outcomes(self, _skip_existing_outcomes):
-        self.__skip_existing_outcomes__ = _skip_existing_outcomes
+    @override_existing_outcomes.setter
+    def override_existing_outcomes(self, _override_existing_outcomes):
+        self.__override_existing_outcomes__ = _override_existing_outcomes
 
     def setObjectFileDataParameters(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'
         """
-        setattr(_object, 'skip_existing_outcomes', self.skip_existing_outcomes)
+        setattr(_object, 'override_existing_outcomes',
+                                    self.override_existing_outcomes)
         setattr(_object, 'output_dir', self.output_dir)
         setattr(_object, 'output_precision', self.output_precision)
         setattr(_object, 'output_separator', self.output_separator)

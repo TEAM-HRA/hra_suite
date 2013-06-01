@@ -61,7 +61,7 @@ class PoincarePlotGenerator(object):
     def precheck(self, reference_filename):
         message = None
         self.__outcome_exists__ = False
-        if self.skip_existing_outcomes and reference_filename:
+        if self.override_existing_outcomes == False and reference_filename:
             #check if output file for normal statistics exists already
             with NumpyCSVFile(output_dir=self.output_dir,
                            reference_filename=reference_filename) as csv:
@@ -332,8 +332,8 @@ class PoincarePlotGenerator(object):
         print('Window size: ' + str(self.window_size) +
               nvl(self.window_size_unit, ''))
         print('Using buffer: ' + str(self.use_buffer))
-        print('Skip for existing outcomes: '
-              + str(self.skip_existing_outcomes))
+        print('Override existing outcomes: '
+              + str(self.override_existing_outcomes))
 
     @property
     def __parameters_ids__(self):

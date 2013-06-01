@@ -46,9 +46,9 @@ class OutputSpecificationWidget(GroupBoxWidget):
         self.__separator__ = SeparatorWidget(self, i18n_def='Output separator',
                 no_custom_separator=params.get('no_custom_separator', None),
                 default_separator=Separator.WHITE_SPACE)
-        self.__skip_existing__ = CheckBoxWidget(self,
-                                            i18n_def='Skip existing outcomes',
-                                            checked=True)
+        self.__override_existing__ = CheckBoxWidget(self,
+                                        i18n_def='Override existing outcomes',
+                                        checked=False)
 
     def __get_output_precision__(self):
         """
@@ -75,7 +75,7 @@ class __OutputSpecificationDataVectorListener__(DataVectorListener):
         parameters = container.getParametersObject(
                                 FileDataParameters.NAME, FileDataParameters)
         w = self.__output_specification_widget__  # alias
-        parameters.skip_existing_outcomes = w.__skip_existing__.isChecked()
+        parameters.override_existing_outcomes = w.__override_existing__.isChecked()  # @IgnorePep8
         parameters.output_dir = w.__output_dir__.directory
         parameters.output_precision = (w.__precision__.precision, w.__precision__.scale) # @IgnorePep8
         parameters.output_separator = w.__separator__.getSeparatorSign()
