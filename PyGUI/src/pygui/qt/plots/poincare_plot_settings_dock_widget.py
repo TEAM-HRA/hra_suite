@@ -30,7 +30,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
             self.params.data_vectors_accessor_group  # alias
         if not self.data_vectors_accessor_group == None:
             self.main_data_accessor = \
-                self.data_vectors_accessor_group.main_data_vector_accessor
+                self.data_vectors_accessor_group.group_data_vector_accessor
         else:
             self.main_data_accessor = self.params.data_accessor  # alias
 

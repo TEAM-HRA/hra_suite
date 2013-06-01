@@ -37,7 +37,7 @@ class StatisticsWidget(GroupBoxWidget):
         self.main_data_accessor = None
         if not self.params.data_vectors_accessor_group == None:
             self.data_accessors = self.params.data_vectors_accessor_group.data_vectors_accessors # @IgnorePep8
-            self.main_data_accessor = self.params.data_vectors_accessor_group.main_data_vector_accessor # @IgnorePep8
+            self.main_data_accessor = self.params.data_vectors_accessor_group.group_data_vector_accessor # @IgnorePep8
         elif not self.params.data_accessor == None:
             self.main_data_accessor = self.params.data_accessor
             self.data_accessors = [self.main_data_accessor]
@@ -80,8 +80,7 @@ class StatisticsWidget(GroupBoxWidget):
         #have to be treated in the same way as self.main_data_accessor object,
         #that means they must have the same parameters
         for data_accessor in self.data_accessors:
-            if not data_accessor == self.main_data_accessor:
-                data_accessor.parameters_container = self.main_data_accessor.parameters_container # @IgnorePep8
+            data_accessor.parameters_container = self.main_data_accessor.parameters_container # @IgnorePep8
 
         formatted_summary_statistics = []
         save_csv = self.__save_outcomes_button__.isChecked()

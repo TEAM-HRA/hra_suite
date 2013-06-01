@@ -58,6 +58,10 @@ class DataVectorAccessor(object):
     def signal_x_unit(self):
         return self.__x_signal_unit__
 
+    @signal_x_unit.setter
+    def signal_x_unit(self, _signal_x_unit):
+        self.__x_signal_unit__ = _signal_x_unit
+
     @property
     def signal_in_x_unit(self):
         """
@@ -76,6 +80,14 @@ class DataVectorAccessor(object):
 
     def addListener(self, _host, _data_vector_listener):
         self.__data_vector_listeners__[_host] = _data_vector_listener
+
+    @property
+    def listeners(self):
+        return self.__data_vector_listeners__
+
+    @listeners.setter
+    def listeners(self, _listeners):
+        self.__data_vector_listeners__ = _listeners
 
     def changeSignal(self, _host, _signal, **params):
         if not arrays_equal(self.__data_vector__.signal, _signal):
