@@ -233,6 +233,7 @@ PySettings/src/settings/icons/data_vector_preview.ico -text
 PySettings/src/settings/icons/graph_button.ico -text
 PySettings/src/settings/icons/histogram_plot_button.ico -text
 PySettings/src/settings/icons/poincare_plot_settings.ico -text
+PySettings/src/settings/icons/reload_poincare_plot_settings.ico -text
 PySettings/src/settings/icons/scatter_plot_button.ico -text
 PySettings/src/settings/icons/tachogram_plot_settings.ico -text
 PySettings/src/settings/icons/tachogram_plot_statistics.ico -text

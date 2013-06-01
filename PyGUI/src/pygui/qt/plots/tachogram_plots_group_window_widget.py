@@ -37,7 +37,7 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
 
         self.addToolBar(OperationalToolBarWidget(self,
                                         excluded_buttons=[CloseToolButton]))
-        self.addToolBar(PoincareToolBarWidget(self))
+        self.addToolBar(PoincareToolBarWidget(self, reload_button=True))
 
         self.__central_widget__ = CompositeWidget(self,
                             not_add_widget_to_parent_layout=True)
@@ -59,6 +59,24 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
     def addFileSpecification(self, _file_specification):
         if self.__file_specifications__.count(_file_specification) == 0:
             self.__file_specifications__.append(_file_specification)
+
+    def reload_poincare_settings_handler(self):
+        """
+        handler call by PoincareToolBarWidget toolbar
+        reloads poincare plot settings widget
+        """
+        if hasattr(self, '__poincare_settings__'):
+            self.removeDockWidget(self.__poincare_settings__)
+            self.layout().removeWidget(self.__poincare_settings__)
+            self.__poincare_settings__.deleteLater()
+            delattr(self, '__poincare_settings__')
+
+        if hasattr(self, '__poincare_datasources_table__'):
+            self.layout().removeWidget(self.__poincare_datasources_table__)
+            self.__poincare_datasources_table__.deleteLater()
+            delattr(self, '__poincare_datasources_table__')
+
+        self.show_poincare_settings_handler()
 
     def show_poincare_settings_handler(self):
         """
