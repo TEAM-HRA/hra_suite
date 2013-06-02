@@ -192,3 +192,19 @@ def restore_widget(widget):
                 if not widget == childWidget:
                     if hasattr(childWidget, 'show'):
                         childWidget.show()
+
+
+def get_all_children(qwidget, all_children=None):
+    """
+    function to get all children for a qwidget
+    """
+    if all_children == None:
+        all_children = []
+    if qwidget.isWidgetType():
+        children = qwidget.children()
+        if len(children) == 0:
+            return all_children
+        all_children[len(all_children):] = children
+        for child in qwidget.children():
+            get_all_children(child, all_children)
+    return all_children
