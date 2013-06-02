@@ -14,6 +14,8 @@ try:
     from pymath.model.data_vector_listener import DataVectorListener
     from pymath.model.data_vector_parameters import DataVectorParameters
     from pymath.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
+    from pygui.qt.utils.settings import Setter
+    from pygui.qt.utils.settings import TemporarySettingsHandler
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
@@ -24,7 +26,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class MiscellaneousWidget(GroupBoxWidget):
+class MiscellaneousWidget(GroupBoxWidget, TemporarySettingsHandler):
     """
     widget used to set up some specific properties like:
     window size,
@@ -63,6 +65,8 @@ class MiscellaneousWidget(GroupBoxWidget):
         self.__stepper_size__ = __StepperSizeWidget__(self,
                                                 self.params.data_accessor)
 
+        self.loadTemporarySettings()
+
     @property
     def use_buffer(self):
         return self.__use_buffer__.isChecked()
@@ -90,6 +94,35 @@ class MiscellaneousWidget(GroupBoxWidget):
     @property
     def stepper_size(self):
         return self.__stepper_size__
+
+    def saveTemporarySettings(self):
+        """
+        this method is called automatically when the widget is hiding
+        as a part of TemporarySettingsHandler class's interface
+        """
+        setters = [Setter(use_buffer=self.use_buffer,
+                          _no_conv=True),
+                   Setter(use_identity_line=self.use_identity_line,
+                          _no_conv=True),
+                   Setter(window_size_unit=self.unit,
+                          _no_conv=True),
+                   ]
+        self.saveTemporarySettingsHandler(setters)
+
+    def loadTemporarySettings(self):
+        setters = [Setter(use_buffer=self.use_buffer, _conv=QVariant.toBool),
+                   Setter(use_identity_line=self.use_identity_line, _conv=QVariant.toBool), # @IgnorePep8
+                   Setter(window_size_unit=self.unit, _conv=QVariant.toPyObject), # @IgnorePep8                   
+                   ]
+        values = self.loadTemporarySettingsHandler(setters)
+        if not values == None:
+            (use_buffer,
+             use_identity_line,
+             window_size_unit) = values
+            self.__use_buffer__.setChecked(use_buffer)
+            self.__use_identity_line__.setChecked(use_identity_line)
+            self.changeUnit(window_size_unit)
+            self.__unitsWidget__.setUnit(window_size_unit)
 
 
 class __DataWindowSizeWidget__(CompositeWidget):

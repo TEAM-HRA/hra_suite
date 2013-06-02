@@ -9,6 +9,7 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.misc import Params
     from pygui.qt.utils.signals import SignalDispatcher
+    from pygui.qt.utils.settings import set_temporary_settings_id
     from pygui.qt.utils.windows import InformationWindow
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.custom_widgets.toolbars import CloseToolButton
@@ -33,6 +34,7 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
     """
     def __init__(self, parent, **params):
         super(TachogramPlotsGroupWindowWidget, self).__init__(parent, **params)
+        set_temporary_settings_id(self)
         self.params = Params(**params)
 
         self.addToolBar(OperationalToolBarWidget(self,
