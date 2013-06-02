@@ -100,29 +100,31 @@ class MiscellaneousWidget(GroupBoxWidget, TemporarySettingsHandler):
         this method is called automatically when the widget is hiding
         as a part of TemporarySettingsHandler class's interface
         """
-        setters = [Setter(use_buffer=self.use_buffer,
-                          _no_conv=True),
-                   Setter(use_identity_line=self.use_identity_line,
-                          _no_conv=True),
-                   Setter(window_size_unit=self.unit,
-                          _no_conv=True),
+        setters = [Setter(use_buffer=self.use_buffer),
+                   Setter(use_identity_line=self.use_identity_line),
+                   Setter(window_size_unit=self.unit),
+                   Setter(window_size=self.size),
                    ]
-        self.saveTemporarySettingsHandler(setters)
+        self.saveTemporarySettingsHandler(setters, _no_conv=True)
 
     def loadTemporarySettings(self):
         setters = [Setter(use_buffer=self.use_buffer, _conv=QVariant.toBool),
                    Setter(use_identity_line=self.use_identity_line, _conv=QVariant.toBool), # @IgnorePep8
-                   Setter(window_size_unit=self.unit, _conv=QVariant.toPyObject), # @IgnorePep8                   
+                   Setter(window_size_unit=self.unit, _conv=QVariant.toPyObject), # @IgnorePep8
+                   Setter(window_size=self.unit, _conv=QVariant.toInt), # @IgnorePep8
                    ]
         values = self.loadTemporarySettingsHandler(setters)
         if not values == None:
             (use_buffer,
              use_identity_line,
-             window_size_unit) = values
+             window_size_unit,
+             window_size) = values
             self.__use_buffer__.setChecked(use_buffer)
             self.__use_identity_line__.setChecked(use_identity_line)
             self.changeUnit(window_size_unit)
             self.__unitsWidget__.setUnit(window_size_unit)
+            if window_size > 0:
+                self.__window_size__.size = window_size  # [0]
 
 
 class __DataWindowSizeWidget__(CompositeWidget):
@@ -163,6 +165,10 @@ class __DataWindowSizeWidget__(CompositeWidget):
     @property
     def size(self):
         return self.__size_slider__.value()
+
+    @size.setter
+    def size(self, _size):
+        self.__size_slider__.setValue(int(_size))
 
 
 class __MiscellaneousVectorListener__(DataVectorListener):

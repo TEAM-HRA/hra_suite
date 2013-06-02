@@ -163,6 +163,9 @@ class Setter(object):
     def useOnlyValue(self, use_only_value):
         self.__use_only_value = use_only_value
 
+    def setNoConv(self, _no_conv):
+        self.__no_conv = _no_conv
+
 
 def set_temporary_settings_id(target):
     """
@@ -217,10 +220,13 @@ class TemporarySettingsHandler(QWidget):
             return SettingsFactory.loadTemporarySettings(self,
                                             self.__settings_id__, *setters)
 
-    def saveTemporarySettingsHandler(self, setters):
+    def saveTemporarySettingsHandler(self, setters, _no_conv=False):
         """
         saves temporary settings identified by collections of setters
         """
         if not self.__settings_id__ == None:
+            if _no_conv:
+                for setter in setters:
+                    setter.setNoConv(True)
             SettingsFactory.saveTemporarySettings(self,
                                             self.__settings_id__, *setters)
