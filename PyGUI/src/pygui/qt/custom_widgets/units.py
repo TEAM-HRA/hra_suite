@@ -63,3 +63,11 @@ class TimeUnitsWidget(GroupBoxWidget):
             if not self.__change_unit_handler__ == None:
                 self.__change_unit_handler__(button.unit)
         self.__old_button_unit__ = button.unit
+
+    def setUnit(self, unit):
+        """
+        method which marks a button with an appropriate unit as checked
+        """
+        for button in self.__unitsButtonsGroup__.buttons():
+            if button.unit.name == unit.name:
+                button.setChecked(True)
