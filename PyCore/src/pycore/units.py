@@ -41,10 +41,6 @@ class __Unit__(object):
     def lower_multiplier(self):
         return self.__lower_multiplier__
 
-    def __gt__(self, other):
-        if not self._type == other._type:
-            raise TypeError('Incompatible types: ' + self + ' <=> ' + other)
-
     def expressInUnit(self, unit):
         value = 1.0
         if self.ordinal == unit.ordinal:

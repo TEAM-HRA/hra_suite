@@ -104,27 +104,36 @@ class MiscellaneousWidget(GroupBoxWidget, TemporarySettingsHandler):
                    Setter(use_identity_line=self.use_identity_line),
                    Setter(window_size_unit=self.unit),
                    Setter(window_size=self.size),
+                   Setter(sample_step=self.sample_step.step),
+                   Setter(stepper_size=self.stepper_size.size),
+                   Setter(stepper_unit=self.stepper_size.unit),
                    ]
         self.saveTemporarySettingsHandler(setters, _no_conv=True)
 
     def loadTemporarySettings(self):
-        setters = [Setter(use_buffer=self.use_buffer, _conv=QVariant.toBool),
-                   Setter(use_identity_line=self.use_identity_line, _conv=QVariant.toBool), # @IgnorePep8
-                   Setter(window_size_unit=self.unit, _conv=QVariant.toPyObject), # @IgnorePep8
-                   Setter(window_size=self.unit, _conv=QVariant.toInt), # @IgnorePep8
+        setters = [Setter(use_buffer=self.use_buffer,
+                          _conv=QVariant.toBool,
+                          _handlers=[self.__use_buffer__.setChecked]),
+                   Setter(use_identity_line=self.use_identity_line,
+                          _conv=QVariant.toBool,
+                          _handlers=[self.__use_identity_line__.setChecked]),
+                   Setter(window_size_unit=self.unit,
+                          _conv=QVariant.toPyObject,
+                          _handlers=[self.changeUnit,
+                                     self.__unitsWidget__.setUnit]),
+                   Setter(window_size=self.size, _conv=QVariant.toInt,
+                          _handlers=[self.__window_size__.setSize]),
+                   Setter(sample_step=self.sample_step.step,
+                          _conv=QVariant.toInt,
+                          _handlers=[self.__sample_step__.setStep]),
+                   Setter(stepper_unit=self.stepper_size.unit,
+                          _conv=QVariant.toPyObject,
+                          _handlers=[self.__stepper_size__.changeUnit]),
+                   Setter(stepper_size=self.stepper_size.size,
+                          _conv=QVariant.toInt,
+                          _handlers=[self.__stepper_size__.setSize]),
                    ]
-        values = self.loadTemporarySettingsHandler(setters)
-        if not values == None:
-            (use_buffer,
-             use_identity_line,
-             window_size_unit,
-             window_size) = values
-            self.__use_buffer__.setChecked(use_buffer)
-            self.__use_identity_line__.setChecked(use_identity_line)
-            self.changeUnit(window_size_unit)
-            self.__unitsWidget__.setUnit(window_size_unit)
-            if window_size > 0:
-                self.__window_size__.size = window_size  # [0]
+        self.loadTemporarySettingsHandler(setters)
 
 
 class __DataWindowSizeWidget__(CompositeWidget):
@@ -166,8 +175,7 @@ class __DataWindowSizeWidget__(CompositeWidget):
     def size(self):
         return self.__size_slider__.value()
 
-    @size.setter
-    def size(self, _size):
+    def setSize(self, _size):
         self.__size_slider__.setValue(int(_size))
 
 
@@ -250,6 +258,9 @@ class __SampleStepWidget__(CompositeWidget):
         value = self.__step_slider__.value()
         return None if value == 0 else value
 
+    def setStep(self, _step):
+        self.__step_slider__.setValue(_step)
+
 
 class __StepperSizeWidget__(CompositeWidget):
     """
@@ -297,9 +308,13 @@ class __StepperSizeWidget__(CompositeWidget):
         value = self.__size_slider__.value()
         return None if value == 0 else value
 
+    def setSize(self, _size):
+        self.__size_slider__.setValue(int(_size))
+
     def changeUnit(self, _unit):
         self.setValueInUnit(_unit)
         self.setUnit(_unit)
+        self.__unitsWidget__.setUnit(_unit)
 
     @property
     def unit(self):

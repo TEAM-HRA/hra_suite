@@ -104,13 +104,15 @@ class Setter(object):
         self.__no_conv = params.get('_no_conv', False)
         self.__name = get_other_keys(params, ('_conv', 'objectName',
                                               '_conv_2level', '_no_conv',
-                                              'settings_group', '_use_only_value')) # @IgnorePep8
+                                              'settings_group', '_use_only_value',  # @IgnorePep8
+                                              '_handlers')) # @IgnorePep8
         self.__value = params[self.__name]
         self.__object_name = params.get('objectName', '')
         self.__conv_2level = params.get('_conv_2level', None)
         self.__settings_group__ = params.get('settings_group',
                                              DEFAULT_SETTINGS_GROUP)
         self.__use_only_value = params.get('_use_only_value', False)
+        self.__handlers = params.get('_handlers', None)
 
     def get(self, _prefix, _settings):
         return _settings.value(self.__id(_prefix),
@@ -151,6 +153,9 @@ class Setter(object):
                 if self.__conv_2level:
                     value = self.__conv_2level(value)
                     _target.__dict__[self.__name] = value
+        if not self.__handlers == None:
+            for handler in self.__handlers:
+                handler(value)
         return value
 
     def save(self, _prefix, _settings):
