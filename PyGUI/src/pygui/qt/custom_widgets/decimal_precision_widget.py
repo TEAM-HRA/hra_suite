@@ -54,9 +54,15 @@ class DecimalPrecisionWidget(CompositeWidget):
     def scale(self):
         return self.__scale_choice__.currentIndex()
 
+    def setScale(self, _scale):
+        self.__scale_choice__.setCurrentIndex(_scale)
+
     @property
     def precision(self):
         return self.__precision_choice__.currentIndex() + 1
+
+    def setPrecision(self, _precision):
+        self.__precision_choice__.setCurrentIndex(_precision - 1)
 
     def __rescale__(self):
         if hasattr(self, '__scale_choice__'):
