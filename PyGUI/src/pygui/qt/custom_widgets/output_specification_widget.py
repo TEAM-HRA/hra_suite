@@ -71,16 +71,36 @@ class OutputSpecificationWidget(GroupBoxWidget, TemporarySettingsHandler):
         this method is called automatically when the widget is hiding
         as a part of TemporarySettingsHandler class's interface
         """
-        setters = [Setter(output_dir=self.__output_dir__.directory),
-                   ]
-        self.saveTemporarySettingsHandler(setters, _no_conv=True)
+        self.saveTemporarySettingsHandler(self.__getSetters__(), _no_conv=True)
 
     def loadTemporarySettings(self):
-        setters = [Setter(output_dir=self.__output_dir__.directory,
-                          _conv=QVariant.toString,
-                          _handlers=[self.__output_dir__.setDirectory]),
-                   ]
-        self.loadTemporarySettingsHandler(setters)
+        self.loadTemporarySettingsHandler(
+            self.__getSetters__(conv=True, conv_2level=True, handlers=True))
+
+    def __getSetters__(self, conv=False, conv_2level=False, handlers=False):
+        return [
+            Setter(output_dir=self.__output_dir__.directory,
+                   _conv=QVariant.toString if conv else None,
+                   _handlers=[self.__output_dir__.setDirectory] \
+                            if handlers else None),
+            Setter(separator=self.__separator__.getSeparatorSign(),
+                   _conv=QVariant.toString if conv else None,
+                   _conv_2level=str if conv_2level else None,
+                   _handlers=[self.__separator__.setSeparator] \
+                            if handlers else None),
+            Setter(precision=self.__precision__.precision,
+                   _conv=QVariant.toInt if conv else None,
+                   _handlers=[self.__precision__.setPrecision] \
+                            if handlers else None),
+            Setter(scale=self.__precision__.scale,
+                   _conv=QVariant.toInt if conv else None,
+                   _handlers=[self.__precision__.setScale] \
+                            if handlers else None),
+            Setter(override_existing=self.__override_existing__.isChecked(),
+                   _conv=QVariant.toBool if conv else None,
+                   _handlers=[self.__override_existing__.setChecked] \
+                            if handlers else None),
+            ]
 
 
 class __OutputSpecificationDataVectorListener__(DataVectorListener):

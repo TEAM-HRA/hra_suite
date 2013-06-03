@@ -60,6 +60,7 @@ class SeparatorWidget(object):
                 #def setSeparator(self, _separator) method
                 predefinedSeparatorCheckBox.separator_spec = separatorSpec
                 predefinedSeparatorCheckBox.setText(label)
+                predefinedSeparatorCheckBox.sep_spec = separatorSpec
                 if self.params.default_separator and \
                     separatorSpec.id_ == self.params.default_separator.id_:
                     predefinedSeparatorCheckBox.setChecked(True)
@@ -75,6 +76,7 @@ class SeparatorWidget(object):
                                         self.predefinedSeparatorsComposite,
                                         i18n="separator.custom.checkbox",
                                         i18n_def="Custom")
+            self.customSeparatorCheckBox.sep_spec = Separator.CUSTOM
             self.separatorsGroupBox.connect(self.customSeparatorCheckBox,
                                         SIGNAL("clicked()"),
                                         self.customSeparatorButtonClicked)
@@ -140,7 +142,7 @@ class SeparatorWidget(object):
                 self.__uncheckPredefinedButtons__()
             elif not separatorSign == Separator.NONE:
                 for button in self.predefinedSeparatorsButtonsGroup.buttons():
-                    if button.text() == separatorSign.label:
+                    if button.sep_spec.id_ == separatorSign.id_:
                         if not self.params.no_custom_separator == True:
                             self.__customSeparatorClear__()
                         button.setChecked(True)
