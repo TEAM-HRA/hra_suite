@@ -13,6 +13,8 @@ try:
     from pymath.model.data_vector_listener import DataVectorListener
     from pymath.model.file_data_parameters import FileDataParameters
     from pymath.model.file_data_parameters import DEFAULT_OUTPUT_PRECISION
+    from pygui.qt.utils.settings import TemporarySettingsHandler
+    from pygui.qt.utils.settings import Setter
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
     from pygui.qt.custom_widgets.decimal_precision_widget import DecimalPrecisionWidget # @IgnorePep8
@@ -22,7 +24,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class OutputSpecificationWidget(GroupBoxWidget):
+class OutputSpecificationWidget(GroupBoxWidget, TemporarySettingsHandler):
     """
     widget used to specify output parameters like:
     output dir,
@@ -50,6 +52,8 @@ class OutputSpecificationWidget(GroupBoxWidget):
                                         i18n_def='Override existing outcomes',
                                         checked=False)
 
+        self.loadTemporarySettings()
+
     def __get_output_precision__(self):
         """
         return precision defined in FileDataParameters object or a default one
@@ -61,6 +65,22 @@ class OutputSpecificationWidget(GroupBoxWidget):
             return parameters.output_precision
         else:
             return DEFAULT_OUTPUT_PRECISION
+
+    def saveTemporarySettings(self):
+        """
+        this method is called automatically when the widget is hiding
+        as a part of TemporarySettingsHandler class's interface
+        """
+        setters = [Setter(output_dir=self.__output_dir__.directory),
+                   ]
+        self.saveTemporarySettingsHandler(setters, _no_conv=True)
+
+    def loadTemporarySettings(self):
+        setters = [Setter(output_dir=self.__output_dir__.directory,
+                          _conv=QVariant.toString,
+                          _handlers=[self.__output_dir__.setDirectory]),
+                   ]
+        self.loadTemporarySettingsHandler(setters)
 
 
 class __OutputSpecificationDataVectorListener__(DataVectorListener):

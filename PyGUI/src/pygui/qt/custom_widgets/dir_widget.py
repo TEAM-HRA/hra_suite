@@ -45,7 +45,7 @@ class DirWidget(CompositeWidget):
                                     options=QFileDialog.ShowDirsOnly
                                            | QFileDialog.DontResolveSymlinks)
         if output_dir:
-            self.__dir_label__.setText("[%s]" % output_dir)
+            self.setDirectory(output_dir)
 
     @property
     def directory(self):
@@ -59,3 +59,9 @@ class DirWidget(CompositeWidget):
             ErrorWindow(message="The directory must be selected !")
             return False
         return True
+
+    def setDirectory(self, output_dir):
+        """
+        set directory by external code
+        """
+        self.__dir_label__.setText("[%s]" % output_dir)
