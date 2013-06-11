@@ -13,6 +13,8 @@ try:
     from pymath.model.data_vector_listener import DataVectorListener
     from pymath.statistics.statistics import Asymmetry
     from pymath.statistics.statistic_parameters import StatisticParameters
+    from pygui.qt.utils.settings import TemporarySettingsHandler
+    from pygui.qt.utils.settings import Setter
     from pygui.qt.widgets.table_view_widget import TableViewWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
@@ -21,7 +23,7 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class StatisticsSelectionWidget(GroupBoxWidget):
+class StatisticsSelectionWidget(GroupBoxWidget, TemporarySettingsHandler):
     #this value is set up in __createModel__ method
     VALUE_COLUMN = 0
 
@@ -45,6 +47,8 @@ class StatisticsSelectionWidget(GroupBoxWidget):
         self.__createTable__()
         self.__createModel__()
         self.__fillStatistics__(self.params.statistics_base_classes)
+        self.loadTemporarySettingsHandler(self.getTemporarySetters(conv=True,
+                                            conv_2level=True, handlers=True))
 
     def __createTable__(self):
         self.__table__ = TableViewWidget(self,
@@ -151,6 +155,33 @@ class StatisticsSelectionWidget(GroupBoxWidget):
             item = self.__table__.model().item(row)
             if item.isCheckable():
                 item.setCheckState(Qt.Checked)
+
+    def getTemporarySetters(self, conv=False, conv_2level=False,
+                            handlers=False):
+        """
+        this method is called automatically when the widget is hiding
+        as a part of TemporarySettingsHandler class's interface to save
+        all selected statistics into temporary storage
+        """
+        return [
+            Setter(selected_statistics=self.__getSelectedStatisticsClassesNames__(), # @IgnorePep8
+                   _conv=QVariant.toPyObject if conv else None,
+                   _handlers=[self.__setSelectedStatistics__] \
+                            if handlers else None)
+            ]
+
+    def __getSelectedStatisticsClassesNames__(self):
+        return [statistic_class.__name__
+                for statistic_class in self.getSelectedStatisticsClasses()]
+
+    def __setSelectedStatistics__(self, _statistics_class_names):
+        if not _statistics_class_names == None:
+            model = self.__table__.model()
+            for idx in range(model.rowCount()):
+                item = model.item(idx)
+                if item.isCheckable() and item.checkState() == Qt.Unchecked \
+                    and self.__statistics_classes__[idx].__name__ in _statistics_class_names: # @IgnorePep8
+                    item.setCheckState(Qt.Checked)
 
 
 class __StatisticsSelectionModel__(QStandardItemModel):

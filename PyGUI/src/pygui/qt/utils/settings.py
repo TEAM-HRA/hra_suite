@@ -178,6 +178,10 @@ def set_temporary_settings_id(target):
     """
     setattr(target, TEMPORARY_SETTINGS_ID, str(id(target)))
 
+#if client class code implements getTemporarySetters, then it us used in
+#TemporarySettingsHandler.hideEvent method
+TEMPORARY_GET_TEMPORARY_SETTERS_METHOD = 'getTemporarySetters'
+
 
 class TemporarySettingsHandler(QWidget):
     """
@@ -188,7 +192,9 @@ class TemporarySettingsHandler(QWidget):
                                                        **params_d)
         self.__settings_id__ = None
 
-        if hasattr(self, TEMPORARY_SAVE_SETTINGS_METHOD):
+        #the self object could implement two methods
+        if hasattr(self, TEMPORARY_SAVE_SETTINGS_METHOD) or \
+            hasattr(self, TEMPORARY_GET_TEMPORARY_SETTERS_METHOD):
             #the following loop search for any parent object which
             #have property TEMPORARY_SETTINGS_ID, if that is the case
             #this identifier is set up for a current object
@@ -207,10 +213,13 @@ class TemporarySettingsHandler(QWidget):
         """
         if a widget is hiding all settings are saved
         """
-        if self.__settings_id__ and \
-            hasattr(self, TEMPORARY_SAVE_SETTINGS_METHOD):
-            method = getattr(self, TEMPORARY_SAVE_SETTINGS_METHOD)
-            method()
+        if not self.__settings_id__ == None:
+            if hasattr(self, TEMPORARY_SAVE_SETTINGS_METHOD):
+                method = getattr(self, TEMPORARY_SAVE_SETTINGS_METHOD)
+                method()
+            elif hasattr(self, TEMPORARY_GET_TEMPORARY_SETTERS_METHOD):
+                self.saveTemporarySettingsHandler(self.getTemporarySetters(),
+                                              _no_conv=True)
         super(TemporarySettingsHandler, self).hideEvent(event)
 
     def loadTemporarySettingsHandler(self, setters, use_only_value=True):
