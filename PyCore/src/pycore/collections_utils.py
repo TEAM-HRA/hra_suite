@@ -8,7 +8,10 @@ import re
 
 def get_other_keys(_dict, keys):
     keys = [key for key in _dict if key not in keys]
-    return keys[0] if len(keys) == 1 else keys
+    if len(keys) == 1:
+        return keys[0]
+    elif len(keys) > 1:
+        return keys
 
 
 def get_any_key(**_dict):
