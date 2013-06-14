@@ -6,6 +6,9 @@ Created on 23-10-2012
 
 from pycore.special import ImportErrorMessage
 try:
+    import functools
+    import inspect
+    from types import MethodType
     from PyQt4.QtCore import *  # @UnusedWildImport
     from PyQt4.QtGui import *  # @UnusedWildImport
     from pycore.collections_utils import get_other_keys
@@ -106,13 +109,18 @@ class Setter(object):
                                               '_conv_2level', '_no_conv',
                                               'settings_group', '_use_only_value',  # @IgnorePep8
                                               '_handlers')) # @IgnorePep8
-        self.__value = params[self.__name]
+        if not self.__name == None:
+            self.__value = params[self.__name]
         self.__object_name = params.get('objectName', '')
         self.__conv_2level = params.get('_conv_2level', None)
         self.__settings_group__ = params.get('settings_group',
                                              DEFAULT_SETTINGS_GROUP)
         self.__use_only_value = params.get('_use_only_value', False)
         self.__handlers = params.get('_handlers', None)
+
+    def set_value(self, name, value=None):
+        self.__name = name
+        self.__value = value
 
     def get(self, _prefix, _settings):
         return _settings.value(self.__id(_prefix),
@@ -244,3 +252,154 @@ class TemporarySettingsHandler(QWidget):
                     setter.setNoConv(True)
             SettingsFactory.saveTemporarySettings(self,
                                             self.__settings_id__, *setters)
+
+
+class __Params__(object):
+    """
+    class to store parameters for Setter class
+    """
+    def __init__(self, name, _conv=None,
+                 _setter_handler=None, _getter_handler=None):
+        self.name = name
+        self._conv = _conv
+        self.setter_handler = _setter_handler
+        self.getter_handler = _getter_handler
+
+
+def hideEvent(_self, event):
+    """
+    this function is attached to a widget to save
+    some properties when a widget is hidden
+    """
+    setters = []
+    for setter_params in _self.__setters_params__:
+
+        #this code is very important setter_params.setter_handler and
+        #setter_params.getter_handler are unbound functions, to use
+        #them as methods of _self object they have to be bounded
+        getter_handler = None
+        if not setter_params.getter_handler == None:
+            getter_handler = setter_params.getter_handler.__get__(
+                                            _self, _self.__class__)
+        setter = Setter()
+        if not getter_handler == None:
+            setter.set_value(setter_params.name, getter_handler())
+        else:
+            setter.set_value(setter_params.name)
+        setter.setNoConv(True)
+        setters.append(setter)
+
+    SettingsFactory.saveTemporarySettings(_self, _self.__settings_id__,
+                                          *setters)
+    super(_self.__class__, _self).hideEvent(event)
+
+
+class temporarySettingsDecorator(object):
+    """
+    this a constructor decorator to load previously saved settings
+    """
+
+    def __call__(self, _init, *args, **kargs):
+
+        def wrapper(_self, *args, **kargs):
+
+            _init(_self, *args, **kargs)
+
+            settings_id = None
+            parent = args[0] if len(args) > 0 else None
+
+            #the following loop searches for a settings id of any parent
+            #of _self object
+            while not parent == None:
+                if hasattr(parent, TEMPORARY_SETTINGS_ID):
+                    settings_id = str(getattr(parent,
+                                              TEMPORARY_SETTINGS_ID))
+                    break
+                else:
+                    if hasattr(parent, 'parent'):
+                        parent = parent.parent()
+                    else:
+                        break
+            if settings_id == None:
+                return
+
+            setattr(_self, '__settings_id__', settings_id)
+
+            setters = []
+            #search only for members (methods) which have been attached
+            #by temporarySetterDecorator decorator to _self object
+            setters_params = [member[1].setter_params
+                    for member in inspect.getmembers(_self, inspect.ismethod)
+                                        if hasattr(member[1], 'setter_params')]
+            for setter_params in setters_params:
+
+                #this code is very important: setter_params.setter_handler and
+                #setter_params.getter_handler are unbound functions,
+                #as a result of use of temporarySetterDecorator on methods
+                #of _self object; to convert them into bounded methods of
+                #_self object the following code is used (__get__ method)
+                setter_handler = None
+                if not setter_params.setter_handler == None:
+                    setter_handler = setter_params.setter_handler.__get__(
+                                                    _self, _self.__class__)
+                getter_handler = None
+                if not setter_params.getter_handler == None:
+                    getter_handler = setter_params.getter_handler.__get__(
+                                                    _self, _self.__class__)
+
+                #create setter object based on parameters fetched from
+                #setter params object
+                setter = Setter(_conv=setter_params._conv \
+                                    if setter_params._conv else None,
+                                _handlers=[setter_handler] \
+                                    if setter_handler else None)
+                if not getter_handler == None:
+                    setter.set_value(setter_params.name, getter_handler())
+                else:
+                    setter.set_value(setter_params.name)
+                setter.useOnlyValue(True)
+                setters.append(setter)
+
+            if len(setters_params) > 0:
+                #load previously saved settings
+                SettingsFactory.loadTemporarySettings(_self, settings_id,
+                                                      *setters)
+
+                #save setter params objects to be later used in hideEvent
+                #method
+                setattr(_self, '__setters_params__', setters_params)
+
+                #attached hideEvent method to _self object at runtime
+                _self.hideEvent = MethodType(hideEvent, _self, _self.__class__)
+
+        return wrapper
+
+
+def temporarySetterDecorator(**kargs):
+    """
+    a function decorator used to mark a setter member of a host widget
+    which will be an engine during of saving process;
+    the decorator accepts the following arguments:
+    name - to identify the property
+    _conf - (optional) a conversion function
+    _setter_handler - a decorated method itself
+    _getter_handler - a corresponding getter handler
+    """
+
+    def wrapper_setter(_method):
+        # make a new function
+        @functools.wraps(_method)
+        def wrapper(_self, _value):
+            return _method(_self, _value)
+
+        setter_params = __Params__(name=kargs.get('name'),
+                            _conv=kargs.get('_conv', None),
+                            _setter_handler=wrapper,
+                            _getter_handler=kargs.get('_getter_handler', None))
+        #this cyclic reference between wrapped function and setter params
+        #object is intentional to get all needed information from setter
+        #params object attached to decorated method, the means:
+        #name, conversion method, setter handler and wrapper (setter) method
+        wrapper.setter_params = setter_params
+        return wrapper
+    return wrapper_setter

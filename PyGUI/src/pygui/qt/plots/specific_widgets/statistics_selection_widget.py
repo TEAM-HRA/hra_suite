@@ -13,8 +13,8 @@ try:
     from pymath.model.data_vector_listener import DataVectorListener
     from pymath.statistics.statistics import Asymmetry
     from pymath.statistics.statistic_parameters import StatisticParameters
-    from pygui.qt.utils.settings import TemporarySettingsHandler
-    from pygui.qt.utils.settings import Setter
+    from pygui.qt.utils.settings import temporarySettingsDecorator
+    from pygui.qt.utils.settings import temporarySetterDecorator
     from pygui.qt.widgets.table_view_widget import TableViewWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
     from pygui.qt.widgets.composite_widget import CompositeWidget
@@ -23,13 +23,14 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class StatisticsSelectionWidget(GroupBoxWidget, TemporarySettingsHandler):
+class StatisticsSelectionWidget(GroupBoxWidget):
     #this value is set up in __createModel__ method
     VALUE_COLUMN = 0
 
     """
     widget which gives ability to select statistics
     """
+    @temporarySettingsDecorator()
     def __init__(self, parent, **params):
         get_or_put(params, 'layout', QVBoxLayout())
         get_or_put(params, 'i18n_def', 'Statistics')
@@ -47,8 +48,6 @@ class StatisticsSelectionWidget(GroupBoxWidget, TemporarySettingsHandler):
         self.__createTable__()
         self.__createModel__()
         self.__fillStatistics__(self.params.statistics_base_classes)
-        self.loadTemporarySettingsHandler(self.getTemporarySetters(conv=True,
-                                            conv_2level=True, handlers=True))
 
     def __createTable__(self):
         self.__table__ = TableViewWidget(self,
@@ -156,24 +155,13 @@ class StatisticsSelectionWidget(GroupBoxWidget, TemporarySettingsHandler):
             if item.isCheckable():
                 item.setCheckState(Qt.Checked)
 
-    def getTemporarySetters(self, conv=False, conv_2level=False,
-                            handlers=False):
-        """
-        this method is called automatically when the widget is hiding
-        as a part of TemporarySettingsHandler class's interface to save
-        all selected statistics into temporary storage
-        """
-        return [
-            Setter(selected_statistics=self.__getSelectedStatisticsClassesNames__(), # @IgnorePep8
-                   _conv=QVariant.toPyObject if conv else None,
-                   _handlers=[self.__setSelectedStatistics__] \
-                            if handlers else None)
-            ]
-
     def __getSelectedStatisticsClassesNames__(self):
         return [statistic_class.__name__
                 for statistic_class in self.getSelectedStatisticsClasses()]
 
+    @temporarySetterDecorator(name='selected_statistics',
+                    _conv=QVariant.toPyObject,
+                    _getter_handler=__getSelectedStatisticsClassesNames__)
     def __setSelectedStatistics__(self, _statistics_class_names):
         if not _statistics_class_names == None:
             model = self.__table__.model()
