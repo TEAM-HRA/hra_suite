@@ -258,12 +258,13 @@ class __Params__(object):
     """
     class to store parameters for Setter class
     """
-    def __init__(self, name, _conv=None,
+    def __init__(self, name, _conv=None, _conv_2level=None,
                  _setter_handler=None, _getter_handler=None):
         self.name = name
         self._conv = _conv
         self.setter_handler = _setter_handler
         self.getter_handler = _getter_handler
+        self._conv_2level = _conv_2level
 
 
 def hideEvent(_self, event):
@@ -351,6 +352,8 @@ class temporarySettingsDecorator(object):
                 #setter params object
                 setter = Setter(_conv=setter_params._conv \
                                     if setter_params._conv else None,
+                                _conv_2level=setter_params._conv_2level \
+                                    if setter_params._conv_2level else None,
                                 _handlers=[setter_handler] \
                                     if setter_handler else None)
                 if not getter_handler == None:
@@ -394,6 +397,7 @@ def temporarySetterDecorator(**kargs):
 
         setter_params = __Params__(name=kargs.get('name'),
                             _conv=kargs.get('_conv', None),
+                            _conv_2level=kargs.get('_conv_2level', None),
                             _setter_handler=wrapper,
                             _getter_handler=kargs.get('_getter_handler', None))
         #this cyclic reference between wrapped function and setter params
