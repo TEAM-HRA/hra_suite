@@ -77,6 +77,16 @@ class FiltersWidget(CompositeWidget):
     def setSquareFilterParams(self, square_filter_params):
         self.__square_filter__.setSquareFilterParams(square_filter_params)
 
+    def getAnnotationFilterParams(self):
+        return self.__annotation_filter__.getAnnotationFilterParams()
+
+    @temporarySetterDecorator(name='annotation_filter_params',
+                              _conv=QVariant.toPyObject,
+                              _getter_handler=getAnnotationFilterParams)
+    def setAnnotationFilterParams(self, annotation_filter_params):
+        self.__annotation_filter__.setAnnotationFilterParams(
+                                                annotation_filter_params)
+
 
 class __FilterActivatedDataVectorListener__(DataVectorListener):
     """

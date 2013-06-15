@@ -5,6 +5,7 @@ Created on 23-03-2013
 '''
 from pycore.special import ImportErrorMessage
 try:
+    import collections
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from pycore.collections_utils import is_empty
@@ -19,6 +20,10 @@ try:
     from pygui.qt.widgets.check_box_widget import CheckBoxWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
+
+#a tuple to collect all parameters of annotation filter widget in one structure
+AnnotationFilterParams = collections.namedtuple('AnnotationFilterParams',
+                            ['annotations', 'all_annotations', 'use_filter'])
 
 
 class CommonAnnotationFilterWidget(GroupBoxWidget):
@@ -103,6 +108,15 @@ class CommonAnnotationFilterWidget(GroupBoxWidget):
                 if int(button.text()) not in _annotations:
                     button.setChecked(False)
 
+    def setCheckedAnnotations(self, _annotations):
+        """
+        check all buttons in accordance with annotations
+        """
+        for button in self.__button_group__.buttons():
+            if not button == self.__all_button__:
+                if int(button.text()) in _annotations:
+                    button.setChecked(True)
+
     def isAllUnchecked(self):
         return self.__button_group__.isAllUnchecked()
 
@@ -164,3 +178,34 @@ class CommonAnnotationFilterWidget(GroupBoxWidget):
 
     def getFilter(self):
         return self.__filter__
+
+    def setAnnotationFilterParams(self, annotation_filter_params):
+        """
+        set up annotation filter widget parameters
+        """
+        if not annotation_filter_params.all_annotations:
+            if not annotation_filter_params.annotations == None:
+                self.setEnabledAnnotations(annotation_filter_params.annotations) # @IgnorePep8
+                self.setCheckedAnnotations(annotation_filter_params.annotations) # @IgnorePep8
+
+        self.__all_button__.setChecked(
+                                    annotation_filter_params.all_annotations)
+        self.__all_button__.setEnabled(True)
+
+        self.__action_button__.setChecked(annotation_filter_params.use_filter)
+        if annotation_filter_params.use_filter or \
+            annotation_filter_params.all_annotations or \
+            not annotation_filter_params.annotations == None:
+            self.__action_button__.setEnabled(True)
+
+    def getAnnotationFilterParams(self):
+        all_annotations = False
+        annotations = self.excluded_annotations
+        if annotations == ALL_ANNOTATIONS \
+            or self.__all_button__.isChecked():
+            all_annotations = True
+            annotations = None
+        if not annotations == None and len(annotations) == 0:
+            annotations = None
+        return AnnotationFilterParams(annotations, all_annotations,
+                                      self.useFilter())
