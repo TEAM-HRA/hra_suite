@@ -5,6 +5,7 @@ Created on 23-03-2013
 '''
 from pycore.special import ImportErrorMessage
 try:
+    import collections
     import pylab as pl
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
@@ -21,6 +22,10 @@ try:
     from pygui.qt.custom_widgets.filters.filter_utils import run_filter
 except ImportError as error:
     ImportErrorMessage(error, __name__)
+
+#tuple to collect all parameters of square filter widget in one structure
+SquareFilterParams = collections.namedtuple('SquareFilterParams',
+                                    ['min_value', 'max_value', 'use_filter'])
 
 
 class SquareFilterWidget(GroupBoxWidget):
@@ -113,15 +118,32 @@ class SquareFilterWidget(GroupBoxWidget):
         return self.__filter__
 
     def reset(self):
-        self.setEnabled(True)
-        self.__filter__.reset(int(pl.amin(self.data_accessor.signal)),
-                              int(pl.amax(self.data_accessor.signal)))
-        self.__min_value__.setText(self.__filter__.min_value)
-        self.__max_value__.setText(self.__filter__.max_value)
+        self.setSquareFilterParams(SquareFilterParams(
+                                    int(pl.amin(self.data_accessor.signal)),
+                                    int(pl.amax(self.data_accessor.signal)),
+                                    True))
 
     def setEnabled(self, _enabled):
         self.__min_value__.setEnabled(_enabled)
         self.__max_value__.setEnabled(_enabled)
+
+    def setSquareFilterParams(self, square_filter_params):
+        """
+        set up square filter widget parameters
+        """
+        self.__filter__.min_value = square_filter_params.min_value
+        self.__min_value__.setText(self.__filter__.min_value)
+
+        self.__filter__.max_value = square_filter_params.max_value
+        self.__max_value__.setText(self.__filter__.max_value)
+
+        if not self.params.use_apply_button:
+            self.__action_button__.setChecked(square_filter_params.use_filter)
+
+    def getSquareFilterParams(self):
+        return SquareFilterParams(self.__filter__.min_value,
+                                  self.__filter__.max_value,
+                                  self.useFilter())
 
 
 class __SquareFilterDataVectorListener__(DataVectorListener):

@@ -141,10 +141,13 @@ class Setter(object):
         if self.__conv and self.__no_conv == False:  # invoke a conversion
             value = eval('value.' + self.__conv.__name__ + '()')
 
-            if isinstance(value, tuple):
+            if isinstance(value, tuple) and \
+                not self.__conv == QVariant.toPyObject:
                 #this means that a tuple has been returned and a real value
                 #is stored in the first element, this happens for some
                 #converters for example: (int, bool ok) QVariant.toInt(self)
+                #the case of QVariant.toPyObject have to be excluded to give
+                #ability to save and restore user defined tuples
                 value = value[0]
         if self.__use_only_value:
             if self.__conv_2level:

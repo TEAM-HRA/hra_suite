@@ -10,7 +10,9 @@ try:
     from pycore.misc import Params
     from pycore.collections_utils import get_or_put
     from pymath.model.data_vector_listener import DataVectorListener
-    from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
+    from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8    
+    from pygui.qt.utils.settings import temporarySettingsDecorator
+    from pygui.qt.utils.settings import temporarySetterDecorator
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.push_button_widget import PushButtonWidget
     from pygui.qt.widgets.group_box_widget import GroupBoxWidget
@@ -25,6 +27,7 @@ class FiltersWidget(CompositeWidget):
     a composite widget to choose a filtering method based on
     subclasses of Filter class
     """
+    @temporarySettingsDecorator()
     def __init__(self, parent, **params):
         get_or_put(params, 'layout', QVBoxLayout())
         super(FiltersWidget, self).__init__(parent, **params)
@@ -64,6 +67,15 @@ class FiltersWidget(CompositeWidget):
     def enableRestoreButton(self):
         if hasattr(self, '__restore_button__'):
             self.__restore_button__.setEnabled(True)
+
+    def getSquareFilterParams(self):
+        return self.__square_filter__.getSquareFilterParams()
+
+    @temporarySetterDecorator(name='square_filter_params',
+                              _conv=QVariant.toPyObject,
+                              _getter_handler=getSquareFilterParams)
+    def setSquareFilterParams(self, square_filter_params):
+        self.__square_filter__.setSquareFilterParams(square_filter_params)
 
 
 class __FilterActivatedDataVectorListener__(DataVectorListener):
