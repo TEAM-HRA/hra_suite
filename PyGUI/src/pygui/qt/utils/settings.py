@@ -20,7 +20,6 @@ DEFAULT_SETTINGS_GROUP = 'settings'
 
 TEMPORARY_SETTINGS_GROUP = 'temp'
 TEMPORARY_SETTINGS_ID = 'TEMPORARY_SETTINGS_ID'
-TEMPORARY_SAVE_SETTINGS_METHOD = 'saveTemporarySettings'
 
 
 class SettingsFactory(object):
@@ -186,85 +185,20 @@ def set_temporary_settings_id(target):
     """
     setattr(target, TEMPORARY_SETTINGS_ID, str(id(target)))
 
-#if client class code implements getTemporarySetters, then it us used in
-#TemporarySettingsHandler.hideEvent method
-TEMPORARY_GET_TEMPORARY_SETTERS_METHOD = 'getTemporarySetters'
-
-
-class TemporarySettingsHandler(QWidget):
-    """
-    class used to save and load temporary settings
-    """
-    def __init__(self, parent, *params_l, **params_d):
-        super(TemporarySettingsHandler, self).__init__(parent, *params_l,
-                                                       **params_d)
-        self.__settings_id__ = None
-
-        #the self object could implement two methods
-        if hasattr(self, TEMPORARY_SAVE_SETTINGS_METHOD) or \
-            hasattr(self, TEMPORARY_GET_TEMPORARY_SETTERS_METHOD):
-            #the following loop search for any parent object which
-            #have property TEMPORARY_SETTINGS_ID, if that is the case
-            #this identifier is set up for a current object
-            while not parent == None:
-                if hasattr(parent, TEMPORARY_SETTINGS_ID):
-                    self.__settings_id__ = str(getattr(parent,
-                                                       TEMPORARY_SETTINGS_ID))
-                    break
-                else:
-                    if hasattr(parent, 'parent'):
-                        parent = parent.parent()
-                    else:
-                        break
-
-    def hideEvent(self, event):
-        """
-        if a widget is hiding all settings are saved
-        """
-        if not self.__settings_id__ == None:
-            if hasattr(self, TEMPORARY_SAVE_SETTINGS_METHOD):
-                method = getattr(self, TEMPORARY_SAVE_SETTINGS_METHOD)
-                method()
-            elif hasattr(self, TEMPORARY_GET_TEMPORARY_SETTERS_METHOD):
-                self.saveTemporarySettingsHandler(self.getTemporarySetters(),
-                                              _no_conv=True)
-        super(TemporarySettingsHandler, self).hideEvent(event)
-
-    def loadTemporarySettingsHandler(self, setters, use_only_value=True):
-        """
-        loads temporary settings identified by collections of setters;
-        by default values fetched from settings storage are returned
-        not set as properties of the host object
-        """
-        if not self.__settings_id__ == None:
-            for setter in setters:
-                setter.useOnlyValue(use_only_value)
-            return SettingsFactory.loadTemporarySettings(self,
-                                            self.__settings_id__, *setters)
-
-    def saveTemporarySettingsHandler(self, setters, _no_conv=False):
-        """
-        saves temporary settings identified by collections of setters
-        """
-        if not self.__settings_id__ == None:
-            if _no_conv:
-                for setter in setters:
-                    setter.setNoConv(True)
-            SettingsFactory.saveTemporarySettings(self,
-                                            self.__settings_id__, *setters)
-
 
 class __Params__(object):
     """
     class to store parameters for Setter class
     """
     def __init__(self, name, _conv=None, _conv_2level=None,
-                 _setter_handler=None, _getter_handler=None):
+                 _setter_handler=None, _getter_handler=None,
+                 before_name=None):
         self.name = name
         self._conv = _conv
         self.setter_handler = _setter_handler
         self.getter_handler = _getter_handler
         self._conv_2level = _conv_2level
+        self.before_name = before_name
 
 
 def hideEvent(_self, event):
@@ -332,6 +266,12 @@ class temporarySettingsDecorator(object):
             setters_params = [member[1].setter_params
                     for member in inspect.getmembers(_self, inspect.ismethod)
                                         if hasattr(member[1], 'setter_params')]
+
+            #if there is any setter param before_name properties defined
+            #in setter params objects then setters_params list
+            #have to be reordered
+            setters_params = self.__reorder_setters_params__(setters_params)
+
             for setter_params in setters_params:
 
                 #this code is very important: setter_params.setter_handler and
@@ -377,6 +317,33 @@ class temporarySettingsDecorator(object):
 
         return wrapper
 
+    def __reorder_setters_params__(self, setters_params):
+        """
+        method changes order of setters params list if there is
+        before_name property in any of the setter params items
+        included in the list
+        """
+        ordered_names = []
+        reorder = False
+        for setter_params in setters_params:
+            if not setter_params.before_name == None:
+                if ordered_names.count(setter_params.before_name) > 0:
+                    name_idx = ordered_names.index(setter_params.before_name)
+                    ordered_names.insert(name_idx, setter_params.name)
+                    reorder = True
+                    continue
+            ordered_names.append(setter_params.name)
+
+        if reorder:
+            ordered_setters_params = []
+            for name in ordered_names:
+                ordered_setters_params.append([setter_params
+                                        for setter_params in setters_params
+                                            if setter_params.name == name][0])
+            return ordered_setters_params
+        else:
+            return setters_params
+
 
 def temporarySetterDecorator(**kargs):
     """
@@ -387,6 +354,8 @@ def temporarySetterDecorator(**kargs):
     _conf - (optional) a conversion function
     _setter_handler - a decorated method itself
     _getter_handler - a corresponding getter handler
+    before_name - (optional) define a setter param name before which
+                this setter param has to be placed, this happens in runtime
     """
 
     def wrapper_setter(_method):
@@ -399,7 +368,8 @@ def temporarySetterDecorator(**kargs):
                             _conv=kargs.get('_conv', None),
                             _conv_2level=kargs.get('_conv_2level', None),
                             _setter_handler=wrapper,
-                            _getter_handler=kargs.get('_getter_handler', None))
+                            _getter_handler=kargs.get('_getter_handler', None),
+                            before_name=kargs.get('before_name', None))
         #this cyclic reference between wrapped function and setter params
         #object is intentional to get all needed information from setter
         #params object attached to decorated method, the means:
