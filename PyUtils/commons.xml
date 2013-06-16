@@ -5,6 +5,8 @@
 	<!-- stable version -->	
 	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-2.0"/>
 	
+	<property name="linux-pyinstaller-path" location="../../../../../python/pyinstaller-2.0"/>	
+	
 	<!-- development version
 	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>
 	-->
@@ -166,7 +168,7 @@
 			<env key="PYTHONPATH" value="${env.PYTHONPATH};${eggs_names};src"/>
 			<env key="HIDDEN_PACKAGES" value="${hidden.packages}"/>
 			<arg value="-c" />
-			<arg value="${python-path-linux}/python ${win-pyinstaller-path}/utils/Build.py ../PyUtils/application.spec.py -y --buildpath=${application.root}/build/${application.name}" />
+			<arg value="${python-path-linux}/python ${linux-pyinstaller-path}/utils/Build.py ../PyUtils/application.spec.py -y --buildpath=${application.root}/build/${application.name}" />
 		</exec>
 		<exec executable="cmd" osfamily="winnt" >
 			<env key="PATH" path="${env.PATH};${additional.paths}"/>
@@ -230,7 +232,7 @@
 	<target name="py_installer.help" description="PyInstaller help">
 		<exec executable="/bin/bash" os="Linux">
 			<arg value="-c" />
-			<arg value="${python-path-linux}/python ${win-pyinstaller-path}/pyinstaller.py --help" />			
+			<arg value="${python-path-linux}/python ${linux-pyinstaller-path}/pyinstaller.py --help" />			
 		</exec>
 		<exec executable="cmd" osfamily="winnt">
 			<arg value="/c" />
