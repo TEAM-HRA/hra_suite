@@ -146,6 +146,8 @@ class CommonAnnotationFilterWidget(GroupBoxWidget):
             if button == self.__all_button__:
                 self.__setCheckedAnnotationsButtons__(False)
                 self.__setEnabledAnnotationsButtons__(False)
+            else:
+                self.__all_button__.setChecked(False)
             self.__activateActionButton__(True)
         else:
             if button == self.__all_button__ or \
