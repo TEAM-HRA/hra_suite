@@ -5,7 +5,7 @@
 	<!-- stable version -->	
 	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-2.0"/>
 	
-	<property name="linux-pyinstaller-path" location="../../../../../python/pyinstaller-2.0"/>	
+	<property name="linux-pyinstaller-path" location="../../../python/pyinstaller-2.0"/>	
 	
 	<!-- development version
 	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>
