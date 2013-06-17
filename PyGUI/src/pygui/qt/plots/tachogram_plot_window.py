@@ -71,6 +71,14 @@ class TachogramPlotWindow(MainWindowWidget):
         self.__outcome_files_tracker__.show()
         self.__outcome_files_tracker__.appendFile(_filename)
 
+    @property
+    def file_specification(self):
+        """
+        property method returns file_specification object associate with
+        tachogram plot window
+        """
+        return self.params.file_specification
+
 
 class __TachogramPlot__(CompositeWidget):
     """
