@@ -10,11 +10,13 @@ try:
     from pycore.misc import Params
     from pygui.qt.utils.signals import SignalDispatcher
     from pygui.qt.utils.settings import set_temporary_settings_id
+    from pygui.qt.utils.specials import widgets_have_the_same_parent
     from pygui.qt.utils.windows import InformationWindow
     from pygui.qt.custom_widgets.toolbars import OperationalToolBarWidget
     from pygui.qt.custom_widgets.toolbars import CloseToolButton
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.main_window_widget import MainWindowWidget
+    from pygui.qt.plots.objects_names import TACHOGRAM_PLOT_TAB_WIDGET_OBJECT_NAME # @IgnorePep8
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import RESTORE_TACHOGRAM_PLOT_SIGNAL
@@ -48,6 +50,8 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
         self.setCentralWidget(self.__central_widget__)
         self.__file_specifications__ = []
         self.__selected_files_specifications_handler__ = None
+        SignalDispatcher.addSignalSubscriber(self, CLOSE_TACHOGRAM_PLOT_SIGNAL,
+                                            self.__removeFileSpecification__)
 
     def toolbar_maximum_handler(self):
         SignalDispatcher.broadcastSignal(MAXIMIZE_TACHOGRAM_PLOT_SIGNAL)
@@ -136,3 +140,16 @@ class TachogramPlotsGroupWindowWidget(MainWindowWidget):
                                     _selected_files_specifications_handler):
         self.__selected_files_specifications_handler__ = \
                                     _selected_files_specifications_handler
+
+    def __removeFileSpecification__(self, _tachogram_plot_tab):
+        """
+        method is invoked when tachogram plot is closed to remove
+        corresponding position from self.__file_specifications__
+        """
+        if widgets_have_the_same_parent(self, _tachogram_plot_tab,
+                                 TACHOGRAM_PLOT_TAB_WIDGET_OBJECT_NAME):
+            if self.__file_specifications__.count(
+                            _tachogram_plot_tab.file_specification) > 0:
+                del self.__file_specifications__[
+                            self.__file_specifications__.index(
+                                _tachogram_plot_tab.file_specification)]

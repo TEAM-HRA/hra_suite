@@ -16,6 +16,7 @@ try:
     from pygui.qt.widgets.commons import restore_widget
     from pygui.qt.widgets.splitter_widget import SplitterWidget
     from pygui.qt.custom_widgets.tabwidget import TabWidgetItemCommon
+    from pygui.qt.plots.objects_names import TACHOGRAM_PLOT_TAB_WIDGET_OBJECT_NAME # @IgnorePep8
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import RESTORE_TACHOGRAM_PLOT_SIGNAL
@@ -41,6 +42,7 @@ class TachogramPlotTabWidget(TabWidgetItemCommon):
         #make up a splitter; it has to be the last operation in
         #the TachogramPlotTabWidget's creation process
         self.__splitter__.updateSizes()
+        self.setObjectName(TACHOGRAM_PLOT_TAB_WIDGET_OBJECT_NAME)
 
     def beforeCloseTab(self):
         """
