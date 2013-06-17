@@ -4,10 +4,10 @@ Created on 6 maj 2013
 @author: jurek
 '''
 from pycore.special import ImportErrorMessage
-from pygui.qt.custom_widgets.toolbars import ToolButtonType,\
-    DefaultToolButtonType
 try:
     from pygui.qt.custom_widgets.toolbars import ToolBarCommon
+    from pygui.qt.custom_widgets.toolbars import ToolButtonType
+    from pygui.qt.custom_widgets.toolbars import DefaultToolButtonType
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
