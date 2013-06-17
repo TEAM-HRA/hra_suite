@@ -96,3 +96,39 @@ def __get_object_for_object_name__(obj, object_name):
             if isinstance(value, QObject) and value.objectName() == object_name: # @IgnorePep8
                 return (1, value)
     return (0, None)
+
+
+def widgets_have_the_same_parent(widget_one, widget_two, object_parent_name):
+    """
+    function checks if two widgets have the same parent;
+    additional condition: parents have to have the same object name
+    set up by QObject.setObjectName method, this condition is required because
+    at the end all widgets have the same parent QApplication
+    but this is not the case
+    """
+    parents_one = get_all_parents(widget_one)
+    parents_two = get_all_parents(widget_two)
+
+    for parent_one in parents_one:
+        for parent_two in parents_two:
+            if parent_one == parent_two \
+                and parent_one.objectName() == object_parent_name \
+                and parent_two.objectName() == object_parent_name:
+                return True
+
+    return False
+
+
+def get_all_parents(widget):
+    """
+    function returns all parents as list object, the first parent has index 0
+    """
+    parents = []
+    while hasattr(widget, 'parent'):
+        parent = widget.parent()
+        if not parent == None:
+            parents.append(parent)
+            widget = parent
+        else:
+            break
+    return parents
