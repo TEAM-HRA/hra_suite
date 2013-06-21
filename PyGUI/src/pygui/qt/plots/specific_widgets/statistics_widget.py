@@ -57,9 +57,12 @@ class StatisticsWidget(GroupBoxWidget):
     def __createButtons__(self):
         buttons_composite = CompositeWidget(self, layout=QHBoxLayout())
         self.__calculate_button__ = PushButtonWidget(buttons_composite,
-                    i18n_def="Calculate statistics",
+                                            i18n_def="Calculate statistics",
                     clicked_handler=self.__calculate_statistics_handler__,
                     enabled=False)
+        #change colour of calculate statistics to red
+        self.__calculate_button__.setStyleSheet("background-color: red; color: black") # @IgnorePep8
+
         self.__save_outcomes_button__ = CheckBoxWidget(buttons_composite,
                                     i18n_def="Save outcomes", enabled=False)
 

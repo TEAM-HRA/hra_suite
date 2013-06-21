@@ -26,6 +26,7 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
     def __init__(self, parent, **params):
         self.params = Params(**params)
 
+        self.__splitter_idx__ = 0
         self.data_vectors_accessor_group = \
             self.params.data_vectors_accessor_group  # alias
         if not self.data_vectors_accessor_group == None:
@@ -40,10 +41,10 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
                                            orientation=Qt.Vertical)
         self.__splitter__.setHandleWidth(5)
 
+        self.__createStatisticsWidget__(QVBoxLayout())
         self.__createFiltersWidget__(QHBoxLayout())
         self.__createOutputSpecificationWidget__(QVBoxLayout())
         self.__createMiscellaneousWidget__(QVBoxLayout())
-        self.__createStatisticsWidget__(QVBoxLayout())
 
         parent.addDockWidget(Qt.LeftDockWidgetArea, self)
 
@@ -57,17 +58,23 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
                         title='Active filters for tachogram plot',
                         use_apply_button=False,
                         annotation_widget_class=SlaveAnnotationFilterWidget)
-        self.__splitter__.changeSplitterHandleColor(0, Qt.red)
+        self.__splitter__.changeSplitterHandleColor(self.__splitter_idx__,
+                                                    Qt.red)
+        self.__splitter_idx__ += 1
 
     def __createOutputSpecificationWidget__(self, layout):
         OutputSpecificationWidget(self.__splitter__, no_custom_separator=True,
                         layout=layout, data_accessor=self.main_data_accessor)
-        self.__splitter__.changeSplitterHandleColor(1, Qt.blue)
+        self.__splitter__.changeSplitterHandleColor(self.__splitter_idx__,
+                                                    Qt.blue)
+        self.__splitter_idx__ += 1
 
     def __createMiscellaneousWidget__(self, layout):
         MiscellaneousWidget(self.__splitter__, layout=layout,
                             data_accessor=self.main_data_accessor)
-        self.__splitter__.changeSplitterHandleColor(2, Qt.green)
+        self.__splitter__.changeSplitterHandleColor(self.__splitter_idx__,
+                                                    Qt.green)
+        self.__splitter_idx__ += 1
 
     def __createStatisticsWidget__(self, layout):
         self.__statistics_widget__ = StatisticsWidget(self.__splitter__,
@@ -75,4 +82,6 @@ class PoincarePlotSettingsDockWidget(DockWidgetWidget):
             data_vectors_accessor_group=self.data_vectors_accessor_group,
             output_file_listener=self.params.output_file_listener,
             save_outcomes_fixed_state=self.params.save_outcomes_fixed_state)
-        self.__splitter__.changeSplitterHandleColor(3, Qt.black)
+        self.__splitter__.changeSplitterHandleColor(self.__splitter_idx__,
+                                                    Qt.black)
+        self.__splitter_idx__ += 1
