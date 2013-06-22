@@ -4,13 +4,8 @@
 
 	<!-- stable version -->	
 	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-2.0"/>
-	
-	<!--
 	<property name="linux-pyinstaller-path" location="../../../python/pyinstaller-2.0"/>
-	-->
-	<!-- this is a link to real pyinstaller directory -->
-	<property name="linux-pyinstaller-path" location="/home/jurek/pyinstaller"/>	
-	
+
 	<!-- development version
 	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>
 	-->
