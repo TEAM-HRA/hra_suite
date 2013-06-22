@@ -3,7 +3,7 @@
 	<taskdef resource="net/sf/antcontrib/antlib.xml" />
 
 	<!-- stable version -->	
-	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-2.0"/>
+	<property name="win-pyinstaller-path" location="H:/python/pyinstaller-2.0"/>
 	<property name="linux-pyinstaller-path" location="../../../python/pyinstaller-2.0"/>
 
 	<!-- development version
@@ -13,13 +13,13 @@
 	<property name="application.root" location="../${application.name}"/>
 	-->
 	
-	<property name="python-path-win" location="../../../../python/python_64/Python27"/>	
+	<property name="python-path-win" location="H:/python/python_64/Python27"/>	
 	<property name="python-path-linux" location="/usr/bin"/>
 
 	<property name="doxygen-win" location="../../../../Programs/doxygen/bin/doxygen.exe"/>	
 	<property name="doxygen-linux" location="/usr/bin/doxygen"/>
 	
-	<property name="miktext-win" location="F:/MiKTeX2.9/miktex/bin"/>
+	<property name="miktext-win" location="H:/MiKTeX2.9/miktex/bin"/>
 
 	<property name="doc_temp" location="doc/temp"/>
 	
