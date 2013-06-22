@@ -58,10 +58,8 @@ class StatisticsWidget(GroupBoxWidget):
         buttons_composite = CompositeWidget(self, layout=QHBoxLayout())
         self.__calculate_button__ = PushButtonWidget(buttons_composite,
                                             i18n_def="Calculate statistics",
-                    clicked_handler=self.__calculate_statistics_handler__,
-                    enabled=False)
-        #change colour of calculate statistics to red
-        self.__calculate_button__.setStyleSheet("background-color: red; color: black") # @IgnorePep8
+                    clicked_handler=self.__calculate_statistics_handler__)
+        self.__enabled_calculation_button__(False)
 
         self.__save_outcomes_button__ = CheckBoxWidget(buttons_composite,
                                     i18n_def="Save outcomes", enabled=False)
@@ -110,7 +108,7 @@ class StatisticsWidget(GroupBoxWidget):
             if len(self.getSelectedStatisticsClasses()) > 0 or \
                 len(self.getSelectedSummaryStatisticsClasses()) > 0:
                 _checked = True
-        self.__calculate_button__.setEnabled(_checked)
+        self.__enabled_calculation_button__(_checked)
 
         #only if this parameter is None save outcomes button's check state
         #could be changed
@@ -122,6 +120,18 @@ class StatisticsWidget(GroupBoxWidget):
 
     def getSelectedSummaryStatisticsClasses(self):
         return self.__summary_statistics_widget__.getSelectedStatisticsClasses() # @IgnorePep8
+
+    def __enabled_calculation_button__(self, _enabled):
+        """
+        method sets background colour of 'Calculate statistics' button to red
+        if the button is disabled foreground colour is set up to brown
+        otherwise to black
+        """
+        if _enabled == False:
+            self.__calculate_button__.setStyleSheet("background-color: red; color: brown") # @IgnorePep8
+        else:
+            self.__calculate_button__.setStyleSheet("background-color: red; color: black") # @IgnorePep8
+        self.__calculate_button__.setEnabled(_enabled)
 
 
 class __StatisticsVectorListener__(DataVectorListener):
