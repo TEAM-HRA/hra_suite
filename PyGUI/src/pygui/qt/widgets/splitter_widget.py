@@ -40,8 +40,14 @@ class SplitterWidget(QSplitter, Common):
                                             objectName=self.params.objectName))
 
     def conv2level(self, value):
-        return None if value == None else [variant.toInt()[0]
-                                           for variant in value]
+        if not value == None:
+            #this is a little strange code, the first invocation of the method
+            #gets QVariant object of QStringList type, every next one
+            #gets QVariant object of QVariantList type obtained from QSettings,
+            #that's why there is a check for existence of toInt method;
+            #this is very odd behaviour
+            return [variant.toInt()[0] if hasattr(variant, 'toInt')
+                    else variant for variant in value]
 
     def sizesLoaded(self):
         return not self.sizes_list == None and len(self.sizes_list) > 0
