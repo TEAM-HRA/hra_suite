@@ -300,27 +300,44 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
                                                              window_size_unit,
                                                              shift)
 
-        if not self.window_size_unit:
-            raise Exception('For stepping window a window size unit is required !!!') # @IgnorePep8
+        self.__stepper_size__ = stepper_size
+
+        #a flag which marks that a stepper is a simple bit's stepper
+        self.__bits_stepper__ = False
+
+        if (not self.window_size_unit == None and stepper_unit == None) \
+            or (self.window_size_unit == None and not stepper_unit == None):
+            raise Exception('Window size and stepper size must have both a unit or be without a unit !!!') # @IgnorePep8
 
         if stepper_unit:
             step_unit = get_time_unit(stepper_unit)
             if not step_unit:
-                raise Exception('Unknown stepper size unit !!! ['
-                                + stepper_unit + ']')
+                raise Exception('Unknown stepper size unit !!! [%s]' % stepper_unit)  # @IgnorePep8
             multiplier = step_unit.expressInUnit(self.data.signal_unit)
-            self.__step_size_in_signal_unit__ = multiplier * stepper_size
+            self.__step_size_in_signal_unit__ = multiplier * self.__stepper_size__ # @IgnorePep8
         else:
-            self.__step_size_in_signal_unit__ = stepper_size
+            self.__step_size_in_signal_unit__ = self.__stepper_size__
 
         sum_signal = np.sum(self.data.signal)
         if self.__step_size_in_signal_unit__ > sum_signal:
             raise Exception('The step size is greater then the signal size !!!') # @IgnorePep8
 
-        self.__stepped_data__ = np.arange(0, sum_signal,
+        if self.window_size_unit == None and stepper_unit == None:
+            #this means very simple situation when a signal is divided by
+            #self.window_size number bits and for this reason
+            #stepped signal size is the same as the signal size itself
+            self.__stepped_signal_size__ = self.signal_size
+            self.__bits_stepper__ = True
+        else:
+            #this creates a list of increased values which differ by
+            #self.__step_size_in_signal_unit__ value
+            #or in other words this is a partition of interval of sum_signal
+            #length by a segment of self.__step_size_in_signal_unit__ length
+            self.__stepped_data__ = np.arange(0, sum_signal,
                                           self.__step_size_in_signal_unit__)
-        self.__stepped_signal_size__ = len(self.__stepped_data__)
-        self.__cumsum_data__ = np.cumsum(self.data.signal)
+
+            self.__stepped_signal_size__ = len(self.__stepped_data__)
+            self.__cumsum_data__ = np.cumsum(self.data.signal)
 
         self.__stepper_index__ = 0
 
@@ -330,13 +347,22 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
             if self.__stepper_index__ == 0:
                 index_start = 0
             else:
-                #to avoid overlapping with previous index_stop
-                #one have to add plus 1 index
-                index_start = self.SEARCHSORTED(self.__cumsum_data__,
-                        self.__stepped_data__[self.__stepper_index__]) + 1
+                if self.__bits_stepper__:
+                    index_start = self.__stepper_index__ + 1
+                else:
+                    #to avoid overlapping with previous index_stop
+                    #one have to add plus 1 index
+                    index_start = self.SEARCHSORTED(self.__cumsum_data__,
+                            self.__stepped_data__[self.__stepper_index__]) + 1
 
-            #index_stop ends where the window size ends
-            index_stop = self.SEARCHSORTED(self.__cumsum_data__,
+            if self.__bits_stepper__:
+                #this means simple division a signal by a number
+                #self.window_size bits, for this reason index_stop
+                #jumps by self.window_size bits
+                index_stop = self.__stepper_index__ + self.window_size
+            else:
+                #index_stop ends where the window size ends
+                index_stop = self.SEARCHSORTED(self.__cumsum_data__,
                         self.__stepped_data__[self.__stepper_index__] +
                                     self.window_size_in_signal_unit)
 
@@ -348,7 +374,15 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
                 if index_start > index_stop:
                     raise StopIteration
 
-            self.__stepper_index__ = self.__stepper_index__ + 1
+            if self.__bits_stepper__:
+                #for simple bit's stepper index jumps by
+                #__stepper_size__ quantity
+                self.__stepper_index__ = self.__stepper_index__ + self.__stepper_size__ # @IgnorePep8
+            else:
+                #this index changes only by 1 because self.__stepped_data__
+                #array, which is used in this case, contains an series of
+                #increasing values which differ by self.__stepper_size__
+                self.__stepper_index__ = self.__stepper_index__ + 1
 
             return self.__getDataVactor__(index_start, index_stop)
         else:
@@ -358,4 +392,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
         """
         a method calculates number of segments
         """
-        return self.__stepped_signal_size__
+        if self.__bits_stepper__:
+            return int((1.0 * self.signal_size / self.__stepper_size__))
+        else:
+            return self.__stepped_signal_size__
