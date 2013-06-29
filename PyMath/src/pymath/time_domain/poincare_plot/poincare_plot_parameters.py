@@ -72,3 +72,7 @@ class PoincarePlotParameters(CoreParameters):
 
     def validatePoincarePlotParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         pass
+
+    def parameters_infoPoincarePlotParameters(self):
+        print('Use buffer: ' + str(self.use_buffer))
+        print('Use line of identity: ' + str(self.use_identity_line))

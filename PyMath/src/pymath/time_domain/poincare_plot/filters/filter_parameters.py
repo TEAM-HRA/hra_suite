@@ -6,6 +6,7 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     from pycore.collections_utils import get_as_list
+    from pycore.collections_utils import commas
     from pymath.model.core_parameters import CoreParameters
     from pymath.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
 except ImportError as error:
@@ -89,3 +90,8 @@ class FilterParameters(CoreParameters):
 
     def validateFilterParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         pass
+
+    def parameters_infoFilterParameters(self):
+        if not self.__filters_names__ == None \
+            and len(self.__filters_names__) > 0:
+            print('Filters: ' + commas(self.__filters_names__))

@@ -170,3 +170,28 @@ class FileDataParameters(CoreParameters):
                 return "Output separator is required"
             if self.output_dir == None:
                 return "Output directory is required"
+
+    def parameters_infoFileDataParameters(self):
+        if not self.separator == None:
+            print('Data separator: ' + str(self.separator))
+
+        if not self.data_dir == None:
+            print('Data file: ' + str(self.data_file))
+        elif not self.data_file == None:
+            print('Data dir: ' + str(self.data_dir))
+
+        if not self.extension == None:
+            print('Extension: ' + str(self.extension))
+
+        if not self.override_existing_outcomes == None:
+            print('Override existing outcomes: ' + str(self.override_existing_outcomes)) # @IgnorePep8
+
+        if not self.output_dir == None:
+            print('Output dir: ' + str(self.output_dir))
+
+        if not self.output_precision == None:
+            print('Output precision: ' + str(self.output_precision))
+
+        if not self.output_separator == None:
+            print('Output separator: ' + str(self.output_separator))
+        #setattr(_object, 'add_headers', self.add_headers)

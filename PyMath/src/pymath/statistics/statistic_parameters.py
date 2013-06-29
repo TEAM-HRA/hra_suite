@@ -157,6 +157,19 @@ class StatisticParameters(CoreParameters):
     def clearStatisticsClasses(self):
         self.__statistics_classes__ = []
 
+    def parameters_infoStatisticParameters(self):
+        if is_empty(self.statistics_names) and \
+            is_empty(self.statistics_classes) and \
+            is_empty(self.statistics_handlers) and \
+            is_empty(self.summary_statistics_names) and \
+            is_empty(self.summary_statistics_classes):
+            print('Statistics: no statistics')
+        else:
+            if not is_empty(self.statistics_names):
+                print('Statistics: ' + commas(self.statistics_names))
+            if not is_empty(self.summary_statistics_names):
+                print('Summary statistics: ' + commas(self.summary_statistics_names))
+
 
 def extended_statistics_classes(_statistics_classes,
                                 _statistics_names,

@@ -6,7 +6,6 @@ Created on 24 kwi 2013
 from pymath.utils.utils import print_import_error
 try:
     import os
-    from pycore.collections_utils import nvl
     from pycore.misc import Params
     from pycore.misc import format_decimal
     from pycore.utils import ProgressMark
@@ -316,24 +315,15 @@ class PoincarePlotGenerator(object):
 
     @property
     def parameters_info(self):
-        print('')
-        if self.statistics_names:
-            print('Using statistics: ' + self.statistics_names)
-        if self.statistics_handlers:
-            print('Using statistics handlers/functions:')
-            for _handler in self.statistics_handlers:
-                print('   name: ' + _handler.name)
-        if self.summary_statistics_names:
-            print('Using summary statistics: ' + self.summary_statistics_names)
-        print('Using output precision: ' + str(self.output_precision))
-        print('Using buffer: ' + str(self.use_buffer))
-        if not self.filters_names == None:
-            print('Using filters: ' + str(self.filters_names))
-        print('Window size: ' + str(self.window_size) +
-              nvl(self.window_size_unit, ''))
-        print('Using buffer: ' + str(self.use_buffer))
-        print('Override existing outcomes: '
-              + str(self.override_existing_outcomes))
+        print('Poincare plot parameters:')
+        print('*' * 50)
+        for class_name, parameter_name in self.__parameters_ids__:
+            param_object = getattr(self.params, parameter_name, None)
+            if param_object:
+                parameters_info_method = getattr(param_object,
+                                    'parameters_info' + class_name, None)
+                if parameters_info_method:
+                    parameters_info_method()
 
     @property
     def __parameters_ids__(self):

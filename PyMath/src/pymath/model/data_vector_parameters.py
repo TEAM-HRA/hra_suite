@@ -220,3 +220,36 @@ class DataVectorParameters(CoreParameters):
     @stepper_size.setter
     def stepper_size(self, _stepper_size):
         self.__stepper_size__ = _stepper_size
+
+    def parameters_infoDataVectorParameters(self):
+        if not self.window_shift == 1:
+            print('Window shift: ' + str(self.window_shift))
+
+        if self.__excluded_annotations__ == ALL_ANNOTATIONS:
+            print('Excluded annotations: ALL')
+        elif not self.__excluded_annotations__ == None:
+            print('Excluded annotations: ' + str(self.__excluded_annotations__)) # @IgnorePep8
+
+        if not self.ordinal_column_name == None:
+            print('Ordinal column name: ' + str(self.ordinal_column_name))
+
+        if not self.window_size == None:
+            print('Window size: ' + str(self.window_size))
+
+        if not self.window_size_unit == None:
+            print('Window size unit: ' + str(self.window_size_unit))
+
+        if not self.signal_index == None and self.signal_index >= 0:
+            print('Signal index: ' + str(self.signal_index))
+
+        if not self.annotation_index == None and self.annotation_index >= 0:
+            print('Annotation index: ' + str(self.annotation_index))
+
+        if not self.time_index == None and self.time_index >= 0:
+            print('Time index: ' + str(self.time_index))
+
+        if not self.sample_step == None:
+            print('Sample step: ' + str(self.sample_step))
+
+        if not self.stepper == None:
+            print('Stepper: ' + str(self.stepper))
