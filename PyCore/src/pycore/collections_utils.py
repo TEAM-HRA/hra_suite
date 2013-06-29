@@ -163,8 +163,15 @@ def get_as_tuple(_string, separator=',', strip_characters=' ', convert=None):
 
 def commas(*iterable, **params):
     """
-    method used to join iterable by comma
+    method used to join iterable by comma;
     """
+
+    #if iterable has only one element of string type then
+    #change it into iterable with element of list type
+    #to avoid splitting the string by a comma
+    if len(iterable) == 1 and isinstance(iterable[0], str):
+        iterable = ([iterable[0]],)
+
     c = map(str, *iterable)
     return params.get('_default', None) if len(c) == 0 else ', '.join(c)
 
@@ -237,3 +244,7 @@ def remove_suffix(_collection, _suffix):
     """
     return [name[:-len(_suffix)] for name in
             [name for name in _collection if name.endswith(_suffix)]]
+
+
+def get_as_string(_iterarable):
+    pass
