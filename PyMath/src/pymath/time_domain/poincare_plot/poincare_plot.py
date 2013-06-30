@@ -8,6 +8,7 @@ try:
     import os
     import argparse
     import glob
+    from pycore.datetime_utils import invocation_time
     from pycore.misc import Separator
     from pycore.introspection import copy_private_properties
     from pycore.introspection import print_private_properties
@@ -113,6 +114,7 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
             else:
                 print('Number of processed files: ' + str(file_counter))
 
+    @invocation_time
     def __process_file__(self, _file, disp=False):
         file_data_source = DataVectorFileDataSource(_file=_file,
                                signal_index=self.signal_index,
