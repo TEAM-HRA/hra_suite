@@ -231,7 +231,8 @@ class PoincarePlotGenerator(object):
             #this could happened when for example annotation
             #filter is used and all data are annotated that means
             #all signal data are filtered out
-            if len(data_segment.signal) == 0:
+            if data_segment == None or data_segment.signal == None \
+                or not len(data_segment.signal) > 1:
                 parameters_old = parameters
                 data_segment_old = data_segment
                 continue
