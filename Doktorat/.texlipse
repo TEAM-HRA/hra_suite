@@ -1,0 +1,14 @@
+#TeXlipse project settings
+#Sun Jun 30 03:05:21 CEST 2013
+markTmpDer=true
+builderNum=2
+outputDir=
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=doctorat.tex
+outputFile=doctorat.pdf
+langSpell=en
+markDer=true
+srcDir=
