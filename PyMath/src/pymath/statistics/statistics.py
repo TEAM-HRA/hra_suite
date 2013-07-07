@@ -327,7 +327,7 @@ class SD2aStatistic(SD2InnerStatistic, Asymmetry):
     for accelerations
     """
     def indexes(self):
-        return pl.find(self.signal_minus > self.signal_plus)
+        return pl.find(self.signal_minus < self.signal_plus)
 
 
 class SD2dStatistic(SD2InnerStatistic, Asymmetry):
@@ -335,7 +335,7 @@ class SD2dStatistic(SD2InnerStatistic, Asymmetry):
     for decelerations
     """
     def indexes(self):
-        return pl.find(self.signal_minus < self.signal_plus)
+        return pl.find(self.signal_minus > self.signal_plus)
 
 
 class SDNNStatistic(Statistic, Asymmetry):
