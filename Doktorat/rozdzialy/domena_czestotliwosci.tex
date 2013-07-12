@@ -1,0 +1,57 @@
+\section{Domena częstotliwości - analiza spektralna}
+
+Drugą grupą technik wykorzystywanych do analizy rytmu serca jest analiza
+spektralna. Należy zaznaczyć że większa część teoretycznego opisu HRV wywodzi
+się właśnie z zastosowania takiego rodzaju technik. 
+W analizie spektralnej, podobnie jak w domenie czasowej, jest brana pod uwagę wariancja
+lecz stosuje się inne nazewnictwo oraz troche inny język matematyczny.
+Mianowicie wariancja przy podejściu spektralnym nazywana jest mocą spektralną, która jest 
+wyliczana w podziale na częstotliwości z badanego zakresu, przy czym podział zakresu
+częstotliwości jest dokonywany trochę sztucznie bez silnego związku z fizjologią. Podział
+zakresu pasma dla krótkich nagrań, rzędu 2-5 minut, zwykłe przebiega następująco: (a) 
+zakres 0,15 - 0,4 Hz wysoka częstotliwość, (b) zakres 0,04 - 0,15 Hz niska częstotliwość, (c)
+poniżej 0,04 bardzo niska częstotliwość, dodatkowo (d) zakres poniżej 0,003 Hz,
+występujący w przypadku dłuższych nagrań np 24 godzinnych, zwany ultraniską częstotliwością.
+Przyjmuje się że wplyw układu współczulnego oraz oddychania [UZUPELNI biblio Jarek 22 strona - 2,3,5,7] jest reprezentowana przez widmo w zakresie wysokich częstotliwości; na widmo z
+zakresu niskich częstotliwości wpływają oba podukłady autonomicznego układu nerwowego; 
+natomiast dla widma z pozostałych zakresów tzn bardzo niskich i ultra niskich częstotliwości
+nie jest znany, w obecnym stanie wiedzy, związek z fizjologią w kontekście HRV. 
+
+Wykorzystywana w analizie spektralnej funkcja gęstości spektralnej jest obliczana wprost i
+można tego dokonać w dwojaki sposób: z wykorzystaniem metod nieparametrycznych albo przy
+pomocy estymujących metod parametrycznych dla których wymagane jest przyjęcie $a\:priori$
+pewnego modulu matematycznego opisującego sygnał wejściowy uzyskany z szeregu $RR$ a
+wynikiem tej estymacji jest periodogram. Wyznaczanie wariancji odpowiadającej pasmu
+częstotliwości dokonuje się przy pomocy całkowania po częstotliwościach związanych z tym
+pasmem. 
+
+W praktyce, wśród metod nieparametrycznych szczególnym uznaniem i zastosowaniem cieszy się
+metoda zwana szybką transformatą Fouriera (ang. Fast Fourier Transform, FFT). Wsród metod
+parametrycznych najpopularniejsza jest metoda autoregresyjna wykorzystująca do estymacji
+wielomian, czego konsekwencją jest to że nie wszystkie dane są ujęte w periodogramie, tym
+niemniej ciągle jest możliwe wnioskowanie statystyczne. Cechą wspólną obu metod jest
+konieczność użycia resamplingu lub inaczej interpolacji tachogramu przez równomierne w
+czasie próbkowanie a także potrzeba interpolacji 'zakłóceń' tzn. uderzeń ektopowych oraz
+artefaktów. Resampling tachogramu zwykle wykonuje z częstością co 250 ms.
+
+Jednym z większych problemów przy analizie spektralnej szeregu czasowego $RR$ jest jego
+niestacjonarność. Objawia się to między innymi tym że skład widmowy spektralnej funkcji
+gęstości nie odpowiada oscylacjom w systemie sercowo-naczyniowym, na przykład jest duży
+wkład powolnych trędów czy też brzegowych własności szeregu czasowego w widmie niskich
+częstotliwości. Próbą poradzenia sobie z tymi problemami jest użycie metod pozwalających
+na niwelowanie niestacjonarności czy też gwałtownym zmianom fazy, jednakże jest to związane
+z niepożądaną zmianą struktury szeregu czasowego. W związku z tym wydaje się zasadne użycie
+innych specjalistycznych metod oscylacyjnych, przykłady można znaleść w pracach [uzupelnic bibliografie Jarek str 21 ]     
+ 
+Parametry analizy spektralnej jako takie bardzo różnią się pomiędzy osobami, zatem w celu
+umożliwienia ich porównywania stosuje się tak zwane znormalizowane parametry analizy
+spektralnej, LFnu oraz HFnu, wyrażone przez następujące relacje:
+\begin{equation}
+\mathrm{HFnu=\frac{HF}{HF+LF}},\qquad \mathrm{LFnu=\frac{LF}{HF+LF}}. \label{HFLFnu}
+\end{equation}
+gdzie: HF - moc widma szeregu $RR$ w zakresie wysokich częstotliwości 0,15-0,4 Hz;
+LF - moc widma szeregu $RR$ w zakresie niskich częstotliwości 0,04-0,15 Hz
+
+\input{rozdzialy/sekcje/domena_czestotliwosci_transformata_fouriera}
+
+\input{rozdzialy/sekcje/domena_czestotliwosci_periodogram_lomba}

@@ -1,44 +1,64 @@
-\documentclass[]{report}   % list options between brackets
+\documentclass[draft]{report}   % list options between brackets
 
-%\usepackage[T1]{polski}
-%\usepackage[utf8]{inputenc}
-
+\usepackage[T1]{polski}
 \usepackage[polish]{babel}
 \usepackage[utf8]{inputenc}
-%\usepackage[latin2]{inputenc}
-\usepackage[T1]{fontenc}
+\usepackage[dvips,pdftex,final]{graphicx}
+\usepackage{rotating}
+%\usepackage[T1]{fontenc}
 \usepackage{fancyhdr}
-\pagestyle{fancy}  
+%\usepackage[titles]{tocloft}
+\usepackage[compact]{titlesec}
+\usepackage[small]{caption2}
+\pagestyle{fancy}
 
 \usepackage{geometry}
+\usepackage{custom}
+\usepackage{subfigure}
 \geometry{a4paper}
+
+%\setlength{\cftbeforechapskip}{1.2ex}
+%\setlength{\cftbeforesecskip}{0.8ex}
+\titlespacing*{\section}{0pt}{0.8ex}{0.5ex}
+\titlespacing{\subsection}{0ex}{0.7ex}{0.4ex}
+\titlespacing{\subsubsection}{0ex}{0ex}{0ex}
 
 %\usepackage[T1]{polski}
 
 % type user-defined commands here
 
 \begin{document}
+\bibliographystyle{plain}
 
-\title{Analiza parametrów asymetrii zmienności rytmu serca}
+\title{<tytuł doktoratu>}
 \author{Jerzy Ellert}
 \date{Czerwiec 27, 2013}
 \maketitle
 
-\begin{abstract}
-	Analiza parametrów asymetrii zmienności rytmu serca 
-\end{abstract}
+
+%\begin{abstract}
+%	Analiza parametrów asymetrii zmienności rytmu serca 
+%\end{abstract}
 
 \include{rozdzialy/wstep}
 
-\section{Introduction 2}     % section 1.1
-\subsection{History 2}       % subsection 1.1.1
+\chapter{Przegląd wybranych metod analizy HRV}
 
-\chapter{\LaTeX}           % chapter 2
-\section{Introduction}     % section 2.1
-\subsection{Usage}         % subsection 2.1.1
+\input{rozdzialy/domena_czasowa}
+\input{rozdzialy/domena_czestotliwosci}
+
+%\section{Introduction 2}     % section 1.1
+%\subsection{History 2}       % subsection 1.1.1
+
+%\chapter{\LaTeX}           % chapter 2
+%\section{Introduction}     % section 2.1
+%\subsection{Usage}         % subsection 2.1.1
 
 %\begin{thebibliography}{9}
   % type bibliography here
 %\end{thebibliography}
+
+\bibliography{literatura}
+
 
 \end{document}

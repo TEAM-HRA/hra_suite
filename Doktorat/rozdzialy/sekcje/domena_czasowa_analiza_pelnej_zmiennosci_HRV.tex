@@ -1,0 +1,28 @@
+\subsection{Analiza pełnej zmienności HRV}
+
+Jednym ze sposobów analizy zmienności rytmu serca są metody z zakresu domeny czasowej,
+które były stosowane historycznie najwcześniej. Wśrod nich można wyróżnić metody
+badające cały szereg odstępów $RR$, powszechnie w literaturze przedmiotu oznaczającym
+odległości $R$ lub inaczej czas pomiędzy kolejnymi załamkami w elektrokardiogramie.
+
+Ze względu na użyty aparat matematyczny można wyróżnić tzw podejście wariancyjne w którym
+powszechnie stosowanym parametrem jest parameter oznaczany jako $SDNN$ będący miarą pełnej
+zmienności rytmu serca a wyrażony następującym wzorem:  
+
+\begin{equation}\label{eq6}
+SDNN = \sqrt{\frac{1}{n}\sum_{i=1}^{n}(RR_{i} - \overline{RR})^{2}}
+\end{equation}
+
+czyli jako pierwiastek z pełnej wariancji szeregu $RR$, gdzie $n$ jest to liczba odstępów $RR$
+w całym nagraniu, $\overline{RR}$ oznacza zwykłą średnią, czyli:
+
+\begin{equation}
+\overline{RR} = \sum_{i=1}^{n}RR_{i}
+\end{equation}
+
+Nietrudno jest zauważyć że powyższe wyrażania odpowiadają drugiemu i pierwszemu momentowi
+rozkładu dla szeregu odstępów $RR$. Sam w sobie szereg, wynika to także z natury
+zjawiska jakim jest rytm serca, jest szeregiem niestacjonarnym w mocnym jak i słabym
+sensie. Ten fakt oznacza że średnia jak i wariancja fluktuuje w czasie lub inaczej zmienia
+się w zależności od tego który odcinek szeregu $RR$ analizujemy. W praktyce najcześciej
+rozpatrywanymi długościami odcinka jest 5 lub 30 minut lub nagrania 24 godzinne.

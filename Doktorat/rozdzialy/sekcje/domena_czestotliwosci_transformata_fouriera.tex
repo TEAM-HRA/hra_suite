@@ -1,0 +1,45 @@
+\subsection{Transformata Fouriera}
+
+W ogólnym zarysie transformata Foriera polega na rozkładzie sygnału na szereg funkcji
+sinusidalnych z odpowiednio dobranymi aplitudami i częstotliwościami. Istnieją cztery typy
+transformat które dzielą się ze względu na: (a) zachowanie sygnału - periodyczny,
+aperiodyczny; (b) typ sygnału - ciągły, dyskretny. Wspólną ich cechą jest to że
+zawsze operują na sygnałach nieskończonych, zatem sygnał uzyskany z ograniczonego w czasie
+szeregu $RR$ nie jest poprawnym, z formalnego punktu widzenia, źródłem danych dla
+transformaty Fouriera. Najcześciej tą niedogodność rozwiązuje się na dwa sposoby:
+(a) przyjmuje się wartości zero z lewej i prawej strony sygnału, zatem uzyskuje się sygnał
+dyskretny aperiodyczny; lub (b) zakłada się występowania kopii sygnału z lewej i prawej jego
+strony, zatem uzyskuje się sygnał dyskretny periodyczny. Z powodów praktycznych
+lepsze do obliczeń numerycznych jest podejścia (b) gdyż nie ma problemu z koniecznością
+reprezentowania aperiodycznego sygnału przez nieskończoną liczbę sinusoid, czyli w tym
+przypadku stosuje się tzw dyskretną transformatę Fouriera (ang. DFT - Discrete Fourier
+Transform). Działanie DFT na $N$-elementowy dyskretny sygnał czasowy generuje dwa $N/2+1$
+elementowe szeregi amplitud $C$ oraz $S$ dla funkcji \emph{cosinus} oraz \emph{sinus}, co
+wyraża następująca relacja:
+
+\begin{equation}
+  x[i] = \sum_{k=0}^{N/2} \bar{C}[k]\cos( \frac{2\pi k i}{N}) + \sum_{k=0}^{N/2}\bar{S}[k]\sin( \frac{2\pi k i}{N})
+  \label{eq:dft}
+\end{equation}
+gdzie $x$ to szereg z domeny czasowej, $\bar{C}[k] = \frac{C[k]}{N/2}$, $\bar{S}[k] = -\frac{S[k]}{N/2}$, $\bar{C}[0] = \frac{C[0]}{N}$, $\bar{C}[N/2] = \frac{C[N/2]}{N}$ a $i=[0,\ldots,N]$. Indeks $k$ reprezentuje
+częstotliwości funkcji \emph{cosinus} oraz \emph{sinus}, a $C[k]$ i $S[k]$ opisują
+amplitudę, przypadającą na daną częstotliwość. Postać wzoru (\ref{eq:dft}) określa także
+sposób przejścia (syntezy) sygnału z domeny częstotliwości do domeny czasowej.
+Jadnakże należy zwrócić uwagę na bardzo ważny fakt związany z analizą szeregów czasowych
+$RR$. Pełna transformata Fouriera zawiera dwa człony:
+amplitudowe widmo mocy które odpowiada wariancji z domeny czasowej oraz widmo fazowe
+które nie jest rozpatrywane w obszarze HRV. Fakt odrzucania członu fazowego powoduje że
+nie można przejść z domeny częstotliwości do domeny czasowej i dotyczy to specyficznie
+szeregów czasowych $RR$, a nie ogólnych matematycznych rozważań w kontekście relacji (\ref{eq:dft}). 
+Powyższe zdanie można wyrazić obrazowo w ten sposób: nie jest możliwe odtworzenie kształtu
+szeregu $RR$, w szczególności serii zwolnień i przyspieszeń, wychodząc z domeny
+częstotliwości do domeny czasowej z powodu 'zgubienia' widma fazowego w transformacie
+Fouriera.
+
+Użycie DFT do analizy spektralnej HRV, wymaga aby wejściowy sygnał bedący szeregiem odstępów
+$RR$ przedstawić w postaci tachogramu o równoodległych punktach \cite{splines}. Tachogram jest następnie
+interpolowany oraz wygładzany przy pomocy odpowiedniego filtra np typu \emph{boxcar} \cite{boxcar}.
+
+Spośród kilku metod przy pomocy których można wykonać analizę spektralną DFT,
+algorytm szybkiej transformaty Fouriera (ang. fast Fourier transform, FFT) cieszy się
+największym uznaniem z powodu najlepszej wydajności obliczeniowej.
