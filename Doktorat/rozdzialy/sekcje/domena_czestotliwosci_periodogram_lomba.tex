@@ -5,7 +5,7 @@ znaną pod nazwą periodogramu Lomba-Scargle'a (LSP). Szczególna użyteczność
 polega między innymi na tym że nie wymaga resamplingu, tak jak wcześniej wspomniana 
 metoda autoregresyjna. Jest ona realizowana przy pomocy metody najmniejszych kwadratów.
 Ze względu na brak resamplingu nie jest konieczne aby szereg czasowy, np. $RR$, miał stałą
-częstość próbkowania, zatem można użyć bezpośrednio oryginalnych danych [UZUPELNIC BIBLIOGRAFIE],
+częstość próbkowania, zatem można użyć bezpośrednio oryginalnych danych \cite{scargle, lomb_o, c++, thong},
 a wszelkie pobudzenia ektopowe, zwane inaczej pobudzeniami przeniesionymi oraz
 artefakty techniczne nie wpływają na poprawność działania periodogramu Lomba-Scargle'a.
 
@@ -18,7 +18,7 @@ a oddechem o określonym rytmie.
 Technicznie metoda uśrednionego periodogramu Lomba-Scargle'a (ALSP) wykorzystuje uśredniony i
 znormalizowany periodogram Lomba-Scargle'a dla badanej populacji szeregów. Wyrażanie
 definiujące znormalizowany periodogram z odjętą średnią dla jednego szeregu z populacji
-jest następujące:
+jest następujące \cite{c++, thong, vanicek}:
 
 \begin{eqnarray}
 P_{X}(f)&=&\frac{1}{2SDNN^{2}}\left\{\frac{\left[ \sum_{i=1}^{n}(RR(t_{i})-\overline{RR})\cos(2\pi f(t_{i}-\tau))\right]^{2}}{\sum_{i=1}^{n}\cos^{2}(2\pi f(t_{i}-\tau))}\right. \label{LSPeriodogram}\nonumber\\ 

@@ -11,7 +11,7 @@ Element wizualny wynika z użycia odpowiednio przygotowanych wykresów i w prakt
 bardzo ważny element gdyż umożliwia na bardzo szybką wstępna jakościową analizę danego
 zjawiska. Element analityczny jest związany z parametrami, tak zwanymi deskryptorami,
 które wyrażają ilościowo informacje zawarte w wykresie \PP{}. Należy zaznaczyć że
-technika ta jest bardzo odporna na dane zawierające artefakty lub wartości odstające i w
+metod ta jest bardzo odporna na dane zawierające artefakty lub wartości odstające i w
 tym sensie ma przewagę nad technikami które wymagają niezakłóconych danych np 
 wykorzystujące szybką transformatę Fouriera (FFT).
 
@@ -88,12 +88,12 @@ a~sam obrót jako:
 to parametry $SD1$ i $SD2$ możemy wyrazić jako wariancje szeregów $\mathbf{L_1}$ i $\mathbf{L_2}$ \cite{poinc_jaro,jarek2}:
 \begin{equation}
   SD1^2 = \mbox{Var}( \mathbf{L_1})
-  = \mbox{Var}\left(\frac{\bRRn - \bRRm}{\sqrt{2}}\right),
+  = \mbox{Var}\left(\frac{\bRRn - \bRRp}{\sqrt{2}}\right),
   \label{eq:sd1}
 \end{equation}
 \begin{equation}
   SD2^2 = \mbox{Var}( \mathbf{L_2})
-  = \mbox{Var}\left(\frac{\bRRn + \bRRm}{\sqrt{2}}\right). 
+  = \mbox{Var}\left(\frac{\bRRn + \bRRp}{\sqrt{2}}\right). 
   \label{eq:sd2}
 \end{equation}
 
@@ -118,7 +118,7 @@ gdzie $r_{i}^{\perp}$ jest prostopadłą odległością punktu $(RR_{i}, RR_{i+1
 identyczności, $r_{i}^{\parallel}$ jest odległością punktu $(RR_{i}, RR_{i+1})$ do linii
 $l_2$ wzdłuż linii identyczności.
 
-Należy zaznaczyć że wyrażenie (UZUEPLNIC) dla krótkoterminowej zmienności rytmu serca
+Należy zaznaczyć że wyrażenie (\ref{eq:sd1}) dla krótkoterminowej zmienności rytmu serca
 nie jest z matematycznego punktu widzenia odchyleniem standardowym, gdyż nie jest
 wyznaczane względem linii $l_1$ przechodzącej przez centroid, to znaczy nie minimalizuje
 drugiego momentu rozkładu punktów $RR$. Jednakże to w żaden sposób
@@ -126,14 +126,12 @@ nie umniejsza użyteczności tego deskryptora i to z dwóch powodów: (1) linia
 identyczności dzieli cały wykres \PP{} na dwie części, górną dotyczącą zwolnień,
 dolną dotyczącą przyspieszeń, zatem $SD1$ liczona względem $l_{I}$ ma wyraźną interpretację
 fizjologiczną, (2) różnica pomiędzy wariancjami odnoszącymi się odpowiednio do linii $l_1$
-oraz $l_{I}$ zgodnie z wartościami podanymi w 
-(uzupelnic odnośnik do bibliografii - 'Geometry of \ldots  and it's asymmetry in healthy adults 2007, ')
-jest rzędu $10^{-5}$ i dąży do $0$ dla coraz większej liczby pomiarów, ponadto sam błąd
-związany z wprowadzeniem wariancji względem $l_{I}$ jest rzędu $10^{-8}$, zatem w praktyce
-jest zaniedbywalny.
+oraz $l_{I}$ zgodnie z wartościami podanymi w \cite{poinc_jaro} jest rzędu $10^{-5}$ i
+dąży do $0$ dla coraz większej liczby pomiarów, ponadto sam błąd związany z wprowadzeniem
+wariancji względem $l_{I}$ jest rzędu $10^{-8}$, zatem w praktyce jest zaniedbywalny.
 
 Relacja pomiędzy krótkoterminową i długoterminową zmiennością rytmu serca opisanymi powyżej
-a miarą pełnej zmienności rytmu serca opisanej w (ODNOSNIK DO ODPOWIEDNIEGO ROZDZIALU)
+a miarą pełnej zmienności rytmu serca opisanej w \ref{subsec:pelna_zmiennosc}
 jest następująca:
 \begin{equation}
 SDNN^2 = \frac{1}{2}(SD1^2 + SD2^2)\label{SDNNpartitioning}.
