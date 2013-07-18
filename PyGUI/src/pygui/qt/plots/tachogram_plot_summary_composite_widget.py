@@ -29,13 +29,14 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class TachogramPlotsGroupWindowWidget(MainWindowWidget):
+class TachogramPlotSummaryCompositeWidget(MainWindowWidget):
     """
     initial tachogram plot window used to take operations
     on the whole group of tachogram plots
     """
     def __init__(self, parent, **params):
-        super(TachogramPlotsGroupWindowWidget, self).__init__(parent, **params)
+        super(TachogramPlotSummaryCompositeWidget, self).__init__(parent,
+                                                                 **params)
         set_temporary_settings_id(self)
         self.params = Params(**params)
 

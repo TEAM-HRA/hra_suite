@@ -13,7 +13,7 @@ try:
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.tachogram_plot_window import TachogramPlotWindow
-    from pygui.qt.plots.tachogram_plots_group_window_widget import TachogramPlotsGroupWindowWidget # @IgnorePep8
+    from pygui.qt.plots.tachogram_plot_summary_composite_widget import TachogramPlotSummaryCompositeWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -37,7 +37,7 @@ class TachogramPlotManager(TabWidgetCommon):
             return tab
 
     def createInitialPlot(self):
-        self.__initial_tab__ = TachogramPlotsGroupWindowWidget(self)
+        self.__initial_tab__ = TachogramPlotSummaryCompositeWidget(self)
         self.addTab(self.__initial_tab__, 'Summary')
         self.markTabAsNotClose(self.__initial_tab__)
         return self.__initial_tab__
