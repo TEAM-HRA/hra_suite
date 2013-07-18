@@ -17,7 +17,7 @@ try:
     from pycore.introspection import get_class_object
     from pycore.io_utils import normalize_filenames
     from pygui.qt.utils.qt_i18n import QT_I18N
-    from pygui.qt.utils.signals import ADD_TAB_WIDGET_SIGNAL
+    from pygui.qt.utils.signals import ADD_TAB_ITEM_WIDGET_SIGNAL
     from pygui.qt.activities.activities import ActivityDockWidget
     from pygui.qt.menu.menus import QTMenuBuilder
     from pygui.qt.widgets.commons import CommonWidget
@@ -66,7 +66,7 @@ class ApplicationMainWindow(MainWindowWidget):
                                                      main_widget_name)
                 self.setCentralWidget(self.applicationMainTabWidget)
 
-        self.connect(self, ADD_TAB_WIDGET_SIGNAL, self.addTabWidget)
+        self.connect(self, ADD_TAB_ITEM_WIDGET_SIGNAL, self.addTabWidget)
 
     def addTabWidget(self, _tab_widget_name, _tab_widget_classname, _model,
                      _reuse):

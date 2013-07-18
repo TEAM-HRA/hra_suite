@@ -16,7 +16,7 @@ try:
     from pygui.qt.custom_widgets.toolbars import CloseToolButton
     from pygui.qt.widgets.composite_widget import CompositeWidget
     from pygui.qt.widgets.main_window_widget import MainWindowWidget
-    from pygui.qt.plots.objects_names import TACHOGRAM_PLOT_TAB_WIDGET_OBJECT_NAME # @IgnorePep8
+    from pygui.qt.plots.objects_names import TACHOGRAM_PLOT_TAB_ITEM_WIDGET_OBJECT_NAME # @IgnorePep8
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import RESTORE_TACHOGRAM_PLOT_SIGNAL
@@ -148,7 +148,7 @@ class TachogramPlotSummaryCompositeWidget(MainWindowWidget):
         corresponding position from self.__file_specifications__
         """
         if widgets_have_the_same_parent(self, _tachogram_plot_tab,
-                                 TACHOGRAM_PLOT_TAB_WIDGET_OBJECT_NAME):
+                                 TACHOGRAM_PLOT_TAB_ITEM_WIDGET_OBJECT_NAME):
             if self.__file_specifications__.count(
                             _tachogram_plot_tab.file_specification) > 0:
                 del self.__file_specifications__[
