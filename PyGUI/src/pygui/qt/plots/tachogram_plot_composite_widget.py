@@ -26,9 +26,9 @@ except ImportError as error:
     ImportErrorMessage(error, __name__)
 
 
-class TachogramPlotWindow(MainWindowWidget):
+class TachogramPlotCompositeWidget(MainWindowWidget):
     def __init__(self, parent, **params):
-        super(TachogramPlotWindow, self).__init__(parent, **params)
+        super(TachogramPlotCompositeWidget, self).__init__(parent, **params)
         self.params = Params(**params)
         self.data_accessor = get_data_accessor_from_file_specification(self,
                                                 self.params.file_specification)

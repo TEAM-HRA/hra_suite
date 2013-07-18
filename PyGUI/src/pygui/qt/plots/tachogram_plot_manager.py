@@ -12,7 +12,7 @@ try:
     from pygui.qt.utils.signals import TAB_WIDGET_ADDED_SIGNAL
     from pygui.qt.custom_widgets.tabwidget import TabWidgetCommon
     from pygui.qt.plots.plots_signals import CLOSE_TACHOGRAM_PLOT_SIGNAL
-    from pygui.qt.plots.tachogram_plot_window import TachogramPlotWindow
+    from pygui.qt.plots.tachogram_plot_composite_widget import TachogramPlotCompositeWidget # @IgnorePep8
     from pygui.qt.plots.tachogram_plot_summary_composite_widget import TachogramPlotSummaryCompositeWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -43,7 +43,7 @@ class TachogramPlotManager(TabWidgetCommon):
         return self.__initial_tab__
 
     def __createTachogramTab__(self, file_specification, object_name):
-        tachogramTabWidget = TachogramPlotWindow(self,
+        tachogramTabWidget = TachogramPlotCompositeWidget(self,
                                     file_specification=file_specification)
         tachogramTabWidget.setObjectName(object_name)
         self.addTab(tachogramTabWidget,
