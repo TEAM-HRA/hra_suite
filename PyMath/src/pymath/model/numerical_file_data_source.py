@@ -31,6 +31,7 @@ class NumericalFileDataSource(object):
             self.__file__ = os.path.join(self.params.pathname,
                                          self.params.filename)
         self.__file_headers__ = None
+        self.__headers_rows_count__ = 0
         self.__file_data__ = None
 
     @property
@@ -57,8 +58,13 @@ class NumericalFileDataSource(object):
                         break
                     else:
                         self.__file_headers__.append(headers)
+            self.__headers_rows_count__ = len(self.__file_headers__)
+
+            #if there is only one row of headers then it is assumed that
+            #headers are equivalent to this row
             if len(self.__file_headers__) == 1:
                 self.__file_headers__ = self.__file_headers__[0]
+
         return self.__file_headers__
 
     @property
@@ -67,15 +73,19 @@ class NumericalFileDataSource(object):
 
     def getData(self):
         if self.__file_data__ == None:
+
+            #to force headers's generation
+            self.headers
+
             # check a separator is a white space
             if not self.params.separator == None and \
                 len(self.params.separator.strip()) == 0:
                 self.__file_data__ = pl.loadtxt(self.__file__,
-                                         skiprows=len(self.headers),
+                                         skiprows=self.__headers_rows_count__,
                                          unpack=True)
             else:
                 self.__file_data__ = pl.loadtxt(self.__file__,
-                                         skiprows=len(self.headers),
+                                         skiprows=self.__headers_rows_count__,
                                          unpack=True,
                                          delimiter=self.params.separator)
         return self.__file_data__
