@@ -21,8 +21,8 @@ try:
     from pygui.qt.plots.plots_signals import MAXIMIZE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.plots_signals import RESTORE_TACHOGRAM_PLOT_SIGNAL
     from pygui.qt.plots.specific_widgets.poincare_toolbar_widget import PoincareToolBarWidget # @IgnorePep8
-    from pygui.qt.plots.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget # @IgnorePep8
-    from pygui.qt.plots.outcome_files_tracker_dock_widget import OutcomeFilesTrackerDockWidget # @IgnorePep8
+    from pygui.qt.docks.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget # @IgnorePep8
+    from pygui.qt.docks.outcome_files_tracker_dock_widget import OutcomeFilesTrackerDockWidget # @IgnorePep8
     from pygui.qt.plots.specific_widgets.poincare_plot_datasources_table_widget import PoincarePlotDatasourcesTableWidget # @IgnorePep8
     from pygui.qt.custom_widgets.files_specifications_to_data_accessors_group_converter import FilesSpecificationsToDataAccessorsGroupConverter  # @IgnorePep8
 except ImportError as error:

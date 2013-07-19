@@ -14,9 +14,9 @@ try:
     from pygui.qt.plots.tachogram_plot_canvas import NormalTachogramPlotEngine
     from pygui.qt.plots.tachogram_plot_canvas import ScatterTachogramPlotEngine
     from pygui.qt.plots.tachogram_plot_canvas import HistogramTachogramPlotEngine # @IgnorePep8
-    from pygui.qt.plots.tachogram_plot_settings_dock_widget import TachogramPlotSettingsDockWidget # @IgnorePep8
-    from pygui.qt.plots.tachogram_plot_statistics_dock_widget import TachogramPlotStatisticsDockWidget # @IgnorePep8
-    from pygui.qt.plots.specific_widgets.tabular_data_vector_preview_dock_widget import TabularDataVectorPreviewDockWidget # @IgnorePep8    
+    from pygui.qt.docks.tachogram_plot_settings_dock_widget import TachogramPlotSettingsDockWidget # @IgnorePep8
+    from pygui.qt.docks.tachogram_plot_statistics_dock_widget import TachogramPlotStatisticsDockWidget # @IgnorePep8
+    from pygui.qt.docks.tabular_data_vector_preview_dock_widget import TabularDataVectorPreviewDockWidget # @IgnorePep8    
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 

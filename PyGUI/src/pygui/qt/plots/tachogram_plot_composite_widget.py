@@ -20,8 +20,8 @@ try:
     from pygui.qt.plots.tachogram_plot_canvas import TachogramPlotCanvas
     from pygui.qt.plots.tachogram_plot_navigator_toolbar import TachogramPlotNavigationToolbar  # @IgnorePep8
     from pygui.qt.plots.specific_widgets.poincare_toolbar_widget import PoincareToolBarWidget  # @IgnorePep8
-    from pygui.qt.plots.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget  # @IgnorePep8
-    from pygui.qt.plots.outcome_files_tracker_dock_widget import OutcomeFilesTrackerDockWidget # @IgnorePep8
+    from pygui.qt.docks.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget  # @IgnorePep8
+    from pygui.qt.docks.outcome_files_tracker_dock_widget import OutcomeFilesTrackerDockWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
