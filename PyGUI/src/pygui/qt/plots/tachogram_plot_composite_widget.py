@@ -22,6 +22,7 @@ try:
     from pygui.qt.plots.specific_widgets.poincare_toolbar_widget import PoincareToolBarWidget  # @IgnorePep8
     from pygui.qt.docks.poincare_plot_settings_dock_widget import PoincarePlotSettingsDockWidget  # @IgnorePep8
     from pygui.qt.docks.outcome_files_tracker_dock_widget import OutcomeFilesTrackerDockWidget # @IgnorePep8
+    from pygui.qt.docks.poincare_plot_movie_dock_widget import PoincarePlotMovieDockWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -78,6 +79,13 @@ class TachogramPlotCompositeWidget(MainWindowWidget):
         tachogram plot window
         """
         return self.params.file_specification
+
+    def show_poincare_movie_handler(self):
+        if not hasattr(self, '__poincare_movie__'):
+            self.__poincare_movie__ = PoincarePlotMovieDockWidget(
+                        self, data_accessor=self.data_accessor,
+                        output_file_listener=self.__output_file_listener__)
+        self.__poincare_movie__.show()
 
 
 class __TachogramPlot__(CompositeWidget):

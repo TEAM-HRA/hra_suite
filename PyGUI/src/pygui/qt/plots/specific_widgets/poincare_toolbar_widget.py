@@ -52,3 +52,15 @@ class ReloadPoincareSettingsToolButton(ToolButtonType):
             'toolbar_reload_poincare_settings_handler_callable')
         super(ReloadPoincareSettingsToolButton, self).__init__(default,
                                                                **params)
+
+
+class ShowPoincareMovieToolButton(ToolButtonType):
+    """
+    toolbar button to show poincar plot movie settings
+    """
+    def __init__(self, **params):
+        default = DefaultToolButtonType(True, [POINCARE_BUTTON_GROUP],
+            'show_poincare_movie_handler', 'poincare_plot_movie',
+            'Show poincare movie',
+            'toolbar_show_poincare_movie_handler_callable')
+        super(ShowPoincareMovieToolButton, self).__init__(default, **params)
