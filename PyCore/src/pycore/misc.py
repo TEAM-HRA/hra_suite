@@ -218,3 +218,5 @@ def raw_string(_str):
     get string in a raw format
     """
     return "%r" % _str
+
+ColorRGB = collections.namedtuple("ColorRGB", "red green blue")
