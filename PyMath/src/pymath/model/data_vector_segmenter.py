@@ -46,6 +46,7 @@ class __DataVectorSegmenter__(object):
         self.window_size_unit = window_size_unit
         self.shift = shift
         self.__counter__ = 0
+        self.__data_vector_segment__ = None
 
         self.window_unit = None
 
@@ -95,7 +96,7 @@ class __DataVectorSegmenter__(object):
 
         self.__counter__ += 1
 
-        return DataVector(signal=signal,
+        self.__data_vector_segment__ = DataVector(signal=signal,
                           signal_plus=signal_plus,
                           signal_minus=signal_minus,
                           annotation=annotation,
@@ -103,6 +104,7 @@ class __DataVectorSegmenter__(object):
                           signal_header=self.data.signal_header,
                           annotation_header=self.data.annotation_header,
                           time_header=self.data.time_header)
+        return self.__data_vector_segment__
 
     @property
     def ordinal_value(self):
@@ -166,6 +168,10 @@ class __DataVectorSegmenter__(object):
     @window_size_in_signal_unit.setter
     def window_size_in_signal_unit(self, _window_size_in_signal_unit):
         self.__window_size_in_signal_unit__ = _window_size_in_signal_unit
+
+    @property
+    def data_vector_segment(self):
+        return self.__data_vector_segment__
 
 
 class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
