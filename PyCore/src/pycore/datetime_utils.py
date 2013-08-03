@@ -46,3 +46,9 @@ def invocation_time(method):
         return result
 
     return datetime_wrapper
+
+
+def get_time_label_for_miliseconds(miliseconds):
+    hours, remainder = divmod(miliseconds / 1000, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return 'h:%02d, m:%02d, s:%02d' % (hours, minutes, seconds)
