@@ -34,3 +34,8 @@ class NumberEditWidget(LineEditWidget):
 
     def setText(self, text):
         super(LineEditWidget, self).setText(str(text))
+
+    def getNumber(self):
+        value = self.text()
+        if value:
+            return int(value) 
