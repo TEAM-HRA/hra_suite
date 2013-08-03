@@ -123,8 +123,8 @@ class StatisticsWidget(GroupBoxWidget):
 
     def __enabled_calculation_button__(self, _enabled):
         """
-        method sets background colour of 'Calculate statistics' button to red
-        if the button is disabled foreground colour is set up to brown
+        method sets background color of 'Calculate statistics' button to red
+        if the button is disabled foreground color is set up to brown
         otherwise to black
         """
         if _enabled == False:
