@@ -76,7 +76,10 @@ class PoincarePlotGeneratorProgressBar(object):
             with progressManager.initialize(label_text=label_text,
                                             max_value=count) as progress:
                 start_progress = self.__StartProgress__()
-                if self.params.save_csv == True:
+                if not self.params.progress_handler == None:
+                    #give ability to pass custom progress handler
+                    progress_handler = self.params.progress_handler
+                elif self.params.save_csv == True:
                     progress_handler = self.__CSVProgressHandler__()
                 else:
                     progress_handler = self.__ProgressHandler__()
