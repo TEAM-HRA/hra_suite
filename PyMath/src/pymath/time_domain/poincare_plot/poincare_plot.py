@@ -20,6 +20,7 @@ try:
     from pymath.frequency_domain.fourier_parameters import FourierParameters
     from pymath.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
+    from pymath.time_domain.poincare_plot.poincare_plot_movie_parameters import PoincarePlotMovieParameters # @IgnorePep8
     from pymath.statistics.statistics import get_statistics_names
     from pymath.statistics.statistics import ALL_STATISTICS
     from pymath.statistics.summary_statistics import get_summary_statistics_names # @IgnorePep8
@@ -46,7 +47,8 @@ def getSeparatorLabels():
 
 class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                           FileDataParameters, FilterParameters,
-                          StatisticParameters, FourierParameters):
+                          StatisticParameters, FourierParameters,
+                          PoincarePlotMovieParameters):
     def __init__(self, other=None):
         PoincarePlotParameters.__init__(self)
         DataVectorParameters.__init__(self)
@@ -54,6 +56,7 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         FilterParameters.__init__(self)
         StatisticParameters.__init__(self)
         FourierParameters.__init__(self)
+        PoincarePlotMovieParameters.__init__(self)
 
         self.__progress_mark__ = None
         if not other == None:
@@ -72,7 +75,8 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                                         data_vector_parameters=self,
                                         filter_parameters=self,
                                         statistic_parameters=self,
-                                        poincare_plot_parameters=self)
+                                        poincare_plot_parameters=self,
+                                        poincare_plot_movie_parameters=self)
         message = self.__pp_generator__.checkParameters()
         if message:
             print(message)
@@ -282,6 +286,12 @@ if __name__ == '__main__':
                 during process of data expressed in number of data items
                 or in time units by suffix: s - second, m - minute, h - hour;
                 examples: 100, 5m [optional]""")
+    parser.add_argument("-movie_name", "--movie_name",
+                help="""name of a movie for Poincare plot evolutions""")  # @IgnorePep8
+    parser.add_argument("-movie_dir", "--movie_dir",
+                help="directory for movie files [default: " +
+                        DEFAULT_OUTCOME_DIRECTORY + "]",
+                default=DEFAULT_OUTCOME_DIRECTORY)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -311,6 +321,8 @@ if __name__ == '__main__':
     ppManager.use_buffer = __args.use_buffer
     ppManager.sample_step = __args.sample_step
     ppManager.stepper = __args.stepper
+    ppManager.movie_name = __args.movie_name
+    ppManager.movie_dir = __args.movie_dir
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:

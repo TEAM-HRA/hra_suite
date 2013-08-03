@@ -18,6 +18,8 @@ try:
     from pymath.statistics.statistic_parameters import StatisticParameters
     from pymath.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
+    from pymath.time_domain.poincare_plot.poincare_plot_movie_parameters import PoincarePlotMovieParameters # @IgnorePep8    
+    from pymath.time_domain.poincare_plot.poincare_plot_movie_maker import PoincarePlotMovieMaker # @IgnorePep8
     from pymath.frequency_domain.fourier_parameters import FourierParameters
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.summary_statistics import SummaryStatisticsFactory
@@ -209,6 +211,9 @@ class PoincarePlotGenerator(object):
         parameters = {}
         parameters_old = None
         data_segment_old = None
+        movie_maker = PoincarePlotMovieMaker(data_vector, self,
+                                    segment_count=segmenter.segment_count(),
+                                    filter_manager=filter_manager)
         for data_segment in segmenter:
             if interrupter.isInterrupted():
                 break
@@ -262,6 +267,8 @@ class PoincarePlotGenerator(object):
                     interrupter.interrupt()
                     break
 
+            movie_maker.add_data_vector_segment(data_segment)
+
             summaryStatisticsFactory.update(parameters, data_segment)
             if segmenter.data_changed:
                 parameters_old = parameters
@@ -279,6 +286,9 @@ class PoincarePlotGenerator(object):
                 close()
         interrupted = interrupter.isInterrupted()
         interrupter.clean()
+
+        movie_maker.save_movie()
+
         return not interrupted
 
     def __default_info_handler__(self, info):
@@ -337,7 +347,9 @@ class PoincarePlotGenerator(object):
                 (StatisticParameters.__name__, StatisticParameters.NAME),
                 (PoincarePlotParameters.__name__, PoincarePlotParameters.NAME),
                 (FilterParameters.__name__, FilterParameters.NAME),
-                (FourierParameters.__name__, FourierParameters.NAME)]
+                (FourierParameters.__name__, FourierParameters.NAME),
+                (PoincarePlotMovieParameters.__name__,
+                 PoincarePlotMovieParameters.NAME)]
 
     def segment_count(self, data_vector):
         """
