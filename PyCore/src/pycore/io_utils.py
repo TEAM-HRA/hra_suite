@@ -346,3 +346,10 @@ def path_and_file(_fullfilename):
     filename = fs.basename(_fullfilename)
     if pathname and filename:
         return PathAndFile(pathname, filename)
+
+
+def as_path(*iterator):
+    """
+    function converts parts of path included in iterator into full path
+    """
+    return fs.normpath(fs.join(*iterator))

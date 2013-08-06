@@ -23,7 +23,7 @@ class ProgressMark(object):
     def reset(self):
         self.__counter__ = 0
 
-    def tick(self):
+    def tick(self, additional_message=None):
         print('\r', end='')
         if self.__label__:
             print(self.__label__, end='')
@@ -34,7 +34,10 @@ class ProgressMark(object):
             percent = " [{0:6.2f} %]  [{1:10d}]".format(
                             ((self.__counter__ / self.__max_count__) * 100),
                             self.__counter__ + 1)
-        print(percent, end='')
+        if additional_message:
+            print(percent + " " + additional_message, end='')
+        else:
+            print(percent, end='')
         self.__counter__ = self.__counter__ + 1
 
     @property
