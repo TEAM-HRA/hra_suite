@@ -163,6 +163,24 @@ class PoincarePlotGenerator(object):
                                                 summary_csv.output_file)
         return not_interrupted
 
+    def generate_movie(self, data_vector, reference_filename, start_progress):
+        """
+        generates poincare plot movie
+        """
+        if not start_progress == None:
+            start_progress.reference_filename = reference_filename
+            if hasattr(start_progress, 'progress_mark'):
+                if start_progress.progress_mark == None:
+                    start_progress.progress_mark = self.progress_mark
+            if hasattr(start_progress, 'info_handler'):
+                if start_progress.info_handler == None:
+                    start_progress.info_handler = self.params.info_handler
+
+        not_interrupted = self.__generate_movie__(data_vector,
+                                    start_progress=start_progress)
+
+        return not_interrupted
+
     def __generate_core__(self, data_vector, start_progress,
                           progress_handler=None):
         """
@@ -211,9 +229,6 @@ class PoincarePlotGenerator(object):
         parameters = {}
         parameters_old = None
         data_segment_old = None
-        movie_maker = PoincarePlotMovieMaker(data_vector, self,
-                                    segment_count=segmenter.segment_count(),
-                                    filter_manager=filter_manager)
         for data_segment in segmenter:
             if interrupter.isInterrupted():
                 break
@@ -267,8 +282,6 @@ class PoincarePlotGenerator(object):
                     interrupter.interrupt()
                     break
 
-            movie_maker.add_data_vector_segment(data_segment)
-
             summaryStatisticsFactory.update(parameters, data_segment)
             if segmenter.data_changed:
                 parameters_old = parameters
@@ -286,8 +299,6 @@ class PoincarePlotGenerator(object):
                 close()
         interrupted = interrupter.isInterrupted()
         interrupter.clean()
-
-        movie_maker.save_movie()
 
         return not interrupted
 
@@ -365,6 +376,79 @@ class PoincarePlotGenerator(object):
                                                 self.stepper_unit)
         return segmenter.segment_count()
 
+    def __generate_movie__(self, data_vector, start_progress):
+        """
+        core functionality to generate poincare plot movie
+        """
+        filter_manager = FilterManager(_shift=self.window_shift,
+                        _excluded_annotations=self.excluded_annotations,
+                        _filters=self.filters)
+
+        segmenter = SegmenterManager.getDataVectorSegmenter(data_vector,
+                                                self.window_size,
+                                                self.window_size_unit,
+                                                self.sample_step,
+                                                self.window_shift,
+                                                self.stepper_size,
+                                                self.stepper_unit)
+
+        start_progress.segmenter = segmenter
+        start_progress()
+        progress = start_progress.progress
+        if progress == False:
+            return False
+
+        interrupter = ControlInterruptHandler()
+        data_segment_old = None
+        movie_maker = PoincarePlotMovieMaker(data_vector, self,
+                                    segment_count=segmenter.segment_count(),
+                                    filter_manager=filter_manager)
+        for data_segment in segmenter:
+            if interrupter.isInterrupted():
+                #mark interrupt state of interrupter to give consistent
+                #behaviour to the rest of the code
+                interrupter.interrupt()
+                break
+            if segmenter.data_changed:
+                data_segment_old = None
+            else:
+                data_segment = data_segment_old
+
+            if segmenter.data_changed:
+                data_segment = filter_manager.run_filters(data_segment)
+
+            #this could happened when for example annotation
+            #filter is used and all data are annotated that means
+            #all signal data are filtered out
+            if data_segment == None or data_segment.signal == None \
+                or not len(data_segment.signal) > 1:
+                data_segment_old = data_segment
+                continue
+
+            #this situation could occur when there is a normal signal after
+            #a long series of annotated signals
+            if segmenter.data_changed:
+                if len(data_segment.signal) == 1:
+                    continue
+
+            if segmenter.data_changed:
+                movie_maker.add_data_vector_segment(data_segment)
+
+            progress.tick(additional_message=movie_maker.info_message)
+
+            if segmenter.data_changed:
+                data_segment_old = data_segment
+
+        progress.close()
+        interrupted = interrupter.isInterrupted()
+        interrupter.clean()
+
+        if not interrupted or self.movie_save_partial:
+            movie_maker.save_movie()
+            self.params.info_handler(movie_maker.info_message)
+
+        return not interrupted
+
 
 class StartProgressGenerator(object):
     """
@@ -432,3 +516,15 @@ class CSVProgressHandlerGenerator(ProgressHandlerGenerator):
     def __call__(self):
         self.csv.write(self.parameters,
                        ordinal_value=self.segmenter.ordinal_value)
+
+
+class MovieStartProgressGenerator(StartProgressGenerator):
+    """
+    callable class used when a movie is about to be created
+    """
+    def __call__(self):
+        if self.check():
+            self.__progress__ = ProgressMark(
+                            _label='Processing file ' +
+                            self.reference_filename + ' ...',
+                            _max_count=self.segmenter.segment_count())

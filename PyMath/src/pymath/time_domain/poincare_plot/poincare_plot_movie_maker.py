@@ -5,7 +5,7 @@ try:
     from pycore.datetime_utils import get_time_label_for_miliseconds
     from pycore.misc import Params
     from pycore.misc import ColorRGB
-    from pycore.io_utils import normalize_filenames
+    from pycore.io_utils import as_path
     from matplotlib.pyplot import savefig
     #matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -41,8 +41,9 @@ class PoincarePlotMovieMaker(object):
             _min = pl.amin(data_vector.signal)
 
             margin = 50
-            self.ax.axis([_min - margin, _max + margin,
-                          _min - margin, _max + margin])
+            self.range = [_min - margin, _max + margin,
+                          _min - margin, _max + margin]
+            self.ax.axis(self.range)
             self.x_data = None
             self.y_data = None
             self.old_signal_plus = None
@@ -55,44 +56,56 @@ class PoincarePlotMovieMaker(object):
                                         movie_parameters.movie_inactive_color)
             self.__centroid_color__ = get_color_array(
                                         movie_parameters.movie_centroid_color)
+            self.__info_message__ = None
 
     def add_data_vector_segment(self, data_vector_segment):
+        self.__info_message__ = None
         if self.__p__.movie_name == None:
             return
-        self.ax = self.fig.add_subplot(1, 1, 1, adjustable='box', aspect=1.0)
-        self.ax.set_xlabel('$RR_{n}$ [ms]')
-        self.ax.set_ylabel('$RR_{n+1}$ [ms]')
 
-        if self.x_data == None:
-            time_label = get_time_label_for_miliseconds(0)
-        else:
-            time_label = get_time_label_for_miliseconds(pl.sum(self.x_data))
-        leg_time = self.ax.legend([self.empty_rectangle], [time_label],
+        frame_file = as_path(self.__p__.movie_dir, '%06d.png' % self.idx)
+        skip_frame = True if self.idx < self.__p__.movie_start_frame or \
+            (self.__p__.movie_skip_frames and os.path.exists(frame_file)) \
+            else False
+
+        if skip_frame == False:
+            self.ax = self.fig.add_subplot(1, 1, 1, adjustable='box',
+                                           aspect=1.0)
+            self.ax.set_xlabel('$RR_{n}$ [ms]')
+            self.ax.set_ylabel('$RR_{n+1}$ [ms]')
+            self.ax.axis(self.range)
+
+            if self.x_data == None:
+                time_label = get_time_label_for_miliseconds(0)
+            else:
+                time_label = get_time_label_for_miliseconds(pl.sum(self.x_data)) # @IgnorePep8
+            leg_time = self.ax.legend([self.empty_rectangle], [time_label],
                                   'upper left')
-        leg_time.get_frame().set_alpha(0.5)
-        ltext = leg_time.get_texts()
-        plt.setp(ltext, fontsize=8)
-        self.ax.add_artist(leg_time)
+            leg_time.get_frame().set_alpha(0.5)
+            ltext = leg_time.get_texts()
+            plt.setp(ltext, fontsize=8)
+            self.ax.add_artist(leg_time)
 
-        mean_plus = pl.mean(data_vector_segment.signal_plus)
-        mean_minus = pl.mean(data_vector_segment.signal_minus)
+            mean_plus = pl.mean(data_vector_segment.signal_plus)
+            mean_minus = pl.mean(data_vector_segment.signal_minus)
 
         if self.x_data == None:
             self.x_data = data_vector_segment.signal_plus.copy()
             self.y_data = data_vector_segment.signal_minus.copy()
 
-            a_plot = self.ax.scatter(self.x_data, self.y_data,
-                                     c=self.__active_color__,
-                                     s=self.__p__.movie_active_size)
-            c_plot = self.ax.scatter([mean_plus], [mean_minus],
-                                     c=self.__centroid_color__,
-                                     s=self.__p__.movie_centroid_size)
+            if skip_frame == False:
+                a_plot = self.ax.scatter(self.x_data, self.y_data,
+                                         c=self.__active_color__,
+                                         s=self.__p__.movie_active_size)
+                c_plot = self.ax.scatter([mean_plus], [mean_minus],
+                                         c=self.__centroid_color__,
+                                         s=self.__p__.movie_centroid_size)
 
-            if self.__p__.show_plot_legends == True:
-                leg_plots = self.ax.legend((a_plot, c_plot),
-                                           ('biezacy PP', "controid"),
-                                           'upper right', scatterpoints=1)
-                leg_plots.get_frame().set_alpha(0.5)
+                if self.__p__.show_plot_legends == True:
+                    leg_plots = self.ax.legend((a_plot, c_plot),
+                                               ('biezacy PP', "controid"),
+                                               'upper right', scatterpoints=1)
+                    leg_plots.get_frame().set_alpha(0.5)
             ok = True
         else:
             s_plus = len(data_vector_segment.signal_plus)
@@ -109,18 +122,19 @@ class PoincarePlotMovieMaker(object):
                         self.y_data = pl.hstack((self.y_data,
                             data_vector_segment.signal_minus[old_s_plus -
                                                               idx:]))
-                        max_inactive_idx = len(self.x_data) - s_plus
-                        i_plot = self.ax.scatter(
-                                            self.x_data[:max_inactive_idx],
-                                            self.y_data[:max_inactive_idx],
+                        if skip_frame == False:
+                            inactive_idx = len(self.x_data) - s_plus
+                            i_plot = self.ax.scatter(
+                                            self.x_data[:inactive_idx],
+                                            self.y_data[:inactive_idx],
                                             c=self.__inactive_color__,
                                             s=self.__p__.movie_inactive_size)
-                        a_plot = self.ax.scatter(
-                                            self.x_data[max_inactive_idx:],
-                                            self.y_data[max_inactive_idx:],
+                            a_plot = self.ax.scatter(
+                                            self.x_data[inactive_idx:],
+                                            self.y_data[inactive_idx:],
                                             c=self.__active_color__,
                                             s=self.__p__.movie_active_size)
-                        c_plot = self.ax.scatter([mean_plus], [mean_minus],
+                            c_plot = self.ax.scatter([mean_plus], [mean_minus],
                                             c=self.__centroid_color__,
                                             s=self.__p__.movie_centroid_size)
                         ok = True
@@ -130,32 +144,32 @@ class PoincarePlotMovieMaker(object):
                     if idx + s_plus <= old_s_plus \
                         and pl.all(self.old_signal_plus[idx:idx + s_plus] \
                                     == data_vector_segment.signal_plus):
-                        max_inactive_idx = len(self.x_data) - old_s_plus + idx
-                        self.ax.scatter(self.x_data[:max_inactive_idx],
-                                        self.y_data[:max_inactive_idx],
+                        if skip_frame == False:
+                            inactive_idx = len(self.x_data) - old_s_plus + idx
+                            self.ax.scatter(self.x_data[:inactive_idx],
+                                        self.y_data[:inactive_idx],
                                         c=self.__inactive_color__,
                                         s=self.__p__.movie_inactive_size)
-                        i_plot = self.ax.scatter(self.x_data[max_inactive_idx +
-                                                             s_plus:],
-                                            self.y_data[max_inactive_idx
-                                                        + s_plus:],
-                                            c=self.__inactive_color__,
-                                            s=self.__p__.movie_inactive_size)
-                        a_plot = self.ax.scatter(
-                                self.x_data[max_inactive_idx:
-                                            max_inactive_idx + s_plus],
-                                self.y_data[max_inactive_idx:
-                                            max_inactive_idx + s_plus],
-                                c=self.__active_color__,
-                                s=self.__p__.movie_active_size)
-                        c_plot = self.ax.scatter([mean_plus], [mean_minus],
-                                            c=self.__centroid_color__,
-                                            s=self.__p__.movie_centroid_size)
+                            i_plot = self.ax.scatter(
+                                        self.x_data[inactive_idx + s_plus:],
+                                        self.y_data[inactive_idx + s_plus:],
+                                        c=self.__inactive_color__,
+                                        s=self.__p__.movie_inactive_size)
+                            a_plot = self.ax.scatter(
+                                        self.x_data[inactive_idx:
+                                                    inactive_idx + s_plus],
+                                        self.y_data[inactive_idx:
+                                                    inactive_idx + s_plus],
+                                        c=self.__active_color__,
+                                        s=self.__p__.movie_active_size)
+                            c_plot = self.ax.scatter([mean_plus], [mean_minus],
+                                        c=self.__centroid_color__,
+                                        s=self.__p__.movie_centroid_size)
                         ok = True
                         #_save = False
                         break
 
-        if self.__p__.show_plot_legends == True:
+        if skip_frame == False and self.__p__.show_plot_legends == True:
             leg_plots = self.ax.legend((a_plot, i_plot, c_plot),
                    ('biezacy PP', "poprzednie PP", "controid"),
                    'upper right', scatterpoints=1)  # , shadow=True)
@@ -164,28 +178,27 @@ class PoincarePlotMovieMaker(object):
             plt.setp(ltext, fontsize=8)
 
         if ok == True:
-            frame_file = normalize_filenames(self.__p__.movie_dir,
-                                             str('%06d' % self.idx) + '.png')
-            if self.__p__.movie_skip_frames == True and \
-                os.path.exists(frame_file):
-                print 'File', frame_file, ' skipped'
+            if skip_frame:
+                self.__info_message__ = 'File %s skipped' % (frame_file)
             else:
                 savefig(frame_file, dpi=self.__p__.movie_dpi)
                 if self.params.segment_count == None:
-                    print 'Wrote file', frame_file
+                    self.__info_message__ = 'Wrote file: %s' % (frame_file)
                 else:
-                    print 'Wrote file', frame_file, \
-                        " [", self.idx, " /", self.params.segment_count, "]"
+                    self.__info_message__ = 'Wrote file: %s [%07d/%07d]' % \
+                            (frame_file, self.idx, self.params.segment_count)
 
         self.old_signal_plus = data_vector_segment.signal_plus
         self.idx = self.idx + 1
-        plt.cla()
+        if skip_frame == False:
+            plt.cla()
 
     def save_movie(self):
         if not self.__p__.movie_name == None:
-            output_movie_file = self.__p__.movie_name + '.avi'
+            output_movie_file = as_path(self.__p__.movie_dir,
+                                        '%s.avi' % (self.__p__.movie_name))
             command = ('mencoder',
-                       'mf://' + self.__p__.movie_dir + '*.png',
+                       'mf://' + self.__p__.movie_dir + '/*.png',
                        '-mf',
                        #'type=png:w=1024:h=800:fps=30',
                        'type=png:w=' + str(self.__p__.movie_width) + \
@@ -198,5 +211,11 @@ class PoincarePlotMovieMaker(object):
                        '-oac',
                        'copy',
                        '-o',
-                       output_movie_file)
+                       '%s' % (output_movie_file))
             os.spawnvp(os.P_WAIT, 'mencoder', command)
+            self.__info_message__ = \
+                "Poincare plot movie %s is created !" % (output_movie_file)
+
+    @property
+    def info_message(self):
+        return self.__info_message__

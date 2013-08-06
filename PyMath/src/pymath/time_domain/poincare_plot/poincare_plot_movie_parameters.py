@@ -177,6 +177,30 @@ class PoincarePlotMovieParameters(CoreParameters):
     def movie_skip_frames(self, _movie_skip_frames):
         self.__movie_skip_frames__ = _movie_skip_frames
 
+    @property
+    def movie_save_partial(self):
+        """
+        [optional]
+        save partial movie [default: True]
+        """
+        return nvl(self.__movie_save_partial__, True)
+
+    @movie_save_partial.setter
+    def movie_save_partial(self, _movie_save_partial):
+        self.__movie_save_partial__ = _movie_save_partial
+
+    @property
+    def movie_start_frame(self):
+        """
+        [optional]
+        the number of movie frame starts from [default: 0]
+        """
+        return nvl(self.__movie_start_frame__, 0)
+
+    @movie_start_frame.setter
+    def movie_start_frame(self, _movie_start_frame):
+        self.__movie_start_frame__ = _movie_start_frame
+
     def setObjectPoincarePlotMovieParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -195,9 +219,14 @@ class PoincarePlotMovieParameters(CoreParameters):
         setattr(_object, 'movie_skip_frames', self.movie_skip_frames)
         setattr(_object, 'movie_height', self.movie_height)
         setattr(_object, 'movie_width', self.movie_width)
+        setattr(_object, 'movie_save_partial', self.movie_save_partial)
+        setattr(_object, 'movie_start_frame', self.movie_start_frame)
 
     def validatePoincarePlotMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
-        pass
+        if self.movie_name == None:
+            return "Name of a movie is required"
+        if self.movie_dir == None:
+            return "Movie directory is required"
 
     def parameters_infoPoincarePlotMovieParameters(self):
         if not self.movie_name == None:
@@ -219,3 +248,6 @@ class PoincarePlotMovieParameters(CoreParameters):
                                             str(self.movie_centroid_size))
             print('    DPI: ' + str(self.movie_dpi))
             print('    skip existing frames: ' + str(self.movie_skip_frames))
+            print('    save partial movie: ' + str(self.movie_save_partial))
+            print('    the number of movie frame starts from: ' +
+                                                str(self.movie_start_frame))

@@ -28,9 +28,14 @@ try:
     from pymath.frequency_domain.fourier_parameters import getInterpolationNames # @IgnorePep8
     from pymath.frequency_domain.fourier_parameters import getFourierTransformationNames # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
-    from pymath.time_domain.poincare_plot.poincare_plot_generator import PoincarePlotGenerator # @IgnorePep8
-    from pymath.time_domain.poincare_plot.poincare_plot_generator import CSVStartProgressGenerator # @IgnorePep8
-    from pymath.time_domain.poincare_plot.poincare_plot_generator import CSVProgressHandlerGenerator # @IgnorePep8
+    from pymath.time_domain.poincare_plot.poincare_plot_generator \
+        import PoincarePlotGenerator
+    from pymath.time_domain.poincare_plot.poincare_plot_generator \
+        import CSVStartProgressGenerator
+    from pymath.time_domain.poincare_plot.poincare_plot_generator \
+        import CSVProgressHandlerGenerator
+    from pymath.time_domain.poincare_plot.poincare_plot_generator \
+        import MovieStartProgressGenerator
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -75,6 +80,20 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                                         data_vector_parameters=self,
                                         filter_parameters=self,
                                         statistic_parameters=self,
+                                        poincare_plot_parameters=self)
+        message = self.__pp_generator__.checkParameters()
+        if message:
+            print(message)
+            return
+        self.__pp_generator__.parameters_info
+
+        self.__process__(self.__process_file__)
+
+    def generate_movie(self):
+        self.__pp_generator__ = PoincarePlotGenerator(
+                                        file_data_parameters=self,
+                                        data_vector_parameters=self,
+                                        filter_parameters=self,
                                         poincare_plot_parameters=self,
                                         poincare_plot_movie_parameters=self)
         message = self.__pp_generator__.checkParameters()
@@ -83,7 +102,7 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
             return
         self.__pp_generator__.parameters_info
 
-        self.__process__(self.__process_file__)
+        self.__process__(self.__process_file_for_movie__)
 
     def __process__(self, _file_handler, disp=True, **params):
         """
@@ -138,6 +157,20 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         return self.__pp_generator__.generate_CSV(data_vector, _file,
                             start_progress=start_progress,
                             progress_handler=CSVProgressHandlerGenerator())
+
+    @invocation_time
+    def __process_file_for_movie__(self, _file, disp=False):
+        file_data_source = DataVectorFileDataSource(_file=_file,
+                               signal_index=self.signal_index,
+                               annotation_index=self.annotation_index,
+                               time_index=self.time_index)
+        data_vector = file_data_source.getDataVector()
+
+        start_progress = MovieStartProgressGenerator()
+        start_progress.progress_mark = self.progress_mark
+        start_progress.info_handler = self.info_handler
+        return self.__pp_generator__.generate_movie(data_vector, _file,
+                                                start_progress=start_progress)
 
     def getUniqueAnnotations(self):
         """
@@ -338,4 +371,7 @@ if __name__ == '__main__':
         for header in ppManager.getHeaders():
             print(header)
     if _disp == False:
-        ppManager.generate()
+        if ppManager.movie_name == None:
+            ppManager.generate()
+        else:
+            ppManager.generate_movie()
