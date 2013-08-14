@@ -21,32 +21,37 @@ class SegmenterManager(object):
     @staticmethod
     def getDataVectorSegmenter(data, window_size,
                      window_size_unit=None, sample_step=None,
-                     shift=1, stepper_size=None, stepper_unit=None):
+                     shift=1, stepper_size=None, stepper_unit=None,
+                     mark_last_segment=False):
 
         if not stepper_size == None:
             return __SteppedDataVectorSegmenter__(data, window_size,
                                             window_size_unit,
                                             stepper_size, stepper_unit,
-                                            shift)
+                                            shift, mark_last_segment)
         elif not sample_step == None:
             return __SampledDataVectorSegmenter__(data, window_size,
                                                 window_size_unit,
-                                                sample_step, shift)
+                                                sample_step, shift,
+                                                mark_last_segment)
         else:
             return __BitDataVectorSegmenter__(data, window_size,
                                               window_size_unit,
-                                              shift)
+                                              shift, mark_last_segment)
 
 
 class __DataVectorSegmenter__(object):
 
-    def __init__(self, data, window_size, window_size_unit, shift=1):
+    def __init__(self, data, window_size, window_size_unit, shift=1,
+                 mark_last_segment=False):
         self.data = data
         self.window_size = window_size
         self.window_size_unit = window_size_unit
         self.shift = shift
         self.__counter__ = 0
         self.__data_vector_segment__ = None
+        self.__mark_last_segment__ = mark_last_segment
+        self.__last_segment__ = False
 
         self.window_unit = None
 
@@ -80,7 +85,11 @@ class __DataVectorSegmenter__(object):
     def __getDataVactor__(self, index_start, index_stop):
 
         if index_stop > self.signal_size:
-            raise StopIteration
+            if self.__mark_last_segment__ == True:
+                self.__last_segment__ = True
+                return
+            else:
+                raise StopIteration
 
         indexes = self.ARANGE(index_start, index_stop + 1)
         signal = self.data.signal.take(indexes)
@@ -173,16 +182,30 @@ class __DataVectorSegmenter__(object):
     def data_vector_segment(self):
         return self.__data_vector_segment__
 
+    @property
+    def last_segment(self):
+        return self.__last_segment__
+
+    @last_segment.setter
+    def last_segment(self, _last_segment):
+        self.__last_segment__ = _last_segment
+
+    @property
+    def mark_last_segment(self):
+        return self.__mark_last_segment__
+
 
 class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
 
     """
     class used to calculate segments of data vector based on number of bits
     """
-    def __init__(self, data, window_size, window_size_unit, shift):
+    def __init__(self, data, window_size, window_size_unit, shift,
+                 mark_last_segment=False):
         super(__BitDataVectorSegmenter__, self).__init__(data, window_size,
                                                          window_size_unit,
-                                                         shift)
+                                                         shift,
+                                                         mark_last_segment)
         self.__index__ = 0
 
     def next(self):
@@ -193,7 +216,11 @@ class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
                                             self.window_size_in_signal_unit,
                                             self.__index__)
             if max_index == -1:
-                raise StopIteration
+                if self.mark_last_segment:
+                    self.last_segment = True
+                    return
+                else:
+                    raise StopIteration
 
             #a new window size is a difference between max_index
             #and current index
@@ -209,7 +236,10 @@ class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
         if index_stop < self.signal_size:
             return self.__getDataVactor__(index_start, index_stop)
         else:
-            raise StopIteration
+            if self.mark_last_segment:
+                self.last_segment = True
+            else:
+                raise StopIteration
 
     def segment_count(self):
         """
@@ -232,10 +262,12 @@ class __SampledDataVectorSegmenter__(__DataVectorSegmenter__):
     """
     class used to calculate segments of data vector based on sample step
     """
-    def __init__(self, data, window_size, window_size_unit, sample_step, shift): # @IgnorePep8
+    def __init__(self, data, window_size, window_size_unit, sample_step, shift,
+                 mark_last_segment=False):
         super(__SampledDataVectorSegmenter__, self).__init__(data, window_size,
                                                              window_size_unit,
-                                                             shift)
+                                                             shift,
+                                                             mark_last_segment)
 
         if not self.window_size_unit: # @IgnorePep8
             raise Exception('For window resampling step a window size unit is required !!!') # @IgnorePep8
@@ -277,7 +309,10 @@ class __SampledDataVectorSegmenter__(__DataVectorSegmenter__):
 
             return data_segment
         else:
-            raise StopIteration
+            if self.mark_last_segment:
+                self.last_segment = True
+            else:
+                raise StopIteration
 
     def segment_count(self):
         """
@@ -301,10 +336,11 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
     value of stepping size
     """
     def __init__(self, data, window_size, window_size_unit,
-                 stepper_size, stepper_unit, shift):
+                 stepper_size, stepper_unit, shift, mark_last_segment=False):
         super(__SteppedDataVectorSegmenter__, self).__init__(data, window_size,
                                                              window_size_unit,
-                                                             shift)
+                                                             shift,
+                                                             mark_last_segment)
 
         self.__stepper_size__ = stepper_size
 
@@ -373,12 +409,20 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
                                     self.window_size_in_signal_unit)
 
             if index_stop > self.signal_size:
-                raise StopIteration
+                if self.mark_last_segment:
+                    self.last_segment = True
+                    return
+                else:
+                    raise StopIteration
 
             if index_stop == self.signal_size:
                 index_stop = self.signal_size - 1
                 if index_start > index_stop:
-                    raise StopIteration
+                    if self.mark_last_segment:
+                        self.last_segment = True
+                        return
+                    else:
+                        raise StopIteration
 
             if self.__bits_stepper__:
                 #for simple bit's stepper index jumps by
@@ -392,7 +436,10 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
 
             return self.__getDataVactor__(index_start, index_stop)
         else:
-            raise StopIteration
+            if self.mark_last_segment:
+                self.last_segment = True
+            else:
+                raise StopIteration
 
     def segment_count(self):
         """
