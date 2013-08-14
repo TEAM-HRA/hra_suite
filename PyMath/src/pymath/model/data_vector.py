@@ -5,6 +5,7 @@ Created on 24 kwi 2013
 '''
 from pymath.utils.utils import print_import_error
 try:
+    import pylab as pl
     from pycore.misc import Params
     from pycore.units import Millisecond
     from pymath.utils.array_utils import array_copy
@@ -148,6 +149,17 @@ class DataVector(object):
     @time_header.setter
     def time_header(self, _time_header):
         self.__params__.time_header = _time_header
+
+    def equals(self, other_data_vector):
+        """
+        method check equality of other data vector with itself
+        based only on equality of signal_plus
+        """
+        if not self.signal_plus == None and not other_data_vector == None:
+            #there is only check of one element - signal_plus array
+            return pl.array_equal(self.signal_plus,
+                                  other_data_vector.signal_plus)
+        return False
 
 
 EMPTY_DATA_VECTOR = DataVector(signal=EMPTY_ARRAY, signal_plus=EMPTY_ARRAY,
