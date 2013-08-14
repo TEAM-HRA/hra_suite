@@ -325,6 +325,11 @@ if __name__ == '__main__':
                 help="directory for movie files [default: " +
                         DEFAULT_OUTCOME_DIRECTORY + "]",
                 default=DEFAULT_OUTCOME_DIRECTORY)
+    parser.add_argument("-multi_proc_factor", "--movie_multiprocessing_factor",
+                help="""to generate a poincare plot movie use multiprocessing,
+                 active on multiprocessing hardware, greater value > 0 give
+                 use more of processors
+                 """, type=int)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -356,6 +361,8 @@ if __name__ == '__main__':
     ppManager.stepper = __args.stepper
     ppManager.movie_name = __args.movie_name
     ppManager.movie_dir = __args.movie_dir
+    ppManager.movie_multiprocessing_factor = \
+                    __args.movie_multiprocessing_factor
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:

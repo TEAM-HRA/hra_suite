@@ -5,6 +5,7 @@ Created on 24 kwi 2013
 '''
 from pymath.utils.utils import print_import_error
 try:
+    import multiprocessing
     import pylab as pl
     from pycore.misc import ColorRGB
     from pycore.collections_utils import nvl
@@ -201,6 +202,44 @@ class PoincarePlotMovieParameters(CoreParameters):
     def movie_start_frame(self, _movie_start_frame):
         self.__movie_start_frame__ = _movie_start_frame
 
+    @property
+    def movie_not_save(self):
+        """
+        [optional - default: False]
+        not save frames, not save a movie, only for testing purposes
+        """
+        return nvl(self.__movie_not_save__, False)
+
+    @movie_not_save.setter
+    def movie_not_save(self, _movie_not_save):
+        self.__movie_not_save__ = _movie_not_save
+
+    @property
+    def movie_show_plot_legends(self):
+        """
+        [optional - default: False]
+        show plot legends
+        """
+        return nvl(self.__movie_show_plot_legends__, False)
+
+    @movie_show_plot_legends.setter
+    def movie_show_plot_legends(self, _movie_show_plot_legends):
+        self.__movie_show_plot_legends__ = _movie_show_plot_legends
+
+    @property
+    def movie_multiprocessing_factor(self):
+        """
+        [optional - default: 3]
+        multiprocessing factor if multiprocessing is available
+        if this is not the case value equals 0
+        """
+        return nvl(self.__movie_multiprocessing_factor__,
+                                3 if multiprocessing.cpu_count() > 1 else 0)
+
+    @movie_multiprocessing_factor.setter
+    def movie_multiprocessing_factor(self, _movie_multiprocessing_factor):
+        self.__movie_multiprocessing_factor__ = _movie_multiprocessing_factor
+
     def setObjectPoincarePlotMovieParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -221,6 +260,11 @@ class PoincarePlotMovieParameters(CoreParameters):
         setattr(_object, 'movie_width', self.movie_width)
         setattr(_object, 'movie_save_partial', self.movie_save_partial)
         setattr(_object, 'movie_start_frame', self.movie_start_frame)
+        setattr(_object, 'movie_not_save', self.movie_not_save)
+        setattr(_object, 'movie_show_plot_legends',
+                            self.movie_show_plot_legends)
+        setattr(_object, 'movie_multiprocessing_factor',
+                            self.movie_multiprocessing_factor)
 
     def validatePoincarePlotMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.movie_name == None:
@@ -251,3 +295,7 @@ class PoincarePlotMovieParameters(CoreParameters):
             print('    save partial movie: ' + str(self.movie_save_partial))
             print('    the number of movie frame starts from: ' +
                                                 str(self.movie_start_frame))
+            print('    show plot legends: ' +
+                                        str(self.movie_show_plot_legends))
+            print('    movie multiprocessing factor: ' +
+                                        str(self.movie_multiprocessing_factor))

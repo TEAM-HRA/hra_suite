@@ -390,7 +390,8 @@ class PoincarePlotGenerator(object):
                                                 self.sample_step,
                                                 self.window_shift,
                                                 self.stepper_size,
-                                                self.stepper_unit)
+                                                self.stepper_unit,
+                                                mark_last_segment=True)
 
         start_progress.segmenter = segmenter
         start_progress()
@@ -403,16 +404,17 @@ class PoincarePlotGenerator(object):
         movie_maker = PoincarePlotMovieMaker(data_vector, self,
                                     segment_count=segmenter.segment_count(),
                                     filter_manager=filter_manager)
+
         for data_segment in segmenter:
+            if segmenter.last_segment:
+                movie_maker.add_data_vector_segment(None, last_segment=True)
+                break
+
             if interrupter.isInterrupted():
                 #mark interrupt state of interrupter to give consistent
                 #behaviour to the rest of the code
                 interrupter.interrupt()
                 break
-            if segmenter.data_changed:
-                data_segment_old = None
-            else:
-                data_segment = data_segment_old
 
             if segmenter.data_changed:
                 data_segment = filter_manager.run_filters(data_segment)
@@ -431,13 +433,12 @@ class PoincarePlotGenerator(object):
                 if len(data_segment.signal) == 1:
                     continue
 
-            if segmenter.data_changed:
+            if segmenter.data_changed and \
+                not data_segment.equals(data_segment_old):
                 movie_maker.add_data_vector_segment(data_segment)
+                progress.tick(additional_message=movie_maker.info_message)
 
-            progress.tick(additional_message=movie_maker.info_message)
-
-            if segmenter.data_changed:
-                data_segment_old = data_segment
+            data_segment_old = data_segment
 
         progress.close()
         interrupted = interrupter.isInterrupted()
