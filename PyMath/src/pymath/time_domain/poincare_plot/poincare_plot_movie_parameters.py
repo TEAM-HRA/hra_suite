@@ -252,6 +252,18 @@ class PoincarePlotMovieParameters(CoreParameters):
     def movie_bin_size(self, _movie_bin_size):
         self.__movie_bin_size__ = _movie_bin_size
 
+    @property
+    def movie_experimental_code(self):
+        """
+        [optional]
+        use some experimental code; only for tests [default: False]
+        """
+        return nvl(self.__movie_experimental_code__, False)
+
+    @movie_experimental_code.setter
+    def movie_experimental_code(self, _movie_experimental_code):
+        self.__movie_experimental_code__ = _movie_experimental_code
+
     def setObjectPoincarePlotMovieParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -278,6 +290,8 @@ class PoincarePlotMovieParameters(CoreParameters):
         setattr(_object, 'movie_multiprocessing_factor',
                             self.movie_multiprocessing_factor)
         setattr(_object, 'movie_bin_size', self.movie_bin_size)
+        setattr(_object, 'movie_experimental_code',
+                            self.movie_experimental_code)
 
     def validatePoincarePlotMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.movie_name == None:
@@ -312,3 +326,5 @@ class PoincarePlotMovieParameters(CoreParameters):
             print('    movie multiprocessing factor: ' +
                                         str(self.movie_multiprocessing_factor))
             print('    movie bin size: ' + str(self.movie_bin_size))
+            print('    use experimental code: '
+                                         + str(self.movie_experimental_code))

@@ -336,6 +336,11 @@ if __name__ == '__main__':
                 help="""a movie fps [optional]""", type=int)
     parser.add_argument("-movie_skip_to_frame", "--movie_skip_to_frame",
                 help="""skip to a movie frame [optional]""", type=int)
+    parser.add_argument("-movie_experimental_code",
+                        "--movie_experimental_code",
+                help="""use some movie experimental code;
+                         only for tests, default False""",
+                type=to_bool, default=False)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -372,6 +377,7 @@ if __name__ == '__main__':
     ppManager.movie_fps = __args.movie_fps
     ppManager.movie_bin_size = __args.movie_bin_size
     ppManager.movie_skip_to_frame = __args.movie_skip_to_frame
+    ppManager.movie_experimental_code = __args.movie_experimental_code
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:
