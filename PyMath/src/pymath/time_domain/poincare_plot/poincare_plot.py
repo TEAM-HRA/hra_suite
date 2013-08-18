@@ -320,7 +320,7 @@ if __name__ == '__main__':
                 or in time units by suffix: s - second, m - minute, h - hour;
                 examples: 100, 5m [optional]""")
     parser.add_argument("-movie_name", "--movie_name",
-                help="""name of a movie for Poincare plot evolutions""")  # @IgnorePep8
+                help="""name of a movie for Poincare plot evolutions""")
     parser.add_argument("-movie_dir", "--movie_dir",
                 help="directory for movie files [default: " +
                         DEFAULT_OUTCOME_DIRECTORY + "]",
@@ -330,6 +330,12 @@ if __name__ == '__main__':
                  active on multiprocessing hardware, greater value > 0 give
                  use more of processors
                  """, type=int)
+    parser.add_argument("-movie_bin_size", "--movie_bin_size",
+                help="""movie bin size """, type=int)
+    parser.add_argument("-fps", "--movie_fps",
+                help="""a movie fps [optional]""", type=int)
+    parser.add_argument("-movie_skip_to_frame", "--movie_skip_to_frame",
+                help="""skip to a movie frame [optional]""", type=int)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -363,6 +369,9 @@ if __name__ == '__main__':
     ppManager.movie_dir = __args.movie_dir
     ppManager.movie_multiprocessing_factor = \
                     __args.movie_multiprocessing_factor
+    ppManager.movie_fps = __args.movie_fps
+    ppManager.movie_bin_size = __args.movie_bin_size
+    ppManager.movie_skip_to_frame = __args.movie_skip_to_frame
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:

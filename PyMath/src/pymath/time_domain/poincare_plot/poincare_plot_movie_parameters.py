@@ -191,16 +191,16 @@ class PoincarePlotMovieParameters(CoreParameters):
         self.__movie_save_partial__ = _movie_save_partial
 
     @property
-    def movie_start_frame(self):
+    def movie_skip_to_frame(self):
         """
         [optional]
-        the number of movie frame starts from [default: 0]
+        skip to a movie frame [default: 0]
         """
-        return nvl(self.__movie_start_frame__, 0)
+        return nvl(self.__movie_skip_to_frame__, 0)
 
-    @movie_start_frame.setter
-    def movie_start_frame(self, _movie_start_frame):
-        self.__movie_start_frame__ = _movie_start_frame
+    @movie_skip_to_frame.setter
+    def movie_skip_to_frame(self, _movie_skip_to_frame):
+        self.__movie_skip_to_frame__ = _movie_skip_to_frame
 
     @property
     def movie_not_save(self):
@@ -240,6 +240,18 @@ class PoincarePlotMovieParameters(CoreParameters):
     def movie_multiprocessing_factor(self, _movie_multiprocessing_factor):
         self.__movie_multiprocessing_factor__ = _movie_multiprocessing_factor
 
+    @property
+    def movie_bin_size(self):
+        """
+        [optional - default: False]
+        movie bin size; for internal use [default: 500]
+        """
+        return nvl(self.__movie_bin_size__, 500)
+
+    @movie_bin_size.setter
+    def movie_bin_size(self, _movie_bin_size):
+        self.__movie_bin_size__ = _movie_bin_size
+
     def setObjectPoincarePlotMovieParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -259,12 +271,13 @@ class PoincarePlotMovieParameters(CoreParameters):
         setattr(_object, 'movie_height', self.movie_height)
         setattr(_object, 'movie_width', self.movie_width)
         setattr(_object, 'movie_save_partial', self.movie_save_partial)
-        setattr(_object, 'movie_start_frame', self.movie_start_frame)
+        setattr(_object, 'movie_skip_to_frame', self.movie_skip_to_frame)
         setattr(_object, 'movie_not_save', self.movie_not_save)
         setattr(_object, 'movie_show_plot_legends',
                             self.movie_show_plot_legends)
         setattr(_object, 'movie_multiprocessing_factor',
                             self.movie_multiprocessing_factor)
+        setattr(_object, 'movie_bin_size', self.movie_bin_size)
 
     def validatePoincarePlotMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.movie_name == None:
@@ -293,9 +306,9 @@ class PoincarePlotMovieParameters(CoreParameters):
             print('    DPI: ' + str(self.movie_dpi))
             print('    skip existing frames: ' + str(self.movie_skip_frames))
             print('    save partial movie: ' + str(self.movie_save_partial))
-            print('    the number of movie frame starts from: ' +
-                                                str(self.movie_start_frame))
+            print('    skip to frame: ' + str(self.movie_skip_to_frame))
             print('    show plot legends: ' +
                                         str(self.movie_show_plot_legends))
             print('    movie multiprocessing factor: ' +
                                         str(self.movie_multiprocessing_factor))
+            print('    movie bin size: ' + str(self.movie_bin_size))

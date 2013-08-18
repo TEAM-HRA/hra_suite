@@ -1,14 +1,14 @@
 from pymath.utils.utils import print_import_error
-from pycore.collections_utils import get_chunks
 try:
     import os
     import gc
     import multiprocessing
     import pylab as pl
-    #from matplotlib.pyplot import savefig
+    import matplotlib as mpl
+    from matplotlib.pyplot import savefig
     #matplotlib.use("Agg")
-    #import matplotlib.pyplot as plt
-    #from matplotlib.patches import Rectangle
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import Rectangle
     from pycore.datetime_utils import get_time_label_for_miliseconds
     from pycore.misc import Params
     from pycore.misc import ColorRGB
@@ -25,6 +25,16 @@ def get_color_array(_color):
         return pl.array([_color.red, _color.green, _color.blue]) / 255.0
 
 
+def get_extended_color_array(_color, fill=True):
+    """
+    method converts _color parameter into extended numpy array
+    of colors parts, extended by fourth element which expresses
+    """
+    if isinstance(_color, ColorRGB):
+        return pl.array([_color.red, _color.green, _color.blue,
+                         255 if fill else 0]) / 255.0
+
+
 class PoincarePlotMovieMaker(object):
     """
     class used to generate poincare plot movie
@@ -33,6 +43,8 @@ class PoincarePlotMovieMaker(object):
         self.p = movie_parameters
         if not self.p.movie_name == None:
             self.params = Params(**params)
+            mpl.rcParams['patch.edgecolor'] = 'none'
+            mpl.rcParams['savefig.edgecolor'] = 'none'
 
             if not self.params.filter_manager == None:
                 data_vector = self.params.filter_manager.run_filters(
@@ -46,20 +58,22 @@ class PoincarePlotMovieMaker(object):
             self.x_data = None
             self.y_data = None
             self.old_signal_plus = None
-            #self.empty_rectangle = Rectangle((0, 0), 1, 1, fc="w", fill=False,
-            #                                 edgecolor='none', linewidth=0)
             self.idx = 0
-            self.active_color = get_color_array(
+            self.active_color = get_extended_color_array(
                                         movie_parameters.movie_active_color)
-            self.inactive_color = get_color_array(
+            self.inactive_color = get_extended_color_array(
                                         movie_parameters.movie_inactive_color)
-            self.centroid_color = get_color_array(
+            self.centroid_color = get_extended_color_array(
                                         movie_parameters.movie_centroid_color)
             self.message = None
-            self.pp_specs = []
             self.core_nums = multiprocessing.cpu_count() * self.p.movie_multiprocessing_factor # @IgnorePep8
-            #self.start_idx = 0
             self.pp_spec_manager = MiniPoincarePlotSpecManager()
+            self.pp_specs_managers = []
+            self.pp_specs_managers.append(self.pp_spec_manager)
+            self.sub_dir_counter = 0
+            self.scatter = None
+            self.legend_text = None
+            self.pp_specs = []
 
     def add_data_vector_segment(self, data_vector_segment, last_segment=False):
         self.message = None
@@ -69,11 +83,9 @@ class PoincarePlotMovieMaker(object):
         if last_segment:
             self.__save_frames__()
             return
-        #print('\nSTART data_vector_segment.signal_plus: ' + str(data_vector_segment.signal_plus))
-        #return
 
         frame_file = as_path(self.p.movie_dir, '%06d.png' % self.idx)
-        skip_frame = True if self.idx < self.p.movie_start_frame or \
+        skip_frame = True if self.idx < self.p.movie_skip_to_frame or \
             (self.p.movie_skip_frames and os.path.exists(frame_file)) \
             else False
 
@@ -82,108 +94,64 @@ class PoincarePlotMovieMaker(object):
 
         s_plus = len(data_vector_segment.signal_plus)
 
-        pp_spec = MiniPoincarePlotSpec()
-        pp_spec.s_plus = s_plus
-        pp_spec.mean_plus = mean_plus
-        pp_spec.mean_minus = mean_minus
-        pp_spec.range = self.range
-        pp_spec.active_color = self.active_color
-        pp_spec.inactive_color = self.inactive_color
-        pp_spec.centroid_color = self.centroid_color
-        pp_spec.active_point_size = self.p.movie_active_size
-        pp_spec.inactive_point_size = self.p.movie_inactive_size
-        pp_spec.centroid_point_size = self.p.movie_centroid_size
-        pp_spec.frame_file = frame_file
-        pp_spec.show_plot_legends = self.p.movie_show_plot_legends
+        _p = MiniPoincarePlotSpec()
+        _p.idx = self.idx
+        _p.s_plus = s_plus
+        _p.mean_plus = mean_plus
+        _p.mean_minus = mean_minus
+        _p.range = self.range
+        _p.active_color = self.active_color
+        _p.inactive_color = self.inactive_color
+        _p.centroid_color = self.centroid_color
+        _p.active_point_size = self.p.movie_active_size
+        _p.inactive_point_size = self.p.movie_inactive_size
+        _p.centroid_point_size = self.p.movie_centroid_size
+        _p.frame_file = frame_file
+        _p.show_plot_legends = self.p.movie_show_plot_legends
 
-        self.pp_spec_manager.addMiniPoincarePlotSpec(pp_spec)
-
-        #print('skip_frame: ' + str(skip_frame))
         if self.x_data == None:
+
             self.x_data = pl.copy(data_vector_segment.signal_plus)
             self.y_data = pl.copy(data_vector_segment.signal_minus)
+
             ok = True
             old_s_plus = 0
             if skip_frame == False:
-                #pp_spec.x_data = self.x_data[:]
-                #pp_spec.y_data = self.y_data[:]
-                pp_spec.level = 0
+                _p.level = 0
+                _p.active_start = 0
+                _p.active_stop = s_plus
         else:
 
             old_s_plus = len(self.old_signal_plus)
             ok = False
-            #idx = 0
-            #kk = (self.old_signal_plus[idx:]
-            # == data_vector_segment.signal_plus[idx - 1: old_s_plus - idx])
-            #print('type self.old_signal_plus[idx:] ' + str(type(self.old_signal_plus[idx:])))
-            #print('type data_vector_segment.signal_plus[idx - 1: old_s_plus - idx]: '
-            #      + str(type(data_vector_segment.signal_plus[idx - 1: old_s_plus - idx])))
-            #print('kk: ' + str(kk))
             if s_plus >= old_s_plus:
-                #print('self.old_signal_plus: ' + str(self.old_signal_plus))
-                #print('data_vector_segment.signal_plus: ' + str(data_vector_segment.signal_plus))
                 if pl.all(self.old_signal_plus \
                             == data_vector_segment.signal_plus[:old_s_plus]):
                     old_size = len(self.x_data)
                     new_size = old_size + s_plus - old_s_plus
-                    #print('(3) old_size: ' + str(old_size) + ' new_size: ' + str(new_size))
+                    _p.active_start = old_size
+                    _p.active_stop = new_size
 
-                    #pl.require(self.x_data, requirements=['OWNDATA'])
-                    #print('(3) before resize: ' + str(len(self.x_data)))
                     self.x_data.resize((new_size), refcheck=False)
-                    #print('(3) after resize: ' + str(len(self.x_data))
-                    #              + ' self.x_data: ' + str(self.x_data))
-                    #print('(3) old_s_plus: ' + str(old_s_plus) +
-                    #      ' s_plus - old_s_plus = ' + str(s_plus - old_s_plus))
                     self.x_data.put(pl.arange(old_size, new_size),
                         data_vector_segment.signal_plus[old_s_plus - s_plus:])
-                    #print('(3) after put x_data: ' + str(self.x_data))
 
                     self.y_data.resize((new_size), refcheck=False)
                     self.y_data.put(pl.arange(old_size, new_size),
                         data_vector_segment.signal_minus[old_s_plus - s_plus:])
 
                     if skip_frame == False:
-                        inactive_idx = len(self.x_data) - s_plus
-
-                        #pp_spec.x_data = self.x_data[:]
-                        #pp_spec.y_data = self.y_data[:]
-                        #print('inactive_idx: ' + str(inactive_idx))
-                        pp_spec.inactive_idx = inactive_idx
-                        pp_spec.level = 1
+                        _p.level = 1
                     ok = True
-                    #print('\nidx = 0 level 1')
                 else:
                     for idx in xrange(1, old_s_plus):
-                        #print('idx: ' + str(idx))
-                        #print('\n type: self.old_signal_plus[idx:] - '
-                        #      + str(type(self.old_signal_plus[idx:])))
-                        #print('\n self.old_signal_plus[idx:] - '
-                        #      + str(self.old_signal_plus[idx:]))
-                        #print('\n type(data_vector_segment.signal_plus[idx - 1: old_s_plus - idx]) - ' + 
-                        #      str(type(data_vector_segment.signal_plus[idx - 1: old_s_plus - idx])))                    
-                        #print('\n data_vector_segment.signal_plus[idx - 1: old_s_plus - idx] - ' + 
-                        #      str(data_vector_segment.signal_plus[idx - 1: old_s_plus - idx]))
-                        #kk = (self.old_signal_plus[idx:]
-                        #     == data_vector_segment.signal_plus[idx - 1: old_s_plus - idx])
-                        #print('kk: ' + str(kk) + ' type(kk) ' + str(type(kk)))
-                        #if   not False in (
-                        #if (
-                        #        not False in kk
-                        #    ): # @IgnorePep8
                         if pl.all(self.old_signal_plus[idx:] \
                                     == data_vector_segment.signal_plus[idx - 1:
                                                             old_s_plus - idx]):
-                            #print('\nidx = ' + str(idx) + ' level 1')
-                            #self.x_data = pl.hstack((self.x_data,
-                            #    data_vector_segment.signal_plus[old_s_plus -
-                            #                                     idx:]))
-                            #self.y_data = pl.hstack((self.y_data,
-                            #    data_vector_segment.signal_minus[old_s_plus -
-                            #                                      idx:]))
-
                             old_size = len(self.x_data)
                             new_size = old_size + s_plus - (old_s_plus - idx)
+                            _p.active_start = old_size
+                            _p.active_stop = new_size
 
                             self.x_data.resize((new_size), refcheck=False)
                             self.x_data.put(pl.arange(old_size, new_size),
@@ -196,12 +164,11 @@ class PoincarePlotMovieMaker(object):
                                                            old_s_plus - idx:])
 
                             if skip_frame == False:
-                                inactive_idx = len(self.x_data) - s_plus
+                                _d = len(self.x_data) - s_plus
+                                _p.inactive_start = _d - idx
+                                _p.inactive_stop = _d
 
-                                #pp_spec.x_data = self.x_data[:]
-                                #pp_spec.y_data = self.y_data[:]
-                                pp_spec.inactive_idx = inactive_idx
-                                pp_spec.level = 1
+                                _p.level = 3
 
                             ok = True
                             break
@@ -212,44 +179,32 @@ class PoincarePlotMovieMaker(object):
                             self.old_signal_plus[idx:idx + s_plus] \
                                     == data_vector_segment.signal_plus):
                         if skip_frame == False:
-                            inactive_idx = len(self.x_data) - old_s_plus + idx
+                            _d = len(self.x_data) - old_s_plus
+                            _p.inactive_start = _d
+                            _p.inactive_stop = _d + idx
 
-                            #pp_spec.x_data = self.x_data[:]
-                            #pp_spec.y_data = self.y_data[:]
-                            #pp_spec.x_size = len(self.x_data)
-                            #pp_spec.y_size = len(self.y_data)
-                            pp_spec.inactive_idx = inactive_idx
-                            pp_spec.level = 2
-                            #print('\nidx = ' + str(idx) + ' level 2')
+                            if _p.inactive_stop + s_plus < len(self.x_data):
+                                _p.inactive_start_2 = _p.inactive_stop + s_plus
+                                _p.inactive_stop_2 = len(self.x_data)
+                            _p.level = 2
 
                         ok = True
                         break
         if ok == True and skip_frame == False:
-            pp_spec.x_data = self.x_data
-            pp_spec.y_data = self.y_data
-            pp_spec.d_size = len(self.x_data)
-            #pp_spec.y_size = len(self.y_data)
-            #print('x_size: ' + str(pp_spec.x_size))
-            #print('y_size: ' + str(pp_spec.y_size))
-            #if self.idx == 0:
-            #    create_mini_poincare_plot(pp_spec)
+            _p.x_data = self.x_data
+            _p.y_data = self.y_data
 
             if self.p.movie_multiprocessing_factor > 0:
-                if self.idx > 0 and self.idx % 500 == 0:
-                    self.pp_specs.append(self.pp_spec_manager)
+                self.pp_spec_manager.addMiniPoincarePlotSpec(_p)
+                if self.idx > 0 and self.idx % self.p.movie_bin_size == 0:
+                    if len(self.pp_specs_managers) >= self.core_nums:
+                        self.__save_frames__()
+                        self.pp_specs_managers = []
                     self.pp_spec_manager = MiniPoincarePlotSpecManager()
-                #print('FRAME FILE ADDED:' + str(pp_spec.frame_file))
-                #self.pp_specs.append(pp_spec)
-                if len(self.pp_specs) > self.core_nums:  # self.core_nums:
-                    #create_mini_poincare_plot_v2(self.pp_specs,
-                    #                             self.p.movie_dir,
-                    #                             self.start_idx)
-                    #self.start_idx = self.start_idx + len(self.pp_specs)
-                    #self.__save_frames__()
-                    #self.pp_specs = []
-                    self.__save_frames__()
+                    self.pp_specs_managers.append(self.pp_spec_manager)
             else:
-                create_mini_poincare_plot(pp_spec)
+                #self.pp_specs.append(_p)
+                create_mini_poincare_plot(_p)
             self.message = 'Wrote file: %s' % (frame_file)
         elif ok == True and skip_frame == True:
             self.message = 'File %s skipped' % (frame_file)
@@ -261,9 +216,6 @@ class PoincarePlotMovieMaker(object):
 
         self.old_signal_plus = data_vector_segment.signal_plus
         self.idx = self.idx + 1
-        #if self.idx > 3:
-        #    create_mini_poincare_plot(pp_spec)
-        #    raise Exception('END')
         gc.collect()  # 'to force' garbage collection
 
     def save_movie(self):
@@ -294,51 +246,19 @@ class PoincarePlotMovieMaker(object):
     def info_message(self):
         return self.message
 
-#    def __save_frames_old__(self):
-#        if not hasattr(self, 'pool'):
-#            self.pool = multiprocessing.Pool(processes=self.core_nums,
-#                            maxtasksperchild=self.core_nums)
-#        #self.pool.map(create_mini_poincare_plot, self.pp_specs[:],
-#        #         chunksize=self.p.movie_multiprocessing_factor)
-#        self.pool.imap_unordered(create_mini_poincare_plot, self.pp_specs[:],
-#                 chunksize=400)
-#        self.pp_specs = []
-#        gc.collect()  # 'to force' garbage collection
-
     def __save_frames__(self):
-        import matplotlib.pyplot as plt
-        #return
-        # 1
-        #print(' Saving')
-        pool = multiprocessing.Pool(
-                                    processes=self.core_nums,
-                                    #processes=self.core_nums,
-                    maxtasksperchild=self.p.movie_multiprocessing_factor)
-        pool.map(create_mini_poincare_plot,
-                            self.pp_specs,
-                            #chunksize=multiprocessing.cpu_count())
-                            #chunksize=self.p.movie_multiprocessing_factor
-                            )
-        #self.p.movie_multiprocessing_factor)
-        # 2
-        #pool = multiprocessing.Pool(processes=self.core_nums,
-        #                maxtasksperchild=self.p.movie_multiprocessing_factor)
-        #pool.imap_unordered(create_mini_poincare_plot, self.pp_specs,
-        #         chunksize=multiprocessing.cpu_count() * 8)
-
-        #pool.map(create_mini_poincare_plot, self.pp_specs[:],
-        #         chunksize=self.p.movie_multiprocessing_factor)
-        #oo = pool.imap_unordered(create_mini_poincare_plot, self.pp_specs,
-        #         chunksize=100)
-        #async = pool.map_async(create_mini_poincare_plot, self.pp_specs,
-        #         chunksize=30)
-        #async.wait()
-        #print('TYPE: ' + str(type(oo)))
-        pool.close()
-        plt.close('all')
-        self.pp_specs = []
-        gc.collect()  # 'to force' garbage collection
-        #print(' End saving')
+        if len(self.pp_specs_managers) > 0:
+            pool = multiprocessing.Pool(
+                                        processes=self.core_nums
+                    #,maxtasksperchild=self.p.movie_multiprocessing_factor
+                    )
+            pool.map(create_mini_poincare_plot, self.pp_specs_managers,
+                    #chunksize=self.p.movie_multiprocessing_factor
+                    #chunksize=20
+                    )
+            pool.close()
+            plt.close('all')
+            gc.collect()  # 'to force' garbage collection
 
 
 class MiniPoincarePlotSpecManager(object):
@@ -364,12 +284,11 @@ class MiniPoincarePlotSpec(object):
     """
 
     def __init__(self):
+        self.__idx__ = 0
         self.__x_data__ = None
         self.__y_data__ = None
         self.__idx__ = None
         self.__level__ = None
-        self.__inactive_idx__ = None
-        self.__s_plus__ = None
         self.__mean_plus__ = None
         self.__mean_minus__ = None
         self.__range__ = None
@@ -384,6 +303,20 @@ class MiniPoincarePlotSpec(object):
         self.__show_plot_legends__ = False
         self.__x_size__ = 0
         self.__y_size__ = 0
+        self.__active_start__ = -1
+        self.__active_stop__ = -1
+        self.__inactive_start__ = -1
+        self.__inactive_stop__ = -1
+        self.__inactive_start_2__ = -1
+        self.__inactive_stop_2__ = -1
+
+    @property
+    def idx(self):
+        return self.__idx__
+
+    @idx.setter
+    def idx(self, _idx):
+        self.__idx__ = _idx
 
     @property
     def x_data(self):
@@ -408,22 +341,6 @@ class MiniPoincarePlotSpec(object):
     @level.setter
     def level(self, _level):
         self.__level__ = _level
-
-    @property
-    def inactive_idx(self):
-        return self.__inactive_idx__
-
-    @inactive_idx.setter
-    def inactive_idx(self, _inactive_idx):
-        self.__inactive_idx__ = _inactive_idx
-
-    @property
-    def s_plus(self):
-        return self.__s_plus__
-
-    @s_plus.setter
-    def s_plus(self, _s_plus):
-        self.__s_plus__ = _s_plus
 
     @property
     def mean_plus(self):
@@ -522,130 +439,187 @@ class MiniPoincarePlotSpec(object):
         self.__show_plot_legends__ = _show_plot_legends
 
     @property
-    def d_size(self):
-        return self.__d_size__
+    def active_start(self):
+        return self.__active_start__
 
-    @d_size.setter
-    def d_size(self, _d_size):
-        self.__d_size__ = _d_size
+    @active_start.setter
+    def active_start(self, _active_start):
+        self.__active_start__ = _active_start
+
+    @property
+    def active_stop(self):
+        return self.__active_stop__
+
+    @active_stop.setter
+    def active_stop(self, _active_stop):
+        self.__active_stop__ = _active_stop
+
+    @property
+    def inactive_start(self):
+        return self.__inactive_start__
+
+    @inactive_start.setter
+    def inactive_start(self, _inactive_start):
+        self.__inactive_start__ = _inactive_start
+
+    @property
+    def inactive_stop(self):
+        return self.__inactive_stop__
+
+    @inactive_stop.setter
+    def inactive_stop(self, _inactive_stop):
+        self.__inactive_stop__ = _inactive_stop
+
+    @property
+    def inactive_start_2(self):
+        return self.__inactive_start_2__
+
+    @inactive_start_2.setter
+    def inactive_start_2(self, _inactive_start_2):
+        self.__inactive_start_2__ = _inactive_start_2
+
+    @property
+    def inactive_stop_2(self):
+        return self.__inactive_stop_2__
+
+    @inactive_stop_2.setter
+    def inactive_stop_2(self, _inactive_stop_2):
+        self.__inactive_stop_2__ = _inactive_stop_2
+
+    def __str__(self):
+        return ('level: %d, ' +
+               ' frame file: %s, active_start %d, active_stop %d, ' +
+               ' inactive_start %d, inactive_stop %d, ' +
+               ' inactive_start_2 %d, inactive_stop_2 %d '
+               ) \
+            % (self.level, self.frame_file,
+               self.active_start, self.active_stop,
+               self.inactive_start, self.inactive_stop,
+               self.inactive_start_2, self.inactive_stop_2,
+               )
 
 
 def create_mini_poincare_plot(pp_spec_or_pp_specs_manager):
-    import matplotlib.pyplot as plt
-    from matplotlib.pyplot import savefig
-    print('create_mini_poincare_plot')
-    #matplotlib.use("Agg")
-    #import matplotlib.pyplot as plt
-    from matplotlib.patches import Rectangle
-    #print('IN create_mini_poincare_plot')
     #plt.ioff()
     if isinstance(pp_spec_or_pp_specs_manager, MiniPoincarePlotSpecManager):
         pp_specs = pp_spec_or_pp_specs_manager.getMiniPoincarePlotSpecs()
     else:
         pp_specs = [pp_spec_or_pp_specs_manager]
-    p = pp_specs[0]  # alias
+
+    if len(pp_specs) == 0:
+        return
+
+    p0 = pp_specs[0]  # alias
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, adjustable='box', aspect=1.0)
-    ax.axis(p.range)
+    ax.axis(p0.range)
     ax.set_xlabel('$RR_{n}$ [ms]')
     ax.set_ylabel('$RR_{n+1}$ [ms]')
     empty_rectangle = Rectangle((0, 0), 1, 1, fc="w", fill=False,
                                 edgecolor='none', linewidth=0)
-    idx = 0
-    for p in pp_specs:
-        idx += 1
-        if idx % 100:
+
+    white = pl.array([255, 255, 255, 0]) / 255.0
+
+    #x_data and y_data are the same for all items included in pp_specs
+    #array, we have to add add one item for a centroid value
+    x_data = pl.hstack((pl.copy(p0.x_data), pl.array([0])))
+    y_data = pl.hstack((pl.copy(p0.y_data), pl.array([0])))
+
+    colors0 = [white] * len(x_data)
+    sizes0 = [p0.inactive_point_size] * len(x_data)
+
+    #at the the last index is a centroid
+    sizes0[-1] = p0.centroid_point_size
+    colors0[-1] = p0.centroid_color
+
+    if p0.level == 0:
+        colors0[p0.active_start:p0.active_stop] = \
+                [p0.active_color] * (p0.active_stop - p0.active_start)
+        sizes0[p0.active_start:p0.active_stop] = \
+                [p0.active_point_size] * (p0.active_stop - p0.active_start)
+    else:
+        if p0.inactive_start >= 0 and p0.inactive_stop >= 0:
+            colors0[:p0.inactive_stop] = [p0.inactive_color] * p0.inactive_stop
+            sizes0[:p0.inactive_stop] = [p0.inactive_point_size] * p0.inactive_stop # @IgnorePep8
+        if p0.active_stop >= 0:
+            colors0[p0.inactive_stop:p0.active_stop] = \
+                [p0.active_color] * (p0.active_stop - p0.inactive_stop)
+            sizes0[p0.inactive_stop:p0.active_stop] = \
+                [p0.active_point_size] * (p0.active_stop - p0.inactive_stop)
+        if p0.inactive_start_2 >= 0 and p0.inactive_stop_2 >= 0:
+            colors0[p0.inactive_start_2:p0.inactive_stop_2] = \
+               [p0.inactive_color] * (p0.inactive_stop_2 - p0.inactive_start_2)
+            sizes0[p0.inactive_start_2:p0.inactive_stop_2] = \
+               [p0.inactive_point_size] * (p0.inactive_stop_2
+                                            - p0.inactive_start_2)
+
+    scatter = ax.scatter(x_data, y_data, c=colors0, s=sizes0,
+                         edgecolors='none', animated=False)
+
+    sizes = scatter.get_sizes()
+    colors = scatter._facecolors
+    offsets = scatter.get_offsets()
+
+    if p0.level == 0:
+        time_label = get_time_label_for_miliseconds(0)
+    else:
+        time_label = get_time_label_for_miliseconds(
+                                pl.sum(x_data[:p0.inactive_stop]))
+    leg_time = ax.legend([empty_rectangle], [time_label], 'upper left')
+    leg_time.get_frame().set_alpha(0.5)
+    ltext = leg_time.get_texts()
+    plt.setp(ltext, fontsize=8)
+    ax.add_artist(leg_time)
+    legend_text = ltext[0]
+    legend_text.set_text(('%s [%d]') % (time_label, p0.idx))
+
+    centroid = pl.array([p0.mean_plus, p0.mean_minus])
+    offsets[-1].put(pl.arange(0, 2), centroid)
+
+    fig.savefig(p0.frame_file, dpi=p0.dpi)
+
+    for idx, p in enumerate(pp_specs[1:]):
+
+        if idx % 1000 == 0:
             gc.collect()  # 'to force' garbage collection
 
-        if p.level == 0:
-            time_label = get_time_label_for_miliseconds(0)
-        else:
-            time_label = get_time_label_for_miliseconds(
-                                    pl.sum(p.x_data[:p.inactive_idx]))
-        leg_time = ax.legend([empty_rectangle], [time_label],
-                              'upper left')
-        leg_time.get_frame().set_alpha(0.5)
-        ltext = leg_time.get_texts()
-        plt.setp(ltext, fontsize=8)
-        ax.add_artist(leg_time)
+        time_label = get_time_label_for_miliseconds(
+                                    pl.sum(x_data[:p.inactive_stop]))
+        legend_text.set_text(('%s [%d]') % (time_label, p.idx))
 
-        a_plot = None
-        c_plot = None
-        i_plot_0 = None
-        i_plot = None
-        if p.level == 0:
-            a_plot = ax.scatter(p.x_data, p.y_data,
-                                c=p.active_color,
-                                s=p.active_point_size)
-            c_plot = ax.scatter([p.mean_plus], [p.mean_minus],
-                                c=p.centroid_color,
-                                s=p.centroid_point_size)
-        elif p.level == 1:
-            i_plot = ax.scatter(p.x_data[:p.inactive_idx],
-                                p.y_data[:p.inactive_idx],
-                                c=p.inactive_color,
-                                s=p.inactive_point_size)
-            a_plot = ax.scatter(p.x_data[p.inactive_idx:p.d_size],
-                                p.y_data[p.inactive_idx:p.d_size],
-                                c=p.active_color,
-                                s=p.active_point_size)
-            c_plot = ax.scatter([p.mean_plus], [p.mean_minus],
-                                c=p.centroid_color,
-                                s=p.centroid_point_size)
-        elif p.level == 2:
-            i_plot_0 = ax.scatter(p.x_data[:p.inactive_idx],
-                                  p.y_data[:p.inactive_idx],
-                                  c=p.inactive_color,
-                                  s=p.inactive_point_size)
-            i_plot = ax.scatter(p.x_data[p.inactive_idx + p.s_plus:p.d_size],
-                                p.y_data[p.inactive_idx + p.s_plus:p.d_size],
-                                c=p.inactive_color,
-                                s=p.inactive_point_size)
-            a_plot = ax.scatter(p.x_data[p.inactive_idx:p.inactive_idx + p.s_plus], # @IgnorePep8
-                                p.y_data[p.inactive_idx:p.inactive_idx + p.s_plus], # @IgnorePep8
-                                c=p.active_color,
-                                s=p.active_point_size)
-            c_plot = ax.scatter([p.mean_plus], [p.mean_minus],
-                                c=p.centroid_color,
-                                s=p.centroid_point_size)
+        if p.inactive_start >= 0 and p.inactive_stop >= 0:
+            sizes[p.inactive_start:p.inactive_stop] = p.inactive_point_size
+            colors[p.inactive_start:p.inactive_stop, :] = p.inactive_color
 
-        if p.show_plot_legends == True:
+        if p.active_start >= 0 and p.active_stop >= 0:
+            sizes[p.active_start:p.active_stop] = p.active_point_size
+            colors[p.active_start:p.active_stop, :] = p.active_color
 
-            if p.level == 0:
-                leg_plots = ax.legend((a_plot, c_plot),
-                                       ('biezacy PP', "controid"),
-                                       'upper right', scatterpoints=1)
-            else:
-                leg_plots = ax.legend((a_plot, i_plot, c_plot),
-                            ('biezacy PP', "poprzednie PP", "controid"),
-                            'upper right', scatterpoints=1)  # , shadow=True)
-            leg_plots.get_frame().set_alpha(0.5)
-            ltext = leg_plots.get_texts()
-            plt.setp(ltext, fontsize=8)
+        if p.inactive_start_2 >= 0 and p.inactive_stop_2 >= 0:
+            sizes[p.inactive_start_2:p.inactive_stop_2] = p.inactive_point_size
+            colors[p.inactive_start_2:p.inactive_stop_2, :] = p.inactive_color
 
-        #frame_file = as_path(p.frame_file_dir, '%06d.png' % idx)
-        savefig(p.frame_file, dpi=p.dpi)
-        #print('saving: ' + p.frame_file)
+# for future use
+#        if p.show_plot_legends == True:
+#
+#            if p.level == 0:
+#                leg_plots = ax.legend((a_plot, c_plot),
+#                                       ('biezacy PP', "controid"),
+#                                       'upper right', scatterpoints=1)
+#            else:
+#                leg_plots = ax.legend((a_plot, i_plot, c_plot),
+#                            ('biezacy PP', "poprzednie PP", "controid"),
+#                            'upper right', scatterpoints=1)  # , shadow=True)
+#            leg_plots.get_frame().set_alpha(0.5)
+#            ltext = leg_plots.get_texts()
+#            plt.setp(ltext, fontsize=8)
 
-        if not a_plot == None:
-            a_plot.remove()
-        if not c_plot == None:
-            c_plot.remove()
-        if not i_plot == None:
-            i_plot.remove()
-        if not i_plot_0 == None:
-            i_plot_0.remove()
+        #set up a controid value
+        centroid = pl.array([p.mean_plus, p.mean_minus])
+        offsets[-1].put(pl.arange(0, 2), centroid)
 
-        #remove legends
-        leg_time.remove()
-        if p.show_plot_legends == True:
-            leg_plots.remove()
-        ax.legend_ = None
+        fig.savefig(p.frame_file, dpi=p.dpi)
 
-    #savefig(p.frame_file, dpi=p.dpi)
-    #print('saving frame: ' + p.frame_file)
-
-    #print('FUNC saving frame: ' + p.frame_file)
     ax.cla()
     fig.clf()
     #plt.close()  # very important line, protects memory leaks
@@ -656,89 +630,87 @@ def create_mini_poincare_plot(pp_spec_or_pp_specs_manager):
     #print('SAVE PNG')
 
 
-def create_mini_poincare_plot_v0(pp_spec):
-    import matplotlib.pyplot as plt
-    from matplotlib.patches import Rectangle
-    from matplotlib.pyplot import savefig
-    #print('IN create_mini_poincare_plot')
-    #plt.ioff()
-    p = pp_spec  # alias
-    fig = plt.figure()
-    ax = fig.add_subplot(1, 1, 1, adjustable='box', aspect=1.0)
-    ax.axis(p.range)
-    ax.set_xlabel('$RR_{n}$ [ms]')
-    ax.set_ylabel('$RR_{n+1}$ [ms]')
-    empty_rectangle = Rectangle((0, 0), 1, 1, fc="w", fill=False,
-                                edgecolor='none', linewidth=0)
-    if p.level == 0:
-        time_label = get_time_label_for_miliseconds(0)
-    else:
-        time_label = get_time_label_for_miliseconds(
-                                pl.sum(p.x_data[:p.inactive_idx]))
-    leg_time = ax.legend([empty_rectangle], [time_label],
-                          'upper left')
-    leg_time.get_frame().set_alpha(0.5)
-    ltext = leg_time.get_texts()
-    plt.setp(ltext, fontsize=8)
-    ax.add_artist(leg_time)
-
-    if p.level == 0:
-        a_plot = ax.scatter(p.x_data, p.y_data,
-                            c=p.active_color,
-                            s=p.active_point_size)
-        c_plot = ax.scatter([p.mean_plus], [p.mean_minus],
-                            c=p.centroid_color,
-                            s=p.centroid_point_size)
-    elif p.level == 1:
-        i_plot = ax.scatter(p.x_data[:p.inactive_idx],
-                            p.y_data[:p.inactive_idx],
-                            c=p.inactive_color,
-                            s=p.inactive_point_size)
-        a_plot = ax.scatter(p.x_data[p.inactive_idx:p.d_size],
-                            p.y_data[p.inactive_idx:p.d_size],
-                            c=p.active_color,
-                            s=p.active_point_size)
-        c_plot = ax.scatter([p.mean_plus], [p.mean_minus],
-                            c=p.centroid_color,
-                            s=p.centroid_point_size)
-    elif p.level == 2:
-        i_plot_0 = ax.scatter(p.x_data[:p.inactive_idx],
-                              p.y_data[:p.inactive_idx],
-                              c=p.inactive_color,
-                              s=p.inactive_point_size)
-        i_plot = ax.scatter(p.x_data[p.inactive_idx + p.s_plus:p.d_size],
-                            p.y_data[p.inactive_idx + p.s_plus:p.d_size],
-                            c=p.inactive_color,
-                            s=p.inactive_point_size)
-        a_plot = ax.scatter(p.x_data[p.inactive_idx:p.inactive_idx + p.s_plus],
-                            p.y_data[p.inactive_idx:p.inactive_idx + p.s_plus],
-                            c=p.active_color,
-                            s=p.active_point_size)
-        c_plot = ax.scatter([p.mean_plus], [p.mean_minus],
-                            c=p.centroid_color,
-                            s=p.centroid_point_size)
-
-    if p.show_plot_legends == True:
-
-        if p.level == 0:
-            leg_plots = ax.legend((a_plot, c_plot),
-                                       ('biezacy PP', "controid"),
-                                       'upper right', scatterpoints=1)
-        else:
-            leg_plots = ax.legend((a_plot, i_plot, c_plot),
-                            ('biezacy PP', "poprzednie PP", "controid"),
-                            'upper right', scatterpoints=1)  # , shadow=True)
-        leg_plots.get_frame().set_alpha(0.5)
-        ltext = leg_plots.get_texts()
-        plt.setp(ltext, fontsize=8)
-
-    savefig(p.frame_file, dpi=p.dpi)
-    #print('saving frame: ' + p.frame_file)
-
-    #print('FUNC saving frame: ' + p.frame_file)
-    ax.cla()
-    fig.clf()
-    #plt.close()  # very important line, protects memory leaks
-    fig = None
-    gc.collect()  # 'to force' garbage collection
-    #print('SAVE PNG')
+#OLD VERSION
+#def create_mini_poincare_plot_v0(pp_spec):
+#    #print('IN create_mini_poincare_plot')
+#    #plt.ioff()
+#    p = pp_spec  # alias
+#    fig = plt.figure()
+#    ax = fig.add_subplot(1, 1, 1, adjustable='box', aspect=1.0)
+#    ax.axis(p.range)
+#    ax.set_xlabel('$RR_{n}$ [ms]')
+#    ax.set_ylabel('$RR_{n+1}$ [ms]')
+#    empty_rectangle = Rectangle((0, 0), 1, 1, fc="w", fill=False,
+#                                edgecolor='none', linewidth=0)
+#    if p.level == 0:
+#        time_label = get_time_label_for_miliseconds(0)
+#    else:
+#        time_label = get_time_label_for_miliseconds(
+#                                pl.sum(p.x_data[:p.inactive_idx]))
+#    leg_time = ax.legend([empty_rectangle], [time_label],
+#                          'upper left')
+#    leg_time.get_frame().set_alpha(0.5)
+#    ltext = leg_time.get_texts()
+#    plt.setp(ltext, fontsize=8)
+#    ax.add_artist(leg_time)
+#
+#    if p.level == 0:
+#        a_plot = ax.scatter(p.x_data, p.y_data,
+#                            c=p.active_color,
+#                            s=p.active_point_size)
+#        c_plot = ax.scatter([p.mean_plus], [p.mean_minus],
+#                            c=p.centroid_color,
+#                            s=p.centroid_point_size)
+#    elif p.level == 1:
+#        i_plot = ax.scatter(p.x_data[:p.inactive_idx],
+#                            p.y_data[:p.inactive_idx],
+#                            c=p.inactive_color,
+#                            s=p.inactive_point_size)
+#        a_plot = ax.scatter(p.x_data[p.inactive_idx:p.d_size],
+#                            p.y_data[p.inactive_idx:p.d_size],
+#                            c=p.active_color,
+#                            s=p.active_point_size)
+#        c_plot = ax.scatter([p.mean_plus], [p.mean_minus],
+#                            c=p.centroid_color,
+#                            s=p.centroid_point_size)
+#    elif p.level == 2:
+#        i_plot_0 = ax.scatter(p.x_data[:p.inactive_idx],
+#                              p.y_data[:p.inactive_idx],
+#                              c=p.inactive_color,
+#                              s=p.inactive_point_size)
+#        i_plot = ax.scatter(p.x_data[p.inactive_idx + p.s_plus:p.d_size],
+#                            p.y_data[p.inactive_idx + p.s_plus:p.d_size],
+#                            c=p.inactive_color,
+#                            s=p.inactive_point_size)
+#       a_plot = ax.scatter(p.x_data[p.inactive_idx:p.inactive_idx + p.s_plus],
+#                           p.y_data[p.inactive_idx:p.inactive_idx + p.s_plus],
+#                            c=p.active_color,
+#                            s=p.active_point_size)
+#        c_plot = ax.scatter([p.mean_plus], [p.mean_minus],
+#                            c=p.centroid_color,
+#                            s=p.centroid_point_size)
+#
+#    if p.show_plot_legends == True:
+#
+#        if p.level == 0:
+#            leg_plots = ax.legend((a_plot, c_plot),
+#                                       ('biezacy PP', "controid"),
+#                                       'upper right', scatterpoints=1)
+#        else:
+#            leg_plots = ax.legend((a_plot, i_plot, c_plot),
+#                            ('biezacy PP', "poprzednie PP", "controid"),
+#                            'upper right', scatterpoints=1)  # , shadow=True)
+#        leg_plots.get_frame().set_alpha(0.5)
+#        ltext = leg_plots.get_texts()
+#        plt.setp(ltext, fontsize=8)
+#
+#    savefig(p.frame_file, dpi=p.dpi)
+#    #print('saving frame: ' + p.frame_file)
+#
+#    #print('FUNC saving frame: ' + p.frame_file)
+#    ax.cla()
+#    fig.clf()
+#    #plt.close()  # very important line, protects memory leaks
+#    fig = None
+#    gc.collect()  # 'to force' garbage collection
+#    #print('SAVE PNG')
