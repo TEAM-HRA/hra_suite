@@ -264,6 +264,18 @@ class PoincarePlotMovieParameters(CoreParameters):
     def movie_experimental_code(self, _movie_experimental_code):
         self.__movie_experimental_code__ = _movie_experimental_code
 
+    @property
+    def movie_animated(self):
+        """
+        [optional - default: False]
+        use of animation API to generate a movie
+        """
+        return nvl(self.__movie_animated__, False)
+
+    @movie_animated.setter
+    def movie_animated(self, _movie_animated):
+        self.__movie_animated__ = _movie_animated
+
     def setObjectPoincarePlotMovieParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -290,6 +302,7 @@ class PoincarePlotMovieParameters(CoreParameters):
         setattr(_object, 'movie_multiprocessing_factor',
                             self.movie_multiprocessing_factor)
         setattr(_object, 'movie_bin_size', self.movie_bin_size)
+        setattr(_object, 'movie_animated', self.movie_animated)
         setattr(_object, 'movie_experimental_code',
                             self.movie_experimental_code)
 
@@ -326,5 +339,6 @@ class PoincarePlotMovieParameters(CoreParameters):
             print('    movie multiprocessing factor: ' +
                                         str(self.movie_multiprocessing_factor))
             print('    movie bin size: ' + str(self.movie_bin_size))
+            print('    use animation API: ' + str(self.movie_animated))
             print('    use experimental code: '
                                          + str(self.movie_experimental_code))

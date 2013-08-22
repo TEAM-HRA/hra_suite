@@ -341,6 +341,10 @@ if __name__ == '__main__':
                 help="""use some movie experimental code;
                          only for tests, default False""",
                 type=to_bool, default=False)
+    parser.add_argument("-movie_animated", "--movie_animated",
+                help="""use animation API to generate a movie;
+                        required mencoder and ffmpeg [default False]""",
+                type=to_bool, default=False)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -378,6 +382,7 @@ if __name__ == '__main__':
     ppManager.movie_bin_size = __args.movie_bin_size
     ppManager.movie_skip_to_frame = __args.movie_skip_to_frame
     ppManager.movie_experimental_code = __args.movie_experimental_code
+    ppManager.movie_animated = __args.movie_animated
     _disp = False
     #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:

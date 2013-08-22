@@ -401,9 +401,13 @@ class PoincarePlotGenerator(object):
 
         interrupter = ControlInterruptHandler()
         data_segment_old = None
+
+        self.movie_progress = progress
+
         movie_maker = PoincarePlotMovieMaker(data_vector, self,
-                                    segment_count=segmenter.segment_count(),
-                                    filter_manager=filter_manager)
+                            segment_count=segmenter.segment_count(),
+                            filter_manager=filter_manager,
+                            info_message_handler=self.__info_message_handler__)
 
         for data_segment in segmenter:
             if segmenter.last_segment:
@@ -448,7 +452,15 @@ class PoincarePlotGenerator(object):
             movie_maker.save_movie()
             self.params.info_handler(movie_maker.info_message)
 
+        self.movie_progress = None
+
         return not interrupted
+
+    def __info_message_handler__(self, _message):
+        if not self.movie_progress == None:
+            self.movie_progress.tick(additional_message=_message)
+        elif not self.params.info_handler == None:
+            self.params.info_handler(_message)
 
 
 class StartProgressGenerator(object):
