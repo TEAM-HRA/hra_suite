@@ -1,4 +1,4 @@
-<project name="PyUtils" default="py_installer.help">
+<project name="HRAUtils" default="py_installer.help">
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml" />
 
@@ -31,7 +31,7 @@
 	
 	<property name="doc_html_dir" location="doc/html"/>
 	
-	<property name="py_setup_egg" location="../PyUtils/src_setup/setup.py"/>
+	<property name="py_setup_egg" location="../HRAUtils/src_setup/setup.py"/>
 	
 	<property environment="env"/>
 
@@ -167,7 +167,7 @@
 			<env key="PYTHONPATH" value="${env.PYTHONPATH};${eggs_names};src"/>
 			<env key="HIDDEN_PACKAGES" value="${hidden.packages}"/>
 			<arg value="-c" />
-			<arg value="${python-path-linux}/python ${linux-pyinstaller-path}/utils/Build.py ../PyUtils/application.spec.py -y --buildpath=${application.root}/build/${application.name}" />
+			<arg value="${python-path-linux}/python ${linux-pyinstaller-path}/utils/Build.py ../HRAUtils/application.spec.py -y --buildpath=${application.root}/build/${application.name}" />
 		</exec>
 		<exec executable="cmd" osfamily="winnt" >
 			<env key="PATH" path="${env.PATH};${additional.paths}"/>
@@ -191,7 +191,7 @@
 			<arg value="-v" />
 			-->			
 			<arg value="${win-pyinstaller-path}/utils/Build.py" />
-			<arg value="../PyUtils/application.spec.py" />
+			<arg value="../HRAUtils/application.spec.py" />
 			<arg value="-y" />
 			<arg value="--buildpath=${application.root}/build/${application.name}"/>
 		</exec>
@@ -252,7 +252,7 @@
 			<env key="APPLICATION_NAME" value="${application.name}"/>			
 			<arg value="/c" />
 			<arg value="${doxygen-win}" />			
-			<arg value="../PyUtils/doc_chm.doxygen" />
+			<arg value="../HRAUtils/doc_chm.doxygen" />
 		</exec>
 		<move file="${doc_temp_html}/${application.name}.chm" todir="${doc_html_dir}"/>
 		<delete dir="${doc_temp}"/>		
@@ -269,7 +269,7 @@
 			<env key="APPLICATION_NAME" value="${application.name}"/>			
 			<arg value="/c" />
 			<arg value="${doxygenw-win}" />			
-			<arg value="../PyUtils/doc_pdf.doxygen" />
+			<arg value="../HRAUtils/doc_pdf.doxygen" />
 		</exec>
 
 		<exec executable="cmd" osfamily="winnt" dir="${doc_temp_latex}">

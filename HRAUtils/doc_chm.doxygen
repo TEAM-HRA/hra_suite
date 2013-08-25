@@ -1,4 +1,4 @@
-@INCLUDE = ../PyUtils/doc_common.doxygen
+@INCLUDE = ../HRAUtils/doc_common.doxygen
 
 GENERATE_HTML = YES
 GENERATE_HTMLHELP = YES
