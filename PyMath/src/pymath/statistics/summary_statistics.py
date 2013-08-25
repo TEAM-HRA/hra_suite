@@ -7,7 +7,6 @@ statistics which correspond to the whole data recording
 '''
 from pymath.utils.utils import print_import_error
 try:
-    import pylab as pl
     from pycore.introspection import create_class_object_with_suffix
     from pycore.introspection import get_subclasses_names_with_suffix
     from pycore.introspection import expand_to_real_class_names
