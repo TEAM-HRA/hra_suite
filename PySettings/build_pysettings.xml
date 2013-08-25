@@ -1,4 +1,0 @@
-<project name="PySettings" default="build.egg">
-	<property file="../PySettings/build_pysettings.properties" />
-	<import file="../PyUtils/commons.xml"/>
-</project>
