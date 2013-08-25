@@ -208,25 +208,21 @@ class PoincarePlotMovieMaker(object):
             _p.cum_inactive = self.cum_inactive
             #print('PP_SPEC: ' + str(_p))
 
-            if self.p.movie_multiprocessing_factor > 0:
-                self.pp_spec_manager.addMiniPoincarePlotSpec(_p)
-                if self.idx > 0 and \
-                    (self.p.movie_bin_size > 0
-                        and ((self.idx % self.p.movie_bin_size) == 0)):
-                    if len(self.pp_specs_managers) >= self.core_nums:
-                        self.__save_frames__()
-                        self.pp_specs_managers = []
+            self.pp_spec_manager.addMiniPoincarePlotSpec(_p)
+            if self.idx > 0 and \
+                (self.p.movie_bin_size > 0
+                    and ((self.idx % self.p.movie_bin_size) == 0)):
+                if len(self.pp_specs_managers) >= self.core_nums:
+                    self.__save_frames__()
+                    self.pp_specs_managers = []
 
-                    self.pp_spec_manager = MiniPoincarePlotSpecManager()
-                    self.pp_spec_manager.movie_dir = self.p.movie_dir
-                    self.pp_spec_manager.movie_name = self.p.movie_name
-                    self.pp_spec_manager.movie_dpi = self.p.movie_dpi
-                    self.pp_spec_manager.movie_fps = self.p.movie_fps
+                self.pp_spec_manager = MiniPoincarePlotSpecManager()
+                self.pp_spec_manager.movie_dir = self.p.movie_dir
+                self.pp_spec_manager.movie_name = self.p.movie_name
+                self.pp_spec_manager.movie_dpi = self.p.movie_dpi
+                self.pp_spec_manager.movie_fps = self.p.movie_fps
 
-                    self.pp_specs_managers.append(self.pp_spec_manager)
-            else:
-                #self.pp_specs.append(_p)
-                create_mini_poincare_plot(_p)
+                self.pp_specs_managers.append(self.pp_spec_manager)
             self.message = 'Prepare frame: %s' % (frame_name)
         elif ok == True and skip_frame == True:
             self.message = 'Skip frame %s' % (frame_name)
@@ -273,25 +269,32 @@ class PoincarePlotMovieMaker(object):
 
     def __save_frames__(self):
         if len(self.pp_specs_managers) > 0:
-            pool = multiprocessing.Pool(processes=self.core_nums
-                #,maxtasksperchild=self.p.movie_multiprocessing_factor
-                )
-            if self.p.movie_animated:
-                _function = create_animated_mini_poincare_plot
-            elif self.p.movie_experimental_code:
-                _function = create_mini_poincare_plot_experimental
-            else:
-                _function = create_mini_poincare_plot
-            if not self.params.info_message_handler == None:
-                self.params.info_message_handler('Generating frames'
+            if self.p.movie_multiprocessing_factor > 0:
+                pool = multiprocessing.Pool(processes=self.core_nums
+                    #,maxtasksperchild=self.p.movie_multiprocessing_factor
+                    )
+                if not self.params.info_message_handler == None:
+                    self.params.info_message_handler('Generating frames'
                                                  + (' ' * 20))
-            pool.map(_function, self.pp_specs_managers,
+                pool.map(self.__poincare_plot_function__,
+                         self.pp_specs_managers,
                          #chunksize=self.p.movie_multiprocessing_factor
                          #chunksize=20
                          )
-            pool.close()
-            plt.close('all')
-            gc.collect()  # 'to force' garbage collection
+                pool.close()
+            else:
+                _function = self.__poincare_plot_function__
+                for pp_spec_manager in self.pp_specs_managers:
+                    _function(pp_spec_manager)
+
+    @property
+    def __poincare_plot_function__(self):
+        if self.p.movie_animated:
+            return create_animated_mini_poincare_plot
+        elif self.p.movie_experimental_code:
+            return create_mini_poincare_plot_experimental
+        else:
+            return create_mini_poincare_plot
 
 
 class MiniPoincarePlotSpecManager(object):
@@ -585,10 +588,14 @@ def create_mini_poincare_plot(pp_spec_or_pp_specs_manager):
         for idx, p in enumerate(movie_maker.pp_specs[1:]):
             movie_maker.plot(idx)
             movie_maker.fig.savefig(p.frame_file, dpi=p.dpi)
+        plt.close('all')
+        gc.collect()  # 'to force' garbage collection
 
 
 def create_animated_mini_poincare_plot(pp_specs_manager):
     PoincarePlotAnimation(pp_specs_manager)
+    plt.close('all')
+    gc.collect()  # 'to force' garbage collection
 
 
 def create_mini_poincare_plot_experimental(pp_specs_manager):
