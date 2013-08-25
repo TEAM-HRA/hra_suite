@@ -1,0 +1,4 @@
+<project name="PyMath" default="build.egg">
+	<property file="../PyMath/build_pymath.properties" />	
+	<import file="../PyUtils/commons.xml"/>
+</project>
