@@ -1,4 +1,0 @@
-<project name="PyCore" default="build.egg">
-	<property file="../PyCore/build_pycore.properties" />
-	<import file="../PyUtils/commons.xml"/>
-</project>
