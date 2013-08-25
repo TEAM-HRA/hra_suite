@@ -1,0 +1,4 @@
+<project name="HRACore" default="build.egg">
+	<property file="../HRACore/build_hra_pycore.properties" />
+	<import file="../PyUtils/commons.xml"/>
+</project>
