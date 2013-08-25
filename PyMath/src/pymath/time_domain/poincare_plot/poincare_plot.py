@@ -17,7 +17,6 @@ try:
     from pymath.model.data_vector_parameters import DataVectorParameters
     from pymath.model.file_data_parameters import FileDataParameters
     from pymath.statistics.statistic_parameters import StatisticParameters
-    from pymath.frequency_domain.fourier_parameters import FourierParameters
     from pymath.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
     from pymath.time_domain.poincare_plot.poincare_plot_movie_parameters import PoincarePlotMovieParameters # @IgnorePep8
@@ -25,8 +24,6 @@ try:
     from pymath.statistics.statistics import ALL_STATISTICS
     from pymath.statistics.summary_statistics import get_summary_statistics_names # @IgnorePep8
     from pymath.statistics.summary_statistics import ALL_SUMMARY_STATISTICS
-    from pymath.frequency_domain.fourier_parameters import getInterpolationNames # @IgnorePep8
-    from pymath.frequency_domain.fourier_parameters import getFourierTransformationNames # @IgnorePep8
     from pymath.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
     from pymath.time_domain.poincare_plot.poincare_plot_generator \
         import PoincarePlotGenerator
@@ -52,7 +49,7 @@ def getSeparatorLabels():
 
 class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
                           FileDataParameters, FilterParameters,
-                          StatisticParameters, FourierParameters,
+                          StatisticParameters,
                           PoincarePlotMovieParameters):
     def __init__(self, other=None):
         PoincarePlotParameters.__init__(self)
@@ -60,7 +57,6 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
         FileDataParameters.__init__(self)
         FilterParameters.__init__(self)
         StatisticParameters.__init__(self)
-        FourierParameters.__init__(self)
         PoincarePlotMovieParameters.__init__(self)
 
         self.__progress_mark__ = None
@@ -76,7 +72,6 @@ class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
     def generate(self):
         self.__pp_generator__ = PoincarePlotGenerator(
                                         file_data_parameters=self,
-                                        fourier_parameters=self,
                                         data_vector_parameters=self,
                                         filter_parameters=self,
                                         statistic_parameters=self,
@@ -272,18 +267,9 @@ if __name__ == '__main__':
                 help="display unique annotations values presented in " +
                     "data source files [True|False]",
                 type=to_bool, default=False)
-#    parser.add_argument("-df", "--display_filters",
-#                help="display list of available filters [True|False]",
-#                type=to_bool, default=False)
     parser.add_argument("-fts", "--filters_names",
                 help="""use filters; available filters: """
                     + commas(get_filters_short_names()))
-    parser.add_argument("-ft", "--fourier_transformation",
-                help="""use fourier transformation; available: """ +
-                        getFourierTransformationNames())
-    parser.add_argument("-fti", "--fourier_transform_interpolation",
-                help="""use interpolation method during fourier transformation
-                    ; available interpolations: """ + getInterpolationNames())
     parser.add_argument("-ea", "--excluded_annotations",
                 help="""specifies which values (separated by a comma) have to
                          be interpreted as true annotations values;
@@ -361,10 +347,6 @@ if __name__ == '__main__':
     ppManager.time_index = __args.time_index
     ppManager.output_precision = __args.output_precision
     ppManager.filters_names = __args.filters_names
-    ppManager.fourier_transformation = \
-                    __args.fourier_transformation
-    ppManager.fourier_transform_interpolation = \
-                    __args.fourier_transform_interpolation
     ppManager.excluded_annotations = __args.excluded_annotations
     ppManager.ordinal_column_name = __args.ordinal_column_name
     ppManager.output_separator = __args.output_separator
@@ -384,14 +366,10 @@ if __name__ == '__main__':
     ppManager.movie_experimental_code = __args.movie_experimental_code
     ppManager.movie_animated = __args.movie_animated
     _disp = False
-    #ppManager.addStatisticHandler(stat_double)
     if __args.display_annotation_values == True:
         _disp = True
         print('Annotations: ' + commas(ppManager.getUniqueAnnotations(),
                                        _default='none'))
-#    if __args.display_filters == True:
-#        _disp = True
-#        print('Filters: ' + get_filters_short_names())
     if __args.headers == True:
         _disp = True
         print('Headers:')

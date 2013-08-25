@@ -20,13 +20,11 @@ try:
     from pymath.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
     from pymath.time_domain.poincare_plot.poincare_plot_movie_parameters import PoincarePlotMovieParameters # @IgnorePep8    
     from pymath.time_domain.poincare_plot.poincare_plot_movie_maker import PoincarePlotMovieMaker # @IgnorePep8
-    from pymath.frequency_domain.fourier_parameters import FourierParameters
     from pymath.statistics.statistics import StatisticsFactory
     from pymath.statistics.summary_statistics import SummaryStatisticsFactory
     from pymath.statistics.summary_statistics import get_summary_statistics_for_csv # @IgnorePep8
     from pymath.statistics.summary_statistics import get_summary_statistics_order_for_csv # @IgnorePep8
     from pymath.statistics.statistic_parameters import extended_statistics_classes # @IgnorePep8
-    #from pymath.frequency_domain.fourier import FourierTransformationManager
     from pymath.time_domain.poincare_plot.filters.filter_manager import FilterManager # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
@@ -186,9 +184,6 @@ class PoincarePlotGenerator(object):
         """
         core functionality to generate poincare plots
         """
-
-#        fourier = FourierTransformationManager(self.fourier_transformation,
-#                                    self.fourier_transform_interpolation)
         filter_manager = FilterManager(_shift=self.window_shift,
                         _excluded_annotations=self.excluded_annotations,
                         _filters=self.filters)
@@ -262,10 +257,6 @@ class PoincarePlotGenerator(object):
             if segmenter.data_changed:
                 if len(data_segment.signal) == 1:
                     continue
-
-            #fourier_params = fourier.calculate(data_segment,
-            #                                   self.excluded_annotations)
-            #parameters.update(fourier_params)
 
             if segmenter.data_changed:
                 statistics = statisticsFactory.statistics(data_segment)
@@ -358,7 +349,6 @@ class PoincarePlotGenerator(object):
                 (StatisticParameters.__name__, StatisticParameters.NAME),
                 (PoincarePlotParameters.__name__, PoincarePlotParameters.NAME),
                 (FilterParameters.__name__, FilterParameters.NAME),
-                (FourierParameters.__name__, FourierParameters.NAME),
                 (PoincarePlotMovieParameters.__name__,
                  PoincarePlotMovieParameters.NAME)]
 
