@@ -1,0 +1,378 @@
+<project name="HRASetup" default="py_installer.help">
+	
+	<taskdef resource="net/sf/antcontrib/antlib.xml" />
+
+	<!-- stable version -->	
+	<property name="win-pyinstaller-path" location="H:/python/pyinstaller-2.0"/>
+	<property name="linux-pyinstaller-path" location="../../../python/pyinstaller-2.0"/>
+
+	<!-- development version
+	<property name="win-pyinstaller-path" location="../../../../python/pyinstaller-pyinstaller-d437018"/>
+	-->
+	<!--
+	<property name="application.root" location="../${application.name}"/>
+	-->
+	
+	<property name="python-path-win" location="H:/python/python_64/Python27"/>	
+	<property name="python-path-linux" location="/usr/bin"/>
+
+	<property name="doxygen-win" location="../../../../Programs/doxygen/bin/doxygen.exe"/>	
+	<property name="doxygen-linux" location="/usr/bin/doxygen"/>
+	
+	<property name="miktext-win" location="H:/MiKTeX2.9/miktex/bin"/>
+
+	<property name="doc_temp" location="doc/temp"/>
+	
+	<property name="doc_temp_latex" location="doc/temp/latex"/>	
+
+	<property name="doc_latex_dir" location="doc/latex"/>
+	
+	<property name="doc_temp_html" location="doc/temp/html"/>
+	
+	<property name="doc_html_dir" location="doc/html"/>
+	
+	<property name="py_setup_egg" location="../HRASetup/src_setup/setup.py"/>
+	
+	<property environment="env"/>
+
+	<target name="properties.environment">
+		<!--
+		<property environment="env"/>
+		-->
+		<echo message="ENV: ${os.name}"/>
+	</target>	
+
+	<!-- additional path to resolve a problem with some qt dll libraries -->
+	<!-- an application runs smoothly also without that setting -->	
+	<!--
+	<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>
+	-->	
+	
+	
+	<target name="_help.py_med.egg">
+		<exec executable="cmd" osfamily="winnt">
+			<arg value="/c" />
+			<arg value="${python-path-win}/python.exe" />			
+			<arg value="${py_setup_egg}" />
+			<arg value="--help-commands" />
+		</exec>		
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="-c" />
+			<arg value="${python-path-linux}/python" />			
+			<arg value="${py_setup_egg}" />
+			<arg value="--help-commands" />
+		</exec>				
+	</target>	
+	
+	<target name="build.egg">
+		<exec executable="cmd" osfamily="winnt">
+			<env key="APPLICATION_DESCRIPTION" value="${application.description}"/>
+			<env key="APPLICATION_NAME" value="${application.name}"/>
+			<env key="REQUIRED_PACKAGES" value="${required.packages}"/>
+			<env key="ADDITIONAL_FILES" value="${additional.files}"/>			
+			<arg value="/c" />
+			<arg value="${python-path-win}/python.exe" />
+			<arg value="${py_setup_egg}" />
+			<arg value="bdist_egg" />
+		</exec>
+		<exec executable="/bin/bash" os="Linux">
+			<env key="APPLICATION_DESCRIPTION" value="${application.description}"/>
+			<env key="APPLICATION_NAME" value="${application.name}"/>
+			<env key="REQUIRED_PACKAGES" value="${required.packages}"/>
+			<env key="ADDITIONAL_FILES" value="${additional.files}"/>
+			<arg value="-c" />
+			<arg value="${python-path-linux}/python ${py_setup_egg} bdist_egg" />
+		</exec>
+		<delete dir="${application.root}/src/${application.name}.egg-info"/>
+	</target>	
+	
+	<target name="rebuild.egg" depends="clean.all, build.egg"/>
+
+	<target name="check.application.dist">
+		<if>
+			<equals arg1="${build.type}" arg2="D"/>
+		    <then>
+        		<antcall target="clean.dist"/>
+			</then>
+		</if>			
+	</target>
+
+
+	<target name="build.application">
+	
+		<!-- 
+		set up two variables:
+		eggs_names - includes all eggs passed by egg.[number] properties and 
+					is used in PYTHONPATH environmental variable  
+		eggs - includes exact locations of eggs passed by egg.[number] properties
+				and is used in application.spec.py file by PyInstaller framework
+				to put these eggs into eggs folder of a building application
+		-->
+		<var name="eggs" value=""/>
+		<var name="eggs_names" value=""/>		
+		<for list="1,2,3,4,5,6,7,8,9" param="counter"> <!-- up to 9 eggs could by examined -->
+			<sequential>
+				<!-- if egg.[counter] property is not set by parent (invoking) target 
+					then the following instruction set it to the empty string -->				
+				<property name="egg.@{counter}" value=""/>				
+				<if>
+					<!-- if egg.[counter] property exists which means is not empty -->
+					<not><equals arg1="${egg.@{counter}}" arg2=""/></not>
+					<then>
+						<echo>Using egg: ${egg.@{counter}}</echo>
+						<property name="egg.@{counter}.location" location="${egg.@{counter}}"/>
+						<var name="eggs" value="${eggs};${egg.@{counter}.location}"></var>
+						<var name="eggs_names" value="${eggs_names};${egg.@{counter}}"></var>						
+					</then>
+				</if>				
+			</sequential>
+		</for>
+		
+		<!-- 
+		because there is a code which is not explicitly invoked so one have to pass
+		packages where the code is located by hidden.package.<number> properties,
+		hidden_packages - includes all hidden packages passed by hidden.package.[number] properties
+		-->
+		<var name="hidden.packages" value=""/>
+		<!-- up to 25 hidden packages could by examined -->		
+		<for list="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25" param="counter">
+			<sequential>
+				<!-- if hidden.package.[counter] property is not set by parent (invoking) target 
+					then the following instruction set it to the empty string -->				
+				<property name="hidden.package.@{counter}" value=""/>				
+				<if>
+					<!-- if hidden.package.[counter] property exists which means is not empty -->
+					<not><equals arg1="${hidden.package.@{counter}}" arg2=""/></not>
+					<then>
+						<echo>Using hidden package: ${hidden.package.@{counter}}</echo>
+						<var name="hidden.packages" value="${hidden.packages};${hidden.package.@{counter}}"></var>						
+					</then>
+				</if>				
+			</sequential>
+		</for>
+
+		<exec executable="/bin/bash" os="Linux">
+			<env key="PATH" path="${env.PATH};${additional.paths}"/>
+			<env key="APPLICATION_NAME" value="${application.name}"/>
+			<env key="START_SCRIPT" value="${start.script}"/>
+			<!-- True - with console -->
+			<env key="CONSOLE_TYPE" value="${console.type}"/>
+			<!-- D - dictionary F- file -->
+			<env key="BUILD_TYPE" value="${build.type}"/>
+			<!-- True - with debug -->			
+			<env key="DEBUG_INFO" value="${debug.info}" />
+
+			<env key="APPLICATION_ROOT" value="${application.root}"/>
+			<env key="EGGS" value="${eggs}"/>			
+			<env key="PYTHONPATH" value="${env.PYTHONPATH};${eggs_names};src"/>
+			<env key="HIDDEN_PACKAGES" value="${hidden.packages}"/>
+			<arg value="-c" />
+			<arg value="${python-path-linux}/python ${linux-pyinstaller-path}/utils/Build.py ../HRASetup/application.spec.py -y --buildpath=${application.root}/build/${application.name}" />
+		</exec>
+		<exec executable="cmd" osfamily="winnt" >
+			<env key="PATH" path="${env.PATH};${additional.paths}"/>
+			<env key="APPLICATION_NAME" value="${application.name}"/>
+			<env key="START_SCRIPT" value="${start.script}"/>
+			<!-- True - with console -->
+			<env key="CONSOLE_TYPE" value="${console.type}"/>
+			<!-- D - dictionary F- file -->
+			<env key="BUILD_TYPE" value="${build.type}"/>
+			<!-- True - with debug -->			
+			<env key="DEBUG_INFO" value="${debug.info}" />
+
+			<env key="APPLICATION_ROOT" value="${application.root}"/>
+			<env key="EGGS" value="${eggs}"/>			
+			<env key="PYTHONPATH" value="${env.PYTHONPATH};${eggs_names};src"/>
+			<env key="HIDDEN_PACKAGES" value="${hidden.packages}"/>
+
+			<arg value="/c" />
+			<arg value="${python-path-win}/python.exe" />
+			<!--
+			<arg value="-v" />
+			-->			
+			<arg value="${win-pyinstaller-path}/utils/Build.py" />
+			<arg value="../HRASetup/application.spec.py" />
+			<arg value="-y" />
+			<arg value="--buildpath=${application.root}/build/${application.name}"/>
+		</exec>
+	</target>
+
+	
+	<target name="clean.dist">
+		<delete dir="${application.root}/dist/${application.name}"/>
+		<delete file="${application.root}/dist/${application.name}.exe"/>		
+	</target>	
+	
+	<target name="clean.egg">
+		<delete failonerror="no">
+			<fileset dir="${application.root}/dist" includes="${application.name}*.egg"/>
+		</delete>
+	</target>		
+	
+	<target name="clean" depends="clean.dist, clean.egg" description="clean application">
+		<delete includeEmptyDirs="true" failonerror="no">
+			<fileset dir="${application.root}/build" includes="**/*"/>
+		</delete>		
+	</target>
+	
+	<target name="clean.all" description="clean all applications" depends="clean.doc">
+		<delete includeEmptyDirs="true" failonerror="no">
+			<fileset dir="${application.root}/build" includes="**/*"/>
+			<fileset dir="${application.root}/dist" includes="**/*"/>			
+		</delete>		
+	</target>
+
+	<target name="clean.doc" description="clean all documentation">
+		<delete includeEmptyDirs="true" failonerror="no">
+			<fileset dir="${application.root}/doc" includes="**/*"/>
+		</delete>
+	</target>
+
+	<target name="py_installer.help" description="PyInstaller help">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="-c" />
+			<arg value="${python-path-linux}/python ${linux-pyinstaller-path}/pyinstaller.py --help" />			
+		</exec>
+		<exec executable="cmd" osfamily="winnt">
+			<arg value="/c" />
+			<arg value="${python-path-win}/python.exe" />			
+			<arg value="${win-pyinstaller-path}/pyinstaller.py" />
+			<arg value="--help" />
+		</exec>		
+	</target>
+	
+	<target name="chm" description="generate chm documentation">
+		<mkdir dir="${doc_html_dir}"/>		
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		
+		<exec executable="cmd" osfamily="winnt">
+			<env key="APPLICATION_NAME" value="${application.name}"/>			
+			<arg value="/c" />
+			<arg value="${doxygen-win}" />			
+			<arg value="../HRASetup/doc_chm.doxygen" />
+		</exec>
+		<move file="${doc_temp_html}/${application.name}.chm" todir="${doc_html_dir}"/>
+		<delete dir="${doc_temp}"/>		
+	</target>	
+
+	<target name="pdf" description="generate pdf documentation">
+		<mkdir dir="${doc_latex_dir}"/>		
+		
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		<exec executable="cmd" osfamily="winnt">
+			<env key="APPLICATION_NAME" value="${application.name}"/>			
+			<arg value="/c" />
+			<arg value="${doxygenw-win}" />			
+			<arg value="../HRASetup/doc_pdf.doxygen" />
+		</exec>
+
+		<exec executable="cmd" osfamily="winnt" dir="${doc_temp_latex}">
+			<arg value="/c" />
+			<arg value="${miktext-win}/pdflatex.exe" />
+			<arg value="refman.tex" />
+			<arg value="-job-name=${application.name}" />
+		</exec>
+
+		<exec executable="cmd" osfamily="winnt" dir="${doc_temp_latex}">
+			<arg value="/c" />
+			<arg value="${miktext-win}/makeindex.exe" />
+			<arg value="${application.name}.idx" />
+		</exec>
+		
+		<exec executable="cmd" osfamily="winnt" dir="${doc_temp_latex}">
+			<arg value="/c" />
+			<arg value="${miktext-win}/pdflatex.exe" />
+			<arg value="refman.tex" />
+			<arg value="${application.name}.idx" />
+		</exec>
+		<move file="${doc_temp_latex}/${application.name}.pdf" todir="${doc_latex_dir}"/>		
+		<delete dir="${doc_temp}"/>
+	</target>	
+
+	<target name="test.old.build.application">
+		<exec executable="/bin/bash" os="Linux">
+			<arg value="mvn" />
+			<arg value="assembly:directory" />
+		</exec>
+		
+		<delete dir="${spec.path}"/>
+		<if>
+			<equals arg1="${os.name}" arg2="Windows 7"/>
+		    <then>
+		    	<echo>
+		    		Creating build.bat
+				</echo>
+		    	<!-- D -to a directory  F to a file -o ${spec.path} -->
+				<echo file="build.bat">
+${python-path-win}/python.exe ${win-pyinstaller-path}/pyinstaller.py ${startup.script} -F -p ${src.path} -o ../PyMed -n ${application.name} ${application.type} -y --noupx --buildpath build\${application.name} 
+				</echo>
+				<exec executable="cmd" osfamily="winnt">
+					<arg value="/c" />
+					<arg value="build.bat" />			
+				</exec>
+			</then>
+			<else>
+				<echo>Can't create build.bat !!!</echo>
+			</else>
+
+		</if>
+	</target>
+
+	<target name="test.old.build.py_med.test_poincare">
+		<antcall target="TEST.old.build.application">
+		    <param name="startup.script" value="src/med/programs/console/test_poincare.py"/>
+		    <param name="application.name" value="test_poincare"/>
+			<param name="application.type" value="-c" />
+			<param name="src.path" value="src" />
+			<param name="spec.path" value="spec" />
+		</antcall>
+	</target>
+	
+	<target name="test.old.build.py_med.test_QT">
+		<antcall target="TEST.old.build.application">
+		    <param name="startup.script" value="src/med/programs/gui/test_QT.pyw"/>
+		    <param name="application.name" value="test_QT"/>
+			<param name="application.type" value="-w" />
+			<param name="src.path" value="src" />
+			<param name="spec.path" value="spec" />
+		</antcall>
+	</target>	
+
+	<target name="check.egg">
+		<if>
+			<available file="${egg}"/>
+		    <then>
+			</then>
+			<else>
+				<ant dir="${egg.project}" antfile="${ant.file}" inheritall="false"/>				
+			</else>
+		</if>		
+	</target>
+
+	<target name="application.contents" description="Application contents listing">
+		<if>
+			<available file="${application.root}/dist/${application.name}.exe"/>
+		    <then>
+				<exec executable="cmd" osfamily="winnt">
+					<arg value="/c" />
+					<arg value="${python-path-win}/python.exe" />
+					<arg value="${win-pyinstaller-path}/utils/ArchiveViewer.py" />
+					<arg value="-r" />
+					<arg value="-b" />					
+					<arg value="${application.root}/dist/${application.name}.exe"/>
+				</exec>
+			</then>
+			<else>
+		    	<echo>
+		    		Application ${application.root}/dist/${application.name}.exe doesn't exist !
+				</echo>				
+			</else>
+		</if>
+	</target>
+</project>
