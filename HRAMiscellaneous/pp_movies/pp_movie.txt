@@ -1,0 +1,20 @@
+import sys
+sys.path.append('/ssd_dev/git_repos/HRA/HRAMath/src')
+sys.path.append('/ssd_dev/git_repos/HRA/HRACore/src')
+import hra_math.time_domain.poincare_plot.poincare_plot as poincare
+pp = poincare.PoincarePlotManager()
+pp.window_size = '5m'
+pp.output_dir = '/ramdisk/tmp'
+pp.data_file='/home/jurek/tmp/movie_poincare.rea'
+pp.signal_index = 1
+pp.annotation_index = 2
+pp.extension = '*.rea'
+pp.progress_mark = True
+pp.filters_names = 'annotation'
+pp.override_existing_outcomes=True
+pp.movie_name = 'pp_movie'
+pp.movie_dir = '/home/tmp/tmp3'
+#pp.movie_dir = '/ramdisk/tmp'
+#pp.movie_start_frame = 41223
+pp.movie_not_save = True
+pp.generate_movie()
