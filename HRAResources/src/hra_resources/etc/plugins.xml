@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugins>
+	<plugin ident="pygui.qt.utils.plugins.PluginsNames.TACHOGRAM_PLOT_PLUGIN_NAME" 
+		host_object_name="pycore.globals.Globals.MAIN_WINDOW_NAME">
+		<signals>
+			<signal ident="pygui.qt.utils.signals.ADD_TAB_ITEM_WIDGET_SIGNAL">
+				<params>
+					<param value="Tachogram Plot" description="title of the tab"/>
+					<param value="pygui.qt.plots.tachogram_plot_tab_item_widget.TachogramPlotTabItemWidget" description="implementation class"/>
+					<param key="model" description="name of the key of model object used by implementattion class"/>
+					<param value="False" description="reuse flag"/>
+				</params>
+			</signal>
+		</signals>
+	</plugin>
+</plugins>
