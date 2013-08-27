@@ -1,4 +1,0 @@
-<project name="PyGUI" default="build.egg">
-	<property file="../PyGUI/build_pygui.properties" />
-	<import file="../PyUtils/commons.xml"/>
-</project>

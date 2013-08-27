@@ -1,4 +1,0 @@
-<project name="PyCommon" default="build.egg">
-	<property file="../PyCommon/build_pycommon.properties" />	
-	<import file="../PyUtils/commons.xml"/>
-</project>

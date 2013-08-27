@@ -1,4 +1,0 @@
-<project name="HRASettings" default="build.egg">
-	<property file="../HRASettings/build_hra_settings.properties" />
-	<import file="../HRAUtils/commons.xml"/>
-</project>
