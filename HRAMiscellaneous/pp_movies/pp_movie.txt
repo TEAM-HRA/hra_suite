@@ -14,7 +14,6 @@ pp.filters_names = 'annotation'
 pp.override_existing_outcomes=True
 pp.movie_name = 'pp_movie'
 pp.movie_dir = '/home/tmp/tmp3'
-#pp.movie_dir = '/ramdisk/tmp'
 #pp.movie_start_frame = 41223
 pp.movie_not_save = True
 pp.generate_movie()
