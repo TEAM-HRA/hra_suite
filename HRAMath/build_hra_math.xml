@@ -1,4 +1,4 @@
 <project name="HRAMath" default="build.egg">
 	<property file="../HRAMath/build_hra_math.properties" />	
-	<import file="../HRAUtils/commons.xml"/>
+	<import file="../HRASetup/commons.xml"/>
 </project>

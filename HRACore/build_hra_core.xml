@@ -1,4 +1,4 @@
 <project name="HRACore" default="build.egg">
 	<property file="../HRACore/build_hra_core.properties" />
-	<import file="../HRAUtils/commons.xml"/>
+	<import file="../HRASetup/commons.xml"/>
 </project>
