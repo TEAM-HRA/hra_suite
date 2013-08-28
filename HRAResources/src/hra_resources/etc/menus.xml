@@ -4,7 +4,7 @@
 		<menuItem ident="exit" title="Exit">
 			<actions>
 				<action title="Exit"
-					slot="pygui.qt.actions.actions.exitApplication" />
+					slot="hra_gui.qt.actions.actions.exitApplication" />
 			</actions>
 		</menuItem>
 	</menu>
@@ -12,7 +12,7 @@
 		<menuItem ident="datasource_import" title="Import datasource">
 			<actions>
 				<action title="Import datasource" iconId="users" 
-					slot="pygui.qt.wizards.datasource_wizard.DatasourceWizard.show_wizard"/>
+					slot="hra_gui.qt.wizards.datasource_wizard.DatasourceWizard.show_wizard"/>
 			</actions>
 		</menuItem>		
 	</menu>	
@@ -20,13 +20,13 @@
 		<menuItem ident="clear_settings" title="Clear settings">
 			<actions>
 				<action title="Clear settings"
-					slot="pygui.qt.actions.actions.clearSettings" />
+					slot="hra_gui.qt.actions.actions.clearSettings" />
 			</actions>
 		</menuItem>
 		<menuItem ident="clear_activities" title="Clear activities">
 			<actions>
 				<action title="Clear activities"
-					slot="pygui.qt.actions.actions.clearActivities" />
+					slot="hra_gui.qt.actions.actions.clearActivities" />
 			</actions>
 		</menuItem>	
 	</menu>
