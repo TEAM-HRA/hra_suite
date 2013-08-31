@@ -123,6 +123,8 @@ class StatisticsSelectionWidget(GroupBoxWidget):
         """
         method to set up statistics values
         """
+        if values_map == None:
+            return
         #show value column
         self.__table__.setColumnHidden(StatisticsSelectionWidget.VALUE_COLUMN,
                                        False)
