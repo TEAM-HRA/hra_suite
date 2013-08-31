@@ -1,0 +1,4 @@
+<project name="HRAGUI" default="build.egg">
+	<property file="../HRAGUI/build_hra_gui.properties" />
+	<import file="../HRASetup/commons.xml"/>	
+</project>
