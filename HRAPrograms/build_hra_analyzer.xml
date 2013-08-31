@@ -1,0 +1,40 @@
+<project name="HRAAnalyzer" default="build.HRAAnalyzer">
+
+	<property file="../HRAPrograms/build_hra_analyzer.properties" />
+	<import file="../HRASetup/commons.xml"/>
+
+	<target name="projects">
+		<ant dir="../HRACore" antfile="build_hra_core.xml" inheritall="false" target="rebuild.egg"/>
+		<ant dir="../HRACommon" antfile="build_hra_common.xml" inheritall="false" target="rebuild.egg"/>
+		<ant dir="../HRAMath" antfile="build_hra_math.xml" inheritall="false" target="rebuild.egg"/>
+		<ant dir="../HRAResources" antfile="build_hra_resources.xml" inheritall="false" target="rebuild.egg"/>
+		<ant dir="../HRAGUI" antfile="build_hra_gui.xml" inheritall="false" target="rebuild.egg"/>
+	</target>
+
+	<target name="build.HRAAnalyzer" description="Build HRA analyzer application" depends="projects, rebuild.egg">
+		<antcall target="build.application">
+			<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>
+			<param name="start.script" value="src/pymed/programs/gui/med_main_QT.pyw"/>
+		</antcall>
+		<antcall target="clean.dist.HRAPrograms.egg"/>
+	</target>
+
+<!--
+	<target name="BUILD.QtOpenGl_test" description="Build QtOpenGl_test application">
+		<antcall target="build.application">
+			<param name="additional.paths" value="H:\\python\\python_64\\Python27\\Lib\\site-packages\\PyQt4\\"/>			
+		    <param name="application.name" value="QtOpenGL_test"/>
+			<param name="start.script" value="src/med/programs/gui/QtOpenGL_test.py"/>
+			<param name="console.type" value="True"/>
+			<param name="build.type" value="F"/>
+			<param name="debug.info" value="True"/>
+			<param name="egg.1" value="..\\OldSources\\lib_test2-0.1-py2.7.egg"/>			
+		</antcall>
+	</target>	
+-->
+	<target name="clean.dist.HRAAnalyzer.egg">
+		<delete includeEmptyDirs="true" failonerror="no">
+			<fileset dir="${application.root}/dist" includes="*.egg"/>
+		</delete>
+	</target>
+</project>
