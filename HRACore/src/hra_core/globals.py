@@ -7,11 +7,13 @@ import argparse
 import sys
 from os.path import join
 from os.path import dirname
+from os.path import basename
 from hra_core.collections_utils import get_keys_for_value
 from hra_core.collections_utils import get_for_regexpr
 from hra_core.properties import Properties
 from hra_core.resources import get_application_settings
 from hra_core.resources import is_resource
+from hra_core.misc import is_empty
 
 
 class Globals(object):
@@ -25,6 +27,10 @@ class Globals(object):
     parser.add_argument("-u", "--use_settings_egg", default=True,
                         type=to_bool)
     parser.add_argument("-s", "--settings_file", default="")
+    parser.add_argument("-p", "--settings_package",
+                        help="""a package where a settings file is located
+                                (dots representation)""",
+                        default="")
     parser.add_argument("-l", "--lang", default="en")
     parser.add_argument("-m", "--start_menu_ident", default="")
     parser.add_argument("-d", "--debug", default=False, type=to_bool)
@@ -40,8 +46,13 @@ class Globals(object):
         sys.path.insert(0, __args.settings_egg)
         USE_SETTINGS_EGG = True
 
+    settings_filename = basename(__args.settings_file) \
+                if not is_empty(__args.settings_file) else None
+    settings_package = __args.settings_package \
+                if not is_empty(__args.settings_package) else None
     if USE_SETTINGS_EGG:
-        SETTINGS_FILE = get_application_settings()
+        SETTINGS_FILE = get_application_settings(settings_package,
+                                                 settings_filename)
         SETTINGS_DIR = None
     else:
         PROGRAM_DIR = sys.path[0]

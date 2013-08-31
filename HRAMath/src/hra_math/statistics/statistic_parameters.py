@@ -6,7 +6,7 @@ Created on 24 kwi 2013
 from hra_math.utils.utils import print_import_error
 try:
     from hra_core.collections_utils import commas
-    from hra_core.collections_utils import is_empty
+    from hra_core.misc import is_empty
     from hra_math.model.core_parameters import CoreParameters
     from hra_math.statistics.statistics import get_statistics_names
     from hra_math.statistics.statistics import ALL_STATISTICS

@@ -222,13 +222,6 @@ def get_or_put(_dict, _key, _default):
         return value
 
 
-def is_empty(iterable):
-    """
-    function returns true if collection is None or has length equal 0
-    """
-    return iterable == None or len(iterable) == 0
-
-
 def pop_from_list(_list, _value):
     """
     function pop an element from a list;

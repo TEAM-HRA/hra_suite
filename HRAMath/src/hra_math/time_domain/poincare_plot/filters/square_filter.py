@@ -7,7 +7,7 @@ from hra_math.utils.utils import print_import_error
 try:
     import pylab as pl
     from hra_core.collections_utils import nvl
-    from hra_core.collections_utils import is_empty
+    from hra_core.misc import is_empty
     from hra_core.misc import Params
     from hra_core.units import Millisecond
     from hra_math.model.data_vector import DataVector

@@ -5,10 +5,13 @@ Created on 17-11-2012
 '''
 from pkgutil import get_data
 from StringIO import StringIO
+from hra_core.misc import is_empty
 
 
-def get_application_settings():
-    return get_resource_item('settings.etc', 'settings.properties')
+def get_application_settings(settings_package, settings_name):
+    return get_resource_item(
+        'settings.etc' if is_empty(settings_package) else settings_package,
+        'settings.properties' if is_empty(settings_name) else settings_name)
 
 
 def get_resource_item(package, resource_name):
