@@ -4,4 +4,6 @@ HRAMath/build
 HRAMath/dist
 HRAResources/build
 HRAResources/dist
+HRAGUI/build
+HRAGUI/dist
 .sync.ffs_db
