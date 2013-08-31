@@ -1,0 +1,4 @@
+<project name="HRACommon" default="build.egg">
+	<property file="../HRACommon/build_hra_common.properties" />	
+	<import file="../HRASetup/commons.xml"/>	
+</project>
