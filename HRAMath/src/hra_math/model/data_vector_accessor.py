@@ -9,7 +9,8 @@ try:
     import pylab as pl
     from hra_core.units import OrderUnit
     from hra_math.utils.array_utils import arrays_equal
-    from hra_math.model.parameters_container import ParametersContainer
+    from hra_math.model.parameters.parameters_container \
+        import ParametersContainer
     from hra_math.model.data_vector_file_data_source import DataVectorFileDataSource # @IgnorePep8
 except ImportError as error:
     print_import_error(__name__, error)
