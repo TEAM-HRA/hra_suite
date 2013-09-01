@@ -10,8 +10,9 @@ try:
     from hra_core.collections_utils import get_or_put
     from hra_core.misc import Params
     from hra_math.model.data_vector_listener import DataVectorListener
-    from hra_math.model.core_parameters import CoreParameters
-    from hra_math.statistics.statistic_parameters import StatisticParameters
+    from hra_math.model.parameters.core_parameters import CoreParameters
+    from hra_math.model.parameters.statistic_parameters \
+        import StatisticParameters
     from hra_gui.qt.widgets.group_box_widget import GroupBoxWidget
     from hra_gui.qt.widgets.composite_widget import CompositeWidget
     from hra_gui.qt.widgets.check_box_widget import CheckBoxWidget

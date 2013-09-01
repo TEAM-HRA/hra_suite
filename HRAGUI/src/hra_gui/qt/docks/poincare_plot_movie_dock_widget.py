@@ -8,9 +8,8 @@ try:
     from PyQt4.QtGui import *  # @UnusedWildImport
     from PyQt4.QtCore import *  # @UnusedWildImport
     from hra_core.misc import Params
-    from hra_math.model.core_parameters import CoreParameters
-    from hra_math.time_domain.poincare_plot.poincare_plot_movie_parameters \
-                                    import PoincarePlotMovieParameters
+    from hra_math.model.parameters.core_parameters import CoreParameters
+    from hra_math.model.parameters.movie_parameters import MovieParameters
     from hra_gui.qt.widgets.push_button_widget import PushButtonWidget
     from hra_gui.qt.widgets.composite_widget import CompositeWidget
     from hra_gui.qt.widgets.dock_widget_widget import DockWidgetWidget
@@ -72,7 +71,7 @@ class PoincarePlotMovieDockWidget(DockWidgetWidget):
 
         self.main_data_accessor.prepareParametersContainer()
         data_accessors = [self.main_data_accessor]
-        movie_parameters = PoincarePlotMovieParameters()
+        movie_parameters = MovieParameters()
         movie_parameters.fps = self.__fps__.getNumber()
         pp_movie_generator_progress_bar = \
             PoincarePlotMovieGeneratorProgressBar(self,

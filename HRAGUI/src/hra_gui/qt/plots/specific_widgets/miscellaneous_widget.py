@@ -12,8 +12,10 @@ try:
     from hra_core.units import OrderUnit
     from hra_core.collections_utils import get_or_put
     from hra_math.model.data_vector_listener import DataVectorListener
-    from hra_math.model.data_vector_parameters import DataVectorParameters
-    from hra_math.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters  # @IgnorePep8
+    from hra_math.model.parameters.data_vector_parameters \
+        import DataVectorParameters
+    from hra_math.model.parameters.poincare_plot_parameters \
+        import PoincarePlotParameters
     from hra_gui.qt.utils.settings import temporarySetterDecorator
     from hra_gui.qt.utils.settings import temporarySettingsDecorator
     from hra_gui.qt.widgets.composite_widget import CompositeWidget
