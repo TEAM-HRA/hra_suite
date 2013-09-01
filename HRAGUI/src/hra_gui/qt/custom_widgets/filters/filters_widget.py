@@ -10,7 +10,7 @@ try:
     from hra_core.misc import Params
     from hra_core.collections_utils import get_or_put
     from hra_math.model.data_vector_listener import DataVectorListener
-    from hra_math.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8    
+    from hra_math.model.parameters.filter_parameters import FilterParameters
     from hra_gui.qt.utils.settings import temporarySettingsDecorator
     from hra_gui.qt.utils.settings import temporarySetterDecorator
     from hra_gui.qt.widgets.composite_widget import CompositeWidget

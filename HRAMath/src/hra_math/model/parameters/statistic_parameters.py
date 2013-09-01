@@ -7,14 +7,7 @@ from hra_math.utils.utils import print_import_error
 try:
     from hra_core.collections_utils import commas
     from hra_core.misc import is_empty
-    from hra_math.model.core_parameters import CoreParameters
-    from hra_math.statistics.statistics import get_statistics_names
-    from hra_math.statistics.statistics import ALL_STATISTICS
-    from hra_math.statistics.statistics import CHECK_STATISTICS
-    from hra_math.statistics.statistics import CORE_STATISTICS
-    from hra_math.statistics.statistics import ASYMMETRY_STATISTICS
-    from hra_math.statistics.statistics import NON_CHECK_STATISTICS
-    from hra_math.statistics.summary_statistics import expand_to_real_summary_statistics_classes # @IgnorePep8
+    from hra_math.model.parameters.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -64,18 +57,28 @@ class StatisticParameters(CoreParameters):
     def summary_statistics_names(self, _summary_statistics_names):
         self.__summary_statistics_names__ = _summary_statistics_names
 
+    def setAvailableStatisticsInfoHandler(self,
+                                          available_statistics_info_handler):
+        self.__available_statistics_info_handler__ \
+                                        = available_statistics_info_handler
+
     def available_statistics(self):
         """
         [optional]
         print all available statistics names
         """
-        for statistic_ident in [CORE_STATISTICS, ASYMMETRY_STATISTICS,
-                                CHECK_STATISTICS]:
-            print(statistic_ident + ': ' +
-                       commas(get_statistics_names(statistic_ident)))
-        print(ALL_STATISTICS + ': all above statistics')
-        print(NON_CHECK_STATISTICS + ': ' + CORE_STATISTICS + ', '
-               + ASYMMETRY_STATISTICS)
+
+        if self.__available_statistics_info_handler__ == None:
+            for _info in self.__available_statistics_info_handler__():
+                print(_info)
+
+#        for statistic_ident in [CORE_STATISTICS, ASYMMETRY_STATISTICS,
+#                                CHECK_STATISTICS]:
+#            print(statistic_ident + ': ' +
+#                       commas(get_statistics_names(statistic_ident)))
+#        print(ALL_STATISTICS + ': all above statistics')
+#        print(NON_CHECK_STATISTICS + ': ' + CORE_STATISTICS + ', '
+#               + ASYMMETRY_STATISTICS)
 
     def addStatisticHandler(self, _handler, _name):
         """
@@ -127,6 +130,10 @@ class StatisticParameters(CoreParameters):
     def statistics_handlers(self):
         return self.__statistics_handlers__
 
+    @statistics_handlers.setter
+    def statistics_handlers(self, _statistics_handlers):
+        self.__statistics_handlers__ = _statistics_handlers
+
     @property
     def summary_statistics_classes(self):
         return self.__summary_statistics_classes__
@@ -170,28 +177,3 @@ class StatisticParameters(CoreParameters):
             if not is_empty(self.summary_statistics_names):
                 print('Summary statistics: ' +
                       commas(self.summary_statistics_names))
-
-
-def extended_statistics_classes(_statistics_classes,
-                                _statistics_names,
-                                _summary_statistics_classes,
-                                _summary_statistics_names):
-    """
-    method extends statistics classes by dependence statistics
-    from summary statistics classes o summary statistics names
-    """
-    if _summary_statistics_names and _statistics_names == None:
-        _summary_statistics_classes = \
-            expand_to_real_summary_statistics_classes(
-                                                _summary_statistics_names)
-    if _statistics_classes == None or _summary_statistics_classes == None:
-        return _statistics_classes
-    statistics_classses = []
-    statistics_classses[:] = _statistics_classes
-    if len(_summary_statistics_classes) > 0:
-        for summary_statistic_class in _summary_statistics_classes:
-            summary_statistic = summary_statistic_class()
-            for statistic_class in summary_statistic.statistics_dependence:
-                if statistics_classses.count(statistic_class) == 0:
-                    statistics_classses.append(statistic_class)
-    return statistics_classses

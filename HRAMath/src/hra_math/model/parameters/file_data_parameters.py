@@ -8,7 +8,7 @@ try:
     from hra_core.collections_utils import nvl
     from hra_core.collections_utils import get_as_tuple
     from hra_core.misc import Separator
-    from hra_math.model.core_parameters import CoreParameters
+    from hra_math.model.parameters.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
 

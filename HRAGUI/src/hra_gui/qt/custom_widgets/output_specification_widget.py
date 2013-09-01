@@ -11,8 +11,10 @@ try:
     from hra_core.misc import Params
     from hra_core.misc import Separator
     from hra_math.model.data_vector_listener import DataVectorListener
-    from hra_math.model.file_data_parameters import FileDataParameters
-    from hra_math.model.file_data_parameters import DEFAULT_OUTPUT_PRECISION
+    from hra_math.model.parameters.file_data_parameters \
+        import FileDataParameters
+    from hra_math.model.parameters.file_data_parameters \
+        import DEFAULT_OUTPUT_PRECISION
     from hra_gui.qt.utils.settings import temporarySetterDecorator
     from hra_gui.qt.utils.settings import temporarySettingsDecorator
     from hra_gui.qt.widgets.group_box_widget import GroupBoxWidget

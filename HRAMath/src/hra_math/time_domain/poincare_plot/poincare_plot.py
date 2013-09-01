@@ -13,15 +13,14 @@ try:
     from hra_core.introspection import copy_private_properties
     from hra_core.introspection import print_private_properties
     from hra_core.collections_utils import commas
-    from hra_math.model.data_vector_file_data_source import DataVectorFileDataSource # @IgnorePep8
-    from hra_math.model.data_vector_parameters import DataVectorParameters
-    from hra_math.model.file_data_parameters import FileDataParameters
-    from hra_math.statistics.statistic_parameters import StatisticParameters
-    from hra_math.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
-    from hra_math.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
-    from hra_math.time_domain.poincare_plot.poincare_plot_movie_parameters import PoincarePlotMovieParameters # @IgnorePep8
+    from hra_math.model.data_vector_file_data_source \
+        import DataVectorFileDataSource
+    from hra_math.model.utils import ALL_ANNOTATIONS
+    from hra_math.model.parameters.poincare_plot_parameters_manager \
+        import PoincarePlotParametersManager
     from hra_math.statistics.statistics import get_statistics_names
     from hra_math.statistics.statistics import ALL_STATISTICS
+    from hra_math.statistics.statistics_utils import available_statistics_info
     from hra_math.statistics.summary_statistics import get_summary_statistics_names # @IgnorePep8
     from hra_math.statistics.summary_statistics import ALL_SUMMARY_STATISTICS
     from hra_math.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
@@ -47,17 +46,12 @@ def getSeparatorLabels():
     return commas(Separator.getSeparatorsLabels())
 
 
-class PoincarePlotManager(PoincarePlotParameters, DataVectorParameters,
-                          FileDataParameters, FilterParameters,
-                          StatisticParameters,
-                          PoincarePlotMovieParameters):
+class PoincarePlotManager(PoincarePlotParametersManager):
     def __init__(self, other=None):
-        PoincarePlotParameters.__init__(self)
-        DataVectorParameters.__init__(self)
-        FileDataParameters.__init__(self)
-        FilterParameters.__init__(self)
-        StatisticParameters.__init__(self)
-        PoincarePlotMovieParameters.__init__(self)
+        self.prepareObjectParameters(self)
+        self.setAvailableFiltersInfoHandler(get_filters_short_names)
+        self.setAvailableStatisticsInfoHandler(available_statistics_info)
+        self.setAllAnnotationsIdent(ALL_ANNOTATIONS)
 
         self.__progress_mark__ = None
         if not other == None:

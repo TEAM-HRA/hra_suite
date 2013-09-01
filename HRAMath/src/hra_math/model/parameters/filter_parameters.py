@@ -7,8 +7,7 @@ from hra_math.utils.utils import print_import_error
 try:
     from hra_core.collections_utils import get_as_list
     from hra_core.collections_utils import commas
-    from hra_math.model.core_parameters import CoreParameters
-    from hra_math.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
+    from hra_math.model.parameters.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -23,12 +22,17 @@ class FilterParameters(CoreParameters):
     def __init__(self):
         self.__filters__ = []
 
+    def setAvailableFiltersInfoHandler(self, available_filters_info_handler):
+        self.__available_filters_info_handler__ = \
+                                            available_filters_info_handler
+
     def available_filters(self):
         """
         [optional]
         print all available filters names
         """
-        print(get_filters_short_names())
+        if not self.__available_filters_info_handler__ == None:
+            print(self.__available_filters_info_handler__())
 
     @property
     def filters_names(self):
@@ -76,6 +80,10 @@ class FilterParameters(CoreParameters):
     @property
     def filters(self):
         return self.__filters__
+
+    @filters.setter
+    def filters(self, _filters):
+        self.__filters__ = _filters
 
     def setObjectFilterParameters(self, _object):
         """

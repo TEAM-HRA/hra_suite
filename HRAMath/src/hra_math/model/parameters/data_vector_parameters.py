@@ -9,8 +9,7 @@ try:
     from hra_core.misc import extract_alphabetic
     from hra_core.collections_utils import nvl
     from hra_core.collections_utils import get_as_list
-    from hra_math.model.utils import ALL_ANNOTATIONS
-    from hra_math.model.core_parameters import CoreParameters
+    from hra_math.model.parameters.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -24,11 +23,16 @@ class DataVectorParameters(CoreParameters):
 
     def __init__(self):
         self.__window_shift__ = 1
-        self.__excluded_annotations__ = ALL_ANNOTATIONS
+        self.__excluded_annotations__ = None  # ALL_ANNOTATIONS
         self.__sample_step__ = None
         self.__stepper__ = None
         self.__stepper_size__ = None
         self.__stepper_unit__ = None
+
+    def setAllAnnotationsIdent(self, _all_annotations_ident):
+        self.__all_annotations_ident__ = _all_annotations_ident
+        if self.__excluded_annotations__ == None:
+            self.__excluded_annotations__ = self.__all_annotations_ident__
 
     @property
     def window_size(self):
@@ -42,8 +46,9 @@ class DataVectorParameters(CoreParameters):
 
     @window_size.setter
     def window_size(self, _window_size):
-        self.__window_size__ = extract_number(_window_size, convert=int)
-        self.__window_size_unit__ = extract_alphabetic(_window_size,
+        if not _window_size == None:
+            self.__window_size__ = extract_number(_window_size, convert=int)
+            self.__window_size_unit__ = extract_alphabetic(_window_size,
                                                        convert=str.lower)
 
     @property
@@ -225,7 +230,7 @@ class DataVectorParameters(CoreParameters):
         if not self.window_shift == 1:
             print('Window shift: ' + str(self.window_shift))
 
-        if self.__excluded_annotations__ == ALL_ANNOTATIONS:
+        if self.__excluded_annotations__ == self.__all_annotations_ident__:
             print('Excluded annotations: ALL')
         elif not self.__excluded_annotations__ == None:
             print('Excluded annotations: ' + str(self.__excluded_annotations__)) # @IgnorePep8

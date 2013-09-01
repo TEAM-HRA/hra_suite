@@ -7,7 +7,7 @@ Created on 24 kwi 2013
 from hra_math.utils.utils import print_import_error
 try:
     from hra_core.collections_utils import nvl
-    from hra_math.model.core_parameters import CoreParameters
+    from hra_math.model.parameters.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
 

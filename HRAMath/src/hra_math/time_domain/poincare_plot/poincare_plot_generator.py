@@ -6,26 +6,28 @@ Created on 24 kwi 2013
 from hra_math.utils.utils import print_import_error
 try:
     import os
-    from hra_core.misc import Params
     from hra_core.misc import format_decimal
     from hra_core.utils import ProgressMark
     from hra_core.utils import ControlInterruptHandler
     from hra_math.utils.io_utils import NumpyCSVFile
-    from hra_math.model.core_parameters import CoreParameters
     from hra_math.model.data_vector_segmenter import SegmenterManager
-    from hra_math.model.data_vector_parameters import DataVectorParameters
-    from hra_math.model.file_data_parameters import FileDataParameters
-    from hra_math.statistics.statistic_parameters import StatisticParameters
-    from hra_math.time_domain.poincare_plot.poincare_plot_parameters import PoincarePlotParameters # @IgnorePep8
-    from hra_math.time_domain.poincare_plot.filters.filter_parameters import FilterParameters # @IgnorePep8
-    from hra_math.time_domain.poincare_plot.poincare_plot_movie_parameters import PoincarePlotMovieParameters # @IgnorePep8    
-    from hra_math.time_domain.poincare_plot.poincare_plot_movie_maker import PoincarePlotMovieMaker # @IgnorePep8
+    from hra_math.model.utils import ALL_ANNOTATIONS
+    from hra_math.model.parameters.poincare_plot_parameters_manager \
+        import PoincarePlotParametersManager
+    from hra_math.time_domain.poincare_plot.poincare_plot_movie_maker \
+        import PoincarePlotMovieMaker
+    from hra_math.statistics.statistics_utils import available_statistics_info
     from hra_math.statistics.statistics import StatisticsFactory
     from hra_math.statistics.summary_statistics import SummaryStatisticsFactory
-    from hra_math.statistics.summary_statistics import get_summary_statistics_for_csv # @IgnorePep8
-    from hra_math.statistics.summary_statistics import get_summary_statistics_order_for_csv # @IgnorePep8
-    from hra_math.statistics.statistic_parameters import extended_statistics_classes # @IgnorePep8
-    from hra_math.time_domain.poincare_plot.filters.filter_manager import FilterManager # @IgnorePep8
+    from hra_math.statistics.summary_statistics \
+        import get_summary_statistics_for_csv
+    from hra_math.statistics.summary_statistics \
+        import get_summary_statistics_order_for_csv
+    from hra_math.statistics.statistics_utils import extended_statistics_classes # @IgnorePep8
+    from hra_math.time_domain.poincare_plot.filters.filter_manager \
+        import FilterManager # @IgnorePep8
+    from hra_math.time_domain.poincare_plot.filters.filter_utils \
+        import get_filters_short_names
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -35,27 +37,22 @@ class PoincarePlotGenerator(object):
     this is an engine to generate poincare plot statistics
     """
     def __init__(self, **params):
-        self.__prepare_parameters__(**params)
         self.__error_message__ = None
         self.__info_message__ = None
+        self.__parameters_manager__ = PoincarePlotParametersManager()
+        self.__parameters_manager__.prepareObjectParameters(self, **params)
+        self.__parameters_manager__.setAvailableFiltersInfoHandler(
+                                                    get_filters_short_names)
+        self.__parameters_manager__.setAvailableStatisticsInfoHandler(
+                                                    available_statistics_info)
+        self.__parameters_manager__.setAllAnnotationsIdent(ALL_ANNOTATIONS)
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
         return None
 
     def checkParameters(self, check_level=None):
-
-        if check_level == None:
-            check_level = CoreParameters.NORMAL_CHECK_LEVEL
-        for class_name, parameter_name in self.__parameters_ids__:
-            param_object = getattr(self.params, parameter_name, None)
-            if param_object:
-                validate_method = getattr(param_object,
-                                    'validate' + class_name, None)
-                if validate_method:
-                    message = validate_method(check_level)
-                    if message:
-                        return message
+        return self.__parameters_manager__.validateParameters(check_level)
 
     def precheck(self, reference_filename):
         message = None
@@ -296,20 +293,6 @@ class PoincarePlotGenerator(object):
     def __default_info_handler__(self, info):
         print('\n' + info)
 
-    def __prepare_parameters__(self, **params):
-        self.params = Params(**params)
-
-        if self.params.info_handler == None:
-            self.params.info_handler = self.__default_info_handler__
-
-        for class_name, parameter_name in self.__parameters_ids__:
-            param_object = getattr(self.params, parameter_name, None)
-            if param_object:
-                set_method = getattr(param_object,
-                                    'setObject' + class_name, None)
-                if set_method:
-                    set_method(self)
-
     @property
     def summary_statistics(self):
         return self.__summary_statistics__
@@ -328,29 +311,7 @@ class PoincarePlotGenerator(object):
 
     @property
     def parameters_info(self):
-        print('Poincare plot parameters:')
-        print('*' * 50)
-        for class_name, parameter_name in self.__parameters_ids__:
-            param_object = getattr(self.params, parameter_name, None)
-            if param_object:
-                parameters_info_method = getattr(param_object,
-                                    'parameters_info' + class_name, None)
-                if parameters_info_method:
-                    parameters_info_method()
-
-    @property
-    def __parameters_ids__(self):
-        """
-        method returns class names and name identifiers of all parameter
-        classes used in poincare plot generator
-        """
-        return [(DataVectorParameters.__name__, DataVectorParameters.NAME),
-                (FileDataParameters.__name__, FileDataParameters.NAME),
-                (StatisticParameters.__name__, StatisticParameters.NAME),
-                (PoincarePlotParameters.__name__, PoincarePlotParameters.NAME),
-                (FilterParameters.__name__, FilterParameters.NAME),
-                (PoincarePlotMovieParameters.__name__,
-                 PoincarePlotMovieParameters.NAME)]
+        self.__parameters_manager__.parameters_info
 
     def segment_count(self, data_vector):
         """

@@ -9,17 +9,17 @@ try:
     import pylab as pl
     from hra_core.misc import ColorRGB
     from hra_core.collections_utils import nvl
-    from hra_math.model.core_parameters import CoreParameters
+    from hra_math.model.parameters.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
 
 
-class PoincarePlotMovieParameters(CoreParameters):
+class MovieParameters(CoreParameters):
     """
     specific parameters concerning poincare plot movie
     """
 
-    NAME = "poincare_plot_movie_parameters"
+    NAME = "movie_parameters"
 
     def __init__(self):
         pass
@@ -279,7 +279,7 @@ class PoincarePlotMovieParameters(CoreParameters):
     def movie_animated(self, _movie_animated):
         self.__movie_animated__ = _movie_animated
 
-    def setObjectPoincarePlotMovieParameters(self, _object):
+    def setObjectMovieParameters(self, _object):
         """
         method which set up some parameters from this object into
         another object, it is some kind of 'copy constructor'
@@ -309,13 +309,13 @@ class PoincarePlotMovieParameters(CoreParameters):
         setattr(_object, 'movie_experimental_code',
                             self.movie_experimental_code)
 
-    def validatePoincarePlotMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
+    def validateMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.movie_name == None:
             return "Name of a movie is required"
         if self.movie_dir == None:
             return "Movie directory is required"
 
-    def parameters_infoPoincarePlotMovieParameters(self):
+    def parameters_infoMovieParameters(self):
         if not self.movie_name == None:
             print('Movie specifiaction: ')
             print('    name: ' + str(self.movie_name))
