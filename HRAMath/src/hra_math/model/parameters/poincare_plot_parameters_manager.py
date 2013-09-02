@@ -70,6 +70,7 @@ class PoincarePlotParametersManager(PoincarePlotParameters,
                     message = validate_method(check_level)
                     if message:
                         return message
+        return self.__validateDependenceParameters__(check_level)
 
     @property
     def parameters_info(self):
@@ -96,3 +97,18 @@ class PoincarePlotParametersManager(PoincarePlotParameters,
                 (PoincarePlotParameters.__name__, PoincarePlotParameters.NAME),
                 (FilterParameters.__name__, FilterParameters.NAME),
                 (MovieParameters.__name__, MovieParameters.NAME)]
+
+    def __validateDependenceParameters__(self, check_level=None):
+        """
+        method checks dependent parameters
+        """
+        statistics_parameters = getattr(self.__host_object__.params,
+                                        StatisticParameters.NAME, None)
+
+        file_data_parameters = getattr(self.__host_object__.params,
+                                        FileDataParameters.NAME, None)
+        if not statistics_parameters == None \
+            and not file_data_parameters == None:
+            if file_data_parameters.output_dir == None \
+                and statistics_parameters.summary_statistics_is_selected == False: # @IgnorePep8
+                return "At least one summary statistic has to be selected !"

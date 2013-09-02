@@ -161,6 +161,14 @@ class StatisticParameters(CoreParameters):
             is_empty(self.summary_statistics_classes):
             return "Statistics names or classes or handlers are required"
 
+    @property
+    def summary_statistics_is_selected(self):
+        """
+        method returns true if there is any summary statistics selected
+        """
+        return not (is_empty(self.summary_statistics_names) and \
+                is_empty(self.summary_statistics_classes))
+
     def clearStatisticsClasses(self):
         self.__statistics_classes__ = []
 
