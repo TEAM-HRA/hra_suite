@@ -11,9 +11,11 @@ try:
     from hra_core.misc import ColorRGB
     from hra_core.io_utils import as_path
     from hra_math.time_domain.poincare_plot.poincare_plot_animation \
-                                        import PoincarePlotAnimation
+                                    import PoincarePlotAnimation
     from hra_math.time_domain.poincare_plot.poincare_plot_movie_worker \
                                     import PoincarePlotMovieMakerWorker
+    from hra_math.time_domain.poincare_plot.poincare_plot_fast_movie_worker \
+                                    import PoincarePlotFastMovieMakerWorker
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -83,6 +85,7 @@ class PoincarePlotMovieMaker(object):
             self.legend_text = None
             self.pp_specs = []
             self.cum_inactive = 0
+            self._p_old = None
 
     def add_data_vector_segment(self, data_vector_segment, last_segment=False):
         self.message = None
@@ -152,6 +155,7 @@ class PoincarePlotMovieMaker(object):
                             data_vector_segment.signal_minus[old_s_plus
                                                              - s_plus:])
 
+                        _p.inactive_stop = self._p_old.inactive_stop
                     _p.level = 1
                     ok = True
                 else:
@@ -213,14 +217,17 @@ class PoincarePlotMovieMaker(object):
                 (self.p.movie_bin_size > 0
                     and ((self.idx % self.p.movie_bin_size) == 0)):
                 if len(self.pp_specs_managers) >= self.core_nums:
-                    self.__save_frames__()
-                    self.pp_specs_managers = []
+                    if self.p.movie_calculate_all_frames == False:
+                        self.__save_frames__()
+                        self.pp_specs_managers = []
 
+                old_pp_spec_manager = self.pp_spec_manager
                 self.pp_spec_manager = MiniPoincarePlotSpecManager()
                 self.pp_spec_manager.movie_dir = self.p.movie_dir
                 self.pp_spec_manager.movie_name = self.p.movie_name
                 self.pp_spec_manager.movie_dpi = self.p.movie_dpi
                 self.pp_spec_manager.movie_fps = self.p.movie_fps
+                self.pp_spec_manager.previous_manager = old_pp_spec_manager
 
                 self.pp_specs_managers.append(self.pp_spec_manager)
             self.message = 'Prepare frame: %s' % (frame_name)
@@ -237,6 +244,8 @@ class PoincarePlotMovieMaker(object):
 
         self.old_signal_plus = data_vector_segment.signal_plus
         self.idx = self.idx + 1
+        self._p_old = _p
+
         gc.collect()  # 'to force' garbage collection
 
     def save_movie(self):
@@ -310,6 +319,7 @@ class MiniPoincarePlotSpecManager(object):
         self.__movie_name__ = None
         self.__movie_fps__ = None
         self.__movie_dpi__ = None
+        self.__previous_manager__ = None
 
     def addMiniPoincarePlotSpec(self, pp_spec):
         self.__pp_specs__.append(pp_spec)
@@ -348,6 +358,14 @@ class MiniPoincarePlotSpecManager(object):
     @movie_dpi.setter
     def movie_dpi(self, _movie_dpi):
         self.__movie_dpi__ = _movie_dpi
+
+    @property
+    def previous_manager(self):
+        return self.__previous_manager__
+
+    @previous_manager.setter
+    def previous_manager(self, _previous_manager):
+        self.__previous_manager__ = _previous_manager
 
 
 class MiniPoincarePlotSpec(object):
@@ -599,4 +617,10 @@ def create_animated_mini_poincare_plot(pp_specs_manager):
 
 
 def create_mini_poincare_plot_experimental(pp_specs_manager):
-    print('\nWarning !! Experimental code ! Not implemented !\n')
+    #print('\nWarning !! Experimental code ! Not implemented !\n')
+    print('\nWarning !! Experimental code !\n')
+    movie_worker = PoincarePlotFastMovieMakerWorker(pp_specs_manager)
+    if movie_worker.initiate():
+        for idx, _ in enumerate(movie_worker.pp_specs[1:]):
+            movie_worker.plot(idx)
+        gc.collect()

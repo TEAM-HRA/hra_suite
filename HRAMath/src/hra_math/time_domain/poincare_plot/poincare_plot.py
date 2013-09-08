@@ -84,7 +84,7 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                                         data_vector_parameters=self,
                                         filter_parameters=self,
                                         poincare_plot_parameters=self,
-                                        poincare_plot_movie_parameters=self)
+                                        movie_parameters=self)
         message = self.__pp_generator__.checkParameters()
         if message:
             print(message)
@@ -325,6 +325,11 @@ if __name__ == '__main__':
                 help="""use animation API to generate a movie;
                         required mencoder and ffmpeg [default False]""",
                 type=to_bool, default=False)
+    parser.add_argument("-movie_calculate_all_frames",
+                        "--movie_calculate_all_frames",
+                help="""before generation png files all frames are calculated,
+                        [default False]""",
+                type=to_bool, default=False)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -359,6 +364,7 @@ if __name__ == '__main__':
     ppManager.movie_skip_to_frame = __args.movie_skip_to_frame
     ppManager.movie_experimental_code = __args.movie_experimental_code
     ppManager.movie_animated = __args.movie_animated
+    ppManager.movie_calculate_all_frames = __args.movie_calculate_all_frames
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True

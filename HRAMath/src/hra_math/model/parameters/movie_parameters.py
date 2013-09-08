@@ -279,6 +279,18 @@ class MovieParameters(CoreParameters):
     def movie_animated(self, _movie_animated):
         self.__movie_animated__ = _movie_animated
 
+    @property
+    def movie_calculate_all_frames(self):
+        """
+        [optional - default: False]
+        before generation png files all frames are calculated
+        """
+        return nvl(self.__movie_calculate_all_frames__, False)
+
+    @movie_calculate_all_frames.setter
+    def movie_calculate_all_frames(self, _movie_calculate_all_frames):
+        self.__movie_calculate_all_frames__ = _movie_calculate_all_frames
+
     def setObjectMovieParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -308,6 +320,8 @@ class MovieParameters(CoreParameters):
         setattr(_object, 'movie_animated', self.movie_animated)
         setattr(_object, 'movie_experimental_code',
                             self.movie_experimental_code)
+        setattr(_object, 'movie_calculate_all_frames',
+                            self.movie_calculate_all_frames)
 
     def validateMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.movie_name == None:
@@ -345,3 +359,5 @@ class MovieParameters(CoreParameters):
             print('    use animation API: ' + str(self.movie_animated))
             print('    use experimental code: '
                                          + str(self.movie_experimental_code))
+            print('    calculate all frames: '
+                                        + str(self.movie_calculate_all_frames))
