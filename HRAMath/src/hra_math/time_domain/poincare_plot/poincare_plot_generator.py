@@ -291,7 +291,8 @@ class PoincarePlotGenerator(object):
         return not interrupted
 
     def __default_info_handler__(self, info):
-        print('\n' + info)
+        if not info == None:
+            print('\n' + info)
 
     @property
     def summary_statistics(self):
