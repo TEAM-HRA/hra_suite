@@ -41,6 +41,13 @@ class PoincarePlotFastMovieMakerWorker(object):
         x = self.p0.x_data[pl.where(self.p0.x_data > 0)]
         y = self.p0.y_data[pl.where(self.p0.y_data > 0)]
 
+        x_min = pl.amin(x)
+        x_max = pl.amax(x)
+        y_min = pl.amin(y)
+        y_max = pl.amax(y)
+        value_min = x_min if x_min < y_min else y_min
+        value_max = x_max if x_max > y_max else y_max
+
         self.pd = ArrayPlotData()
         self.pd.set_data("index", x)
         self.pd.set_data("value", y)
@@ -52,6 +59,11 @@ class PoincarePlotFastMovieMakerWorker(object):
         self._plot = Plot(self.pd)
         self._plot.index_range.add(index_ds)
         self._plot.value_range.add(value_ds)
+
+        self._plot.index_mapper.stretch_data = False
+        self._plot.value_mapper.stretch_data = False
+        self._plot.value_range.set_bounds(value_min, value_max)
+        self._plot.index_range.set_bounds(value_min, value_max)
 
         # Create the index and value mappers using the plot data ranges
         imapper = LinearMapper(range=self._plot.index_range)
