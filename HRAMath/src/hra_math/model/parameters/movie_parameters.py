@@ -291,6 +291,18 @@ class MovieParameters(CoreParameters):
     def movie_calculate_all_frames(self, _movie_calculate_all_frames):
         self.__movie_calculate_all_frames__ = _movie_calculate_all_frames
 
+    @property
+    def movie_fast_generation(self):
+        """
+        [optional - default: False]
+        fast generation of movie by use chaco plotting library
+        """
+        return nvl(self.__movie_fast_generation__, False)
+
+    @movie_fast_generation.setter
+    def movie_fast_generation(self, _movie_fast_generation):
+        self.__movie_fast_generation__ = _movie_fast_generation
+
     def setObjectMovieParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -322,6 +334,8 @@ class MovieParameters(CoreParameters):
                             self.movie_experimental_code)
         setattr(_object, 'movie_calculate_all_frames',
                             self.movie_calculate_all_frames)
+        setattr(_object, 'movie_fast_generation',
+                            self.movie_fast_generation)
 
     def validateMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.movie_name == None:
@@ -361,3 +375,5 @@ class MovieParameters(CoreParameters):
                                          + str(self.movie_experimental_code))
             print('    calculate all frames: '
                                         + str(self.movie_calculate_all_frames))
+            print('    fast generation: '
+                                        + str(self.movie_fast_generation))

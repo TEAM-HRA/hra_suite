@@ -10,6 +10,7 @@ try:
     from hra_core.misc import Params
     from hra_core.misc import ColorRGB
     from hra_core.io_utils import as_path
+    from hra_core.collections_utils import get_chunks
     from hra_math.time_domain.poincare_plot.poincare_plot_animation \
                                     import PoincarePlotAnimation
     from hra_math.time_domain.poincare_plot.poincare_plot_movie_worker \
@@ -59,8 +60,9 @@ class PoincarePlotMovieMaker(object):
             self.signal_size = len(data_vector.signal)
             self.range = [_min - margin, _max + margin,
                           _min - margin, _max + margin]
-            self.x_data = None
-            self.y_data = None
+            self.x_data = pl.zeros(self.signal_size)
+            self.y_data = pl.zeros(self.signal_size)
+
             self.old_signal_plus = None
             self.idx = 0
             self.active_color = get_extended_color_array(
@@ -86,6 +88,7 @@ class PoincarePlotMovieMaker(object):
             self.pp_specs = []
             self.cum_inactive = 0
             self._p_old = None
+            self.s_size = 0  # current calculated signal size
 
     def add_data_vector_segment(self, data_vector_segment, last_segment=False):
         self.message = None
@@ -98,9 +101,10 @@ class PoincarePlotMovieMaker(object):
 
         frame_name = '%06d' % self.idx
         frame_file = as_path(self.p.movie_dir, frame_name + '.png')
-        skip_frame = True if self.idx < self.p.movie_skip_to_frame or \
-            (self.p.movie_skip_frames and os.path.exists(frame_file)) \
-            else False
+        #skip_frame = True if self.idx < self.p.movie_skip_to_frame or \
+        #    (self.p.movie_skip_frames and os.path.exists(frame_file)) \
+        #    else False
+        skip_frame = False
 
         mean_plus = pl.mean(data_vector_segment.signal_plus)
         mean_minus = pl.mean(data_vector_segment.signal_minus)
@@ -122,10 +126,12 @@ class PoincarePlotMovieMaker(object):
         _p.frame_file = frame_file
         _p.show_plot_legends = self.p.movie_show_plot_legends
 
-        if self.x_data == None:
+        if self.idx == 0:
 
-            self.x_data = pl.copy(data_vector_segment.signal_plus)
-            self.y_data = pl.copy(data_vector_segment.signal_minus)
+            self.s_size = s_plus
+            self.x_data.put(pl.arange(s_plus), data_vector_segment.signal_plus)
+            self.y_data.put(pl.arange(s_plus),
+                                            data_vector_segment.signal_minus)
 
             ok = True
             old_s_plus = 0
@@ -133,29 +139,31 @@ class PoincarePlotMovieMaker(object):
             _p.active_start = 0
             _p.active_stop = s_plus
         else:
-
             old_s_plus = len(self.old_signal_plus)
             ok = False
             if s_plus >= old_s_plus:
                 if pl.all(self.old_signal_plus \
                             == data_vector_segment.signal_plus[:old_s_plus]):
-                    old_size = len(self.x_data)
+                    old_size = self.s_size
                     new_size = old_size + s_plus - old_s_plus
                     if new_size > old_size:
                         _p.active_start = old_size
                         _p.active_stop = new_size
 
-                        self.x_data.resize((new_size), refcheck=False)
+                        if new_size > len(self.x_data):
+                            raise Exception(
+                                'New size is greater then the signal size !')
+
                         self.x_data.put(pl.arange(old_size, new_size),
                             data_vector_segment.signal_plus[old_s_plus
                                                             - s_plus:])
 
-                        self.y_data.resize((new_size), refcheck=False)
                         self.y_data.put(pl.arange(old_size, new_size),
                             data_vector_segment.signal_minus[old_s_plus
                                                              - s_plus:])
 
                         _p.inactive_stop = self._p_old.inactive_stop
+                        self.s_size = new_size
                     _p.level = 1
                     ok = True
                 else:
@@ -163,24 +171,27 @@ class PoincarePlotMovieMaker(object):
                         if pl.all(self.old_signal_plus[idx:] \
                                     == data_vector_segment.signal_plus[idx - 1:
                                                             old_s_plus - idx]):
-                            old_size = len(self.x_data)
+                            old_size = self.s_size
                             new_size = old_size + s_plus - (old_s_plus - idx)
+
+                            if new_size > len(self.x_data):
+                                raise Exception(
+                                'New size is greater then the signal size !')
 
                             if new_size > old_size:
                                 _p.active_start = old_size
                                 _p.active_stop = new_size
 
-                                self.x_data.resize((new_size), refcheck=False)
                                 self.x_data.put(pl.arange(old_size, new_size),
                                     data_vector_segment.signal_plus[
                                                            old_s_plus - idx:])
 
-                                self.y_data.resize((new_size), refcheck=False)
                                 self.y_data.put(pl.arange(old_size, new_size),
                                     data_vector_segment.signal_minus[
                                                            old_s_plus - idx:])
+                                self.s_size = new_size
 
-                            _d = len(self.x_data) - s_plus
+                            _d = self.s_size - s_plus
                             _p.inactive_start = _d - idx
                             _p.inactive_stop = _d
 
@@ -195,13 +206,13 @@ class PoincarePlotMovieMaker(object):
                             self.old_signal_plus[idx:idx + s_plus] \
                                     == data_vector_segment.signal_plus):
 
-                        _d = len(self.x_data) - old_s_plus
+                        _d = self.s_size - old_s_plus
                         _p.inactive_start = _d
                         _p.inactive_stop = _d + idx
 
-                        if _p.inactive_stop + s_plus < len(self.x_data):
+                        if _p.inactive_stop + s_plus < self.s_size:
                             _p.inactive_start_2 = _p.inactive_stop + s_plus
-                            _p.inactive_stop_2 = len(self.x_data)
+                            _p.inactive_stop_2 = self.s_size
                         _p.level = 2
 
                         ok = True
@@ -210,6 +221,7 @@ class PoincarePlotMovieMaker(object):
             _p.x_data = self.x_data
             _p.y_data = self.y_data
             _p.cum_inactive = self.cum_inactive
+            _p.s_size = self.s_size
             #print('PP_SPEC: ' + str(_p))
 
             self.pp_spec_manager.addMiniPoincarePlotSpec(_p)
@@ -221,13 +233,11 @@ class PoincarePlotMovieMaker(object):
                         self.__save_frames__()
                         self.pp_specs_managers = []
 
-                old_pp_spec_manager = self.pp_spec_manager
                 self.pp_spec_manager = MiniPoincarePlotSpecManager()
                 self.pp_spec_manager.movie_dir = self.p.movie_dir
                 self.pp_spec_manager.movie_name = self.p.movie_name
                 self.pp_spec_manager.movie_dpi = self.p.movie_dpi
                 self.pp_spec_manager.movie_fps = self.p.movie_fps
-                self.pp_spec_manager.previous_manager = old_pp_spec_manager
 
                 self.pp_specs_managers.append(self.pp_spec_manager)
             self.message = 'Prepare frame: %s' % (frame_name)
@@ -240,13 +250,12 @@ class PoincarePlotMovieMaker(object):
             raise Exception('Error for idx ' + str(self.idx))
         if _p.inactive_start >= 0 and _p.inactive_stop >= 0:
             self.cum_inactive += pl.sum(
-                            self.x_data[_p.inactive_start:_p.inactive_stop])
-
+                        self.x_data[_p.inactive_start:_p.inactive_stop])
         self.old_signal_plus = data_vector_segment.signal_plus
         self.idx = self.idx + 1
         self._p_old = _p
 
-        gc.collect()  # 'to force' garbage collection
+        #gc.collect()  # this invocation slow down process of movie generation
 
     def save_movie(self):
         if not self.p.movie_name == None and self.p.movie_not_save == False:
@@ -277,20 +286,25 @@ class PoincarePlotMovieMaker(object):
         return self.message
 
     def __save_frames__(self):
-        if len(self.pp_specs_managers) > 0:
+        size = len(self.pp_specs_managers)
+        if size > 0:
             if self.p.movie_multiprocessing_factor > 0:
-                pool = multiprocessing.Pool(processes=self.core_nums
-                    #,maxtasksperchild=self.p.movie_multiprocessing_factor
-                    )
-                if not self.params.info_message_handler == None:
-                    self.params.info_message_handler('Generating frames'
-                                                 + (' ' * 20))
-                pool.map(self.__poincare_plot_function__,
-                         self.pp_specs_managers,
-                         #chunksize=self.p.movie_multiprocessing_factor
-                         #chunksize=20
-                         )
-                pool.close()
+                for specs_managers in get_chunks(self.pp_specs_managers,
+                                                 self.core_nums):
+                    pool = multiprocessing.Pool(processes=self.core_nums
+                        #,maxtasksperchild=self.p.movie_multiprocessing_factor
+                        )
+                    if not self.params.info_message_handler == None:
+                        self.params.info_message_handler('Generating frames'
+                                                     + (' ' * 20))
+                    pool.map(self.__poincare_plot_function__,
+                             specs_managers,
+                             #self.pp_specs_managers,
+                             #chunksize=self.p.movie_multiprocessing_factor
+                             #chunksize=20
+                             )
+                    pool.close()
+                    gc.collect()
             else:
                 _function = self.__poincare_plot_function__
                 for pp_spec_manager in self.pp_specs_managers:
@@ -300,6 +314,8 @@ class PoincarePlotMovieMaker(object):
     def __poincare_plot_function__(self):
         if self.p.movie_animated:
             return create_animated_mini_poincare_plot
+        elif self.p.movie_fast_generation:
+            return create_mini_poincare_plot_fast_generation
         elif self.p.movie_experimental_code:
             return create_mini_poincare_plot_experimental
         else:
@@ -319,7 +335,6 @@ class MiniPoincarePlotSpecManager(object):
         self.__movie_name__ = None
         self.__movie_fps__ = None
         self.__movie_dpi__ = None
-        self.__previous_manager__ = None
 
     def addMiniPoincarePlotSpec(self, pp_spec):
         self.__pp_specs__.append(pp_spec)
@@ -359,14 +374,6 @@ class MiniPoincarePlotSpecManager(object):
     def movie_dpi(self, _movie_dpi):
         self.__movie_dpi__ = _movie_dpi
 
-    @property
-    def previous_manager(self):
-        return self.__previous_manager__
-
-    @previous_manager.setter
-    def previous_manager(self, _previous_manager):
-        self.__previous_manager__ = _previous_manager
-
 
 class MiniPoincarePlotSpec(object):
     """
@@ -391,8 +398,6 @@ class MiniPoincarePlotSpec(object):
         self.__frame_file__ = None
         self.__dpi__ = None
         self.__show_plot_legends__ = False
-        self.__x_size__ = 0
-        self.__y_size__ = 0
         self.__active_start__ = -1
         self.__active_stop__ = -1
         self.__inactive_start__ = -1
@@ -400,6 +405,7 @@ class MiniPoincarePlotSpec(object):
         self.__inactive_start_2__ = -1
         self.__inactive_stop_2__ = -1
         self.__cum_inactive__ = 0
+        self.__s_size__ = 0
 
     @property
     def idx(self):
@@ -585,13 +591,21 @@ class MiniPoincarePlotSpec(object):
     def cum_inactive(self, _cum_inactive):
         self.__cum_inactive__ = _cum_inactive
 
+    @property
+    def s_size(self):
+        return self.__s_size__
+
+    @s_size.setter
+    def s_size(self, _s_size):
+        self.__s_size__ = _s_size
+
     def __str__(self):
-        return ('level: %d, ' +
+        return ('level: %d, s_size: %d, ' +
                ' frame file: %s, active_start %d, active_stop %d, ' +
                ' inactive_start %d, inactive_stop %d, ' +
                ' inactive_start_2 %d, inactive_stop_2 %d, cum_inactive %d '
                ) \
-            % (self.level, self.frame_file,
+            % (self.level, self.s_size, self.frame_file,
                self.active_start, self.active_stop,
                self.inactive_start, self.inactive_stop,
                self.inactive_start_2, self.inactive_stop_2, self.cum_inactive
@@ -617,10 +631,11 @@ def create_animated_mini_poincare_plot(pp_specs_manager):
 
 
 def create_mini_poincare_plot_experimental(pp_specs_manager):
-    #print('\nWarning !! Experimental code ! Not implemented !\n')
-    print('\nWarning !! Experimental code !\n')
+    print('\nWarning !! Experimental code ! Not implemented !\n')
+
+
+def create_mini_poincare_plot_fast_generation(pp_specs_manager):
     movie_worker = PoincarePlotFastMovieMakerWorker(pp_specs_manager)
     if movie_worker.initiate():
-        for idx, _ in enumerate(movie_worker.pp_specs[1:]):
+        for idx, _ in enumerate(movie_worker.pp_specs):
             movie_worker.plot(idx)
-        gc.collect()

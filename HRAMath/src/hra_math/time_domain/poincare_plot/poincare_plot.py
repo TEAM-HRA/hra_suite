@@ -305,7 +305,8 @@ if __name__ == '__main__':
                 help="directory for movie files [default: " +
                         DEFAULT_OUTCOME_DIRECTORY + "]",
                 default=DEFAULT_OUTCOME_DIRECTORY)
-    parser.add_argument("-multi_proc_factor", "--movie_multiprocessing_factor",
+    parser.add_argument("-movie_multiprocessing_factor",
+                        "--movie_multiprocessing_factor",
                 help="""to generate a poincare plot movie use multiprocessing,
                  active on multiprocessing hardware, greater value > 0 give
                  use more of processors
@@ -328,6 +329,11 @@ if __name__ == '__main__':
     parser.add_argument("-movie_calculate_all_frames",
                         "--movie_calculate_all_frames",
                 help="""before generation png files all frames are calculated,
+                        [default False]""",
+                type=to_bool, default=False)
+    parser.add_argument("-movie_fast_generation",
+                        "--movie_fast_generation",
+                help="""fast generation of movie by use chaco plotting library,
                         [default False]""",
                 type=to_bool, default=False)
     __args = parser.parse_args()
@@ -365,6 +371,7 @@ if __name__ == '__main__':
     ppManager.movie_experimental_code = __args.movie_experimental_code
     ppManager.movie_animated = __args.movie_animated
     ppManager.movie_calculate_all_frames = __args.movie_calculate_all_frames
+    ppManager.movie_fast_generation = __args.movie_fast_generation
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True
