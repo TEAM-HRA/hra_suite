@@ -13,6 +13,7 @@ try:
     from chaco.api import ColormappedScatterPlot
     from chaco.api import LinearMapper
     from chaco.api import ArrayDataSource
+    from chaco.label_axis import LabelAxis
     from chaco.scatterplot import render_markers
     from kiva.constants import CIRCLE_MARKER
 except ImportError as error:
@@ -69,6 +70,17 @@ class PoincarePlotFastMovieMakerWorker(object):
         imapper = LinearMapper(range=self._plot.index_range)
         vmapper = LinearMapper(range=self._plot.value_range)
 
+        # add axis labels
+        bottom_axis = LabelAxis(self._plot, orientation='bottom',
+                               title='RR(n) [ms]',
+                               positions=range(1, 20),)
+        #bottom_axis.title_font = 'Microsoft Sans Serif 24'
+        self._plot.underlays.append(bottom_axis)
+        left_axis = LabelAxis(self._plot, orientation='left',
+                               title='RR(n+1) [ms]',
+                               positions=range(1, 20))
+        self._plot.underlays.append(left_axis)
+
         color = "white"
 
         self.scatter = __PoincarePlotScatterPlot__(
@@ -86,7 +98,7 @@ class PoincarePlotFastMovieMakerWorker(object):
                         marker_size=_marker_size,
                         line_width=0
                         #outline_color='white'
-                        ) #  marker_size)
+                        )
         self._plot.add(self.scatter)
 
         self._plot.plots['var_size_scatter'] = [self.scatter]
@@ -159,11 +171,14 @@ class __PoincarePlotScatterPlot__(ColormappedScatterPlot):
 
         gc.set_line_width(0)
         first = True
-#        manager = self.__pp_manager__
-#        if not manager.previous_manager == None:
-#          for pp_spec in manager.previous_manager.getMiniPoincarePlotSpecs():
-#                __update_graphics_context__(gc, self, pp_spec, first)
-#                first = False
+        #to get drawn the starting frame as correctly as possible,
+        #all previous frames from the last MiniPoincarePlotSpecManager
+        #are reconstructed
+        for pp_spec_minimum in \
+            self.__pp_manager__.getPreviousPoincarePlotSpecsMinimum():
+            __update_graphics_context__(gc, self, pp_spec_minimum, first,
+                                        p0.x_data, p0.y_data)
+            first = False
         __update_graphics_context__(gc, self, p0, first=first)
 
         r_points = pl.array([[p0.mean_plus, p0.mean_minus]])
@@ -177,17 +192,20 @@ class __PoincarePlotScatterPlot__(ColormappedScatterPlot):
         self.__counter__ = self.__counter__ + 1
 
 
-def __update_graphics_context__(gc, scatter, pp_spec, first=False):
+def __update_graphics_context__(gc, scatter, pp_spec, first=False,
+                                x_data=None, y_data=None):
     """
     function update graphics context of scatter plot based in
     information included in poincare plot specification object
     """
     p = pp_spec  # alias
+    x_data = p.x_data if hasattr(p, 'x_data') else x_data
+    y_data = p.y_data if hasattr(p, 'y_data') else y_data
 
     if first and p.level >= 0 and p.inactive_stop >= 0 and p.active_stop >= 0:
         r_points = pl.dstack(
-            (p.x_data[p.inactive_stop:p.active_stop],
-             p.y_data[p.inactive_stop:p.active_stop]))[0]
+            (x_data[p.inactive_stop:p.active_stop],
+             y_data[p.inactive_stop:p.active_stop]))[0]
         r_points = scatter.map_screen(r_points)
         _color = (1.0, 0.0, 0.0, 1.0)  # red color
         gc.set_fill_color(_color)
@@ -195,8 +213,8 @@ def __update_graphics_context__(gc, scatter, pp_spec, first=False):
 
     if p.inactive_start_2 >= 0 and p.inactive_stop_2 >= 0:
         r_points = pl.dstack(
-                (p.x_data[p.inactive_start_2: p.inactive_stop_2],
-                p.y_data[p.inactive_start_2: p.inactive_stop_2]))[0]
+                (x_data[p.inactive_start_2: p.inactive_stop_2],
+                 y_data[p.inactive_start_2: p.inactive_stop_2]))[0]
         r_points = scatter.map_screen(r_points)
         _color = (0.0, 0.0, 0.0, 1.0)  # black color
         gc.set_fill_color(_color)
@@ -204,16 +222,16 @@ def __update_graphics_context__(gc, scatter, pp_spec, first=False):
 
     if first and p.level >= 0 and p.inactive_stop >= 0:
         r_points = pl.dstack(
-                (p.x_data[: p.inactive_stop],
-                 p.y_data[: p.inactive_stop]))[0]
+                (x_data[: p.inactive_stop],
+                 y_data[: p.inactive_stop]))[0]
         r_points = scatter.map_screen(r_points)
         _color = (0.0, 0.0, 0.0, 1.0)  # black color
         gc.set_fill_color(_color)
         gc.draw_marker_at_points(r_points, _marker_size, CIRCLE_MARKER)
     elif p.inactive_start >= 0 and p.inactive_stop >= 0:
         r_points = pl.dstack(
-                    (p.x_data[p.inactive_start: p.inactive_stop],
-                     p.y_data[p.inactive_start: p.inactive_stop]))[0]
+                    (x_data[p.inactive_start: p.inactive_stop],
+                     y_data[p.inactive_start: p.inactive_stop]))[0]
         r_points = scatter.map_screen(r_points)
         _color = (0.0, 0.0, 0.0, 1.0)  # black color
         gc.set_fill_color(_color)
@@ -222,8 +240,8 @@ def __update_graphics_context__(gc, scatter, pp_spec, first=False):
     if (not first or p.level == 0) \
         and p.active_start >= 0 and p.active_stop >= 0:
         r_points = pl.dstack(
-                (p.x_data[p.active_start: p.active_stop],
-                 p.y_data[p.active_start: p.active_stop]))[0]
+                (x_data[p.active_start: p.active_stop],
+                 y_data[p.active_start: p.active_stop]))[0]
         r_points = scatter.map_screen(r_points)
         _color = (1.0, 0.0, 0.0, 1.0)  # red color
         gc.set_fill_color(_color)

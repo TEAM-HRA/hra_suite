@@ -2,6 +2,7 @@ from hra_math.utils.utils import print_import_error
 try:
     import os
     import gc
+    import collections
     import multiprocessing
     import pylab as pl
     import matplotlib as mpl
@@ -233,11 +234,18 @@ class PoincarePlotMovieMaker(object):
                         self.__save_frames__()
                         self.pp_specs_managers = []
 
+                old_pp_spec_manager = self.pp_spec_manager
                 self.pp_spec_manager = MiniPoincarePlotSpecManager()
                 self.pp_spec_manager.movie_dir = self.p.movie_dir
                 self.pp_spec_manager.movie_name = self.p.movie_name
                 self.pp_spec_manager.movie_dpi = self.p.movie_dpi
                 self.pp_spec_manager.movie_fps = self.p.movie_fps
+
+                #add all previous pp specs
+                for pp_spec in old_pp_spec_manager.getMiniPoincarePlotSpecs():
+                    self.pp_spec_manager.addPreviousPoincarePlotSpecMinimum(
+                                                                    pp_spec)
+                old_pp_spec_manager = None
 
                 self.pp_specs_managers.append(self.pp_spec_manager)
             self.message = 'Prepare frame: %s' % (frame_name)
@@ -322,7 +330,13 @@ class PoincarePlotMovieMaker(object):
             return create_mini_poincare_plot
 
 
+PPSpecMinimum = collections.namedtuple("PPSpecMinimum",
+        ["level", "active_start", "active_stop", "inactive_start",
+         "inactive_stop", "inactive_start_2", "inactive_stop_2"])
+
+
 class MiniPoincarePlotSpecManager(object):
+
     """
     class used to collect MiniPoincarePlotSpec objects,
     the class is introduced because of multiprocesing pool functionality,
@@ -335,6 +349,7 @@ class MiniPoincarePlotSpecManager(object):
         self.__movie_name__ = None
         self.__movie_fps__ = None
         self.__movie_dpi__ = None
+        self.__previous_pp_specs__ = []
 
     def addMiniPoincarePlotSpec(self, pp_spec):
         self.__pp_specs__.append(pp_spec)
@@ -373,6 +388,16 @@ class MiniPoincarePlotSpecManager(object):
     @movie_dpi.setter
     def movie_dpi(self, _movie_dpi):
         self.__movie_dpi__ = _movie_dpi
+
+    def addPreviousPoincarePlotSpecMinimum(self, pp_spec):
+        p = pp_spec  # alias
+        self.__previous_pp_specs__.append(
+                PPSpecMinimum(p.level, p.active_start, p.active_stop,
+                              p.inactive_start, p.inactive_stop,
+                              p.inactive_start_2, p.inactive_stop_2))
+
+    def getPreviousPoincarePlotSpecsMinimum(self):
+        return self.__previous_pp_specs__
 
 
 class MiniPoincarePlotSpec(object):
