@@ -6,6 +6,7 @@ Created on Aug 21, 2013
 from hra_math.utils.utils import print_import_error
 try:
     import pylab as pl
+    from enable.base import str_to_font
     from traits.trait_types import Callable
     from chaco.api import PlotGraphicsContext
     from chaco.api import ArrayPlotData
@@ -16,10 +17,11 @@ try:
     from chaco.label_axis import LabelAxis
     from chaco.scatterplot import render_markers
     from kiva.constants import CIRCLE_MARKER
+    from hra_core.datetime_utils import get_time_label_for_miliseconds
 except ImportError as error:
     print_import_error(__name__, error)
 
-_marker_size = 5
+_marker_size = 4
 
 
 class PoincarePlotFastMovieMakerWorker(object):
@@ -119,6 +121,7 @@ class PoincarePlotFastMovieMakerWorker(object):
 
         self.x_mean_old = None
         self.y_mean_old = None
+        self._font = None
 
         return True
 
@@ -150,7 +153,41 @@ class PoincarePlotFastMovieMakerWorker(object):
                                           CIRCLE_MARKER)
             self.gc.save_state()
 
+        self._draw_time_text(self.gc, p)
+
         self.gc.save(p.frame_file)
+
+    def _draw_time_text(self, gc, pp_spec):
+        if pp_spec.level == 0:
+            text = get_time_label_for_miliseconds(0)
+        else:
+            text = get_time_label_for_miliseconds(pp_spec.cum_inactive)
+
+        if not self._font:
+            self._font = str_to_font(None, None, "modern 13")
+
+        gc.save_state()
+
+        gc.set_font(self._font)
+        _, _, tw, th = gc.get_text_extent(text)
+        self.x = 550
+        self.y = 720
+        self.width = tw + 2
+        self.height = th + 2
+
+        _color = (1.0, 1.0, 1.0, 1.0)  # black
+        gc.set_fill_color(_color)
+        gc.rect(self.x, self.y, self.width, self.height)
+        gc.draw_path()
+        #self._draw_border(gc)
+        gc.set_font(self._font)
+        gc.set_fill_color((0.0, 0.0, 0.0, 1.0))
+        _, _, tw, th = gc.get_text_extent(text)
+        tx = self.x + self.width / 2.0 - tw / 2.0
+        ty = self.y + self.height / 2.0 - th / 2.0
+        gc.show_text_at_point(text, tx, ty)
+        gc.restore_state()
+        return
 
 
 class __PoincarePlotScatterPlot__(ColormappedScatterPlot):
