@@ -123,6 +123,13 @@ class PoincarePlotFastMovieMakerWorker(object):
         self.y_mean_old = None
         self._font = None
 
+        self.tw = None
+        self.th = None
+        self.tx = None
+        self.ty = None
+        self.w = None
+        self.h = None
+
         return True
 
     def plot(self, idx):
@@ -151,10 +158,10 @@ class PoincarePlotFastMovieMakerWorker(object):
             self.gc.set_fill_color(_color)
             self.gc.draw_marker_at_points(r_points, _marker_size,
                                           CIRCLE_MARKER)
-            self.gc.save_state()
+            #self.gc.save_state()
 
         self._draw_time_text(self.gc, p)
-
+        self.gc.save_state()
         self.gc.save(p.frame_file)
 
     def _draw_time_text(self, gc, pp_spec):
@@ -166,27 +173,32 @@ class PoincarePlotFastMovieMakerWorker(object):
         if not self._font:
             self._font = str_to_font(None, None, "modern 13")
 
-        gc.save_state()
-
         gc.set_font(self._font)
-        _, _, tw, th = gc.get_text_extent(text)
-        self.x = 550
-        self.y = 720
-        self.width = tw + 2
-        self.height = th + 2
+
+        if not self.tw:
+            _, _, self.tw, self.th = gc.get_text_extent(text)
+
+            w_shift = self._plot.outer_bounds[0] - self._plot.width \
+                        + self._plot.padding_right
+            # divided by 2 because time label will be put at a title level
+            # this means horizontal distance could be shorter
+            h_shift = (self._plot.outer_bounds[1] - self._plot.height \
+                        + self._plot.padding_top) / 2
+
+            self.x = self._plot.outer_bounds[0] - self.tw - w_shift
+            self.y = self._plot.outer_bounds[1] - self.th - h_shift
+            self.w = self.tw + 2
+            self.h = self.th + 2
+            self.tx = self.x + self.w / 2.0 - self.tw / 2.0
+            self.ty = self.y + self.h / 2.0 - self.th / 2.0
 
         _color = (1.0, 1.0, 1.0, 1.0)  # black
         gc.set_fill_color(_color)
-        gc.rect(self.x, self.y, self.width, self.height)
+        gc.rect(self.x, self.y, self.w, self.h)
         gc.draw_path()
-        #self._draw_border(gc)
-        gc.set_font(self._font)
         gc.set_fill_color((0.0, 0.0, 0.0, 1.0))
-        _, _, tw, th = gc.get_text_extent(text)
-        tx = self.x + self.width / 2.0 - tw / 2.0
-        ty = self.y + self.height / 2.0 - th / 2.0
-        gc.show_text_at_point(text, tx, ty)
-        gc.restore_state()
+        gc.show_text_at_point(text, self.tx, self.ty)
+
         return
 
 
