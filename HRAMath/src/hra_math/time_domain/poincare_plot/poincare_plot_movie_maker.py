@@ -2,7 +2,6 @@ from hra_math.utils.utils import print_import_error
 try:
     import os
     import gc
-    import collections
     import multiprocessing
     import pylab as pl
     import matplotlib as mpl
@@ -12,6 +11,7 @@ try:
     from hra_core.misc import ColorRGB
     from hra_core.io_utils import as_path
     from hra_core.collections_utils import get_chunks
+    from hra_core.collections_utils import nvl
     from hra_math.time_domain.poincare_plot.poincare_plot_animation \
                                     import PoincarePlotAnimation
     from hra_math.time_domain.poincare_plot.poincare_plot_movie_worker \
@@ -330,11 +330,6 @@ class PoincarePlotMovieMaker(object):
             return create_mini_poincare_plot
 
 
-PPSpecMinimum = collections.namedtuple("PPSpecMinimum",
-        ["level", "active_start", "active_stop", "inactive_start",
-         "inactive_stop", "inactive_start_2", "inactive_stop_2"])
-
-
 class MiniPoincarePlotSpecManager(object):
 
     """
@@ -383,7 +378,7 @@ class MiniPoincarePlotSpecManager(object):
 
     @property
     def movie_dpi(self):
-        return self.__movie_dpi__
+        return nvl(self.__movie_dpi__, 70)
 
     @movie_dpi.setter
     def movie_dpi(self, _movie_dpi):
@@ -392,25 +387,111 @@ class MiniPoincarePlotSpecManager(object):
     def addPreviousPoincarePlotSpecMinimum(self, pp_spec):
         p = pp_spec  # alias
         self.__previous_pp_specs__.append(
-                PPSpecMinimum(p.level, p.active_start, p.active_stop,
-                              p.inactive_start, p.inactive_stop,
-                              p.inactive_start_2, p.inactive_stop_2))
+                MiniPoincarePlotSpecMinimum(level=p.level,
+                                        active_start=p.active_start,
+                                        active_stop=p.active_stop,
+                                        inactive_start=p.inactive_start,
+                                        inactive_stop=p.inactive_stop,
+                                        inactive_start_2=p.inactive_start_2,
+                                        inactive_stop_2=p.inactive_stop_2))
 
     def getPreviousPoincarePlotSpecsMinimum(self):
         return self.__previous_pp_specs__
 
 
-class MiniPoincarePlotSpec(object):
+class MiniPoincarePlotSpecMinimum(object):
+    """
+    class used to store some important properties of mini-poincare plot
+    """
+
+    def __init__(self, **kvarg):
+        self.__level__ = kvarg.get('level', None)
+        self.__active_start__ = kvarg.get('active_start', -1)
+        self.__active_stop__ = kvarg.get('active_stop', -1)
+        self.__inactive_start__ = kvarg.get('inactive_start', -1)
+        self.__inactive_stop__ = kvarg.get('inactive_stop', -1)
+        self.__inactive_start_2__ = kvarg.get('inactive_start_2', -1)
+        self.__inactive_stop_2__ = kvarg.get('inactive_stop_2', -1)
+
+    @property
+    def level(self):
+        return self.__level__
+
+    @level.setter
+    def level(self, _level):
+        self.__level__ = _level
+
+    @property
+    def active_start(self):
+        return self.__active_start__
+
+    @active_start.setter
+    def active_start(self, _active_start):
+        self.__active_start__ = _active_start
+
+    @property
+    def active_stop(self):
+        return self.__active_stop__
+
+    @active_stop.setter
+    def active_stop(self, _active_stop):
+        self.__active_stop__ = _active_stop
+
+    @property
+    def inactive_start(self):
+        return self.__inactive_start__
+
+    @inactive_start.setter
+    def inactive_start(self, _inactive_start):
+        self.__inactive_start__ = _inactive_start
+
+    @property
+    def inactive_stop(self):
+        return self.__inactive_stop__
+
+    @inactive_stop.setter
+    def inactive_stop(self, _inactive_stop):
+        self.__inactive_stop__ = _inactive_stop
+
+    @property
+    def inactive_start_2(self):
+        return self.__inactive_start_2__
+
+    @inactive_start_2.setter
+    def inactive_start_2(self, _inactive_start_2):
+        self.__inactive_start_2__ = _inactive_start_2
+
+    @property
+    def inactive_stop_2(self):
+        return self.__inactive_stop_2__
+
+    @inactive_stop_2.setter
+    def inactive_stop_2(self, _inactive_stop_2):
+        self.__inactive_stop_2__ = _inactive_stop_2
+
+    def __str__(self):
+        return ('level: %d,  ' +
+               ' active_start %d, active_stop %d, ' +
+               ' inactive_start %d, inactive_stop %d, ' +
+               ' inactive_start_2 %d, inactive_stop_2 %d '
+               ) \
+            % (self.level,
+               self.active_start, self.active_stop,
+               self.inactive_start, self.inactive_stop,
+               self.inactive_start_2, self.inactive_stop_2)
+
+
+class MiniPoincarePlotSpec(MiniPoincarePlotSpecMinimum):
     """
     class used to store some important properties of mini-poincare plot
     """
 
     def __init__(self):
+        super(MiniPoincarePlotSpec, self).__init__()
         self.__idx__ = 0
         self.__x_data__ = None
         self.__y_data__ = None
         self.__idx__ = None
-        self.__level__ = None
         self.__mean_plus__ = None
         self.__mean_minus__ = None
         self.__range__ = None
@@ -423,12 +504,6 @@ class MiniPoincarePlotSpec(object):
         self.__frame_file__ = None
         self.__dpi__ = None
         self.__show_plot_legends__ = False
-        self.__active_start__ = -1
-        self.__active_stop__ = -1
-        self.__inactive_start__ = -1
-        self.__inactive_stop__ = -1
-        self.__inactive_start_2__ = -1
-        self.__inactive_stop_2__ = -1
         self.__cum_inactive__ = 0
         self.__s_size__ = 0
 
@@ -455,14 +530,6 @@ class MiniPoincarePlotSpec(object):
     @y_data.setter
     def y_data(self, _y_data):
         self.__y_data__ = _y_data
-
-    @property
-    def level(self):
-        return self.__level__
-
-    @level.setter
-    def level(self, _level):
-        self.__level__ = _level
 
     @property
     def mean_plus(self):
@@ -497,6 +564,10 @@ class MiniPoincarePlotSpec(object):
         self.__active_color__ = _active_color
 
     @property
+    def active_color_as_tuple(self):
+        return self.__color_as_tuple__(self.__active_color__)
+
+    @property
     def inactive_color(self):
         return self.__inactive_color__
 
@@ -505,8 +576,16 @@ class MiniPoincarePlotSpec(object):
         self.__inactive_color__ = _inactive_color
 
     @property
+    def inactive_color_as_tuple(self):
+        return self.__color_as_tuple__(self.__inactive_color__)
+
+    @property
     def centroid_color(self):
         return self.__centroid_color__
+
+    @property
+    def centroid_color_as_tuple(self):
+        return self.__color_as_tuple__(self.__centroid_color__)
 
     @centroid_color.setter
     def centroid_color(self, _centroid_color):
@@ -561,54 +640,6 @@ class MiniPoincarePlotSpec(object):
         self.__show_plot_legends__ = _show_plot_legends
 
     @property
-    def active_start(self):
-        return self.__active_start__
-
-    @active_start.setter
-    def active_start(self, _active_start):
-        self.__active_start__ = _active_start
-
-    @property
-    def active_stop(self):
-        return self.__active_stop__
-
-    @active_stop.setter
-    def active_stop(self, _active_stop):
-        self.__active_stop__ = _active_stop
-
-    @property
-    def inactive_start(self):
-        return self.__inactive_start__
-
-    @inactive_start.setter
-    def inactive_start(self, _inactive_start):
-        self.__inactive_start__ = _inactive_start
-
-    @property
-    def inactive_stop(self):
-        return self.__inactive_stop__
-
-    @inactive_stop.setter
-    def inactive_stop(self, _inactive_stop):
-        self.__inactive_stop__ = _inactive_stop
-
-    @property
-    def inactive_start_2(self):
-        return self.__inactive_start_2__
-
-    @inactive_start_2.setter
-    def inactive_start_2(self, _inactive_start_2):
-        self.__inactive_start_2__ = _inactive_start_2
-
-    @property
-    def inactive_stop_2(self):
-        return self.__inactive_stop_2__
-
-    @inactive_stop_2.setter
-    def inactive_stop_2(self, _inactive_stop_2):
-        self.__inactive_stop_2__ = _inactive_stop_2
-
-    @property
     def cum_inactive(self):
         return self.__cum_inactive__
 
@@ -635,6 +666,10 @@ class MiniPoincarePlotSpec(object):
                self.inactive_start, self.inactive_stop,
                self.inactive_start_2, self.inactive_stop_2, self.cum_inactive
                )
+
+    def __color_as_tuple__(self, _color):
+        _c = _color
+        return (_c[0], _c[1], _c[2], 1.0) if not _c == None else None
 
 
 def create_mini_poincare_plot(pp_spec_or_pp_specs_manager):

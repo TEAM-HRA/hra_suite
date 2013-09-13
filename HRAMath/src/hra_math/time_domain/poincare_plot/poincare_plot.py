@@ -313,7 +313,7 @@ if __name__ == '__main__':
                  """, type=int)
     parser.add_argument("-movie_bin_size", "--movie_bin_size",
                 help="""movie bin size """, type=int)
-    parser.add_argument("-fps", "--movie_fps",
+    parser.add_argument("-movie_fps", "--movie_fps",
                 help="""a movie fps [optional]""", type=int)
     parser.add_argument("-movie_skip_to_frame", "--movie_skip_to_frame",
                 help="""skip to a movie frame [optional]""", type=int)
@@ -336,6 +336,8 @@ if __name__ == '__main__':
                 help="""fast generation of movie by use chaco plotting library,
                         [default False]""",
                 type=to_bool, default=False)
+    parser.add_argument("-movie_dpi", "--movie_dpi",
+                help="""movie dpi """, type=int)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -372,6 +374,7 @@ if __name__ == '__main__':
     ppManager.movie_animated = __args.movie_animated
     ppManager.movie_calculate_all_frames = __args.movie_calculate_all_frames
     ppManager.movie_fast_generation = __args.movie_fast_generation
+    ppManager.movie_dpi = __args.movie_dpi
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True
