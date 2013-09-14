@@ -80,6 +80,8 @@ class PoincarePlotMovieMaker(object):
             self.pp_spec_manager.movie_name = self.p.movie_name
             self.pp_spec_manager.movie_dpi = self.p.movie_dpi
             self.pp_spec_manager.movie_fps = self.p.movie_fps
+            self.pp_spec_manager.movie_height = self.p.movie_height
+            self.pp_spec_manager.movie_width = self.p.movie_width
             self.pp_spec_manager.active_color = self.active_color
             self.pp_spec_manager.inactive_color = self.inactive_color
             self.pp_spec_manager.centroid_color = self.centroid_color
@@ -245,6 +247,8 @@ class PoincarePlotMovieMaker(object):
                 self.pp_spec_manager.movie_name = self.p.movie_name
                 self.pp_spec_manager.movie_dpi = self.p.movie_dpi
                 self.pp_spec_manager.movie_fps = self.p.movie_fps
+                self.pp_spec_manager.movie_height = self.p.movie_height
+                self.pp_spec_manager.movie_width = self.p.movie_width
                 self.pp_spec_manager.active_color = self.active_color
                 self.pp_spec_manager.inactive_color = self.inactive_color
                 self.pp_spec_manager.centroid_color = self.centroid_color
@@ -369,6 +373,8 @@ class MiniPoincarePlotSpecManager(object):
         self.__inactive_point_size__ = None
         self.__centroid_point_size__ = None
         self.__show_plot_legends__ = False
+        self.__movie_width__ = None
+        self.__movie_height__ = None
 
     def addMiniPoincarePlotSpec(self, pp_spec):
         self.__pp_specs__.append(pp_spec)
@@ -475,6 +481,22 @@ class MiniPoincarePlotSpecManager(object):
     @show_plot_legends.setter
     def show_plot_legends(self, _show_plot_legends):
         self.__show_plot_legends__ = _show_plot_legends
+
+    @property
+    def movie_width(self):
+        return self.__movie_width__
+
+    @movie_width.setter
+    def movie_width(self, _movie_width):
+        self.__movie_width__ = _movie_width
+
+    @property
+    def movie_height(self):
+        return self.__movie_height__
+
+    @movie_height.setter
+    def movie_height(self, _movie_height):
+        self.__movie_height__ = _movie_height
 
     def __color_as_tuple__(self, _color):
         _c = _color

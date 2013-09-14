@@ -339,7 +339,22 @@ if __name__ == '__main__':
                     [default False]""",
                 type=to_bool, default=False)
     parser.add_argument("-movie_dpi", "--movie_dpi",
-                help="""movie dpi """, type=int)
+                help="""movie dpi """, default=700, type=int)
+    parser.add_argument("-movie_width", "--movie_width",
+                        help="""movie width [default 550]""",
+                        default=550, type=int)
+    parser.add_argument("-movie_height", "--movie_height",
+                        help="""movie height [default 550]""",
+                        default=550, type=int)
+    parser.add_argument("-movie_active_size", "--movie_active_size",
+                    help="""movie active plot data point size [default 3]""",
+                    default=3, type=int)
+    parser.add_argument("-movie_inactive_size", "--movie_inactive_size",
+                    help="""movie inactive plot data point size [default 3]""",
+                    default=3, type=int)
+    parser.add_argument("-movie_centroid_size", "--movie_centroid_size",
+                    help="""movie centroid plot data point size [default 4]""",
+                    default=4, type=int)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -377,6 +392,11 @@ if __name__ == '__main__':
     ppManager.movie_calculate_all_frames = __args.movie_calculate_all_frames
     ppManager.movie_standard_generation = __args.movie_standard_generation
     ppManager.movie_dpi = __args.movie_dpi
+    ppManager.movie_width = __args.movie_width
+    ppManager.movie_height = __args.movie_height
+    ppManager.movie_active_size = __args.movie_active_size
+    ppManager.movie_inactive_size = __args.movie_inactive_size
+    ppManager.movie_centroid_size = __args.movie_centroid_size
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True

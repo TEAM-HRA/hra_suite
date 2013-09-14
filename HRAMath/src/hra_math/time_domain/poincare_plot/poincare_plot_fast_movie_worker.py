@@ -34,6 +34,12 @@ class PoincarePlotFastMovieMakerWorker(object):
         self.gc = None
         self.p0 = self.pp_specs[0]
 
+        #set up specific values for fonts sizes based on products of a movie
+        #height and arbitrary constants to give looking good picture
+        self.axis_font = 'modern ' + str(self.manager.movie_height / 53)
+        self.title_font = 'modern ' + str(self.manager.movie_height / 40)
+        self.text_font = 'modern ' + str(self.manager.movie_height / 61)
+
     def initiate(self):
         if len(self.pp_specs) == 0:
             return False
@@ -74,12 +80,12 @@ class PoincarePlotFastMovieMakerWorker(object):
         bottom_axis = LabelAxis(self._plot, orientation='bottom',
                                title='RR(n) [ms]',
                                positions=range(1, 20),
-                               title_font='modern 15')
+                               title_font=self.axis_font)
         self._plot.underlays.append(bottom_axis)
         left_axis = LabelAxis(self._plot, orientation='left',
                                title='RR(n+1) [ms]',
                                positions=range(1, 20),
-                               title_font='modern 15')
+                               title_font=self.axis_font)
         self._plot.underlays.append(left_axis)
 
         color = "white"
@@ -106,12 +112,13 @@ class PoincarePlotFastMovieMakerWorker(object):
 
         # Tweak some of the plot properties
         self._plot.title = "Poincare plot"
-        self._plot.title_font='modern 20'
+        self._plot.title_font = self.title_font
         self._plot.line_width = 0.5
         self._plot.padding = 50
 
         self._plot.do_layout(force=True)
-        self._plot.outer_bounds = [800, 800]
+        self._plot.outer_bounds = [self.manager.movie_width,
+                                   self.manager.movie_height]
 
         self.gc = PlotGraphicsContext(self._plot.outer_bounds,
                                       dpi=self.manager.movie_dpi)
@@ -170,7 +177,7 @@ class PoincarePlotFastMovieMakerWorker(object):
             text = get_time_label_for_miliseconds(pp_spec.cum_inactive)
 
         if not self._font:
-            self._font = str_to_font(None, None, "modern 13")
+            self._font = str_to_font(None, None, self.text_font)
 
         gc.set_font(self._font)
 

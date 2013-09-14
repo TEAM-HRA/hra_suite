@@ -89,25 +89,25 @@ class MovieParameters(CoreParameters):
     def movie_active_size(self):
         """
         [optional]
-        size of an active plot point [default: 4 [points]]
+        size of an active plot point [default: 3 [points]]
         """
-        return nvl(self.__movie_active_size__, 4)
+        return nvl(self.__movie_active_size__, 3)
 
     @movie_active_size.setter
     def movie_active_size(self, _movie_active_size):
-        self.__movie_acitive_size__ = _movie_active_size
+        self.__movie_active_size__ = _movie_active_size
 
     @property
     def movie_inactive_size(self):
         """
         [optional]
-        size of a inactive plot point [default: 4 [points]]
+        size of a inactive plot point [default: 3 [points]]
         """
-        return nvl(self.__movie_inactive_size__, 4)
+        return nvl(self.__movie_inactive_size__, 3)
 
     @movie_inactive_size.setter
-    def movie_inactive_size(self, _inactive_size):
-        self.__inacitive_size__ = _inactive_size
+    def movie_inactive_size(self, _movie_inactive_size):
+        self.__movie_inactive_size__ = _movie_inactive_size
 
     @property
     def movie_centroid_size(self):
@@ -125,9 +125,9 @@ class MovieParameters(CoreParameters):
     def movie_dpi(self):
         """
         [optional]
-        movie DPI resolution [default: 100]
+        movie DPI resolution [default: 70]
         """
-        return nvl(self.__movie_dpi__, 100)
+        return nvl(self.__movie_dpi__, 70)
 
     @movie_dpi.setter
     def movie_dpi(self, _movie_dpi):
@@ -137,9 +137,9 @@ class MovieParameters(CoreParameters):
     def movie_height(self):
         """
         [optional]
-        movie height [default: 800]
+        movie height [default: 550]
         """
-        return nvl(self.__movie_height__, 800)
+        return nvl(self.__movie_height__, 550)
 
     @movie_height.setter
     def movie_height(self, _movie_height):
@@ -149,9 +149,9 @@ class MovieParameters(CoreParameters):
     def movie_width(self):
         """
         [optional]
-        movie width [default: 800]
+        movie width [default: 550]
         """
-        return nvl(self.__movie_width__, 800)
+        return nvl(self.__movie_width__, 550)
 
     @movie_width.setter
     def movie_width(self, _movie_width):
