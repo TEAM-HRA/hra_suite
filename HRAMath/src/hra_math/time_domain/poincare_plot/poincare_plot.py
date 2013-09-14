@@ -330,11 +330,13 @@ if __name__ == '__main__':
                         "--movie_calculate_all_frames",
                 help="""before generation png files all frames are calculated,
                         [default False]""",
-                type=to_bool, default=False)
-    parser.add_argument("-movie_fast_generation",
-                        "--movie_fast_generation",
-                help="""fast generation of movie by use chaco plotting library,
-                        [default False]""",
+                type=to_bool, default=True)
+    parser.add_argument("-movie_standard_generation",
+                        "--movie_standard_generation",
+                help="""standard generation of movie by use of matplotlib
+                    plotting library
+                    [could be very slow for huge recordings (e.g. 24h)],
+                    [default False]""",
                 type=to_bool, default=False)
     parser.add_argument("-movie_dpi", "--movie_dpi",
                 help="""movie dpi """, type=int)
@@ -373,7 +375,7 @@ if __name__ == '__main__':
     ppManager.movie_experimental_code = __args.movie_experimental_code
     ppManager.movie_animated = __args.movie_animated
     ppManager.movie_calculate_all_frames = __args.movie_calculate_all_frames
-    ppManager.movie_fast_generation = __args.movie_fast_generation
+    ppManager.movie_standard_generation = __args.movie_standard_generation
     ppManager.movie_dpi = __args.movie_dpi
     _disp = False
     if __args.display_annotation_values == True:

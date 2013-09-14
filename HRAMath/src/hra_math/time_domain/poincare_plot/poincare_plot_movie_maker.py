@@ -321,13 +321,14 @@ class PoincarePlotMovieMaker(object):
     @property
     def __poincare_plot_function__(self):
         if self.p.movie_animated:
-            return create_animated_mini_poincare_plot
-        elif self.p.movie_fast_generation:
-            return create_mini_poincare_plot_fast_generation
+            return create_mini_poincare_plot_animated_generation
+        elif self.p.movie_standard_generation:
+            return create_mini_poincare_plot_standard_generation
         elif self.p.movie_experimental_code:
             return create_mini_poincare_plot_experimental
         else:
-            return create_mini_poincare_plot
+            #the default choice
+            return create_mini_poincare_plot_fast_generation
 
 
 class MiniPoincarePlotSpecManager(object):
@@ -672,7 +673,7 @@ class MiniPoincarePlotSpec(MiniPoincarePlotSpecMinimum):
         return (_c[0], _c[1], _c[2], 1.0) if not _c == None else None
 
 
-def create_mini_poincare_plot(pp_spec_or_pp_specs_manager):
+def create_mini_poincare_plot_standard_generation(pp_spec_or_pp_specs_manager):
     movie_maker = PoincarePlotMovieMakerWorker(pp_spec_or_pp_specs_manager)
     if movie_maker.initiate():
         movie_maker.fig.savefig(movie_maker.p0.frame_file,
@@ -684,7 +685,7 @@ def create_mini_poincare_plot(pp_spec_or_pp_specs_manager):
         gc.collect()  # 'to force' garbage collection
 
 
-def create_animated_mini_poincare_plot(pp_specs_manager):
+def create_mini_poincare_plot_animated_generation(pp_specs_manager):
     PoincarePlotAnimation(pp_specs_manager)
     plt.close('all')
     gc.collect()  # 'to force' garbage collection

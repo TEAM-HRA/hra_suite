@@ -282,26 +282,27 @@ class MovieParameters(CoreParameters):
     @property
     def movie_calculate_all_frames(self):
         """
-        [optional - default: False]
+        [optional - default: True]
         before generation png files all frames are calculated
         """
-        return nvl(self.__movie_calculate_all_frames__, False)
+        return nvl(self.__movie_calculate_all_frames__, True)
 
     @movie_calculate_all_frames.setter
     def movie_calculate_all_frames(self, _movie_calculate_all_frames):
         self.__movie_calculate_all_frames__ = _movie_calculate_all_frames
 
     @property
-    def movie_fast_generation(self):
+    def movie_standard_generation(self):
         """
         [optional - default: False]
-        fast generation of movie by use chaco plotting library
+        standard generation of movie by use of matplotlib library
+        [could be very slow for huge input data files (e.g. 24h)]
         """
-        return nvl(self.__movie_fast_generation__, False)
+        return nvl(self.__movie_standard_generation__, False)
 
-    @movie_fast_generation.setter
-    def movie_fast_generation(self, _movie_fast_generation):
-        self.__movie_fast_generation__ = _movie_fast_generation
+    @movie_standard_generation.setter
+    def movie_standard_generation(self, _movie_standard_generation):
+        self.__movie_standard_generation__ = _movie_standard_generation
 
     def setObjectMovieParameters(self, _object):
         """
@@ -334,8 +335,8 @@ class MovieParameters(CoreParameters):
                             self.movie_experimental_code)
         setattr(_object, 'movie_calculate_all_frames',
                             self.movie_calculate_all_frames)
-        setattr(_object, 'movie_fast_generation',
-                            self.movie_fast_generation)
+        setattr(_object, 'movie_standard_generation',
+                            self.movie_standard_generation)
 
     def validateMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.movie_name == None:
@@ -375,5 +376,5 @@ class MovieParameters(CoreParameters):
                                          + str(self.movie_experimental_code))
             print('    calculate all frames: '
                                         + str(self.movie_calculate_all_frames))
-            print('    fast generation: '
-                                        + str(self.movie_fast_generation))
+            print('    standard generation: '
+                                        + str(self.movie_standard_generation))
