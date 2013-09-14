@@ -80,6 +80,16 @@ class PoincarePlotMovieMaker(object):
             self.pp_spec_manager.movie_name = self.p.movie_name
             self.pp_spec_manager.movie_dpi = self.p.movie_dpi
             self.pp_spec_manager.movie_fps = self.p.movie_fps
+            self.pp_spec_manager.active_color = self.active_color
+            self.pp_spec_manager.inactive_color = self.inactive_color
+            self.pp_spec_manager.centroid_color = self.centroid_color
+            self.pp_spec_manager.active_point_size = self.p.movie_active_size
+            self.pp_spec_manager.inactive_point_size = \
+                                            self.p.movie_inactive_size
+            self.pp_spec_manager.centroid_point_size = \
+                                            self.p.movie_centroid_size
+            self.pp_spec_manager.show_plot_legends = \
+                                        self.p.movie_show_plot_legends
 
             self.pp_specs_managers = []
             self.pp_specs_managers.append(self.pp_spec_manager)
@@ -88,7 +98,7 @@ class PoincarePlotMovieMaker(object):
             self.legend_text = None
             self.pp_specs = []
             self.cum_inactive = 0
-            self._p_old = None
+            self._pp_spec_old = None
             self.s_size = 0  # current calculated signal size
 
     def add_data_vector_segment(self, data_vector_segment, last_segment=False):
@@ -112,20 +122,13 @@ class PoincarePlotMovieMaker(object):
 
         s_plus = len(data_vector_segment.signal_plus)
 
-        _p = MiniPoincarePlotSpec()
-        _p.idx = self.idx
-        _p.s_plus = s_plus
-        _p.mean_plus = mean_plus
-        _p.mean_minus = mean_minus
-        _p.range = self.range
-        _p.active_color = self.active_color
-        _p.inactive_color = self.inactive_color
-        _p.centroid_color = self.centroid_color
-        _p.active_point_size = self.p.movie_active_size
-        _p.inactive_point_size = self.p.movie_inactive_size
-        _p.centroid_point_size = self.p.movie_centroid_size
-        _p.frame_file = frame_file
-        _p.show_plot_legends = self.p.movie_show_plot_legends
+        _pp_spec = MiniPoincarePlotSpec()
+        _pp_spec.idx = self.idx
+        _pp_spec.s_plus = s_plus
+        _pp_spec.mean_plus = mean_plus
+        _pp_spec.mean_minus = mean_minus
+        _pp_spec.range = self.range
+        _pp_spec.frame_file = frame_file
 
         if self.idx == 0:
 
@@ -136,9 +139,9 @@ class PoincarePlotMovieMaker(object):
 
             ok = True
             old_s_plus = 0
-            _p.level = 0
-            _p.active_start = 0
-            _p.active_stop = s_plus
+            _pp_spec.level = 0
+            _pp_spec.active_start = 0
+            _pp_spec.active_stop = s_plus
         else:
             old_s_plus = len(self.old_signal_plus)
             ok = False
@@ -148,8 +151,8 @@ class PoincarePlotMovieMaker(object):
                     old_size = self.s_size
                     new_size = old_size + s_plus - old_s_plus
                     if new_size > old_size:
-                        _p.active_start = old_size
-                        _p.active_stop = new_size
+                        _pp_spec.active_start = old_size
+                        _pp_spec.active_stop = new_size
 
                         if new_size > len(self.x_data):
                             raise Exception(
@@ -163,9 +166,10 @@ class PoincarePlotMovieMaker(object):
                             data_vector_segment.signal_minus[old_s_plus
                                                              - s_plus:])
 
-                        _p.inactive_stop = self._p_old.inactive_stop
+                        _pp_spec.inactive_stop = \
+                                        self._pp_spec_old.inactive_stop
                         self.s_size = new_size
-                    _p.level = 1
+                    _pp_spec.level = 1
                     ok = True
                 else:
                     for idx in xrange(1, old_s_plus):
@@ -180,8 +184,8 @@ class PoincarePlotMovieMaker(object):
                                 'New size is greater then the signal size !')
 
                             if new_size > old_size:
-                                _p.active_start = old_size
-                                _p.active_stop = new_size
+                                _pp_spec.active_start = old_size
+                                _pp_spec.active_stop = new_size
 
                                 self.x_data.put(pl.arange(old_size, new_size),
                                     data_vector_segment.signal_plus[
@@ -193,10 +197,10 @@ class PoincarePlotMovieMaker(object):
                                 self.s_size = new_size
 
                             _d = self.s_size - s_plus
-                            _p.inactive_start = _d - idx
-                            _p.inactive_stop = _d
+                            _pp_spec.inactive_start = _d - idx
+                            _pp_spec.inactive_stop = _d
 
-                            _p.level = 3
+                            _pp_spec.level = 3
 
                             ok = True
                             break
@@ -208,24 +212,25 @@ class PoincarePlotMovieMaker(object):
                                     == data_vector_segment.signal_plus):
 
                         _d = self.s_size - old_s_plus
-                        _p.inactive_start = _d
-                        _p.inactive_stop = _d + idx
+                        _pp_spec.inactive_start = _d
+                        _pp_spec.inactive_stop = _d + idx
 
-                        if _p.inactive_stop + s_plus < self.s_size:
-                            _p.inactive_start_2 = _p.inactive_stop + s_plus
-                            _p.inactive_stop_2 = self.s_size
-                        _p.level = 2
+                        if _pp_spec.inactive_stop + s_plus < self.s_size:
+                            _pp_spec.inactive_start_2 = \
+                                        _pp_spec.inactive_stop + s_plus
+                            _pp_spec.inactive_stop_2 = self.s_size
+                        _pp_spec.level = 2
 
                         ok = True
                         break
         if ok == True and skip_frame == False:
-            _p.x_data = self.x_data
-            _p.y_data = self.y_data
-            _p.cum_inactive = self.cum_inactive
-            _p.s_size = self.s_size
+            _pp_spec.x_data = self.x_data
+            _pp_spec.y_data = self.y_data
+            _pp_spec.cum_inactive = self.cum_inactive
+            _pp_spec.s_size = self.s_size
             #print('PP_SPEC: ' + str(_p))
 
-            self.pp_spec_manager.addMiniPoincarePlotSpec(_p)
+            self.pp_spec_manager.addMiniPoincarePlotSpec(_pp_spec)
             if self.idx > 0 and \
                 (self.p.movie_bin_size > 0
                     and ((self.idx % self.p.movie_bin_size) == 0)):
@@ -240,6 +245,17 @@ class PoincarePlotMovieMaker(object):
                 self.pp_spec_manager.movie_name = self.p.movie_name
                 self.pp_spec_manager.movie_dpi = self.p.movie_dpi
                 self.pp_spec_manager.movie_fps = self.p.movie_fps
+                self.pp_spec_manager.active_color = self.active_color
+                self.pp_spec_manager.inactive_color = self.inactive_color
+                self.pp_spec_manager.centroid_color = self.centroid_color
+                self.pp_spec_manager.active_point_size = \
+                                                self.p.movie_active_size
+                self.pp_spec_manager.inactive_point_size = \
+                                                self.p.movie_inactive_size
+                self.pp_spec_manager.centroid_point_size = \
+                                                self.p.movie_centroid_size
+                self.pp_spec_manager.show_plot_legends = \
+                                            self.p.movie_show_plot_legends
 
                 #add all previous pp specs
                 for pp_spec in old_pp_spec_manager.getMiniPoincarePlotSpecs():
@@ -256,12 +272,12 @@ class PoincarePlotMovieMaker(object):
             print('old_signal_plus: ' + str(self.old_signal_plus))
             print('signal_plus:     ' + str(data_vector_segment.signal_plus))
             raise Exception('Error for idx ' + str(self.idx))
-        if _p.inactive_start >= 0 and _p.inactive_stop >= 0:
+        if _pp_spec.inactive_start >= 0 and _pp_spec.inactive_stop >= 0:
             self.cum_inactive += pl.sum(
-                        self.x_data[_p.inactive_start:_p.inactive_stop])
+                self.x_data[_pp_spec.inactive_start:_pp_spec.inactive_stop])
         self.old_signal_plus = data_vector_segment.signal_plus
         self.idx = self.idx + 1
-        self._p_old = _p
+        self._pp_spec_old = _pp_spec
 
         #gc.collect()  # this invocation slow down process of movie generation
 
@@ -346,6 +362,13 @@ class MiniPoincarePlotSpecManager(object):
         self.__movie_fps__ = None
         self.__movie_dpi__ = None
         self.__previous_pp_specs__ = []
+        self.__active_color__ = None
+        self.__inactive_color__ = None
+        self.__centroid_color__ = None
+        self.__active_point_size__ = None
+        self.__inactive_point_size__ = None
+        self.__centroid_point_size__ = None
+        self.__show_plot_legends__ = False
 
     def addMiniPoincarePlotSpec(self, pp_spec):
         self.__pp_specs__.append(pp_spec)
@@ -384,6 +407,78 @@ class MiniPoincarePlotSpecManager(object):
     @movie_dpi.setter
     def movie_dpi(self, _movie_dpi):
         self.__movie_dpi__ = _movie_dpi
+
+    @property
+    def active_color(self):
+        return self.__active_color__
+
+    @active_color.setter
+    def active_color(self, _active_color):
+        self.__active_color__ = _active_color
+
+    @property
+    def active_color_as_tuple(self):
+        return self.__color_as_tuple__(self.__active_color__)
+
+    @property
+    def inactive_color(self):
+        return self.__inactive_color__
+
+    @inactive_color.setter
+    def inactive_color(self, _inactive_color):
+        self.__inactive_color__ = _inactive_color
+
+    @property
+    def inactive_color_as_tuple(self):
+        return self.__color_as_tuple__(self.__inactive_color__)
+
+    @property
+    def centroid_color(self):
+        return self.__centroid_color__
+
+    @property
+    def centroid_color_as_tuple(self):
+        return self.__color_as_tuple__(self.__centroid_color__)
+
+    @centroid_color.setter
+    def centroid_color(self, _centroid_color):
+        self.__centroid_color__ = _centroid_color
+
+    @property
+    def active_point_size(self):
+        return self.__active_point_size__
+
+    @active_point_size.setter
+    def active_point_size(self, _active_point_size):
+        self.__active_point_size__ = _active_point_size
+
+    @property
+    def inactive_point_size(self):
+        return self.__inactive_point_size__
+
+    @inactive_point_size.setter
+    def inactive_point_size(self, _inactive_point_size):
+        self.__inactive_point_size__ = _inactive_point_size
+
+    @property
+    def centroid_point_size(self):
+        return self.__centroid_point_size__
+
+    @centroid_point_size.setter
+    def centroid_point_size(self, _centroid_point_size):
+        self.__centroid_point_size__ = _centroid_point_size
+
+    @property
+    def show_plot_legends(self):
+        return self.__show_plot_legends__
+
+    @show_plot_legends.setter
+    def show_plot_legends(self, _show_plot_legends):
+        self.__show_plot_legends__ = _show_plot_legends
+
+    def __color_as_tuple__(self, _color):
+        _c = _color
+        return (_c[0], _c[1], _c[2], 1.0) if not _c == None else None
 
     def addPreviousPoincarePlotSpecMinimum(self, pp_spec):
         p = pp_spec  # alias
@@ -496,15 +591,7 @@ class MiniPoincarePlotSpec(MiniPoincarePlotSpecMinimum):
         self.__mean_plus__ = None
         self.__mean_minus__ = None
         self.__range__ = None
-        self.__active_color__ = None
-        self.__inactive_color__ = None
-        self.__centroid_color__ = None
-        self.__active_point_size__ = None
-        self.__inactive_point_size__ = None
-        self.__centroid_point_size__ = None
         self.__frame_file__ = None
-        self.__dpi__ = None
-        self.__show_plot_legends__ = False
         self.__cum_inactive__ = 0
         self.__s_size__ = 0
 
@@ -557,88 +644,12 @@ class MiniPoincarePlotSpec(MiniPoincarePlotSpecMinimum):
         self.__range__ = _range
 
     @property
-    def active_color(self):
-        return self.__active_color__
-
-    @active_color.setter
-    def active_color(self, _active_color):
-        self.__active_color__ = _active_color
-
-    @property
-    def active_color_as_tuple(self):
-        return self.__color_as_tuple__(self.__active_color__)
-
-    @property
-    def inactive_color(self):
-        return self.__inactive_color__
-
-    @inactive_color.setter
-    def inactive_color(self, _inactive_color):
-        self.__inactive_color__ = _inactive_color
-
-    @property
-    def inactive_color_as_tuple(self):
-        return self.__color_as_tuple__(self.__inactive_color__)
-
-    @property
-    def centroid_color(self):
-        return self.__centroid_color__
-
-    @property
-    def centroid_color_as_tuple(self):
-        return self.__color_as_tuple__(self.__centroid_color__)
-
-    @centroid_color.setter
-    def centroid_color(self, _centroid_color):
-        self.__centroid_color__ = _centroid_color
-
-    @property
-    def active_point_size(self):
-        return self.__active_point_size__
-
-    @active_point_size.setter
-    def active_point_size(self, _active_point_size):
-        self.__active_point_size__ = _active_point_size
-
-    @property
-    def inactive_point_size(self):
-        return self.__inactive_point_size__
-
-    @inactive_point_size.setter
-    def inactive_point_size(self, _inactive_point_size):
-        self.__inactive_point_size__ = _inactive_point_size
-
-    @property
-    def centroid_point_size(self):
-        return self.__centroid_point_size__
-
-    @centroid_point_size.setter
-    def centroid_point_size(self, _centroid_point_size):
-        self.__centroid_point_size__ = _centroid_point_size
-
-    @property
     def frame_file(self):
         return self.__frame_file__
 
     @frame_file.setter
     def frame_file(self, _frame_file):
         self.__frame_file__ = _frame_file
-
-    @property
-    def dpi(self):
-        return self.__dpi__
-
-    @dpi.setter
-    def dpi(self, _dpi):
-        self.__dpi__ = _dpi
-
-    @property
-    def show_plot_legends(self):
-        return self.__show_plot_legends__
-
-    @show_plot_legends.setter
-    def show_plot_legends(self, _show_plot_legends):
-        self.__show_plot_legends__ = _show_plot_legends
 
     @property
     def cum_inactive(self):
@@ -668,19 +679,15 @@ class MiniPoincarePlotSpec(MiniPoincarePlotSpecMinimum):
                self.inactive_start_2, self.inactive_stop_2, self.cum_inactive
                )
 
-    def __color_as_tuple__(self, _color):
-        _c = _color
-        return (_c[0], _c[1], _c[2], 1.0) if not _c == None else None
-
 
 def create_mini_poincare_plot_standard_generation(pp_spec_or_pp_specs_manager):
     movie_maker = PoincarePlotMovieMakerWorker(pp_spec_or_pp_specs_manager)
     if movie_maker.initiate():
         movie_maker.fig.savefig(movie_maker.p0.frame_file,
-                                dpi=movie_maker.p0.dpi)
+                                dpi=movie_maker.movie_dpi)
         for idx, p in enumerate(movie_maker.pp_specs[1:]):
             movie_maker.plot(idx)
-            movie_maker.fig.savefig(p.frame_file, dpi=p.dpi)
+            movie_maker.fig.savefig(p.frame_file, dpi=movie_maker.movie_dpi)
         plt.close('all')
         gc.collect()  # 'to force' garbage collection
 

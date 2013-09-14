@@ -89,9 +89,9 @@ class MovieParameters(CoreParameters):
     def movie_active_size(self):
         """
         [optional]
-        size of an active plot point [default: 20 [points]]
+        size of an active plot point [default: 4 [points]]
         """
-        return nvl(self.__movie_active_size__, 20)
+        return nvl(self.__movie_active_size__, 4)
 
     @movie_active_size.setter
     def movie_active_size(self, _movie_active_size):
@@ -101,9 +101,9 @@ class MovieParameters(CoreParameters):
     def movie_inactive_size(self):
         """
         [optional]
-        size of a inactive plot point [default: 10 [points]]
+        size of a inactive plot point [default: 4 [points]]
         """
-        return nvl(self.__movie_inactive_size__, 10)
+        return nvl(self.__movie_inactive_size__, 4)
 
     @movie_inactive_size.setter
     def movie_inactive_size(self, _inactive_size):
@@ -113,9 +113,9 @@ class MovieParameters(CoreParameters):
     def movie_centroid_size(self):
         """
         [optional]
-        size of a point's centroid [default: 40 [points]]
+        size of a point's centroid [default: 4 [points]]
         """
-        return nvl(self.__movie_centroid_size__, 40)
+        return nvl(self.__movie_centroid_size__, 4)
 
     @movie_centroid_size.setter
     def movie_centroid_size(self, _movie_centroid_size):

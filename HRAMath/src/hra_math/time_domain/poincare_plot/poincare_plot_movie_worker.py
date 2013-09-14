@@ -45,7 +45,7 @@ class PoincarePlotMovieMakerWorker(object):
         y_data = pl.hstack((pl.copy(self.p0.y_data), pl.array([0])))
 
         colors0 = [white] * len(x_data)
-        sizes0 = [self.p0.inactive_point_size] * len(x_data)
+        sizes0 = [self.manager.inactive_point_size] * len(x_data)
 
         #at the the last index is a centroid
         sizes0[-1] = self.p0.centroid_point_size
@@ -53,31 +53,31 @@ class PoincarePlotMovieMakerWorker(object):
 
         if self.p0.level == 0:
             colors0[self.p0.active_start:self.p0.active_stop] = \
-                    [self.p0.active_color] * (self.p0.active_stop
+                    [self.manager.active_color] * (self.p0.active_stop
                                               - self.p0.active_start)
             sizes0[self.p0.active_start:self.p0.active_stop] = \
-                    [self.p0.active_point_size] * (self.p0.active_stop
+                    [self.manager.active_point_size] * (self.p0.active_stop
                                                    - self.p0.active_start)
         else:
             if self.p0.inactive_start >= 0 and self.p0.inactive_stop >= 0:
                 colors0[:self.p0.inactive_stop] = \
-                        [self.p0.inactive_color] * self.p0.inactive_stop
+                        [self.manager.inactive_color] * self.p0.inactive_stop
                 sizes0[:self.p0.inactive_stop] = \
-                        [self.p0.inactive_point_size] * self.p0.inactive_stop
+                    [self.manager.inactive_point_size] * self.p0.inactive_stop
             if self.p0.active_stop >= 0:
                 colors0[self.p0.inactive_stop:self.p0.active_stop] = \
-                    [self.p0.active_color] * (self.p0.active_stop
+                    [self.manager.active_color] * (self.p0.active_stop
                                                - self.p0.inactive_stop)
                 sizes0[self.p0.inactive_stop:self.p0.active_stop] = \
-                    [self.p0.active_point_size] * (self.p0.active_stop
+                    [self.manager.active_point_size] * (self.p0.active_stop
                                                     - self.p0.inactive_stop)
             if self.p0.inactive_start_2 >= 0 and self.p0.inactive_stop_2 >= 0:
                 colors0[self.p0.inactive_start_2:self.p0.inactive_stop_2] = \
-                   [self.p0.inactive_color] * (self.p0.inactive_stop_2
+                   [self.manager.inactive_color] * (self.p0.inactive_stop_2
                                                - self.p0.inactive_start_2)
                 sizes0[self.p0.inactive_start_2:self.p0.inactive_stop_2] = \
-                   [self.p0.inactive_point_size] * (self.p0.inactive_stop_2
-                                                - self.p0.inactive_start_2)
+                   [self.manager.inactive_point_size] *\
+                     (self.p0.inactive_stop_2 - self.p0.inactive_start_2)
 
 # for future use
 #        if p.show_plot_legends == True:
