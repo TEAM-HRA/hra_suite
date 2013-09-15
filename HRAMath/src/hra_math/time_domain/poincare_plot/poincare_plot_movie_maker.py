@@ -10,6 +10,7 @@ try:
     from hra_core.misc import Params
     from hra_core.misc import ColorRGB
     from hra_core.io_utils import as_path
+    from hra_core.movie_utils import generate_movie
     from hra_core.collections_utils import get_chunks
     from hra_core.collections_utils import nvl
     from hra_math.time_domain.poincare_plot.poincare_plot_animation \
@@ -288,26 +289,10 @@ class PoincarePlotMovieMaker(object):
     def save_movie(self):
         if not self.p.movie_name == None and self.p.movie_not_save == False:
 
-            output_movie_file = as_path(self.p.movie_dir,
-                                        '%s.avi' % (self.p.movie_name))
-            command = ('mencoder',
-                       'mf://' + self.p.movie_dir + '/*.png',
-                       '-mf',
-                       #'type=png:w=1024:h=800:fps=30',
-                       'type=png:w=' + str(self.p.movie_width) + \
-                            ':h=' + str(self.p.movie_height) + \
-                            ':fps=' + str(self.p.movie_fps),
-                       '-ovc',
-                       'lavc',
-                       '-lavcopts',
-                       'vcodec=mpeg4',
-                       '-oac',
-                       'copy',
-                       '-o',
-                       '%s' % (output_movie_file))
-            os.spawnvp(os.P_WAIT, 'mencoder', command)
-            self.message = \
-                "Poincare plot movie %s is created !" % (output_movie_file)
+            output_file = generate_movie(self.p.movie_name, self.p.movie_dir,
+                                    self.p.movie_width, self.p.movie_height,
+                                    self.p.movie_fps)
+            self.message = "Poincare plot movie %s is created !" % (output_file)
 
     @property
     def info_message(self):
