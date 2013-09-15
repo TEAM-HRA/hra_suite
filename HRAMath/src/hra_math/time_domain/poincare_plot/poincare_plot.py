@@ -339,7 +339,7 @@ if __name__ == '__main__':
                     [default False]""",
                 type=to_bool, default=False)
     parser.add_argument("-movie_dpi", "--movie_dpi",
-                help="""movie dpi """, default=700, type=int)
+                help="""movie dpi """, default=70, type=int)
     parser.add_argument("-movie_width", "--movie_width",
                         help="""movie width [default 550]""",
                         default=550, type=int)
