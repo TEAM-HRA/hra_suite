@@ -382,6 +382,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
             self.__cumsum_data__ = np.cumsum(self.data.signal)
 
         self.__stepper_index__ = 0
+        self.__index_stop_old__ = None
 
     def next(self):
 
@@ -434,7 +435,27 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
                 #increasing values which differ by self.__stepper_size__
                 self.__stepper_index__ = self.__stepper_index__ + 1
 
-            return self.__getDataVactor__(index_start, index_stop)
+                #test if segments of signals (current and previous)
+                #do not overlap
+                if not self.__index_stop_old__ == None:
+                    if not (self.__index_stop_old__ + 1 == index_start):
+                        raise Exception(
+                        'Index error index_stop_old %s index_start %s !!!'
+                                    % (self.__index_stop_old__, index_start))
+                self.__index_stop_old__ = index_stop
+
+            data_vector = self.__getDataVactor__(index_start, index_stop)
+
+            #test if the last signal is included in window size signal
+            if self.__stepper_index__ == len(self.__stepped_data__):
+                if np.sum(data_vector.signal) < self.window_size_in_signal_unit: # @IgnorePep8
+                    if self.mark_last_segment:
+                        self.last_segment = True
+                        return
+                    else:
+                        raise StopIteration
+
+            return data_vector
         else:
             if self.mark_last_segment:
                 self.last_segment = True
