@@ -6,15 +6,19 @@ Created on 20-10-2012
 
 import sys
 import collections
+import os
 from os import walk
 from os import makedirs
 import os.path as fs
+from re import compile
 from mimetypes import guess_type
 from tailer import head  # @UnresolvedImport
 from hra_core.misc import contains_letter
 from hra_core.misc import get_separator_between_numbers
+from hra_core.misc import Params
 from hra_core.collections_utils import not_empty_nvl
 from hra_core.collections_utils import get_ordered_list_of_strings
+from hra_core.collections_utils import nvl
 
 
 def get_filenames(path, depth=1):
@@ -353,3 +357,105 @@ def as_path(*iterator):
     function converts parts of path included in iterator into full path
     """
     return fs.normpath(fs.join(*iterator))
+
+
+class FileSource(object):
+    """
+    class with some basic functionality
+    """
+
+    HEADER_PATTERN = compile(r'\b[A-Za-z\[\]\-\%\#\!\@\$\^\&\*]*')
+
+    def __init__(self, **params):
+        #params: _file, pathname, filename, separator
+        self.params = Params(**params)
+        self.__file__ = None
+        if not self.params._file == None:
+            self.__file__ = self.params._file
+        elif not self.params.pathname == None and \
+            not self.params.filename == None:
+            self.__file__ = os.path.join(self.params.pathname,
+                                         self.params.filename)
+        self.__file_headers__ = None
+
+        #number of lines of headers explicitly specified
+        self.__headers_rows_count__ = nvl(self.params.headers_rows_count, 0)
+
+        #contents of a file
+        self.__file_data__ = None
+
+    @property
+    def headers(self):
+        if self.__file_headers__ == None:
+            self.__file_headers__ = []
+            with open(self.__file__, 'r') as _file:
+                for line in _file:
+                    if not self.params.separator == None and \
+                        len(self.params.separator.strip()) == 0:
+                        headers = line.rstrip('\n').split()
+                    else:
+                        headers = line.rstrip('\n').split(self.params.separator)  # @IgnorePep8
+                    header_ok = False
+                    if self.__headers_rows_count__ > 0:
+                        header_ok = (len(self.__file_headers__)
+                                                < self.__headers_rows_count__)
+                    else:
+                        for header in headers:
+                            match = FileSource.HEADER_PATTERN.match(header) # @IgnorePep8
+                            #to check if a header matches HEADER_PATTERN one
+                            #have to test not only whether match is None but
+                            #whether end() methods returns value > 0
+                            if match is not None and match.end() > 0:
+                                header_ok = True
+                                break
+                    if header_ok == False:
+                        break
+                    else:
+                        self.__file_headers__.append(headers)
+            self.__headers_rows_count__ = len(self.__file_headers__)
+
+            #if there is only one row of headers then it is assumed that
+            #headers are equivalent to this row
+            if len(self.__file_headers__) == 1:
+                self.__file_headers__ = self.__file_headers__[0]
+
+        return self.__file_headers__
+
+    @property
+    def headers_with_col_index(self):
+        return [list(enumerate(header)) for header in self.headers]
+
+    @staticmethod
+    def file_decorator(get_file_method):
+        """
+        a static decorator method use to avoid fetch the same data
+        many times
+        """
+        def wrapped(_self=None):
+            if _self.__file_data__ == None:
+                _self.__file_data__ = get_file_method(_self)
+            return _self.__file_data__
+        return wrapped
+
+    @property
+    def source_filename(self):
+        """
+        returns source filename
+        """
+        return os.path.basename(self.__file__) if self.__file__ else None
+
+    @property
+    def source_pathname(self):
+        """
+        returns source pathname
+        """
+        return os.path.dirname(self.__file__) if self.__file__ else None
+
+    @property
+    def headers_rows_count(self):
+        self.headers  # to force headers's generation
+        return self.__headers_rows_count__
+
+    @property
+    def _file(self):
+        return self.__file__
