@@ -27,10 +27,10 @@ class NumericalFileDataSource(FileSource):
         if not self.params.separator == None and \
             len(self.params.separator.strip()) == 0:
             return pl.loadtxt(self._file,
-                              skiprows=self.headers_rows_count,
+                              skiprows=self.headers_count,
                               unpack=True)
         else:
             return pl.loadtxt(self._file,
-                              skiprows=self.headers_rows_count,
+                              skiprows=self.headers_count,
                               unpack=True,
                               delimiter=self.params.separator)

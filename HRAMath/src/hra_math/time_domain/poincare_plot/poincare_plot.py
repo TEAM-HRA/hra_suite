@@ -131,7 +131,8 @@ class PoincarePlotManager(PoincarePlotParametersManager):
         file_data_source = DataVectorFileDataSource(_file=_file,
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
-                               time_index=self.time_index)
+                               time_index=self.time_index,
+                               headers_count=self.headers_count)
         data_vector = file_data_source.getDataVector()
 
         (ok, message) = self.__pp_generator__.precheck(reference_filename=_file) # @IgnorePep8
@@ -152,7 +153,8 @@ class PoincarePlotManager(PoincarePlotParametersManager):
         file_data_source = DataVectorFileDataSource(_file=_file,
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
-                               time_index=self.time_index)
+                               time_index=self.time_index,
+                               headers_count=self.headers_count)
         data_vector = file_data_source.getDataVector()
 
         start_progress = MovieStartProgressGenerator()
@@ -253,6 +255,10 @@ if __name__ == '__main__':
                 help="index of a time column in a data source file (0 based)" +
                     " [for future use]",
                 default=-1)
+    parser.add_argument("-headers_count", "--headers_count", type=int,
+                help="""number of headers lines in data source [default 0]"
+                        program tries to determine this values on it's own""",
+                default=0)
     parser.add_argument("-p", "--separator",
                 help="a separator used between columns, one from the set: " +
                      getSeparatorLabels() + ", <custom>; note: the " +
@@ -369,6 +375,7 @@ if __name__ == '__main__':
     ppManager.signal_index = __args.signal_index
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
+    ppManager.headers_count = __args.headers_count
     ppManager.output_precision = __args.output_precision
     ppManager.filters_names = __args.filters_names
     ppManager.excluded_annotations = __args.excluded_annotations

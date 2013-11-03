@@ -28,11 +28,11 @@ class TextFileDataSource(FileSource):
             len(self.params.separator.strip()) == 0:
             return pl.loadtxt(self._file,
                               dtype=(str),
-                              skiprows=self.headers_rows_count,
+                              skiprows=self.headers_count,
                               unpack=True)
         else:
             return pl.loadtxt(self._file,
                               dtype=(str),
-                              skiprows=self.headers_rows_count,
+                              skiprows=self.headers_count,
                               unpack=True,
                               delimiter=self.params.separator)

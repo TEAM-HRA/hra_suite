@@ -379,7 +379,7 @@ class FileSource(object):
         self.__file_headers__ = None
 
         #number of lines of headers explicitly specified
-        self.__headers_rows_count__ = nvl(self.params.headers_rows_count, 0)
+        self.__headers_count__ = nvl(self.params.headers_count, 0)
 
         #contents of a file
         self.__file_data__ = None
@@ -396,9 +396,9 @@ class FileSource(object):
                     else:
                         headers = line.rstrip('\n').split(self.params.separator)  # @IgnorePep8
                     header_ok = False
-                    if self.__headers_rows_count__ > 0:
+                    if self.__headers_count__ > 0:
                         header_ok = (len(self.__file_headers__)
-                                                < self.__headers_rows_count__)
+                                                     < self.__headers_count__)
                     else:
                         for header in headers:
                             match = FileSource.HEADER_PATTERN.match(header) # @IgnorePep8
@@ -412,7 +412,8 @@ class FileSource(object):
                         break
                     else:
                         self.__file_headers__.append(headers)
-            self.__headers_rows_count__ = len(self.__file_headers__)
+            self.__headers_count__ = len(self.__file_headers__)
+            self.__headers_first_line__ = self.__file_headers__[0]
 
             #if there is only one row of headers then it is assumed that
             #headers are equivalent to this row
@@ -424,6 +425,11 @@ class FileSource(object):
     @property
     def headers_with_col_index(self):
         return [list(enumerate(header)) for header in self.headers]
+
+    @property
+    def headers_first_line(self):
+        self.headers  # to force headers's generation
+        return self.__headers_first_line__
 
     @staticmethod
     def file_decorator(get_file_method):
@@ -452,9 +458,9 @@ class FileSource(object):
         return os.path.dirname(self.__file__) if self.__file__ else None
 
     @property
-    def headers_rows_count(self):
+    def headers_count(self):
         self.headers  # to force headers's generation
-        return self.__headers_rows_count__
+        return self.__headers_count__
 
     @property
     def _file(self):

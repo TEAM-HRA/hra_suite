@@ -162,6 +162,7 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'stepper', self.stepper)
         setattr(_object, 'stepper_size', self.stepper_size)
         setattr(_object, 'stepper_unit', self.stepper_unit)
+        setattr(_object, 'headers_count', self.headers_count)
 
     def validateDataVectorParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.window_size is None or self.window_size == 0:
@@ -226,6 +227,19 @@ class DataVectorParameters(CoreParameters):
     def stepper_size(self, _stepper_size):
         self.__stepper_size__ = _stepper_size
 
+    @property
+    def headers_count(self):
+        """
+        [optional]
+        number of headers lines [default 0]
+        program tries to determine this values on it's own
+        """
+        return nvl(self.__headers_count__, 0)
+
+    @headers_count.setter
+    def headers_count(self, _headers_count):
+        self.__headers_count__ = _headers_count
+
     def parameters_infoDataVectorParameters(self):
         if not self.window_shift == 1:
             print('Window shift: ' + str(self.window_shift))
@@ -258,3 +272,6 @@ class DataVectorParameters(CoreParameters):
 
         if not self.stepper == None:
             print('Stepper: ' + str(self.stepper))
+
+        if self.signal_index > 0:
+            print('Headers count: ' + str(self.headers_count))
