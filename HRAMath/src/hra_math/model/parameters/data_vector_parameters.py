@@ -101,6 +101,19 @@ class DataVectorParameters(CoreParameters):
         self.__time_index__ = _time_index
 
     @property
+    def time_format(self):
+        """
+        [optional]
+        a format of time column;
+        example: '%H:%M:%S.%f' <=> "08:21:44.020"
+        """
+        return self.__time_format__
+
+    @time_format.setter
+    def time_format(self, _time_format):
+        self.__time_format__ = _time_format
+
+    @property
     def window_shift(self):
         """
         [optional]
@@ -163,6 +176,7 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'stepper_size', self.stepper_size)
         setattr(_object, 'stepper_unit', self.stepper_unit)
         setattr(_object, 'headers_count', self.headers_count)
+        setattr(_object, 'time_format', self.time_format)
 
     def validateDataVectorParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.window_size is None or self.window_size == 0:
@@ -273,5 +287,8 @@ class DataVectorParameters(CoreParameters):
         if not self.stepper == None:
             print('Stepper: ' + str(self.stepper))
 
-        if self.signal_index > 0:
+        if self.headers_count > 0:
             print('Headers count: ' + str(self.headers_count))
+
+        if not self.time_format == None:
+            print('Time format column: ' + str(self.time_format))

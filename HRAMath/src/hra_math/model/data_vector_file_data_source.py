@@ -74,7 +74,7 @@ class DataVectorFileDataSource(object):
                     #into miliseconds periods; returned time array is less by
                     #one then time parameter array
                     time = get_datetimes_array_as_miliseconds_intervals(time,
-                                                                '%H:%M:%S.%f')
+                                                    self.params.time_format)
 
                     #time array is less by one, because there is no
                     #corresponding interval for the last item
