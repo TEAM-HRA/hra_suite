@@ -11,6 +11,8 @@ try:
     from hra_core.misc import Params
     from hra_math.model.data_vector import DataVector
     from hra_math.model.utils import get_unique_annotations
+    from hra_math.utils.array_utils \
+            import get_datetimes_array_as_miliseconds_intervals
     from hra_math.model.numerical_file_data_source \
             import NumericalFileDataSource
     from hra_math.model.text_file_data_source import TextFileDataSource
@@ -64,8 +66,24 @@ class DataVectorFileDataSource(object):
                   [(None if index == -1 else _data[index:index + 1][0])
                     for index in self.__indexes__]
 
-            #if elements of data source are strings they are converted to float
+            #if elements of data source are strings they have to be converted
+            #to floats
             if isinstance(self.__data_source__, TextFileDataSource):
+                if not time == None:
+                    #change time array expressed in datetime units
+                    #into miliseconds periods; returned time array is less by
+                    #one then time parameter array
+                    time = get_datetimes_array_as_miliseconds_intervals(time,
+                                                                '%H:%M:%S.%f')
+
+                    #time array is less by one, because there is no
+                    #corresponding interval for the last item
+                    #(there is no end time for the last item),
+                    #the last element of signal have to removed,
+                    #for this reason the last element of the signal is marked
+                    #as star - method __convertToFloats__ remove such element
+                    signal[-1:] = '*'
+
                 (signal, annotation, time) = \
                     self.__convertToFloats__(signal, annotation, time)
 
