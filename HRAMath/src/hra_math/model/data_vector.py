@@ -6,6 +6,7 @@ Created on 24 kwi 2013
 from hra_math.utils.utils import print_import_error
 try:
     import pylab as pl
+    from hra_core.collections_utils import nvl
     from hra_core.misc import Params
     from hra_core.units import Millisecond
     from hra_math.utils.array_utils import array_copy
@@ -160,6 +161,16 @@ class DataVector(object):
             return pl.array_equal(self.signal_plus,
                                   other_data_vector.signal_plus)
         return False
+
+    @property
+    def time_signal(self):
+        """
+        helper method which returns a time array if it is not None or a signal
+        array otherwise; the purpose of the method is return not empty
+        time array in the case when a signal array is not expressed in time
+        units
+        """
+        return nvl(self.time, self.signal)
 
 
 EMPTY_DATA_VECTOR = DataVector(signal=EMPTY_ARRAY, signal_plus=EMPTY_ARRAY,

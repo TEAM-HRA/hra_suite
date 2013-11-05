@@ -70,7 +70,7 @@ class __DataVectorSegmenter__(object):
             self.window_size_in_signal_unit = multiplier * self.window_size
 
         else:
-            if self.window_size > len(self.data.signal):
+            if self.window_size > len(self.data.time_signal):
                 raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
 
         #optimization tricks, the methods below will not be searched in python
@@ -212,7 +212,7 @@ class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
         #this means a user expressed window size in a unit
         if self.window_size_unit:
             max_index = get_max_index_for_cumulative_sum_greater_then_value(
-                                            self.data.signal,
+                                            self.data.time_signal,
                                             self.window_size_in_signal_unit,
                                             self.__index__)
             if max_index == -1:
@@ -249,7 +249,7 @@ class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
         """
         if self.window_size_unit:
             window_size = get_max_index_for_cumulative_sum_of_means_greater_then_value(  # @IgnorePep8
-                                            self.data.signal,
+                                            self.data.time_signal,
                                             self.window_size_in_signal_unit)
         else:
             window_size = self.window_size
@@ -272,10 +272,10 @@ class __SampledDataVectorSegmenter__(__DataVectorSegmenter__):
         if not self.window_size_unit: # @IgnorePep8
             raise Exception('For window resampling step a window size unit is required !!!') # @IgnorePep8
 
-        self.__sampled_data__ = np.arange(0, np.sum(self.data.signal),
-                                          sample_step)
+        self.__sampled_data__ = np.arange(0, np.sum(self.data.time_signal),
+                                sample_step)
         self.__sampled_signal_size__ = len(self.__sampled_data__)
-        self.__cumsum_data__ = np.cumsum(self.data.signal)
+        self.__cumsum_data__ = np.cumsum(self.data.time_signal)
         self.__sampled_window_size__ = self.window_size_in_signal_unit / sample_step # @IgnorePep8
 
         self.__index__ = 0
@@ -360,7 +360,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
         else:
             self.__step_size_in_signal_unit__ = self.__stepper_size__
 
-        sum_signal = np.sum(self.data.signal)
+        sum_signal = np.sum(self.data.time_signal)
         if self.__step_size_in_signal_unit__ > sum_signal:
             raise Exception('The step size is greater then the signal size !!!') # @IgnorePep8
 
@@ -379,7 +379,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
                                           self.__step_size_in_signal_unit__)
 
             self.__stepped_signal_size__ = len(self.__stepped_data__)
-            self.__cumsum_data__ = np.cumsum(self.data.signal)
+            self.__cumsum_data__ = np.cumsum(self.data.time_signal)
 
         self.__stepper_index__ = 0
         self.__index_stop_old__ = None
@@ -448,7 +448,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
 
             #test if the last signal is included in window size signal
             if self.__stepper_index__ == len(self.__stepped_data__):
-                if np.sum(data_vector.signal) < self.window_size_in_signal_unit: # @IgnorePep8
+                if np.sum(data_vector.time_signal) < self.window_size_in_signal_unit: # @IgnorePep8
                     if self.mark_last_segment:
                         self.last_segment = True
                         return
