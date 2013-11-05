@@ -92,7 +92,7 @@ class DataVectorParameters(CoreParameters):
     def time_index(self):
         """
         [optional]
-        an index of a time column (0 - based) [for future use]
+        an index of a time column (0 - based)
         """
         return self.__time_index__
 

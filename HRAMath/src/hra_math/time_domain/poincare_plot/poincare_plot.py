@@ -254,8 +254,7 @@ if __name__ == '__main__':
                 help="index of an annotation column in a data source file (0 based)", # @IgnorePep8
                 default=-1)
     parser.add_argument("-ti", "--time_index", type=int,
-                help="index of a time column in a data source file (0 based)" +
-                    " [for future use]",
+                help="index of a time column in a data source file (0 based)",
                 default=-1)
     parser.add_argument("-time_format", "--time_format", default=None,
                 help="""time format, for example, for '08:21:44.020'
