@@ -13,6 +13,7 @@ try:
     from hra_core.introspection import copy_private_properties
     from hra_core.introspection import print_private_properties
     from hra_core.collections_utils import commas
+    from hra_core.collections_utils import nvl
     from hra_math.model.data_vector_file_data_source \
         import DataVectorFileDataSource
     from hra_math.model.utils import ALL_ANNOTATIONS
@@ -318,9 +319,9 @@ if __name__ == '__main__':
     parser.add_argument("-movie_name", "--movie_name",
                 help="""name of a movie for Poincare plot evolutions""")
     parser.add_argument("-movie_dir", "--movie_dir",
-                help="directory for movie files [default: " +
-                        DEFAULT_OUTCOME_DIRECTORY + "]",
-                default=DEFAULT_OUTCOME_DIRECTORY)
+                help="""directory for movie files, if is not present assumed
+                     output_dir [default: None]""",
+                default=None)
     parser.add_argument("-movie_multiprocessing_factor",
                         "--movie_multiprocessing_factor",
                 help="""to generate a poincare plot movie use multiprocessing,
@@ -402,7 +403,7 @@ if __name__ == '__main__':
     ppManager.sample_step = __args.sample_step
     ppManager.stepper = __args.stepper
     ppManager.movie_name = __args.movie_name
-    ppManager.movie_dir = __args.movie_dir
+    ppManager.movie_dir = nvl(__args.movie_dir, ppManager.output_dir)
     ppManager.movie_multiprocessing_factor = \
                     __args.movie_multiprocessing_factor
     ppManager.movie_fps = __args.movie_fps

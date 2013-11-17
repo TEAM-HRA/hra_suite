@@ -10,6 +10,7 @@ try:
     from hra_core.misc import Params
     from hra_core.misc import ColorRGB
     from hra_core.io_utils import as_path
+    from hra_core.io_utils import create_dir
     from hra_core.movie_utils import generate_movie
     from hra_core.collections_utils import get_chunks
     from hra_core.collections_utils import nvl
@@ -301,6 +302,9 @@ class PoincarePlotMovieMaker(object):
     def __save_frames__(self):
         size = len(self.pp_specs_managers)
         if size > 0:
+            #create output movie dir if it is not present
+            create_dir(self.pp_specs_managers[0].movie_dir)
+
             if self.p.movie_multiprocessing_factor > 0:
                 for specs_managers in get_chunks(self.pp_specs_managers,
                                                  self.core_nums):

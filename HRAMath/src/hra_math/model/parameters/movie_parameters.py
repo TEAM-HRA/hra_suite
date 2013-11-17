@@ -163,6 +163,8 @@ class MovieParameters(CoreParameters):
         [optional]
         directory where a movie will be put
         """
+        if self.__movie_dir__ == None and hasattr(self, 'output_dir'):
+            return getattr(self, 'output_dir')
         return nvl(self.__movie_dir__, '')
 
     @movie_dir.setter

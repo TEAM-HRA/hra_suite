@@ -470,3 +470,11 @@ class FileSource(object):
     @property
     def _file(self):
         return self.__file__
+
+
+def create_dir(_dir):
+    """
+    create a dictionary if not present
+    """
+    if not fs.exists(_dir):
+        os.mkdir(_dir)
