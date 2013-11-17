@@ -18,6 +18,7 @@ try:
     from chaco.scatterplot import render_markers
     from kiva.constants import CIRCLE_MARKER as CIRCLE
     from hra_core.datetime_utils import get_time_label_for_miliseconds
+    from hra_core.collections_utils import nvl
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -78,12 +79,12 @@ class PoincarePlotFastMovieMakerWorker(object):
 
         # add axis labels
         bottom_axis = LabelAxis(self._plot, orientation='bottom',
-                               title='RR(n) [ms]',
+                               title=nvl(self.manager.x_label, 'RR(n) [ms]'),
                                positions=range(1, 20),
                                title_font=self.axis_font)
         self._plot.underlays.append(bottom_axis)
         left_axis = LabelAxis(self._plot, orientation='left',
-                               title='RR(n+1) [ms]',
+                               title=nvl(self.manager.y_label, 'RR(n+1) [ms]'),
                                positions=range(1, 20),
                                title_font=self.axis_font)
         self._plot.underlays.append(left_axis)

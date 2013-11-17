@@ -69,6 +69,8 @@ class PoincarePlotParameters(CoreParameters):
         setattr(_object, 'use_identity_line', self.use_identity_line)
         setattr(_object, 'use_buffer', self.use_buffer)
         setattr(_object, 'progress_mark', self.progress_mark)
+        setattr(_object, 'x_label', self.x_label)
+        setattr(_object, 'y_label', self.y_label)
 
     def validatePoincarePlotParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         pass
@@ -76,3 +78,31 @@ class PoincarePlotParameters(CoreParameters):
     def parameters_infoPoincarePlotParameters(self):
         print('Use buffer: ' + str(self.use_buffer))
         print('Use line of identity: ' + str(self.use_identity_line))
+        if not self.x_label == None:
+            print('X label axis: ' + self.x_label)
+        if not self.y_label == None:
+            print('Y label axis: ' + self.y_label)
+
+    @property
+    def x_label(self):
+        """
+        [optional]
+        label of X axis [default: None]
+        """
+        return self.__x_label__
+
+    @x_label.setter
+    def x_label(self, _x_label):
+        self.__x_label__ = _x_label
+
+    @property
+    def y_label(self):
+        """
+        [optional]
+        label of Y axis [default: None]
+        """
+        return self.__y_label__
+
+    @y_label.setter
+    def y_label(self, _y_label):
+        self.__y_label__ = _y_label

@@ -93,6 +93,8 @@ class PoincarePlotMovieMaker(object):
                                             self.p.movie_centroid_size
             self.pp_spec_manager.show_plot_legends = \
                                         self.p.movie_show_plot_legends
+            self.pp_spec_manager.x_label = self.p.x_label
+            self.pp_spec_manager.y_label = self.p.y_label
 
             self.pp_specs_managers = []
             self.pp_specs_managers.append(self.pp_spec_manager)
@@ -261,6 +263,8 @@ class PoincarePlotMovieMaker(object):
                                                 self.p.movie_centroid_size
                 self.pp_spec_manager.show_plot_legends = \
                                             self.p.movie_show_plot_legends
+                self.pp_spec_manager.x_label = self.p.x_label
+                self.pp_spec_manager.y_label = self.p.y_label
 
                 #add all previous pp specs
                 for pp_spec in old_pp_spec_manager.getMiniPoincarePlotSpecs():
@@ -364,6 +368,8 @@ class MiniPoincarePlotSpecManager(object):
         self.__show_plot_legends__ = False
         self.__movie_width__ = None
         self.__movie_height__ = None
+        self.__x_label__ = None
+        self.__y_label__ = None
 
     def addMiniPoincarePlotSpec(self, pp_spec):
         self.__pp_specs__.append(pp_spec)
@@ -486,6 +492,22 @@ class MiniPoincarePlotSpecManager(object):
     @movie_height.setter
     def movie_height(self, _movie_height):
         self.__movie_height__ = _movie_height
+
+    @property
+    def x_label(self):
+        return self.__x_label__
+
+    @x_label.setter
+    def x_label(self, _x_label):
+        self.__x_label__ = _x_label
+
+    @property
+    def y_label(self):
+        return self.__y_label__
+
+    @y_label.setter
+    def y_label(self, _y_label):
+        self.__y_label__ = _y_label
 
     def __color_as_tuple__(self, _color):
         _c = _color

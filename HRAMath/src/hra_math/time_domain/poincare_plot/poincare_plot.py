@@ -375,6 +375,10 @@ if __name__ == '__main__':
     parser.add_argument("-output_prefix", "--output_prefix",
                     help="""a label included in a name of an output
                         file [optional]""", default=None)
+    parser.add_argument("-x_label", "--x_label",
+                help="""label of X axis of poincare plot [default None]""")
+    parser.add_argument("-y_label", "--y_label",
+                help="""label of Y axis of poincare plot [default None]""")
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -420,6 +424,8 @@ if __name__ == '__main__':
     ppManager.movie_inactive_size = __args.movie_inactive_size
     ppManager.movie_centroid_size = __args.movie_centroid_size
     ppManager.output_prefix = __args.output_prefix
+    ppManager.x_label = __args.x_label
+    ppManager.y_label = __args.y_label
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True
