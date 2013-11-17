@@ -57,6 +57,7 @@ class PoincarePlotMovieMaker(object):
                                                                 data_vector)
             _max = pl.amax(data_vector.signal)
             _min = pl.amin(data_vector.signal)
+            self.time = data_vector.time
 
             margin = 50
             self.signal_size = len(data_vector.signal)
@@ -282,8 +283,16 @@ class PoincarePlotMovieMaker(object):
             print('signal_plus:     ' + str(data_vector_segment.signal_plus))
             raise Exception('Error for idx ' + str(self.idx))
         if _pp_spec.inactive_start >= 0 and _pp_spec.inactive_stop >= 0:
-            self.cum_inactive += pl.sum(
-                self.x_data[_pp_spec.inactive_start:_pp_spec.inactive_stop])
+            #if time array is not None use it as array for cumulative time
+            if not self.time == None:
+                self.cum_inactive += pl.sum(
+                    self.time[
+                            _pp_spec.inactive_start:_pp_spec.inactive_stop])
+            else:
+                self.cum_inactive += pl.sum(
+                    self.x_data[
+                            _pp_spec.inactive_start:_pp_spec.inactive_stop])
+
         self.old_signal_plus = data_vector_segment.signal_plus
         self.idx = self.idx + 1
         self._pp_spec_old = _pp_spec
