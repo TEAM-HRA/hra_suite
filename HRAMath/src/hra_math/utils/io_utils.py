@@ -22,13 +22,14 @@ class NumpyCSVFile(CSVFile):
                  output_precision=None, print_output_file=False,
                  ordinal_column_name=None, output_separator=None,
                  add_headers=False, ordered_headers=None,
-                 message=None):
+                 message=None, output_prefix=None):
         super(NumpyCSVFile, self).__init__(output_file, output_dir,
                     output_suffix, reference_filename, sort_headers,
                     ordinal_column_name=ordinal_column_name,
                     output_separator=output_separator,
                     add_headers=add_headers,
-                    ordered_headers=ordered_headers)
+                    ordered_headers=ordered_headers,
+                    output_prefix=output_prefix)
         self.array_data = None
         self.__output_precision__ = get_as_tuple(output_precision, convert=int)
         self.__print_output_file__ = print_output_file
@@ -81,3 +82,20 @@ class NumpyCSVFile(CSVFile):
             else:
                 sizes = map(len, referenced_line.split(self.output_separator))
             return self.output_separator.join(map(fixed_size_string, self.headers, sizes)) + '\n'  # @IgnorePep8
+
+
+def save_arrays_into_file(filename, *arrays):
+    """
+    function saves collections of arrays as numpy arrays into a file;
+    arrays need not to be an equal size, shorter arrays are align
+    to maximum sized array by adding 0;
+    all data are saved as 15 character long strings
+    """
+    # get max size of collections
+    max_size = np.amax(np.array([map(len, arrays)]))
+
+    # align all arrays to maximum size by adding 0 values
+    arrays = [np.append(a_, np.zeros(max_size - len(a_))) for a_ in arrays]
+
+    arrays = np.column_stack(tuple(arrays))
+    np.savetxt(filename, arrays, fmt='%15s')

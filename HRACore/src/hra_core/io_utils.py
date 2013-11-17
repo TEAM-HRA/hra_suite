@@ -185,11 +185,13 @@ class CSVFile(object):
     output_separator - a separator between output column data
     add_headers - if there will be output headers
     headers_order - includes ordered header names
+    output_prefix - optional prefix added to output file name
     """
     def __init__(self, output_file=None, output_dir=None, output_suffix=None,
                  reference_filename=None, sort_headers=True,
                  ordinal_column_name=None, output_separator=None,
-                 add_headers=False, ordered_headers=None):
+                 add_headers=False, ordered_headers=None,
+                 output_prefix=None):
         self.__output_file__ = None
         self.__file__ = None  # means file descriptor
         self.__headers__ = None
@@ -206,9 +208,12 @@ class CSVFile(object):
         elif not reference_filename == None:
             if output_dir == None:
                 output_dir = fs.dirname(reference_filename)
+            #prefix file with a label
+            prefix_ = '' if output_prefix == None \
+                    else output_prefix + "_"
             self.__output_file__ = normalize_filenames(output_dir,
-                                    fs.basename(reference_filename) +
-                                        not_empty_nvl(output_suffix, '_out'))
+                                    prefix_ + fs.basename(reference_filename) +
+                                    not_empty_nvl(output_suffix, '_out'))
         if not self.__output_file__ == None:
             dir_ = fs.dirname(self.__output_file__)
             if fs.exists(dir_) == False:

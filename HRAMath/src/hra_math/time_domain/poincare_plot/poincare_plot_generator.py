@@ -60,12 +60,14 @@ class PoincarePlotGenerator(object):
         if self.override_existing_outcomes == False and reference_filename:
             #check if output file for normal statistics exists already
             with NumpyCSVFile(output_dir=self.output_dir,
-                           reference_filename=reference_filename) as csv:
+                           reference_filename=reference_filename,
+                           output_prefix=self.output_prefix) as csv:
                 if not os.path.exists(csv.output_file):
                     #check if output file for summary statistics exists already
                     with NumpyCSVFile(output_dir=self.output_dir,
-                                       reference_filename=reference_filename,
-                                       output_suffix='_sum') as csv:
+                                    reference_filename=reference_filename,
+                                    output_suffix='_sum',
+                                    output_prefix=self.output_prefix) as csv:
                         pass
             if os.path.exists(csv.output_file):
                 message = 'Skipping processing, the outcome file ' + str(csv.output_file) + ' exists !' # @IgnorePep8
@@ -107,6 +109,7 @@ class PoincarePlotGenerator(object):
                         output_separator=self.output_separator,
                         sort_headers=False,
                         add_headers=self.add_headers,
+                        output_prefix=self.output_prefix,
                         ordered_headers=self.statistics_names) as csv:
 
             if not start_progress == None:
@@ -149,6 +152,7 @@ class PoincarePlotGenerator(object):
                      add_headers=self.add_headers,
                      output_suffix='_sum',
                      ordered_headers=ordered_headers,
+                     output_prefix=self.output_prefix,
                      message='\nSummary statistics saved into the file: ') as summary_csv: # @IgnorePep8
                     summary_csv.write(get_summary_statistics_for_csv(self.summary_statistics)) # @IgnorePep8
 

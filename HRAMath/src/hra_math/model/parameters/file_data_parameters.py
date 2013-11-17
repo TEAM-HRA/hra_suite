@@ -146,6 +146,19 @@ class FileDataParameters(CoreParameters):
     def override_existing_outcomes(self, _override_existing_outcomes):
         self.__override_existing_outcomes__ = _override_existing_outcomes
 
+    @property
+    def output_prefix(self):
+        """
+        [optional]
+        a label included in a name of an output file
+        [default: None]
+        """
+        return self.__output_prefix__
+
+    @output_prefix.setter
+    def output_prefix(self, _output_prefix):
+        self.__output_prefix__ = _output_prefix
+
     def setObjectFileDataParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -161,6 +174,7 @@ class FileDataParameters(CoreParameters):
         setattr(_object, 'data_dir', self.data_dir)
         setattr(_object, 'data_file', self.data_file)
         setattr(_object, 'separator', self.separator)
+        setattr(_object, 'output_prefix', self.output_prefix)
 
     def validateFileDataParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.output_precision == None:
@@ -194,4 +208,7 @@ class FileDataParameters(CoreParameters):
 
         if not self.output_separator == None:
             print('Output separator: ' + str(self.output_separator))
+
+        if not self.output_prefix == None:
+            print('Output file name prefix: ' + str(self.output_prefix))
         #setattr(_object, 'add_headers', self.add_headers)

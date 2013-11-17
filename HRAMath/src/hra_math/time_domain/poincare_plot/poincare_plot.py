@@ -135,6 +135,10 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                                headers_count=self.headers_count,
                                time_format=self.time_format)
         data_vector = file_data_source.getDataVector()
+        if data_vector.is_empty:
+            if disp:
+                print('No signal data or all data is skipped, check signal or time data columns !') # @IgnorePep8
+            return True
 
         (ok, message) = self.__pp_generator__.precheck(reference_filename=_file) # @IgnorePep8
         if ok == False:
@@ -158,6 +162,8 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                                headers_count=self.headers_count,
                                time_format=self.time_format)
         data_vector = file_data_source.getDataVector()
+        if data_vector.is_empty:
+            return True
 
         start_progress = MovieStartProgressGenerator()
         start_progress.progress_mark = self.progress_mark
@@ -365,6 +371,9 @@ if __name__ == '__main__':
     parser.add_argument("-movie_centroid_size", "--movie_centroid_size",
                     help="""movie centroid plot data point size [default 4]""",
                     default=4, type=int)
+    parser.add_argument("-output_prefix", "--output_prefix",
+                    help="""a label included in a name of an output
+                        file [optional]""", default=None)
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -409,6 +418,7 @@ if __name__ == '__main__':
     ppManager.movie_active_size = __args.movie_active_size
     ppManager.movie_inactive_size = __args.movie_inactive_size
     ppManager.movie_centroid_size = __args.movie_centroid_size
+    ppManager.output_prefix = __args.output_prefix
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True

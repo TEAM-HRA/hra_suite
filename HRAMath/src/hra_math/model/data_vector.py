@@ -172,6 +172,13 @@ class DataVector(object):
         """
         return nvl(self.time, self.signal)
 
+    @property
+    def is_empty(self):
+        """
+        helper method returns true if a signal is None or has no elements
+        """
+        return self.signal == None or len(self.signal) == 0
+
 
 EMPTY_DATA_VECTOR = DataVector(signal=EMPTY_ARRAY, signal_plus=EMPTY_ARRAY,
                                signal_minus=EMPTY_ARRAY, time=EMPTY_ARRAY,
