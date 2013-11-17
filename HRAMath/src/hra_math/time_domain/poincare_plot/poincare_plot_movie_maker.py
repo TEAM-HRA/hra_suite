@@ -1,6 +1,5 @@
 from hra_math.utils.utils import print_import_error
 try:
-    import os
     import gc
     import multiprocessing
     import pylab as pl
@@ -293,7 +292,8 @@ class PoincarePlotMovieMaker(object):
             output_file = generate_movie(self.p.movie_name, self.p.movie_dir,
                                     self.p.movie_width, self.p.movie_height,
                                     self.p.movie_fps)
-            self.message = "Poincare plot movie %s is created !" % (output_file)
+            self.message = "Poincare plot movie %s is created !" \
+                                % as_path(self.p.movie_dir, output_file)
 
     @property
     def info_message(self):
