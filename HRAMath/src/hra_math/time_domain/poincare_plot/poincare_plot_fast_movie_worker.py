@@ -80,12 +80,12 @@ class PoincarePlotFastMovieMakerWorker(object):
         # add axis labels
         bottom_axis = LabelAxis(self._plot, orientation='bottom',
                                title=nvl(self.manager.x_label, 'RR(n) [ms]'),
-                               positions=range(1, 20),
+                               positions=range(1, int(value_max / 10)),
                                title_font=self.axis_font)
         self._plot.underlays.append(bottom_axis)
         left_axis = LabelAxis(self._plot, orientation='left',
                                title=nvl(self.manager.y_label, 'RR(n+1) [ms]'),
-                               positions=range(1, 20),
+                               positions=range(1, int(value_max / 10)),
                                title_font=self.axis_font)
         self._plot.underlays.append(left_axis)
 
