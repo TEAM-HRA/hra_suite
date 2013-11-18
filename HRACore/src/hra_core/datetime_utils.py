@@ -51,7 +51,7 @@ def invocation_time(method):
 def get_time_label_for_miliseconds(miliseconds):
     hours, remainder = divmod(miliseconds / 1000, 3600)
     minutes, seconds = divmod(remainder, 60)
-    return 'h:%02d, m:%02d, s:%02d' % (hours, minutes, seconds)
+    return 'H : %02d, M : %02d, S : %02d' % (hours, minutes, seconds)
 
 
 def __format_as_datetime__(_s_datetime):
