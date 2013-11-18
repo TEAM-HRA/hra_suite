@@ -304,7 +304,8 @@ class PoincarePlotMovieMaker(object):
 
             output_file = generate_movie(self.p.movie_name, self.p.movie_dir,
                                     self.p.movie_width, self.p.movie_height,
-                                    self.p.movie_fps)
+                                    self.p.movie_fps,
+                                    output_prefix=self.p.output_prefix)
             self.message = "Poincare plot movie %s is created !" \
                                 % as_path(self.p.movie_dir, output_file)
 
