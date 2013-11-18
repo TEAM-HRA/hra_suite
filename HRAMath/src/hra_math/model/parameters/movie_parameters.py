@@ -306,6 +306,20 @@ class MovieParameters(CoreParameters):
     def movie_standard_generation(self, _movie_standard_generation):
         self.__movie_standard_generation__ = _movie_standard_generation
 
+    @property
+    def movie_prefixed_by_source(self):
+        """
+        [optional]
+        if true then all intermediate frame files and output movie filename
+        is prefixed by a name of a source file (minus extension)
+        [default: True]
+        """
+        return nvl(self.__movie_prefixed_by_source__, True)
+
+    @movie_prefixed_by_source.setter
+    def movie_prefixed_by_source(self, _movie_prefixed_by_source):
+        self.__movie_prefixed_by_source__ = _movie_prefixed_by_source
+
     def setObjectMovieParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -339,6 +353,8 @@ class MovieParameters(CoreParameters):
                             self.movie_calculate_all_frames)
         setattr(_object, 'movie_standard_generation',
                             self.movie_standard_generation)
+        setattr(_object, 'movie_prefixed_by_source',
+                            self.movie_prefixed_by_source)
 
     def validateMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.movie_name == None:
@@ -348,7 +364,7 @@ class MovieParameters(CoreParameters):
 
     def parameters_infoMovieParameters(self):
         if not self.movie_name == None:
-            print('Movie specifiaction: ')
+            print('Movie specification: ')
             print('    name: ' + str(self.movie_name))
             print('    directory: ' + str(self.movie_dir))
             print('    height: ' + str(self.movie_height))
@@ -380,3 +396,5 @@ class MovieParameters(CoreParameters):
                                         + str(self.movie_calculate_all_frames))
             print('    standard generation: '
                                         + str(self.movie_standard_generation))
+            print('    prefix by source: '
+                                        + str(self.movie_prefixed_by_source))

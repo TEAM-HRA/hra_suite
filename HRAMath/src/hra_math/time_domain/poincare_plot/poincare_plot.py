@@ -372,6 +372,12 @@ if __name__ == '__main__':
     parser.add_argument("-movie_centroid_size", "--movie_centroid_size",
                     help="""movie centroid plot data point size [default 4]""",
                     default=4, type=int)
+    parser.add_argument("-movie_prefixed_by_source",
+                        "--movie_prefixed_by_source",
+                help="""all intermediate frame files and output movie filename
+                    is prefixed by a name of a source file (minus extension)
+                    [default: True]""",
+                type=to_bool, default=True)
     parser.add_argument("-output_prefix", "--output_prefix",
                     help="""a label included in a name of an output
                         file [optional]""", default=None)
@@ -426,6 +432,7 @@ if __name__ == '__main__':
     ppManager.output_prefix = __args.output_prefix
     ppManager.x_label = __args.x_label
     ppManager.y_label = __args.y_label
+    ppManager.movie_prefixed_by_source = __args.movie_prefixed_by_source
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True

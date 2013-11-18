@@ -8,8 +8,10 @@ try:
     import matplotlib.pyplot as plt
     from hra_core.misc import Params
     from hra_core.misc import ColorRGB
+    from hra_core.misc import is_empty
     from hra_core.io_utils import as_path
     from hra_core.io_utils import create_dir
+    from hra_core.io_utils import get_filename
     from hra_core.movie_utils import generate_movie
     from hra_core.collections_utils import get_chunks
     from hra_core.collections_utils import nvl
@@ -51,6 +53,8 @@ class PoincarePlotMovieMaker(object):
             self.params = Params(**params)
             mpl.rcParams['patch.edgecolor'] = 'none'
             mpl.rcParams['savefig.edgecolor'] = 'none'
+            self.source = get_filename(self.params.reference_filename)
+            self.movie_name = self.__get_prefixed_movie_name__()
 
             if not self.params.filter_manager == None:
                 data_vector = self.params.filter_manager.run_filters(
@@ -116,7 +120,10 @@ class PoincarePlotMovieMaker(object):
             self.__save_frames__()
             return
 
-        frame_name = '%06d' % self.idx
+        #prefix by movie name if self.p.movie_prefixed_by_source is True
+        frame_name = '%s_%06d' % (self.movie_name, self.idx) \
+            if self.p.movie_prefixed_by_source else '%06d' % self.idx
+
         frame_file = as_path(self.p.movie_dir, frame_name + '.png')
         #skip_frame = True if self.idx < self.p.movie_skip_to_frame or \
         #    (self.p.movie_skip_frames and os.path.exists(frame_file)) \
@@ -302,10 +309,9 @@ class PoincarePlotMovieMaker(object):
     def save_movie(self):
         if not self.p.movie_name == None and self.p.movie_not_save == False:
 
-            output_file = generate_movie(self.p.movie_name, self.p.movie_dir,
+            output_file = generate_movie(self.movie_name, self.p.movie_dir,
                                     self.p.movie_width, self.p.movie_height,
-                                    self.p.movie_fps,
-                                    output_prefix=self.p.output_prefix)
+                                    self.p.movie_fps)
             self.message = "Poincare plot movie %s is created !" \
                                 % as_path(self.p.movie_dir, output_file)
 
@@ -352,6 +358,20 @@ class PoincarePlotMovieMaker(object):
         else:
             #the default choice
             return create_mini_poincare_plot_fast_generation
+
+    def __get_prefixed_movie_name__(self):
+        """
+        method prefixed movie_name by source name and output_prefix
+        """
+        movie_name = self.p.movie_name
+
+        #append source filename
+        movie_name = '%s_%s' % (self.source, movie_name) \
+                if self.p.movie_prefixed_by_source else movie_name
+
+        #append output_prefix
+        return movie_name if is_empty(self.p.output_prefix) \
+                        else '%s_%s' % (self.p.output_prefix, movie_name)
 
 
 class MiniPoincarePlotSpecManager(object):

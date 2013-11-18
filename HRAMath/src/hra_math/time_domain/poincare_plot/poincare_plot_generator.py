@@ -176,7 +176,8 @@ class PoincarePlotGenerator(object):
                     start_progress.info_handler = self.params.info_handler
 
         not_interrupted = self.__generate_movie__(data_vector,
-                                    start_progress=start_progress)
+                                    start_progress=start_progress,
+                                    reference_filename=reference_filename)
 
         return not_interrupted
 
@@ -332,7 +333,8 @@ class PoincarePlotGenerator(object):
                                                 self.stepper_unit)
         return segmenter.segment_count()
 
-    def __generate_movie__(self, data_vector, start_progress):
+    def __generate_movie__(self, data_vector, start_progress,
+                           reference_filename):
         """
         core functionality to generate poincare plot movie
         """
@@ -363,7 +365,8 @@ class PoincarePlotGenerator(object):
         movie_maker = PoincarePlotMovieMaker(data_vector, self,
                             segment_count=segmenter.segment_count(),
                             filter_manager=filter_manager,
-                            info_message_handler=self.__info_message_handler__)
+                            info_message_handler=self.__info_message_handler__,
+                            reference_filename=reference_filename)
 
         for data_segment in segmenter:
             if segmenter.last_segment:

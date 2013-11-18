@@ -478,3 +478,13 @@ def create_dir(_dir):
     """
     if not fs.exists(_dir):
         os.mkdir(_dir)
+
+
+def get_filename(pathname, with_extension=False):
+    """
+    return filename part of full pathname
+    """
+    filename = fs.basename(pathname)
+    return filename.rpartition('.')[0] \
+        if filename and with_extension == False and filename.rfind('.') > 0 \
+        else filename

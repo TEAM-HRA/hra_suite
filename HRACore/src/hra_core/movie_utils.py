@@ -55,7 +55,7 @@ def __generate_movie__(movie_specification):
 
 def generate_movie(movie_name, movie_dir,
                    movie_width, movie_height,
-                   movie_fps, movie_frames='*.png', output_prefix=None):
+                   movie_fps, movie_frames='*.png'):
     """
     function used by client code to generate a movie according to
     specified parameters; at this time multiprocessing
@@ -64,8 +64,7 @@ def generate_movie(movie_name, movie_dir,
     if _platform.find("linux") >= 0:
         return generate_multiprocessing_movie(movie_name, movie_dir,
                                               movie_width, movie_height,
-                                              movie_fps, movie_frames,
-                                              output_prefix)
+                                              movie_fps, movie_frames)
     elif _platform == "darwin":
         # OS X
         raise Exception('Not implemented yet !')
@@ -79,8 +78,7 @@ def generate_movie(movie_name, movie_dir,
 
 def generate_multiprocessing_movie(movie_name, movie_dir,
                                    movie_width, movie_height,
-                                   movie_fps, movie_frames='*.png',
-                                   output_prefix=None):
+                                   movie_fps, movie_frames='*.png'):
     """
     generating a movie with given specification using multiprocessing;
     all frames are divided into excluded sets of files, for each set
@@ -142,9 +140,7 @@ def generate_multiprocessing_movie(movie_name, movie_dir,
     execute_command(command)
 
     #convert draft file into final movie file
-    output_file = '%s.avi' % (movie_name) if is_empty(output_prefix) \
-            else '%s_%s.avi' % (output_prefix, movie_name)
-
+    output_file = '%s.avi' % (movie_name)
     command = '(cd %s; mencoder %s -o %s -forceidx -ovc copy -oac copy)' \
                  % (movie_dir, movie_draft, output_file)
     execute_command(command)
