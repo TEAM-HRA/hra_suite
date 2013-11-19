@@ -54,7 +54,8 @@ class PoincarePlotMovieMaker(object):
             mpl.rcParams['patch.edgecolor'] = 'none'
             mpl.rcParams['savefig.edgecolor'] = 'none'
             self.source = get_filename(self.params.reference_filename)
-            self.movie_name = self.__get_prefixed_movie_name__()
+            self.__prefixed_movie_name__ = self.__get_prefixed_movie_name__()
+            self.__prefixed_movie_dir__ = self.__get_prefixed_movie_dir__()
 
             if not self.params.filter_manager == None:
                 data_vector = self.params.filter_manager.run_filters(
@@ -82,8 +83,8 @@ class PoincarePlotMovieMaker(object):
             self.core_nums = multiprocessing.cpu_count() * self.p.movie_multiprocessing_factor # @IgnorePep8
 
             self.pp_spec_manager = MiniPoincarePlotSpecManager()
-            self.pp_spec_manager.movie_dir = self.p.movie_dir
-            self.pp_spec_manager.movie_name = self.p.movie_name
+            self.pp_spec_manager.movie_dir = self.__prefixed_movie_dir__
+            self.pp_spec_manager.movie_name = self.__prefixed_movie_name__
             self.pp_spec_manager.movie_dpi = self.p.movie_dpi
             self.pp_spec_manager.movie_fps = self.p.movie_fps
             self.pp_spec_manager.movie_height = self.p.movie_height
@@ -113,18 +114,15 @@ class PoincarePlotMovieMaker(object):
 
     def add_data_vector_segment(self, data_vector_segment, last_segment=False):
         self.message = None
-        if self.p.movie_name == None:
+        if self.__prefixed_movie_name__ == None:
             return
 
         if last_segment:
             self.__save_frames__()
             return
 
-        #prefix by movie name if self.p.movie_prefixed_by_source is True
-        frame_name = '%s_%06d' % (self.movie_name, self.idx) \
-            if self.p.movie_prefixed_by_source else '%06d' % self.idx
-
-        frame_file = as_path(self.p.movie_dir, frame_name + '.png')
+        frame_name = '%s_%06d' % (self.__prefixed_movie_name__, self.idx)
+        frame_file = as_path(self.__prefixed_movie_dir__, frame_name + '.png')
         #skip_frame = True if self.idx < self.p.movie_skip_to_frame or \
         #    (self.p.movie_skip_frames and os.path.exists(frame_file)) \
         #    else False
@@ -254,8 +252,8 @@ class PoincarePlotMovieMaker(object):
 
                 old_pp_spec_manager = self.pp_spec_manager
                 self.pp_spec_manager = MiniPoincarePlotSpecManager()
-                self.pp_spec_manager.movie_dir = self.p.movie_dir
-                self.pp_spec_manager.movie_name = self.p.movie_name
+                self.pp_spec_manager.movie_dir = self.__prefixed_movie_dir__
+                self.pp_spec_manager.movie_name = self.__prefixed_movie_name__
                 self.pp_spec_manager.movie_dpi = self.p.movie_dpi
                 self.pp_spec_manager.movie_fps = self.p.movie_fps
                 self.pp_spec_manager.movie_height = self.p.movie_height
@@ -307,13 +305,14 @@ class PoincarePlotMovieMaker(object):
         #gc.collect()  # this invocation slow down process of movie generation
 
     def save_movie(self):
-        if not self.p.movie_name == None and self.p.movie_not_save == False:
+        if not self.__prefixed_movie_name__ == None and self.p.movie_not_save == False:  # @IgnorePep8
 
-            output_file = generate_movie(self.movie_name, self.p.movie_dir,
+            output_file = generate_movie(self.__prefixed_movie_name__,
+                                    self.__prefixed_movie_dir__,
                                     self.p.movie_width, self.p.movie_height,
                                     self.p.movie_fps)
             self.message = "Poincare plot movie %s is created !" \
-                                % as_path(self.p.movie_dir, output_file)
+                            % as_path(self.__prefixed_movie_dir__, output_file)
 
     @property
     def info_message(self):
@@ -372,6 +371,18 @@ class PoincarePlotMovieMaker(object):
         #append output_prefix
         return movie_name if is_empty(self.p.output_prefix) \
                         else '%s_%s' % (self.p.output_prefix, movie_name)
+
+    def __get_prefixed_movie_dir__(self):
+        """
+        method returns prefixed movie_dir by source name and output_prefix
+        """
+        movie_dir = self.p.movie_dir
+
+        prefix = self.p.output_prefix + '_' \
+                if not is_empty(self.p.output_prefix) else ''
+
+        return as_path(movie_dir, prefix + 'm_' + self.source) \
+                if self.p.movie_prefixed_by_source else movie_dir
 
 
 class MiniPoincarePlotSpecManager(object):

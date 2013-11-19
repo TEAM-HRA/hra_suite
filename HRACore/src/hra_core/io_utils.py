@@ -477,7 +477,7 @@ def create_dir(_dir):
     create a dictionary if not present
     """
     if not fs.exists(_dir):
-        os.mkdir(_dir)
+        os.makedirs(_dir)  # makes dirs recursively
 
 
 def get_filename(pathname, with_extension=False):
