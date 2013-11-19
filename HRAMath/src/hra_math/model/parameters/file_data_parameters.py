@@ -55,7 +55,9 @@ class FileDataParameters(CoreParameters):
         [obligatory]
         a directory for outcomes files
         """
-        return self.__output_dir__
+        if self.__output_dir__:
+            # remove leading and trailing whitespaces
+            return self.__output_dir__.strip()
 
     @output_dir.setter
     def output_dir(self, _output_dir):

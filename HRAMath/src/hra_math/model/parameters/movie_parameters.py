@@ -320,6 +320,18 @@ class MovieParameters(CoreParameters):
     def movie_prefixed_by_source(self, _movie_prefixed_by_source):
         self.__movie_prefixed_by_source__ = _movie_prefixed_by_source
 
+    @property
+    def movie_clean_frames(self):
+        """
+        [optional]
+        after a movie creation all frame files are deleted [default True]
+        """
+        return nvl(self.__movie_clean_frames__, True)
+
+    @movie_clean_frames.setter
+    def movie_clean_frames(self, _movie_clean_frames):
+        self.__movie_clean_frames__ = _movie_clean_frames
+
     def setObjectMovieParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -355,6 +367,8 @@ class MovieParameters(CoreParameters):
                             self.movie_standard_generation)
         setattr(_object, 'movie_prefixed_by_source',
                             self.movie_prefixed_by_source)
+        setattr(_object, 'movie_clean_frames',
+                            self.movie_clean_frames)
 
     def validateMovieParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.movie_name == None:
@@ -398,3 +412,4 @@ class MovieParameters(CoreParameters):
                                         + str(self.movie_standard_generation))
             print('    prefix by source: '
                                         + str(self.movie_prefixed_by_source))
+            print('    clean frames: ' + str(self.movie_clean_frames))

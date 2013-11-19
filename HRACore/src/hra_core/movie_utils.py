@@ -55,16 +55,18 @@ def __generate_movie__(movie_specification):
 
 def generate_movie(movie_name, movie_dir,
                    movie_width, movie_height,
-                   movie_fps, movie_frames='*.png'):
+                   movie_fps, movie_frames='*.png',
+                   movie_clean_frames=True):
     """
     function used by client code to generate a movie according to
     specified parameters; at this time multiprocessing
     version is used only for Linux OS
     """
     if _platform.find("linux") >= 0:
-        return generate_multiprocessing_movie(movie_name, movie_dir,
+        return __generate_multiprocessing_movie__(movie_name, movie_dir,
                                               movie_width, movie_height,
-                                              movie_fps, movie_frames)
+                                              movie_fps, movie_frames,
+                                              movie_clean_frames)
     elif _platform == "darwin":
         # OS X
         raise Exception('Not implemented yet !')
@@ -76,9 +78,10 @@ def generate_movie(movie_name, movie_dir,
         return __generate_movie__(movie_specification)
 
 
-def generate_multiprocessing_movie(movie_name, movie_dir,
+def __generate_multiprocessing_movie__(movie_name, movie_dir,
                                    movie_width, movie_height,
-                                   movie_fps, movie_frames='*.png'):
+                                   movie_fps, movie_frames,
+                                   movie_clean_frames):
     """
     generating a movie with given specification using multiprocessing;
     all frames are divided into excluded sets of files, for each set
@@ -153,10 +156,16 @@ def generate_multiprocessing_movie(movie_name, movie_dir,
     command = 'rm %s' % as_path(movie_dir, '%s_part_*.avi' % (movie_name))
     execute_command(command)
 
-    #delete all listing files
+    #delete partial listing files
     command = 'rm %s' % as_path(movie_dir, '%s_lst_*' % (movie_name))
     execute_command(command)
 
+    # delete frames files
+    if movie_clean_frames:
+        command = 'cat %s | xargs rm ' % as_path(movie_dir, '%s.lst' % (movie_name))
+        execute_command(command)
+
+    #delete listing of all files
     command = 'rm %s' % as_path(movie_dir, '%s.lst' % (movie_name))
     execute_command(command)
 

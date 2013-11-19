@@ -378,6 +378,10 @@ if __name__ == '__main__':
                     is prefixed by a name of a source file (minus extension)
                     [default: True]""",
                 type=to_bool, default=True)
+    parser.add_argument("-movie_clean_frames", "--movie_clean_frames",
+                help="""after movie creation all frame files are deleted
+                        [default True]""",
+                type=to_bool, default=True)
     parser.add_argument("-output_prefix", "--output_prefix",
                     help="""a label included in a name of an output
                         file [optional]""", default=None)
@@ -429,6 +433,7 @@ if __name__ == '__main__':
     ppManager.movie_active_size = __args.movie_active_size
     ppManager.movie_inactive_size = __args.movie_inactive_size
     ppManager.movie_centroid_size = __args.movie_centroid_size
+    ppManager.movie_clean_frames = __args.movie_clean_frames
     ppManager.output_prefix = __args.output_prefix
     ppManager.x_label = __args.x_label
     ppManager.y_label = __args.y_label
