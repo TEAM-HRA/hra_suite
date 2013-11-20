@@ -246,7 +246,7 @@ if __name__ == '__main__':
     parser.add_argument("-out_prec", "--output_precision",
                 help="precision for output data [default: 10,5]",
                 default="10,5")
-    parser.add_argument("-sn", "--statistics_names",
+    parser.add_argument("-statistics_names", "--statistics_names",
                 help="list of statistics names to calculate, available: " +
                         commas(get_statistics_names(ALL_STATISTICS)))
     parser.add_argument("-summary_statistics_names",
@@ -255,13 +255,13 @@ if __name__ == '__main__':
                 commas(get_summary_statistics_names(ALL_SUMMARY_STATISTICS)))
     parser.add_argument("-he", "--headers", type=to_bool,
                         help="display lines of headers [True|False]")
-    parser.add_argument("-si", "--signal_index", type=int,
+    parser.add_argument("-signal_index", "--signal_index", type=int,
                 help="index of a signal column in a data source file (0 based)", # @IgnorePep8
                 default=-1)
-    parser.add_argument("-ai", "--annotation_index", type=int,
+    parser.add_argument("-annotation_index", "--annotation_index", type=int,
                 help="index of an annotation column in a data source file (0 based)", # @IgnorePep8
                 default=-1)
-    parser.add_argument("-ti", "--time_index", type=int,
+    parser.add_argument("-time_index", "--time_index", type=int,
                 help="index of a time column in a data source file (0 based)",
                 default=-1)
     parser.add_argument("-time_format", "--time_format", default=None,

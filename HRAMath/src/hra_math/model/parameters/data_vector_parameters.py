@@ -184,6 +184,8 @@ class DataVectorParameters(CoreParameters):
         if check_level >= CoreParameters.NORMAL_CHECK_LEVEL:
             if self.signal_index is None:
                 return 'signal index has to be set'
+        if not self.time_index == None and self.time_format == None:
+            return 'For time column a time format parameter is required !'
 
     @property
     def sample_step(self):
