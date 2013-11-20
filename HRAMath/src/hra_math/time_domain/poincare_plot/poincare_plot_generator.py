@@ -215,6 +215,8 @@ class PoincarePlotGenerator(object):
                                                 self.window_shift,
                                                 self.stepper_size,
                                                 self.stepper_unit)
+        if segmenter.stop:
+            return False
 
         start_progress.segmenter = segmenter
         start_progress()
@@ -350,6 +352,8 @@ class PoincarePlotGenerator(object):
                                                 self.stepper_size,
                                                 self.stepper_unit,
                                                 mark_last_segment=True)
+        if segmenter.stop:
+            return False
 
         start_progress.segmenter = segmenter
         start_progress()

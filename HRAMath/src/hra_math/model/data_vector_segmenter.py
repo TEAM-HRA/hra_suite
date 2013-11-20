@@ -50,8 +50,10 @@ class __DataVectorSegmenter__(object):
         self.shift = shift
         self.__counter__ = 0
         self.__data_vector_segment__ = None
-        self.__mark_last_segment__ = mark_last_segment
-        self.__last_segment__ = False
+        self.__stop__ = False
+
+        #None value of __last_segment__ means do not use last segment feature
+        self.__last_segment__ = False if mark_last_segment else None
 
         self.window_unit = None
 
@@ -68,7 +70,16 @@ class __DataVectorSegmenter__(object):
             #and window size unit
             multiplier = self.window_unit.expressInUnit(self.data.signal_unit)
             self.window_size_in_signal_unit = multiplier * self.window_size
-
+            if not self.data.time == None:
+                #get an array of indexes where time period of an item is
+                #greater than data window size, in this case further processing
+                #is stopped
+                indexes = np.where(self.data.time > self.window_size_in_signal_unit) # @IgnorePep8
+                if len(indexes[0]) > 0:
+                    #raise Exception('Window size is smaller then value in time column [in %s row] !' % (indexes[0][0])) # @IgnorePep8
+                    print('Window size is smaller then value in time column [in %s row]. Stop processing !' % (indexes[0][0])) # @IgnorePep8
+                    #mark to stop further processing
+                    self.__stop__ = True
         else:
             if self.window_size > len(self.data.time_signal):
                 raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
@@ -84,8 +95,11 @@ class __DataVectorSegmenter__(object):
 
     def __getDataVactor__(self, index_start, index_stop):
 
+        if self.stop:
+            return
+
         if index_stop > self.signal_size:
-            if self.__mark_last_segment__ == True:
+            if not self.__last_segment__ == None:
                 self.__last_segment__ = True
                 return
             else:
@@ -191,8 +205,8 @@ class __DataVectorSegmenter__(object):
         self.__last_segment__ = _last_segment
 
     @property
-    def mark_last_segment(self):
-        return self.__mark_last_segment__
+    def stop(self):
+        return self.__stop__
 
 
 class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
@@ -209,6 +223,9 @@ class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
         self.__index__ = 0
 
     def next(self):
+        if self.stop:
+            raise StopIteration
+
         #this means a user expressed window size in a unit
         if self.window_size_unit:
             max_index = get_max_index_for_cumulative_sum_greater_then_value(
@@ -216,7 +233,7 @@ class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
                                             self.window_size_in_signal_unit,
                                             self.__index__)
             if max_index == -1:
-                if self.mark_last_segment:
+                if not self.last_segment == None:
                     self.last_segment = True
                     return
                 else:
@@ -236,7 +253,7 @@ class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
         if index_stop < self.signal_size:
             return self.__getDataVactor__(index_start, index_stop)
         else:
-            if self.mark_last_segment:
+            if not self.last_segment == None:
                 self.last_segment = True
             else:
                 raise StopIteration
@@ -284,6 +301,8 @@ class __SampledDataVectorSegmenter__(__DataVectorSegmenter__):
         self.__data_segment_old__ = None
 
     def next(self):
+        if self.stop:
+            raise StopIteration
 
         self.__data_changed__ = True
 
@@ -309,7 +328,7 @@ class __SampledDataVectorSegmenter__(__DataVectorSegmenter__):
 
             return data_segment
         else:
-            if self.mark_last_segment:
+            if not self.last_segment == None:
                 self.last_segment = True
             else:
                 raise StopIteration
@@ -385,6 +404,8 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
         self.__index_stop_old__ = None
 
     def next(self):
+        if self.stop:
+            raise StopIteration
 
         if self.__stepper_index__ < self.__stepped_signal_size__:
             if self.__stepper_index__ == 0:
@@ -410,7 +431,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
                                     self.window_size_in_signal_unit)
 
             if index_stop > self.signal_size:
-                if self.mark_last_segment:
+                if not self.last_segment == None:
                     self.last_segment = True
                     return
                 else:
@@ -419,7 +440,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
             if index_stop == self.signal_size:
                 index_stop = self.signal_size - 1
                 if index_start > index_stop:
-                    if self.mark_last_segment:
+                    if not self.last_segment == None:
                         self.last_segment = True
                         return
                     else:
@@ -449,7 +470,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
             #test if the last signal is included in window size signal
             if self.__stepper_index__ == len(self.__stepped_data__):
                 if np.sum(data_vector.time_signal) < self.window_size_in_signal_unit: # @IgnorePep8
-                    if self.mark_last_segment:
+                    if not self.last_segment == None:
                         self.last_segment = True
                         return
                     else:
@@ -457,7 +478,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
 
             return data_vector
         else:
-            if self.mark_last_segment:
+            if not self.last_segment == None:
                 self.last_segment = True
             else:
                 raise StopIteration
