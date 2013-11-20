@@ -249,7 +249,8 @@ if __name__ == '__main__':
     parser.add_argument("-sn", "--statistics_names",
                 help="list of statistics names to calculate, available: " +
                         commas(get_statistics_names(ALL_STATISTICS)))
-    parser.add_argument("-ssn", "--summary_statistics_names",
+    parser.add_argument("-summary_statistics_names",
+                        "--summary_statistics_names",
                 help="list of summary statistics names to calculate, available: " + # @IgnorePep8
                 commas(get_summary_statistics_names(ALL_SUMMARY_STATISTICS)))
     parser.add_argument("-he", "--headers", type=to_bool,
