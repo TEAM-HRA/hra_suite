@@ -71,6 +71,7 @@ class PoincarePlotParameters(CoreParameters):
         setattr(_object, 'progress_mark', self.progress_mark)
         setattr(_object, 'x_label', self.x_label)
         setattr(_object, 'y_label', self.y_label)
+        setattr(_object, 'print_first_signal', self.print_first_signal)
 
     def validatePoincarePlotParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         pass
@@ -82,6 +83,8 @@ class PoincarePlotParameters(CoreParameters):
             print('X label axis: ' + self.x_label)
         if not self.y_label == None:
             print('Y label axis: ' + self.y_label)
+        if self.print_first_signal == True:
+            print('print_first_signal: ' + str(self.print_first_signal))
 
     @property
     def x_label(self):
@@ -106,3 +109,15 @@ class PoincarePlotParameters(CoreParameters):
     @y_label.setter
     def y_label(self, _y_label):
         self.__y_label__ = _y_label
+
+    @property
+    def print_first_signal(self):
+        """
+        [optional]
+        print first row of a signal [default: False]
+        """
+        return self.__print_first_signal__
+
+    @print_first_signal.setter
+    def print_first_signal(self, _print_first_signal):
+        self.__print_first_signal__ = _print_first_signal

@@ -390,6 +390,10 @@ if __name__ == '__main__':
                 help="""label of X axis of poincare plot [default None]""")
     parser.add_argument("-y_label", "--y_label",
                 help="""label of Y axis of poincare plot [default None]""")
+    parser.add_argument("-print_first_signal", "--print_first_signal",
+                help="""print the first row of a signal [default: False]""",
+                 type=to_bool, default=True)
+
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
@@ -439,6 +443,7 @@ if __name__ == '__main__':
     ppManager.x_label = __args.x_label
     ppManager.y_label = __args.y_label
     ppManager.movie_prefixed_by_source = __args.movie_prefixed_by_source
+    ppManager.print_first_signal = __args.print_first_signal
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True

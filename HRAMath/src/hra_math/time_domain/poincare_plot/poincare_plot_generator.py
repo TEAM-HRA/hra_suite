@@ -215,6 +215,9 @@ class PoincarePlotGenerator(object):
                                                 self.window_shift,
                                                 self.stepper_size,
                                                 self.stepper_unit)
+        if self.print_first_signal:
+            print('Signal data [first row]: ' + str(data_vector.signal))
+
         if segmenter.stop:
             return True  # to avoid interrupt processing many data sources
 
