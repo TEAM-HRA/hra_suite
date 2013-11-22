@@ -37,10 +37,12 @@ class DataVectorParameters(CoreParameters):
     @property
     def window_size(self):
         """
-        [obligatory]
+        [optional]
         data window size expressed in number of data items or
         in time units by suffix: s - second, m - minute, h - hour;
         examples: 100, 5m
+        if the window size has no value it means to calculate
+        the whole recording
         """
         return self.__window_size__
 
@@ -179,12 +181,10 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'time_format', self.time_format)
 
     def validateDataVectorParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
-        if self.window_size is None or self.window_size == 0:
-            return 'window size has to be set'
         if check_level >= CoreParameters.NORMAL_CHECK_LEVEL:
             if self.signal_index is None:
                 return 'signal index has to be set'
-        if not self.time_index == None and self.time_format == None:
+        if self.time_index >= 0 and self.time_format == None:
             return 'For time column a time format parameter is required !'
 
     @property
@@ -268,7 +268,9 @@ class DataVectorParameters(CoreParameters):
         if not self.ordinal_column_name == None:
             print('Ordinal column name: ' + str(self.ordinal_column_name))
 
-        if not self.window_size == None:
+        if self.window_size == None:
+            print('Window size: unspecified, assumed the whole recording')
+        else:
             print('Window size: ' + str(self.window_size))
 
         if not self.window_size_unit == None:

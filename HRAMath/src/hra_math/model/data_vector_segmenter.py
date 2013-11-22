@@ -24,7 +24,9 @@ class SegmenterManager(object):
                      shift=1, stepper_size=None, stepper_unit=None,
                      mark_last_segment=False):
 
-        if not stepper_size == None:
+        if window_size == None:
+            return __OneRunSegmenter__(data, shift, mark_last_segment)
+        elif not stepper_size == None:
             return __SteppedDataVectorSegmenter__(data, window_size,
                                             window_size_unit,
                                             stepper_size, stepper_unit,
@@ -40,16 +42,19 @@ class SegmenterManager(object):
                                               shift, mark_last_segment)
 
 
-class __DataVectorSegmenter__(object):
+class __CoreSegmenter__(object):
 
-    def __init__(self, data, window_size, window_size_unit, shift=1,
+    """
+    core functionality for segmenter
+    """
+    def __init__(self, data, window_size=None, window_size_unit=None, shift=1,
                  mark_last_segment=False):
         self.data = data
         self.window_size = window_size
         self.window_size_unit = window_size_unit
         self.shift = shift
         self.__counter__ = 0
-        self.__data_vector_segment__ = None
+        self.__data_vector_segment__ = self.data
         self.__stop__ = False
 
         #None value of __last_segment__ means do not use last segment feature
@@ -57,81 +62,19 @@ class __DataVectorSegmenter__(object):
 
         self.window_unit = None
 
-        if self.window_size_unit:
-            #get time unit of window size
-            self.window_unit = get_time_unit(self.window_size_unit)
-            if not self.window_unit:
-                raise Exception('Unknown window size unit !!! ['
-                                + self.window_size_unit + ']')
-
-        if self.window_unit:
-
-            #calculate multiplier of conversion between data signal unit
-            #and window size unit
-            multiplier = self.window_unit.expressInUnit(self.data.signal_unit)
-            self.window_size_in_signal_unit = multiplier * self.window_size
-            if not self.data.time == None:
-                #get an array of indexes where time period of an item is
-                #greater than data window size, in this case further processing
-                #is stopped
-                indexes = np.where(self.data.time > self.window_size_in_signal_unit) # @IgnorePep8
-                if len(indexes[0]) > 0:
-                    #raise Exception('Window size is smaller then value in time column [in %s row] !' % (indexes[0][0])) # @IgnorePep8
-                    print('Window size is smaller then value in time column [in %s row]. Stop processing !' % (indexes[0][0])) # @IgnorePep8
-                    #mark to stop further processing
-                    self.__stop__ = True
-        else:
-            if self.window_size > len(self.data.time_signal):
-                raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
-
-        #optimization tricks, the methods below will not be searched in python
-        #paths but access to them, because of below assignments, will be local
-        #and for this reason much faster
-        self.SEARCHSORTED = np.searchsorted
-        self.ARANGE = np.arange
-
     def __iter__(self):
         return self
-
-    def __getDataVactor__(self, index_start, index_stop):
-
-        if self.stop:
-            return
-
-        if index_stop > self.signal_size:
-            if not self.__last_segment__ == None:
-                self.__last_segment__ = True
-                return
-            else:
-                raise StopIteration
-
-        indexes = self.ARANGE(index_start, index_stop + 1)
-        signal = self.data.signal.take(indexes)
-
-        indexes_plus = self.ARANGE(0, len(signal) - self.shift)
-        signal_plus = signal.take(indexes_plus)
-
-        indexes_minus = self.ARANGE(self.shift, len(signal))
-        signal_minus = signal.take(indexes_minus)
-
-        annotation = (None if self.data.annotation == None else
-                      self.data.annotation.take(indexes))
-
-        self.__counter__ += 1
-
-        self.__data_vector_segment__ = DataVector(signal=signal,
-                          signal_plus=signal_plus,
-                          signal_minus=signal_minus,
-                          annotation=annotation,
-                          signal_unit=self.data.signal_unit,
-                          signal_header=self.data.signal_header,
-                          annotation_header=self.data.annotation_header,
-                          time_header=self.data.time_header)
-        return self.__data_vector_segment__
 
     @property
     def ordinal_value(self):
         return self.__counter__ + 1
+
+    def increase_counter(self):
+        self.__counter__ += 1
+
+    @property
+    def counter(self):
+        return self.__counter__
 
     @property
     def data_changed(self):
@@ -196,6 +139,10 @@ class __DataVectorSegmenter__(object):
     def data_vector_segment(self):
         return self.__data_vector_segment__
 
+    @data_vector_segment.setter
+    def data_vector_segment(self, _data_vector_segment):
+        self.__data_vector_segment__ = _data_vector_segment
+
     @property
     def last_segment(self):
         return self.__last_segment__
@@ -207,6 +154,90 @@ class __DataVectorSegmenter__(object):
     @property
     def stop(self):
         return self.__stop__
+
+    @stop.setter
+    def stop(self, _stop):
+        self.__stop__ = _stop
+
+
+class __DataVectorSegmenter__(__CoreSegmenter__):
+
+    def __init__(self, data, window_size, window_size_unit, shift=1,
+                 mark_last_segment=False):
+        super(__DataVectorSegmenter__, self).__init__(data,
+                                        window_size=window_size,
+                                        window_size_unit=window_size_unit,
+                                        shift=shift,
+                                        mark_last_segment=mark_last_segment)
+
+        if self.window_size_unit:
+            #get time unit of window size
+            self.window_unit = get_time_unit(self.window_size_unit)
+            if not self.window_unit:
+                raise Exception('Unknown window size unit !!! ['
+                                + self.window_size_unit + ']')
+
+        if self.window_unit:
+
+            #calculate multiplier of conversion between data signal unit
+            #and window size unit
+            multiplier = self.window_unit.expressInUnit(self.data.signal_unit)
+            self.window_size_in_signal_unit = multiplier * self.window_size
+            if not self.data.time == None:
+                #get an array of indexes where time period of an item is
+                #greater than data window size, in this case further processing
+                #is stopped
+                indexes = np.where(self.data.time > self.window_size_in_signal_unit) # @IgnorePep8
+                if len(indexes[0]) > 0:
+                    #raise Exception('Window size is smaller then value in time column [in %s row] !' % (indexes[0][0])) # @IgnorePep8
+                    print('Window size is smaller then value in time column [in %s row]. Stop processing !' % (indexes[0][0])) # @IgnorePep8
+                    #mark to stop further processing
+                    self.stop = True
+        else:
+            if self.window_size > len(self.data.time_signal):
+                raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
+
+        #optimization tricks, the methods below will not be searched in python
+        #paths but access to them, because of below assignments, will be local
+        #and for this reason much faster
+        self.SEARCHSORTED = np.searchsorted
+        self.ARANGE = np.arange
+
+    def __getDataVactor__(self, index_start, index_stop):
+
+        if self.stop:
+            return
+
+        if index_stop > self.signal_size:
+            if not self.last_segment == None:
+                self.last_segment = True
+                return
+            else:
+                raise StopIteration
+
+        indexes = self.ARANGE(index_start, index_stop + 1)
+        signal = self.data.signal.take(indexes)
+
+        indexes_plus = self.ARANGE(0, len(signal) - self.shift)
+        signal_plus = signal.take(indexes_plus)
+
+        indexes_minus = self.ARANGE(self.shift, len(signal))
+        signal_minus = signal.take(indexes_minus)
+
+        annotation = (None if self.data.annotation == None else
+                      self.data.annotation.take(indexes))
+
+        self.increase_counter()
+
+        self.data_vector_segment = DataVector(signal=signal,
+                          signal_plus=signal_plus,
+                          signal_minus=signal_minus,
+                          annotation=annotation,
+                          signal_unit=self.data.signal_unit,
+                          signal_header=self.data.signal_header,
+                          annotation_header=self.data.annotation_header,
+                          time_header=self.data.time_header)
+        return self.data_vector_segment
 
 
 class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
@@ -491,3 +522,34 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
             return int((1.0 * self.signal_size / self.__stepper_size__))
         else:
             return self.__stepped_signal_size__
+
+
+class __OneRunSegmenter__(__CoreSegmenter__):
+
+    """
+    one run segmenter, used to run only once on the while recording
+    """
+    def __init__(self, data, shift, mark_last_segment=False):
+        super(__OneRunSegmenter__, self).__init__(data,
+                                        shift=shift,
+                                        mark_last_segment=mark_last_segment)
+        self.__first__ = True
+
+    def next(self):
+        if self.stop:
+            raise StopIteration
+
+        if self.__first__ == False:
+            self.__first__ = True
+            return self.data
+        else:
+            if not self.last_segment == None:
+                self.last_segment = True
+            else:
+                raise StopIteration
+
+    def segment_count(self):
+        """
+        this segmenter runs only once
+        """
+        return 1

@@ -232,7 +232,7 @@ if __name__ == '__main__':
                 help="extension of data input files in the form <*.ext>")
     parser.add_argument("-f", "--data_file",
                 help="alternative option to set one data source file")
-    parser.add_argument("-w", "--window_size",
+    parser.add_argument("-window_size", "--window_size",
                 help="""data window size expressed in number of data items or
                 in time units by suffix: s - second, m - minute, h - hour;
                 examples: 100, 5m""")
