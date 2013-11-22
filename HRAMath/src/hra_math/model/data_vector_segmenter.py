@@ -539,8 +539,8 @@ class __OneRunSegmenter__(__CoreSegmenter__):
         if self.stop:
             raise StopIteration
 
-        if self.__first__ == False:
-            self.__first__ = True
+        if self.__first__:
+            self.__first__ = False
             return self.data
         else:
             if not self.last_segment == None:
