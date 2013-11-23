@@ -6,6 +6,7 @@ Created on 24 kwi 2013
 from hra_math.utils.utils import print_import_error
 try:
     from hra_core.misc import is_positive
+    from hra_core.misc import is_empty
     from hra_core.misc import extract_number
     from hra_core.misc import extract_alphabetic
     from hra_core.collections_utils import nvl
@@ -188,6 +189,8 @@ class DataVectorParameters(CoreParameters):
                 return 'signal index has to be set'
         if is_positive(self.time_index) and self.time_format == None:
             return 'For time column a time format parameter is required !'
+        if not is_positive(self.time_index) and not is_empty(self.time_format):
+            return 'Time format requires time index column selection !'
 
     @property
     def sample_step(self):

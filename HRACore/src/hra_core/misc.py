@@ -228,7 +228,8 @@ def is_positive(value):
     """
     if not value == None:
         try:
-            return int(value) and value >= 0
+            int(value)  # try to cast on int if it successful it is a number
+            return value >= 0
         except ValueError:
             pass
     return False

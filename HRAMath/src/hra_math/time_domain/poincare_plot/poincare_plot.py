@@ -227,10 +227,10 @@ if __name__ == '__main__':
     parser.add_argument("-i", "--interactive",
                 help="interactive mode (not implemented yet)", type=to_bool,
                 default=False)
-    parser.add_argument("-d", "--data_dir",
+    parser.add_argument("-data_dir", "--data_dir",
                 help="directory where input data files are located [default: " + os.getcwd() + "]", # @IgnorePep8
                 default=os.getcwd())
-    parser.add_argument("-e", "--extension", default="*",
+    parser.add_argument("-extension", "--extension", default="*",
                 help="extension of data input files in the form <*.ext>")
     parser.add_argument("-f", "--data_file",
                 help="alternative option to set one data source file")
@@ -241,7 +241,7 @@ if __name__ == '__main__':
     parser.add_argument("-ws", "--window_shift", type=int,
                 help="window data shift between two sets of signals",
                 default=1)
-    parser.add_argument("-o", "--output_dir",
+    parser.add_argument("-output_dir", "--output_dir",
                 help="directory for outcomes files [default: " +
                         DEFAULT_OUTCOME_DIRECTORY + "]",
                 default=DEFAULT_OUTCOME_DIRECTORY)
@@ -294,7 +294,7 @@ if __name__ == '__main__':
                 help="""name of the ordinal column, index or time it depends
                  on window size unit, which will be the first column
                  in outcomes""")  # @IgnorePep8
-    parser.add_argument("-out_sep", "--output_separator",
+    parser.add_argument("-output_separator", "--output_separator",
                 help="a separator for output data [default: ',']",
                 default=",")
     parser.add_argument("-add_headers", "--add_headers",
@@ -306,7 +306,8 @@ if __name__ == '__main__':
     parser.add_argument("-ub", "--use_buffer",
             help="use buffer during statistics calculations [default: True]",
             type=to_bool, default=True)
-    parser.add_argument("-override", "--override_existing_outcomes",
+    parser.add_argument("-override_existing_outcomes",
+                        "--override_existing_outcomes",
                 help="override existing outcomes [True|False]",
                 type=to_bool, default=False)
     parser.add_argument("-sample", "--sample_step",
