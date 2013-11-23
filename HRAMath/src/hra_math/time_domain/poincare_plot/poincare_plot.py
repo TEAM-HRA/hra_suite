@@ -134,7 +134,8 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                                annotation_index=self.annotation_index,
                                time_index=self.time_index,
                                headers_count=self.headers_count,
-                               time_format=self.time_format)
+                               time_format=self.time_format,
+                               separator=self.separator)
         data_vector = file_data_source.getDataVector()
         if data_vector.is_empty:
             if disp:
@@ -161,7 +162,8 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                                annotation_index=self.annotation_index,
                                time_index=self.time_index,
                                headers_count=self.headers_count,
-                               time_format=self.time_format)
+                               time_format=self.time_format,
+                               separator=self.separator)
         data_vector = file_data_source.getDataVector()
         if data_vector.is_empty:
             return True
@@ -271,10 +273,11 @@ if __name__ == '__main__':
                 help="""number of headers lines in data source [default 0]"
                         program tries to determine this values on it's own""",
                 default=0)
-    parser.add_argument("-p", "--separator",
+    parser.add_argument("-separator", "--separator",
                 help="a separator used between columns, one from the set: " +
                      getSeparatorLabels() + ", <custom>; note: the " +
-                     "application tries to discover a separator itself")
+                     "application tries to discover a separator itself",
+                     default=None)
     parser.add_argument("-dav", "--display_annotation_values",
                 help="display unique annotations values presented in " +
                     "data source files [True|False]",
@@ -409,6 +412,7 @@ if __name__ == '__main__':
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
     ppManager.time_format = __args.time_format
+    ppManager.separator = __args.separator
     ppManager.headers_count = __args.headers_count
     ppManager.output_precision = __args.output_precision
     ppManager.filters_names = __args.filters_names

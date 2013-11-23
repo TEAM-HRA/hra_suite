@@ -120,22 +120,6 @@ class FileDataParameters(CoreParameters):
         self.__add_headers__ = _add_headers
 
     @property
-    def separator(self):
-        """
-        [optional]
-        a separator used between input data columns;
-        to get list of standard separators call a function:
-        getSeparatorLabels()
-        [module: hra_math.time_domain.poincare_plot.poincare_plot]
-        note: the application tries to discover a separator itself
-        """
-        return self.__separator__
-
-    @separator.setter
-    def separator(self, _separator):
-        self.__separator__ = _separator
-
-    @property
     def override_existing_outcomes(self):
         """
         [optional]
@@ -175,7 +159,6 @@ class FileDataParameters(CoreParameters):
         setattr(_object, 'extension', self.extension)
         setattr(_object, 'data_dir', self.data_dir)
         setattr(_object, 'data_file', self.data_file)
-        setattr(_object, 'separator', self.separator)
         setattr(_object, 'output_prefix', self.output_prefix)
 
     def validateFileDataParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
@@ -188,9 +171,6 @@ class FileDataParameters(CoreParameters):
                 return "Output directory is required"
 
     def parameters_infoFileDataParameters(self):
-        if not self.separator == None:
-            print('Data separator: ' + str(self.separator))
-
         if not self.data_dir == None:
             print('Data file: ' + str(self.data_file))
         elif not self.data_file == None:

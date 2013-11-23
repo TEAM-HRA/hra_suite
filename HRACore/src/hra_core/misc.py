@@ -220,3 +220,15 @@ def raw_string(_str):
     return "%r" % _str
 
 ColorRGB = collections.namedtuple("ColorRGB", "red green blue")
+
+
+def is_positive(value):
+    """
+    check if a value is positive number (>=0)
+    """
+    if not value == None:
+        try:
+            return int(value) and value >= 0
+        except ValueError:
+            pass
+    return False

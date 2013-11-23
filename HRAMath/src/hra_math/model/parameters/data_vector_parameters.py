@@ -5,6 +5,7 @@ Created on 24 kwi 2013
 '''
 from hra_math.utils.utils import print_import_error
 try:
+    from hra_core.misc import is_positive
     from hra_core.misc import extract_number
     from hra_core.misc import extract_alphabetic
     from hra_core.collections_utils import nvl
@@ -179,12 +180,13 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'stepper_unit', self.stepper_unit)
         setattr(_object, 'headers_count', self.headers_count)
         setattr(_object, 'time_format', self.time_format)
+        setattr(_object, 'separator', self.separator)
 
     def validateDataVectorParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if check_level >= CoreParameters.NORMAL_CHECK_LEVEL:
-            if self.signal_index is None:
+            if not is_positive(self.signal_index):
                 return 'signal index has to be set'
-        if self.time_index >= 0 and self.time_format == None:
+        if is_positive(self.time_index) and self.time_format == None:
             return 'For time column a time format parameter is required !'
 
     @property
@@ -256,6 +258,20 @@ class DataVectorParameters(CoreParameters):
     def headers_count(self, _headers_count):
         self.__headers_count__ = _headers_count
 
+    @property
+    def separator(self):
+        """[optional]
+        a separator used between input data columns;
+        to get list of standard separators call a function:
+        getSeparatorLabels()
+        [module: hra_math.time_domain.poincare_plot.poincare_plot]
+        note: the application tries to discover a separator itself"""
+        return self.__separator__
+
+    @separator.setter
+    def separator(self, _separator):
+        self.__separator__ = _separator
+
     def parameters_infoDataVectorParameters(self):
         if not self.window_shift == 1:
             print('Window shift: ' + str(self.window_shift))
@@ -273,16 +289,19 @@ class DataVectorParameters(CoreParameters):
         else:
             print('Window size: ' + str(self.window_size))
 
+        if not self.separator == None:
+            print('Data separator: ' + str(self.separator))
+
         if not self.window_size_unit == None:
             print('Window size unit: ' + str(self.window_size_unit))
 
-        if not self.signal_index == None and self.signal_index >= 0:
+        if is_positive(self.signal_index):
             print('Signal index: ' + str(self.signal_index))
 
-        if not self.annotation_index == None and self.annotation_index >= 0:
+        if is_positive(self.annotation_index):
             print('Annotation index: ' + str(self.annotation_index))
 
-        if not self.time_index == None and self.time_index >= 0:
+        if is_positive(self.time_index):
             print('Time index: ' + str(self.time_index))
 
         if not self.sample_step == None:

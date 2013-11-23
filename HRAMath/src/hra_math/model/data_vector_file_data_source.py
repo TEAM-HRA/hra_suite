@@ -9,6 +9,7 @@ try:
     import pylab as pl
     from hra_core.collections_utils import nvl
     from hra_core.misc import Params
+    from hra_core.misc import is_positive
     from hra_math.model.data_vector import DataVector
     from hra_math.model.utils import get_unique_annotations
     from hra_math.utils.array_utils \
@@ -35,7 +36,7 @@ class DataVectorFileDataSource(object):
                                        nvl(self.params.time_index, -1))
         self.__headers__ = None
         self.__data_vector__ = None
-        if self.params.time_index == None:
+        if not is_positive(self.params.time_index):
             self.__data_source__ = NumericalFileDataSource(**params)
         else:
             #if there is separate column of time all data are loaded
