@@ -488,3 +488,10 @@ def get_filename(pathname, with_extension=False):
     return filename.rpartition('.')[0] \
         if filename and with_extension == False and filename.rfind('.') > 0 \
         else filename
+
+
+def number_of_lines(_file):
+    """
+    get number of lines of a text file
+    """
+    return sum(1 for _ in open(_file))

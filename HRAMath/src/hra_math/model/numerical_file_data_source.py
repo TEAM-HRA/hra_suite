@@ -9,6 +9,7 @@ try:
     from hra_core.misc import is_empty
     from hra_core.misc import Params
     from hra_core.io_utils import FileSource
+    from hra_math.model.utils import prepare_data_arrays
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -35,7 +36,5 @@ class NumericalFileDataSource(FileSource):
                               unpack=True,
                               delimiter=self.params.separator)
 
-        #it is needed to return always 2 dimensional array of data
-        #but if data contains only one column then 1 dimensional array
-        #is returned, that's why the following code is required
-        return pl.array([_data]) if _data.ndim == 1 else _data
+        #some issues with preparing data, details in prepare_data_arrays func.
+        return prepare_data_arrays(self._file, self.headers_count, _data)

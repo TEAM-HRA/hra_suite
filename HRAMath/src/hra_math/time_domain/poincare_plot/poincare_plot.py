@@ -129,6 +129,8 @@ class PoincarePlotManager(PoincarePlotParametersManager):
 
     @invocation_time
     def __process_file__(self, _file, disp=False):
+        if disp:
+            print('Processing file: ' + str(_file) + '\n')
         file_data_source = DataVectorFileDataSource(_file=_file,
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
@@ -232,7 +234,7 @@ if __name__ == '__main__':
                 default=os.getcwd())
     parser.add_argument("-extension", "--extension", default="*",
                 help="extension of data input files in the form <*.ext>")
-    parser.add_argument("-f", "--data_file",
+    parser.add_argument("-data_file", "--data_file",
                 help="alternative option to set one data source file")
     parser.add_argument("-window_size", "--window_size",
                 help="""data window size expressed in number of data items or

@@ -742,6 +742,32 @@ class CountBelowLineIdentityStatistic(Statistic, Asymmetry):
         return len(pl.where(self.signal_minus < self.signal_plus)[0])
 
 
+class AsymmetryStatistic(Statistic, Asymmetry):
+    """
+    asymmetry statistic where C1d > C1a and C2a > C2d and Ca > Cd
+    """
+    def __calculate__(self):
+        C1d = C1dStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
+        C1a = C1aStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
+        C2d = C2dStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
+        C2a = C2aStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
+        Ca = CaStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
+        Cd = CdStatistic(signal_plus=self.signal_plus,
+                               signal_minus=self.signal_minus,
+                               buffer=self.buffer).compute()
+        return C1d > C1a and C2a > C2d and Ca > Cd
+
+
 class StatisticsFactory(object):
 
     def __init__(self, statistics_names=None, statistics_handlers=None,
