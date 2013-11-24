@@ -145,6 +145,20 @@ class FileDataParameters(CoreParameters):
     def output_prefix(self, _output_prefix):
         self.__output_prefix__ = _output_prefix
 
+    @property
+    def group_data_filename(self):
+        """
+        [optional]
+        used as a file where are stored all input files
+        according to data_dir and extension and this overall file
+        is used as a input file for further analisys
+        """
+        return self.__group_data_filename__
+
+    @group_data_filename.setter
+    def group_data_filename(self, _group_data_filename):
+        self.__group_data_filename__ = _group_data_filename
+
     def setObjectFileDataParameters(self, _object):
         """
         method which set up some parameters from this object into
@@ -160,6 +174,7 @@ class FileDataParameters(CoreParameters):
         setattr(_object, 'data_dir', self.data_dir)
         setattr(_object, 'data_file', self.data_file)
         setattr(_object, 'output_prefix', self.output_prefix)
+        setattr(_object, 'group_data_filename', self.group_data_filename)
 
     def validateFileDataParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.output_precision == None:
@@ -193,4 +208,6 @@ class FileDataParameters(CoreParameters):
 
         if not self.output_prefix == None:
             print('Output file name prefix: ' + str(self.output_prefix))
-        #setattr(_object, 'add_headers', self.add_headers)
+
+        if self.group_data_filename:
+            print('Group data filename: ' + str(self.group_data_filename))

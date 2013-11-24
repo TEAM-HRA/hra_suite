@@ -19,6 +19,7 @@ from hra_core.misc import Params
 from hra_core.collections_utils import not_empty_nvl
 from hra_core.collections_utils import get_ordered_list_of_strings
 from hra_core.collections_utils import nvl
+import fileinput
 
 
 def get_filenames(path, depth=1):
@@ -495,3 +496,25 @@ def number_of_lines(_file):
     get number of lines of a text file
     """
     return sum(1 for _ in open(_file))
+
+
+def join_files(_filenames, outfilename, first_headers_only=True,
+               headers_count=0):
+    """
+    function joins many text files
+    """
+    if len(_filenames) > 0 and outfilename:
+        create_dir(fs.dirname(outfilename))
+        with open(outfilename, 'w') as fout:
+            for line in fileinput.input(_filenames):
+                if first_headers_only \
+                    and fileinput.filelineno() <= headers_count \
+                    and not _filenames[0] == fileinput.filename():
+                    continue
+                fout.write(line)
+        return True
+    return False
+#if __name__ == "__main__":
+#    _filenames = ['/tmp/a.txt', '/tmp/b.txt', '/tmp/c.txt']
+#    outfilename = '/tmp/all.txt'
+#    join_files(_filenames, outfilename, headers_count=0)

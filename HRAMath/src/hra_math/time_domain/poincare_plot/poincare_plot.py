@@ -14,6 +14,8 @@ try:
     from hra_core.introspection import print_private_properties
     from hra_core.collections_utils import commas
     from hra_core.collections_utils import nvl
+    from hra_core.io_utils import join_files
+    from hra_core.io_utils import as_path
     from hra_math.model.data_vector_file_data_source \
         import DataVectorFileDataSource
     from hra_math.model.utils import ALL_ANNOTATIONS
@@ -102,6 +104,18 @@ class PoincarePlotManager(PoincarePlotParametersManager):
         file_counter = 0
         if disp:
             print('*' * sign_multiplicator)
+
+        if self.group_data_filename and self.data_file == None:
+            #create a group data input file
+            outfilename = as_path(self.output_dir,
+                                  "grp_" + self.group_data_filename)
+            joined = join_files(self.__data_filenames__,
+                                    headers_count=self.headers_count,
+                                    outfilename=outfilename)
+            if joined:
+                self.data_file = outfilename
+                print('Using group data file: ' + self.data_file)
+
         if self.data_file:  # data_file parameter is superior to data_dir parameter @IgnorePep8
             if os.path.exists(self.data_file) == False:
                 if disp:
@@ -110,9 +124,7 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                 file_counter = 1
                 _file_handler(self.data_file, disp=disp, **params)
         else:
-            path = self.data_dir + ('*.*'
-                            if self.extension == None else self.extension)
-            for _file in glob.glob(path):
+            for _file in self.__data_filenames__:
                 if os.path.isfile(_file):
                     file_counter = file_counter + 1
                     if disp:
@@ -220,6 +232,15 @@ class PoincarePlotManager(PoincarePlotParametersManager):
 
     def info_handler(self, _message):
         print(_message)
+
+    @property
+    def __data_filenames__(self):
+        """
+        returns all data files according to data_dir and extension
+        """
+        if self.data_dir:
+            path = self.data_dir + nvl(self.extension, '*.*')
+            return [_file for _file in glob.glob(path)]
 
 
 if __name__ == '__main__':
@@ -399,6 +420,10 @@ if __name__ == '__main__':
     parser.add_argument("-print_first_signal", "--print_first_signal",
                 help="""print the first row of a signal [default: False]""",
                  type=to_bool, default=True)
+    parser.add_argument("-group_data_filename", "--group_data_filename",
+                help="""used as a file where are stored all input files
+                    according to data_dir and extension and this overall file
+                    is used as a input file for further analisys [optional]""")
 
     __args = parser.parse_args()
 
@@ -451,6 +476,7 @@ if __name__ == '__main__':
     ppManager.y_label = __args.y_label
     ppManager.movie_prefixed_by_source = __args.movie_prefixed_by_source
     ppManager.print_first_signal = __args.print_first_signal
+    ppManager.group_data_filename = __args.group_data_filename
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True
