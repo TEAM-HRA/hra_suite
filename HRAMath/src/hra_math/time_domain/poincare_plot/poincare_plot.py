@@ -114,7 +114,8 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                                     outfilename=outfilename)
             if joined:
                 self.data_file = outfilename
-                print('Using group data file: ' + self.data_file)
+                if disp:
+                    print('Using group data file: ' + self.data_file)
 
         if self.data_file:  # data_file parameter is superior to data_dir parameter @IgnorePep8
             if os.path.exists(self.data_file) == False:
@@ -122,13 +123,16 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                     print('The file: ' + self.data_file + " doesn't exist")
             else:
                 file_counter = 1
-                _file_handler(self.data_file, disp=disp, **params)
+                if self.check_data_indexes(self.data_file, disp):
+                    _file_handler(self.data_file, disp=disp, **params)
         else:
             for _file in self.__data_filenames__:
                 if os.path.isfile(_file):
                     file_counter = file_counter + 1
                     if disp:
                         print('=' * sign_multiplicator)
+                    if not self.check_data_indexes(_file, disp):
+                        continue
                     if _file_handler(_file, disp=disp, **params) == False:
                         break
         if disp:
@@ -289,6 +293,12 @@ if __name__ == '__main__':
     parser.add_argument("-time_index", "--time_index", type=int,
                 help="index of a time column in a data source file (0 based)",
                 default=-1)
+    parser.add_argument("-signal_label", "--signal_label",
+                help="name of a signal header in input data [optional]")
+    parser.add_argument("-annotation_label", "--annotation_label",
+                help="name of a annotation header in input data [optional]")
+    parser.add_argument("-time_label", "--time_label",
+                help="name of a time header in input data [optional]")
     parser.add_argument("-time_format", "--time_format", default=None,
                 help="""time format, for example, for '08:21:44.020'
                         use %H:%M:%S.%f""")
@@ -439,6 +449,9 @@ if __name__ == '__main__':
     ppManager.signal_index = __args.signal_index
     ppManager.annotation_index = __args.annotation_index
     ppManager.time_index = __args.time_index
+    ppManager.signal_label = __args.signal_label
+    ppManager.annotation_label = __args.annotation_label
+    ppManager.time_label = __args.time_label
     ppManager.time_format = __args.time_format
     ppManager.separator = __args.separator
     ppManager.headers_count = __args.headers_count

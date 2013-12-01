@@ -9,7 +9,7 @@ try:
     from hra_core.misc import is_empty
     from hra_core.misc import Params
     from hra_core.io_utils import FileSource
-    from hra_math.model.utils import prepare_data_arrays
+    from hra_math.model.file_data_source_utils import prepare_data_arrays
 except ImportError as error:
     print_import_error(__name__, error)
 

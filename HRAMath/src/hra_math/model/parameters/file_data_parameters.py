@@ -75,6 +75,9 @@ class FileDataParameters(CoreParameters):
     @data_file.setter
     def data_file(self, _data_file):
         self.__data_file__ = _data_file
+        #if data file is not None then grouping files have to deactivated
+        if not _data_file == None:
+            self.__group_data_filename__ = None
 
     @property
     def output_precision(self):

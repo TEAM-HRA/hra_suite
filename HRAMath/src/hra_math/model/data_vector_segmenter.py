@@ -62,6 +62,12 @@ class __CoreSegmenter__(object):
 
         self.window_unit = None
 
+        #optimization tricks, the methods below will not be searched in python
+        #paths but access to them, because of below assignments, will be local
+        #and for this reason much faster
+        self.SEARCHSORTED = np.searchsorted
+        self.ARANGE = np.arange
+
     def __iter__(self):
         return self
 
@@ -159,6 +165,42 @@ class __CoreSegmenter__(object):
     def stop(self, _stop):
         self.__stop__ = _stop
 
+    def __getDataVactor__(self, index_start, index_stop):
+
+        if self.stop:
+            return
+
+        if index_stop > self.signal_size:
+            if not self.last_segment == None:
+                self.last_segment = True
+                return
+            else:
+                raise StopIteration
+
+        indexes = self.ARANGE(index_start, index_stop + 1)
+        signal = self.data.signal.take(indexes)
+
+        indexes_plus = self.ARANGE(0, len(signal) - self.shift)
+        signal_plus = signal.take(indexes_plus)
+
+        indexes_minus = self.ARANGE(self.shift, len(signal))
+        signal_minus = signal.take(indexes_minus)
+
+        annotation = (None if self.data.annotation == None else
+                      self.data.annotation.take(indexes))
+
+        self.increase_counter()
+
+        self.data_vector_segment = DataVector(signal=signal,
+                          signal_plus=signal_plus,
+                          signal_minus=signal_minus,
+                          annotation=annotation,
+                          signal_unit=self.data.signal_unit,
+                          signal_header=self.data.signal_header,
+                          annotation_header=self.data.annotation_header,
+                          time_header=self.data.time_header)
+        return self.data_vector_segment
+
 
 class __DataVectorSegmenter__(__CoreSegmenter__):
 
@@ -196,48 +238,6 @@ class __DataVectorSegmenter__(__CoreSegmenter__):
         else:
             if self.window_size > len(self.data.time_signal):
                 raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
-
-        #optimization tricks, the methods below will not be searched in python
-        #paths but access to them, because of below assignments, will be local
-        #and for this reason much faster
-        self.SEARCHSORTED = np.searchsorted
-        self.ARANGE = np.arange
-
-    def __getDataVactor__(self, index_start, index_stop):
-
-        if self.stop:
-            return
-
-        if index_stop > self.signal_size:
-            if not self.last_segment == None:
-                self.last_segment = True
-                return
-            else:
-                raise StopIteration
-
-        indexes = self.ARANGE(index_start, index_stop + 1)
-        signal = self.data.signal.take(indexes)
-
-        indexes_plus = self.ARANGE(0, len(signal) - self.shift)
-        signal_plus = signal.take(indexes_plus)
-
-        indexes_minus = self.ARANGE(self.shift, len(signal))
-        signal_minus = signal.take(indexes_minus)
-
-        annotation = (None if self.data.annotation == None else
-                      self.data.annotation.take(indexes))
-
-        self.increase_counter()
-
-        self.data_vector_segment = DataVector(signal=signal,
-                          signal_plus=signal_plus,
-                          signal_minus=signal_minus,
-                          annotation=annotation,
-                          signal_unit=self.data.signal_unit,
-                          signal_header=self.data.signal_header,
-                          annotation_header=self.data.annotation_header,
-                          time_header=self.data.time_header)
-        return self.data_vector_segment
 
 
 class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
@@ -541,7 +541,15 @@ class __OneRunSegmenter__(__CoreSegmenter__):
 
         if self.__first__:
             self.__first__ = False
-            return self.data
+
+            #if a data record has no signal_plus array then we have to create
+            #one with use of __getDataVactor__ method, the signal_plus record
+            #starts from 0 index to size of signal minus 1, the minus_signal
+            #starts from 1 index to size of the signal array
+            if self.data.signal_plus == None:
+                return self.__getDataVactor__(0, len(self.data.signal) - 1)
+            else:
+                return self.data
         else:
             if not self.last_segment == None:
                 self.last_segment = True

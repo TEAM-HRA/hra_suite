@@ -250,3 +250,29 @@ def get_chunks(arr, chunk_size=10):
     chunks = [arr[start:start + chunk_size]
               for start in range(0, len(arr), chunk_size)]
     return chunks
+
+
+def get_index_of_string(_string, values, _separator=None):
+    """
+    function searches for a occurrence of parameter _string
+    in values and returns its index position, parameter values could
+    a string or a collection of strings or subcollections of strings;
+    if a _string value is not found -1 is returned
+    """
+    if not _string == None:
+        _string = _string.lower().strip()
+        if hasattr(values, 'lower'):
+            for idx, v in enumerate(
+                    [v.lower().strip() for v in values.rsplit(_separator)]):
+                if v == _string:
+                    return idx
+        else:
+            for idx, value in enumerate(values):
+                if hasattr(value, 'lower') and \
+                                            value.lower().strip() == _string:
+                    return idx
+                idx = get_index_of_string(_string, value,
+                                           _separator=_separator)
+                if idx > -1:
+                    return idx
+    return -1

@@ -11,6 +11,8 @@ try:
     from hra_core.misc import extract_alphabetic
     from hra_core.collections_utils import nvl
     from hra_core.collections_utils import get_as_list
+    from hra_core.collections_utils import get_index_of_string
+    from hra_core.io_utils import DataFileHeader
     from hra_math.model.parameters.core_parameters import CoreParameters
 except ImportError as error:
     print_import_error(__name__, error)
@@ -175,6 +177,9 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'signal_index', self.signal_index)
         setattr(_object, 'annotation_index', self.annotation_index)
         setattr(_object, 'time_index', self.time_index)
+        setattr(_object, 'annotation_label', self.annotation_label)
+        setattr(_object, 'signal_label', self.signal_label)
+        setattr(_object, 'time_label', self.time_label)
         setattr(_object, 'sample_step', self.sample_step)
         setattr(_object, 'stepper', self.stepper)
         setattr(_object, 'stepper_size', self.stepper_size)
@@ -184,13 +189,8 @@ class DataVectorParameters(CoreParameters):
         setattr(_object, 'separator', self.separator)
 
     def validateDataVectorParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
-        if check_level >= CoreParameters.NORMAL_CHECK_LEVEL:
-            if not is_positive(self.signal_index):
-                return 'signal index has to be set'
-        if is_positive(self.time_index) and self.time_format == None:
-            return 'For time column a time format parameter is required !'
-        if not is_positive(self.time_index) and not is_empty(self.time_format):
-            return 'Time format requires time index column selection !'
+        #method check_data_indexes has to be used explicitly by client code
+        pass
 
     @property
     def sample_step(self):
@@ -275,6 +275,42 @@ class DataVectorParameters(CoreParameters):
     def separator(self, _separator):
         self.__separator__ = _separator
 
+    @property
+    def signal_label(self):
+        """
+        [optional]
+        input data signal label
+        """
+        return self.__signal_label__
+
+    @signal_label.setter
+    def signal_label(self, _signal_label):
+        self.__signal_label__ = _signal_label
+
+    @property
+    def annotation_label(self):
+        """
+        [optional]
+        input data annotation label
+        """
+        return self.__annotation_label__
+
+    @annotation_label.setter
+    def annotation_label(self, _annotation_label):
+        self.__annotation_label__ = _annotation_label
+
+    @property
+    def time_label(self):
+        """
+        [optional]
+        input data time label
+        """
+        return self.__time_label__
+
+    @time_label.setter
+    def time_label(self, _time_label):
+        self.__time_label__ = _time_label
+
     def parameters_infoDataVectorParameters(self):
         if not self.window_shift == 1:
             print('Window shift: ' + str(self.window_shift))
@@ -307,6 +343,15 @@ class DataVectorParameters(CoreParameters):
         if is_positive(self.time_index):
             print('Time index: ' + str(self.time_index))
 
+        if self.signal_label:
+            print('Signal label: ' + self.signal_label)
+
+        if self.annotation_label:
+            print('Annotation label: ' + self.annotation_label)
+
+        if self.time_label:
+            print('Time label: ' + self.time_label)
+
         if not self.sample_step == None:
             print('Sample step: ' + str(self.sample_step))
 
@@ -318,3 +363,55 @@ class DataVectorParameters(CoreParameters):
 
         if not self.time_format == None:
             print('Time format column: ' + str(self.time_format))
+
+    def check_data_indexes(self, _filename, disp):
+        #method used by client code explicitly, because of dynamic nature
+        #of placement of data columns which have to check at runtime
+        #to manage a situation when columns are specified by names and
+        #for different files they are placed in different columns
+        message = None
+        if not nvl(self.signal_label, self.annotation_label,
+                   self.time_label) == None:
+            headers_count = nvl(self.headers_count, 1)
+
+            file_headers = DataFileHeader(_filename,
+                                        _separator=self.separator,
+                                        number_of_lines=headers_count)
+            #get header's lines
+            headers = file_headers.getHeadersLines(headers_count)
+            if self.signal_label:
+                self.signal_index = get_index_of_string(
+                                        self.signal_label, headers,
+                                        _separator=self.separator)
+            if self.annotation_label:
+                self.annotation_index = get_index_of_string(
+                                        self.annotation_label, headers,
+                                        _separator=self.separator)
+                if self.annotation_index == -1:
+                    message = ('There is no annotation index for label %s !'
+                                                     % (self.annotation_label))
+            if self.time_label:
+                self.time_index = get_index_of_string(
+                                        self.time_label, headers,
+                                        _separator=self.separator)
+                if self.time_index == -1:
+                    message = ('There is no time index for label %s !'
+                                                         % (self.time_label))
+        if self.signal_index == -1:
+            if self.time_label:
+                message = ('There is no signal index for label %s !'
+                                                        % (self.signal_label))
+            else:
+                message = 'The signal index has to be set !'
+
+        if is_positive(self.time_index) and self.time_format == None:
+            message = 'For time column a time format parameter is required !'
+
+        if not is_positive(self.time_index) and not is_empty(self.time_format):
+            message = 'Time format requires time index column selection !'
+
+        if message and disp:
+            print('File: %s \n %s \n' % (_filename, message))
+            return False
+        else:
+            return True
