@@ -320,9 +320,8 @@ class PoincarePlotGenerator(object):
                                                 self.output_precision)
         return formatted_statistics
 
-    @property
     def parameters_info(self):
-        self.__parameters_manager__.parameters_info
+        self.__parameters_manager__.parameters_info()
 
     def segment_count(self, data_vector):
         """

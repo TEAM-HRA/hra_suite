@@ -72,7 +72,6 @@ class PoincarePlotParametersManager(PoincarePlotParameters,
                         return message
         return self.__validateDependenceParameters__(check_level)
 
-    @property
     def parameters_info(self):
         print('Poincare plot parameters:')
         print('*' * 50)

@@ -212,6 +212,16 @@ def print_private_properties(source):
     __private_properties_accessor__(source, handler)
 
 
+def save_private_properties(source, _file):
+    """
+    method to save source's object field properties into a file
+    """
+    def handler(source, name):
+        handler._file.write(name + ' = ' + str(getattr(source, name)) + '\n')
+    handler._file = _file
+    __private_properties_accessor__(source, handler)
+
+
 def get_subclasses_iter(_class, seen=None, depth=-1):
     """
     method returns iterator of all subclasses of a class _class

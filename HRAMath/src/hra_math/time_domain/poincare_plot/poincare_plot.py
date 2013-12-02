@@ -12,10 +12,12 @@ try:
     from hra_core.misc import Separator
     from hra_core.introspection import copy_private_properties
     from hra_core.introspection import print_private_properties
+    from hra_core.introspection import save_private_properties
     from hra_core.collections_utils import commas
     from hra_core.collections_utils import nvl
     from hra_core.io_utils import join_files
     from hra_core.io_utils import as_path
+    from hra_core.io_utils import create_dir
     from hra_math.model.data_vector_file_data_source \
         import DataVectorFileDataSource
     from hra_math.model.utils import ALL_ANNOTATIONS
@@ -67,6 +69,7 @@ class PoincarePlotManager(PoincarePlotParametersManager):
         return None
 
     def generate(self):
+        self.__save_members__()
         self.__pp_generator__ = PoincarePlotGenerator(
                                         file_data_parameters=self,
                                         data_vector_parameters=self,
@@ -77,11 +80,11 @@ class PoincarePlotManager(PoincarePlotParametersManager):
         if message:
             print(message)
             return
-        self.__pp_generator__.parameters_info
-
+        self.__pp_generator__.parameters_info()
         self.__process__(self.__process_file__)
 
     def generate_movie(self):
+        self.__save_members__()
         self.__pp_generator__ = PoincarePlotGenerator(
                                         file_data_parameters=self,
                                         data_vector_parameters=self,
@@ -92,7 +95,7 @@ class PoincarePlotManager(PoincarePlotParametersManager):
         if message:
             print(message)
             return
-        self.__pp_generator__.parameters_info
+        self.__pp_generator__.parameters_info()
 
         self.__process__(self.__process_file_for_movie__)
 
@@ -245,6 +248,29 @@ class PoincarePlotManager(PoincarePlotParametersManager):
         if self.data_dir:
             path = self.data_dir + nvl(self.extension, '*.*')
             return [_file for _file in glob.glob(path)]
+
+    @property
+    def save_parameters(self):
+        return self.__save_parameters__
+
+    @save_parameters.setter
+    def save_parameters(self, _save_parameters):
+        self.__save_parameters__ = _save_parameters
+
+    def __save_members__(self):
+        """
+        [optional]
+        save members values
+        """
+        if self.save_parameters:
+            _filename = as_path(self.output_dir, "pp_parameters.txt")
+            create_dir(self.output_dir)
+            with open(_filename, 'w') as _file:
+                _file.write("\nPoincare plot parameters:")
+                _file.write("=========================")
+                save_private_properties(self, _file)
+                print('Poincare plot parameters saved into a file: %s '
+                      % (_filename))
 
 
 if __name__ == '__main__':
@@ -434,6 +460,10 @@ if __name__ == '__main__':
                 help="""used as a file where are stored all input files
                     according to data_dir and extension and this overall file
                     is used as a input file for further analisys [optional]""")
+    parser.add_argument("-save_parameters", "--save_parameters",
+                help="""save parameters of poincare plot generation
+                        [default: True]""",
+                type=to_bool, default=True)
 
     __args = parser.parse_args()
 
@@ -490,6 +520,7 @@ if __name__ == '__main__':
     ppManager.movie_prefixed_by_source = __args.movie_prefixed_by_source
     ppManager.print_first_signal = __args.print_first_signal
     ppManager.group_data_filename = __args.group_data_filename
+    ppManager.save_parameters = __args.save_parameters
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True
