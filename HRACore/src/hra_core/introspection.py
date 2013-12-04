@@ -7,6 +7,7 @@ Created on 24-10-2012
 import inspect
 from types import MethodType
 from hra_core.collections_utils import get_as_list
+from hra_core.misc import is_empty
 
 
 def hasSuperclass(target, superclass_name):
@@ -203,23 +204,50 @@ def copy_private_properties(source, target):
     __private_properties_accessor__(source, handler, target=target)
 
 
-def print_private_properties(source):
+def print_private_properties(source, not_empty=True, skip_prefix=None,
+                            skip_uppercase=True):
     """
     method to print source's object private properties
     """
     def handler(source, name):
-        print(name + ' = ' + str(getattr(source, name)))
+        value = getattr(source, name)
+        if __correct_private_property__(name, value, not_empty, skip_prefix,
+                                   skip_uppercase):
+            print(name + ' = ' + str(value))
     __private_properties_accessor__(source, handler)
 
 
-def save_private_properties(source, _file):
+def save_private_properties(source, _file, not_empty=True, skip_prefix=None,
+                            skip_uppercase=True):
     """
     method to save source's object field properties into a file
     """
     def handler(source, name):
-        handler._file.write(name + ' = ' + str(getattr(source, name)) + '\n')
+        value = getattr(source, name)
+        if __correct_private_property__(name, value, not_empty, skip_prefix,
+                                   skip_uppercase):
+            handler._file.write(name + ' = ' + str(value) + '\n')
     handler._file = _file
     __private_properties_accessor__(source, handler)
+
+
+def __correct_private_property__(name, value, not_empty, skip_prefix,
+                             skip_uppercase):
+    """
+    check some conditions for print_private_properties, save_private_properties
+    functions
+    """
+    if not skip_prefix == None and name.startswith(skip_prefix):
+        return False
+    elif skip_uppercase and name == name.upper():
+        return False
+    else:
+        if not_empty and is_empty(value):
+            return False
+        elif hasattr(value, '__getattr__'):
+            return False
+        else:
+            return True
 
 
 def get_subclasses_iter(_class, seen=None, depth=-1):

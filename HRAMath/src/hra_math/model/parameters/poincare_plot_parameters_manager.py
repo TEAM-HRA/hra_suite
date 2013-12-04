@@ -33,7 +33,7 @@ class PoincarePlotParametersManager(PoincarePlotParameters,
         #if no parameters are specified this means all parameters are needed
         if len(params) == 0:
             params = {}
-            for _, parameter_name in self.__parameters_ids__:
+            for _, parameter_name in self.__parameters_ids__():
                 params[parameter_name] = host_object
 
         self.__host_object__ = host_object
@@ -45,7 +45,7 @@ class PoincarePlotParametersManager(PoincarePlotParameters,
                     self.__host_object__.params.info_handler \
                             = self.__host_object__.__default_info_handler__
 
-        for class_name, parameter_name in self.__parameters_ids__:
+        for class_name, parameter_name in self.__parameters_ids__():
             param_object = getattr(self.__host_object__.params, parameter_name,
                                    None)
             if param_object:
@@ -60,7 +60,7 @@ class PoincarePlotParametersManager(PoincarePlotParameters,
             return
         if check_level == None:
             check_level = CoreParameters.NORMAL_CHECK_LEVEL
-        for class_name, parameter_name in self.__parameters_ids__:
+        for class_name, parameter_name in self.__parameters_ids__():
             param_object = getattr(self.__host_object__.params, parameter_name,
                                    None)
             if param_object:
@@ -75,7 +75,7 @@ class PoincarePlotParametersManager(PoincarePlotParameters,
     def parameters_info(self):
         print('Poincare plot parameters:')
         print('*' * 50)
-        for class_name, parameter_name in self.__parameters_ids__:
+        for class_name, parameter_name in self.__parameters_ids__():
             param_object = getattr(self.__host_object__.params, parameter_name,
                                    None)
             if param_object:
@@ -84,7 +84,6 @@ class PoincarePlotParametersManager(PoincarePlotParameters,
                 if parameters_info_method:
                     parameters_info_method()
 
-    @property
     def __parameters_ids__(self):
         """
         method returns class names and name identifiers of all parameter

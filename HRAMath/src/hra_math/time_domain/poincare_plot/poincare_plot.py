@@ -112,7 +112,7 @@ class PoincarePlotManager(PoincarePlotParametersManager):
             #create a group data input file
             outfilename = as_path(self.output_dir,
                                   "grp_" + self.group_data_filename)
-            joined = join_files(self.__data_filenames__,
+            joined = join_files(self.__data_filenames__(),
                                     headers_count=self.headers_count,
                                     outfilename=outfilename)
             if joined:
@@ -129,7 +129,7 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                 if self.check_data_indexes(self.data_file, disp):
                     _file_handler(self.data_file, disp=disp, **params)
         else:
-            for _file in self.__data_filenames__:
+            for _file in self.__data_filenames__():
                 if os.path.isfile(_file):
                     file_counter = file_counter + 1
                     if disp:
@@ -240,7 +240,6 @@ class PoincarePlotManager(PoincarePlotParametersManager):
     def info_handler(self, _message):
         print(_message)
 
-    @property
     def __data_filenames__(self):
         """
         returns all data files according to data_dir and extension
@@ -268,7 +267,8 @@ class PoincarePlotManager(PoincarePlotParametersManager):
             with open(_filename, 'w') as _file:
                 _file.write("\nPoincare plot parameters:")
                 _file.write("=========================")
-                save_private_properties(self, _file)
+                skip_prefix = 'movie_' if self.movie_name == None else None
+                save_private_properties(self, _file, skip_prefix=skip_prefix)
                 print('Poincare plot parameters saved into a file: %s '
                       % (_filename))
 
