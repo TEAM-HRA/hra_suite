@@ -46,7 +46,10 @@ def contains_letter(_string):
 def is_empty(_value):
     if _value == None:
         return True
-    elif hasattr(_value, '__len__'):
+    #when a _value parameter has __getattr__ method
+    #then hasattr(_value, '__len__') returns True,
+    #but use of len function raise an exception
+    elif not hasattr(_value, '__getattr__') and hasattr(_value, '__len__'):
         return len(_value) == 0
     return False
 
