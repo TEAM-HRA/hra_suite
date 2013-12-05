@@ -341,7 +341,7 @@ if __name__ == '__main__':
                 help="display unique annotations values presented in " +
                     "data source files [True|False]",
                 type=to_bool, default=False)
-    parser.add_argument("-fts", "--filters_names",
+    parser.add_argument("-filters_names", "--filters_names",
                 help="""use filters; available filters: """
                     + commas(get_filters_short_names()))
     parser.add_argument("-ea", "--excluded_annotations",
@@ -359,17 +359,17 @@ if __name__ == '__main__':
     parser.add_argument("-add_headers", "--add_headers",
                 help="headers in the output files [default: True]",
                 type=to_bool, default=True)
-    parser.add_argument("-uil", "--use_identity_line",
+    parser.add_argument("-use_identity_line", "--use_identity_line",
                 help="during calculations use identity line [True|False]",
                 type=to_bool, default=True)
-    parser.add_argument("-ub", "--use_buffer",
+    parser.add_argument("-use_buffer", "--use_buffer",
             help="use buffer during statistics calculations [default: True]",
             type=to_bool, default=True)
     parser.add_argument("-override_existing_outcomes",
                         "--override_existing_outcomes",
                 help="override existing outcomes [True|False]",
                 type=to_bool, default=False)
-    parser.add_argument("-sample", "--sample_step",
+    parser.add_argument("-sample_step", "--sample_step",
             help="""how big have to be a step for window resampling size;
                 it is assumed that this quantity is expressed in signal unit
                 value 0 means no use of window resampling size at all
