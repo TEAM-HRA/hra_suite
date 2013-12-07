@@ -464,6 +464,10 @@ if __name__ == '__main__':
                 help="""save parameters of poincare plot generation
                         [default: True]""",
                 type=to_bool, default=True)
+    parser.add_argument("-progress_mark", "--progress_mark",
+                help="""show progress bar during generation of statistics
+                        [default: True]""",
+                type=to_bool, default=True)
 
     __args = parser.parse_args()
 
@@ -521,6 +525,7 @@ if __name__ == '__main__':
     ppManager.print_first_signal = __args.print_first_signal
     ppManager.group_data_filename = __args.group_data_filename
     ppManager.save_parameters = __args.save_parameters
+    ppManager.progress_mark = __args.progress_mark
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True
