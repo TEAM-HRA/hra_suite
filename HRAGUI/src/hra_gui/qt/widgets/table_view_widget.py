@@ -23,6 +23,7 @@ class TableViewWidget(QTableView, Common):
         prepareWidget(parent=parent, widget=self, **params)
         self.params = Params(**params)
         self.__checked_count__ = 0
+        self.__scroll_contents_by_handler__ = None
 
     @property
     def checked_count(self):
@@ -92,3 +93,18 @@ class TableViewWidget(QTableView, Common):
             if hasattr(model, 'removeRows'):
                 self.__checked_count__ = 0
                 model.removeRows(0, model.rowCount())
+
+    def setScrollContentsByHandler(self, _handler):
+        """
+        set up a handler which will be invoked when scrolling happens
+        """
+        self.__scroll_contents_by_handler__ = _handler
+
+    def scrollContentsBy(self, dx, dy):
+        """
+        overriding a method invoked when scrolling happens
+        """
+        super(TableViewWidget, self).scrollContentsBy(dx, dy)
+        if (dx != 0 or dy != 0) and \
+            not self.__scroll_contents_by_handler__ == None:
+            self.__scroll_contents_by_handler__()

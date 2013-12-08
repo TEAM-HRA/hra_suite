@@ -64,6 +64,12 @@ ROWS_INSERTED_SIGNAL = SIGNAL('rowsInserted(const QModelIndex&,int,int)')
 #exit application signal
 EXIT_APPLICATION_SIGNAL = SIGNAL('clicked()')
 
+#signal emitted when a section of a header in a table is resized
+SECTION_RESIZE_SIGNAL = SIGNAL('sectionResized(int, int, int)')
+
+#signal emitted when a section of a header in a table is moved
+SECTION_MOVED_SIGNAL = SIGNAL('sectionMoved(int, int, int)')
+
 
 class SignalDispatcher(QObject):
     """

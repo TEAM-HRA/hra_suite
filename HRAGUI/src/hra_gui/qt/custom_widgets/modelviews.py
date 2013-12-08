@@ -10,6 +10,8 @@ try:
     from hra_core.misc import Params
     from hra_common.models import FilePath
     from hra_gui.qt.utils.qt_i18n import QT_I18N
+    from hra_gui.qt.utils.signals import SECTION_RESIZE_SIGNAL
+    from hra_gui.qt.utils.signals import SECTION_MOVED_SIGNAL
     from hra_gui.qt.widgets.table_view_widget import TableViewWidget
 except ImportError as error:
     ImportErrorMessage(error, __name__)
@@ -25,66 +27,70 @@ class WidgetsHorizontalHeader(QHeaderView):
         super(WidgetsHorizontalHeader, self).__init__(Qt.Horizontal, parent)
         self.parent = parent
 
+        self.connect(self, SECTION_RESIZE_SIGNAL, self.handleSectionResized)
+        self.connect(self, SECTION_MOVED_SIGNAL, self.handleSectionMoved)
+
+        self.widgets = []
+        self.parent.setHorizontalHeader(self)
+        self.parent.setScrollContentsByHandler(self.__fixHeadersPositions__)
+
+        self.__sizeHint__ = None
+
     def setWidgets(self, widgets):
-        #get optimal size for header line based on sizes of header widgets
-        height = 0
-        width = 0
-        margin = 0
-        parent = self.parent
-        for idx in range(len(widgets)):
-            sizeHint = widgets[idx].sizeHint()
-            if height < sizeHint.height():
-                height = sizeHint.height()
-            if width < sizeHint.width():
-                width = sizeHint.width()
-            if margin < widgets[idx].layout().margin():
-                margin = widgets[idx].layout().margin()
-
-        #very import property used in sizeHint method
-        self.sizeHint = QSize(width + margin, height + margin)
-
-        self.setResizeMode(QHeaderView.Interactive)
-        parent.setHorizontalHeader(self)
         self.widgets = widgets
-        for idx in range(len(self.widgets)):
-            widgets[idx].setParent(self)
-            x = self.sectionPosition(idx)
-            y = 0
-            w = self.sectionSize(idx)  # widgets[idx].sizeHint().width()
-            h = height
-            widgets[idx].setGeometry(QRect(x, y, w, h))
 
-        #if a header (or section) changes then widgets have to be moved
-        self.connect(self,
-                     SIGNAL("sectionResized(int,int,int)"),
-                     self.sectionResized)
+    def handleSectionResized(self, i):
+        self.__show_sections__([self.logicalIndex(j)
+            for j in range(self.visualIndex(i), self.count())])
+
+    def handleSectionMoved(self, logical, oldVisualIndex, newVisualIndex):
+        self.__show_sections__([self.logicalIndex(i)
+            for i in range(min(oldVisualIndex, newVisualIndex), self.count())])
+
+    def count(self):
+        """
+        get number of header widgets
+        """
+        return len(self.widgets)
+
+    def showEvent(self, qShowEvent):
+        self.__fixHeadersPositions__()
+        super(WidgetsHorizontalHeader, self).showEvent(qShowEvent)
+
+    def __fixHeadersPositions__(self):
+        self.__show_sections__([i for i in range(self.count())])
+
+    def __show_sections__(self, indexes):
+        """
+        the 'engine method' which set up the geometry of indexed elements
+        of a header view
+        """
+        for i in indexes:
+            self.widgets[i].setGeometry(self.sectionViewportPosition(i), 0,
+                                    self.sectionSize(i) - 5, self.height())
+            self.widgets[i].show()
 
     def sizeHint(self):
         """
-        very important method without it no widgets are displayed
+        very important method, without this method widgets are displayed
+        improperly, they have to fit in correct dimensions
         """
-        return self.sizeHint
+        #get optimal size for header line based on sizes of header widgets
+        if self.__sizeHint__ == None:
+            height = 0
+            width = 0
+            margin = 0
+            for idx in range(len(self.widgets)):
+                sizeHint = self.widgets[idx].sizeHint()
+                if height < sizeHint.height():
+                    height = sizeHint.height()
+                if width < sizeHint.width():
+                    width = sizeHint.width()
+                if margin < self.widgets[idx].layout().margin():
+                    margin = self.widgets[idx].layout().margin()
 
-    def sectionResized(self, logicalIndex, oldSize, newSize):
-        """
-        a section means one header
-        """
-        old = self.widgets[logicalIndex].geometry()
-        self.widgets[logicalIndex].setGeometry(old.x(), old.y(),
-                                               newSize, old.height())
-        #have to move the following headers about difference
-        #between old and new size
-        for idx in range(logicalIndex + 1, len(self.widgets)):
-            self.changeXForHeader(idx, newSize - oldSize)
-
-    def changeXForHeader(self, logicalIndex, x):
-        """
-        parameter x could be positive move to right
-        or negative move to left
-        """
-        old = self.widgets[logicalIndex].geometry()
-        self.widgets[logicalIndex].setGeometry(old.x() + x, old.y(),
-                                            old.width(), old.height())
+            self.__sizeHint__ = QSize(width + margin, height + margin)
+        return self.__sizeHint__
 
 
 class FilesTableView(object):
