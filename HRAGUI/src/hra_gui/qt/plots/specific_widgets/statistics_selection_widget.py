@@ -12,8 +12,8 @@ try:
     from hra_core.misc import Params
     from hra_math.model.data_vector_listener import DataVectorListener
     from hra_math.statistics.statistics import Asymmetry
-    from hra_math.model.parameters.statistic_parameters \
-        import StatisticParameters
+    from hra_math.model.parameters.poincare_plot_parameters \
+        import PoincarePlotParameters
     from hra_gui.qt.utils.settings import temporarySettingsDecorator
     from hra_gui.qt.utils.settings import temporarySetterDecorator
     from hra_gui.qt.widgets.table_view_widget import TableViewWidget
@@ -208,6 +208,7 @@ class __StatisticsSelectionVectorListener__(DataVectorListener):
 
         container = data_vector_accessor.parameters_container
         parameters = container.getParametersObject(
-                                StatisticParameters.NAME, StatisticParameters)
+                        PoincarePlotParameters.NAME, PoincarePlotParameters)
+        #StatisticParameters.NAME, StatisticParameters)
 
         parameters.statistics_classes = w.getSelectedStatisticsClasses()

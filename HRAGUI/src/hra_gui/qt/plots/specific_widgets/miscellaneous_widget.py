@@ -12,8 +12,6 @@ try:
     from hra_core.units import OrderUnit
     from hra_core.collections_utils import get_or_put
     from hra_math.model.data_vector_listener import DataVectorListener
-    from hra_math.model.parameters.data_vector_parameters \
-        import DataVectorParameters
     from hra_math.model.parameters.poincare_plot_parameters \
         import PoincarePlotParameters
     from hra_gui.qt.utils.settings import temporarySetterDecorator
@@ -200,8 +198,10 @@ class __MiscellaneousVectorListener__(DataVectorListener):
         parameters.use_buffer = w.getUseBuffer()
         parameters.use_identity_line = w.getUseIdentityLine()
 
+        #parameters = container.getParametersObject(
+        #                DataVectorParameters.NAME, DataVectorParameters)
         parameters = container.getParametersObject(
-                        DataVectorParameters.NAME, DataVectorParameters)
+                        PoincarePlotParameters.NAME, PoincarePlotParameters)
         parameters.sample_step = w.getSampleStep()
 
         if not w.getStepperSize() == None:

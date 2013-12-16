@@ -11,9 +11,9 @@ try:
     from hra_core.misc import Params
     from hra_core.misc import Separator
     from hra_math.model.data_vector_listener import DataVectorListener
-    from hra_math.model.parameters.file_data_parameters \
-        import FileDataParameters
-    from hra_math.model.parameters.file_data_parameters \
+    from hra_math.model.parameters.poincare_plot_parameters \
+        import PoincarePlotParameters
+    from hra_math.model.parameters.poincare_plot_parameters \
         import DEFAULT_OUTPUT_PRECISION
     from hra_gui.qt.utils.settings import temporarySetterDecorator
     from hra_gui.qt.utils.settings import temporarySettingsDecorator
@@ -61,8 +61,10 @@ class OutputSpecificationWidget(GroupBoxWidget):
         """
         if self.params.data_accessor:
             container = self.params.data_accessor.parameters_container
+            #parameters = container.getParametersObject(
+            #                    FileDataParameters.NAME, FileDataParameters)
             parameters = container.getParametersObject(
-                                FileDataParameters.NAME, FileDataParameters)
+                        PoincarePlotParameters.NAME, PoincarePlotParameters)
             return parameters.output_precision
         else:
             return DEFAULT_OUTPUT_PRECISION
@@ -124,7 +126,7 @@ class __OutputSpecificationDataVectorListener__(DataVectorListener):
     def prepareParameters(self, data_vector_accessor):
         container = data_vector_accessor.parameters_container
         parameters = container.getParametersObject(
-                                FileDataParameters.NAME, FileDataParameters)
+                        PoincarePlotParameters.NAME, PoincarePlotParameters)
         w = self.__output_specification_widget__  # alias
         parameters.override_existing_outcomes = w.__override_existing__.isChecked()  # @IgnorePep8
         parameters.output_dir = w.__output_dir__.directory

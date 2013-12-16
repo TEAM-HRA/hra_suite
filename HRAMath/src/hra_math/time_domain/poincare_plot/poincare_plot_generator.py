@@ -129,11 +129,12 @@ class PoincarePlotGenerator(object):
                                         progress_handler=progress_handler)
 
         if not_interrupted:
-            if csv.info_message:
-                self.params.info_handler(csv.info_message)
-            if csv.error_message:
-                self.params.info_handler(csv.error_message)
-                return
+            if hasattr(self.params, 'info_handler'):
+                #if csv.info_message:
+                #    self.params.info_handler(csv.info_message)
+                if csv.error_message:
+                    self.params.info_handler(csv.error_message)
+                    return
 
             #give info about saved file
             if csv.saved and self.params.output_file_listener:

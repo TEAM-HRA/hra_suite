@@ -7,26 +7,13 @@ from hra_math.utils.utils import print_import_error
 try:
     from hra_core.misc import Params
     from hra_math.model.parameters.core_parameters import CoreParameters
-    from hra_math.model.parameters.statistic_parameters \
-        import StatisticParameters
-    from hra_math.model.parameters.filter_parameters import FilterParameters
-    from hra_math.model.parameters.file_data_parameters \
-        import FileDataParameters
-    from hra_math.model.parameters.data_vector_parameters \
-        import DataVectorParameters
     from hra_math.model.parameters.poincare_plot_parameters \
         import PoincarePlotParameters
-    from hra_math.model.parameters.movie_parameters import MovieParameters
 except ImportError as error:
     print_import_error(__name__, error)
 
 
-class PoincarePlotParametersManager(PoincarePlotParameters,
-                                    DataVectorParameters,
-                                    FileDataParameters,
-                                    FilterParameters,
-                                    StatisticParameters,
-                                    MovieParameters):
+class PoincarePlotParametersManager(PoincarePlotParameters):
 
     def prepareObjectParameters(self, host_object, **params):
 
@@ -89,24 +76,22 @@ class PoincarePlotParametersManager(PoincarePlotParameters,
         method returns class names and name identifiers of all parameter
         classes used in poincare plot generator
         """
-        return [(DataVectorParameters.__name__, DataVectorParameters.NAME),
-                (FileDataParameters.__name__, FileDataParameters.NAME),
-                (StatisticParameters.__name__, StatisticParameters.NAME),
-                (PoincarePlotParameters.__name__, PoincarePlotParameters.NAME),
-                (FilterParameters.__name__, FilterParameters.NAME),
-                (MovieParameters.__name__, MovieParameters.NAME)]
+        return [(PoincarePlotParameters.__name__, PoincarePlotParameters.NAME)]
 
     def __validateDependenceParameters__(self, check_level=None):
         """
         method checks dependent parameters
         """
-        statistics_parameters = getattr(self.__host_object__.params,
-                                        StatisticParameters.NAME, None)
+        #statistics_parameters = getattr(self.__host_object__.params,
+        #                                PoincarePlotParameters.NAME, None)
+        #StatisticParameters.NAME, None)
 
-        file_data_parameters = getattr(self.__host_object__.params,
-                                        FileDataParameters.NAME, None)
-        if not statistics_parameters == None \
-            and not file_data_parameters == None:
-            if file_data_parameters.output_dir == None \
-                and statistics_parameters.summary_statistics_is_selected == False: # @IgnorePep8
-                return "At least one summary statistic has to be selected !"
+        #file_data_parameters = getattr(self.__host_object__.params,
+        #                                FileDataParameters.NAME, None)
+        #file_data_parameters = None
+#        if not statistics_parameters == None \
+#            and not file_data_parameters == None:
+#            if file_data_parameters.output_dir == None \
+#                and statistics_parameters.summary_statistics_is_selected == False: # @IgnorePep8
+#                return "At least one summary statistic has to be selected !"
+        return None

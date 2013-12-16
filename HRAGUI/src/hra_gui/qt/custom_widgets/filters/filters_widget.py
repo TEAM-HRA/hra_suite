@@ -10,7 +10,8 @@ try:
     from hra_core.misc import Params
     from hra_core.collections_utils import get_or_put
     from hra_math.model.data_vector_listener import DataVectorListener
-    from hra_math.model.parameters.filter_parameters import FilterParameters
+    from hra_math.model.parameters.poincare_plot_parameters \
+        import PoincarePlotParameters
     from hra_gui.qt.utils.settings import temporarySettingsDecorator
     from hra_gui.qt.utils.settings import temporarySetterDecorator
     from hra_gui.qt.widgets.composite_widget import CompositeWidget
@@ -104,7 +105,7 @@ class __FilterActivatedDataVectorListener__(DataVectorListener):
     def prepareParameters(self, data_vector_accessor):
         container = data_vector_accessor.parameters_container
         filter_parameters = container.getParametersObject(
-                                    FilterParameters.NAME, FilterParameters)
+                        PoincarePlotParameters.NAME, PoincarePlotParameters)
 
         w = self.__filters_widget__  # alias
         filter_parameters.clearFilters()

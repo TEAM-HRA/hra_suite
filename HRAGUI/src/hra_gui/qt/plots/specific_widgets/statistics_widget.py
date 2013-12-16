@@ -11,13 +11,14 @@ try:
     from hra_core.misc import Params
     from hra_math.model.data_vector_listener import DataVectorListener
     from hra_math.model.parameters.core_parameters import CoreParameters
-    from hra_math.model.parameters.statistic_parameters \
-        import StatisticParameters
+    from hra_math.model.parameters.poincare_plot_parameters \
+        import PoincarePlotParameters
     from hra_gui.qt.widgets.group_box_widget import GroupBoxWidget
     from hra_gui.qt.widgets.composite_widget import CompositeWidget
     from hra_gui.qt.widgets.check_box_widget import CheckBoxWidget
     from hra_gui.qt.widgets.push_button_widget import PushButtonWidget
-    from hra_gui.qt.plots.specific_widgets.statistics_selection_widget import StatisticsSelectionWidget # @IgnorePep8
+    from hra_gui.qt.plots.specific_widgets.statistics_selection_widget \
+        import StatisticsSelectionWidget
     from hra_gui.qt.plots.specific_widgets.summary_statistics_selection_widget import SummaryStatisticsSelectionWidget  # @IgnorePep8
     from hra_gui.qt.plots.specific_widgets.poincare_plot_generator_progress_bar import PoincarePlotGeneratorProgressBar # @IgnorePep8
 except ImportError as error:
@@ -148,7 +149,8 @@ class __StatisticsVectorListener__(DataVectorListener):
 
         container = data_vector_accessor.parameters_container
         parameters = container.getParametersObject(
-                                StatisticParameters.NAME, StatisticParameters)
+                        PoincarePlotParameters.NAME, PoincarePlotParameters)
+        #StatisticParameters.NAME, StatisticParameters)
 
         parameters.clearStatisticsClasses()
         parameters.statistics_classes = w.getSelectedStatisticsClasses()

@@ -71,11 +71,7 @@ class PoincarePlotManager(PoincarePlotParametersManager):
     def generate(self):
         self.__save_members__()
         self.__pp_generator__ = PoincarePlotGenerator(
-                                        file_data_parameters=self,
-                                        data_vector_parameters=self,
-                                        filter_parameters=self,
-                                        statistic_parameters=self,
-                                        poincare_plot_parameters=self)
+                                            poincare_plot_parameters=self)
         message = self.__pp_generator__.checkParameters()
         if message:
             print(message)
@@ -86,11 +82,7 @@ class PoincarePlotManager(PoincarePlotParametersManager):
     def generate_movie(self):
         self.__save_members__()
         self.__pp_generator__ = PoincarePlotGenerator(
-                                        file_data_parameters=self,
-                                        data_vector_parameters=self,
-                                        filter_parameters=self,
-                                        poincare_plot_parameters=self,
-                                        movie_parameters=self)
+                                            poincare_plot_parameters=self)
         message = self.__pp_generator__.checkParameters()
         if message:
             print(message)

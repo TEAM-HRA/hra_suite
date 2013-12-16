@@ -320,3 +320,31 @@ def get_subclasses_names_with_suffix(_class, only_short_names=False,
         return [name[:name.rfind(short_name_suffix)] for name in names]
     else:
         return names
+
+
+def get_normal_instance_members(obj, excludes=[]):
+    """
+    function returns all usual instance fields (not properties or methods)
+    """
+    properties = []
+    members = inspect.getmembers(obj)
+    for (name, member) in members:
+        if inspect.ismethod(member):
+            pass
+        elif inspect.isfunction(member):
+            pass
+        elif inspect.isclass(member):
+            pass
+        elif inspect.isroutine(member):
+            pass
+        elif inspect.isgeneratorfunction(member):
+            pass
+        elif str(type(member)) == "<type 'method-wrapper'>":
+            pass
+        elif name.startswith('__'):
+            pass
+        else:
+            if not name in excludes:
+                properties.append(name)
+
+    return properties
