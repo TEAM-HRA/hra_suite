@@ -348,3 +348,12 @@ def get_normal_instance_members(obj, excludes=[]):
                 properties.append(name)
 
     return properties
+
+
+def copy_normal_instance_members(src, desc):
+    """
+    copy all normal properties from src to desc object
+    """
+    members = get_normal_instance_members(src)
+    for member in members:
+        setattr(desc, member, getattr(src, member))

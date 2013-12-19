@@ -19,25 +19,25 @@ except ImportError as error:
 class SegmenterManager(object):
 
     @staticmethod
-    def getDataVectorSegmenter(data, window_size,
+    def getDataVectorSegmenter(data, window_size_value,
                      window_size_unit=None, sample_step=None,
                      shift=1, stepper_size=None, stepper_unit=None,
                      mark_last_segment=False):
 
-        if window_size == None:
+        if window_size_value == None:
             return __OneRunSegmenter__(data, shift, mark_last_segment)
         elif not stepper_size == None:
-            return __SteppedDataVectorSegmenter__(data, window_size,
+            return __SteppedDataVectorSegmenter__(data, window_size_value,
                                             window_size_unit,
                                             stepper_size, stepper_unit,
                                             shift, mark_last_segment)
         elif not sample_step == None:
-            return __SampledDataVectorSegmenter__(data, window_size,
+            return __SampledDataVectorSegmenter__(data, window_size_value,
                                                 window_size_unit,
                                                 sample_step, shift,
                                                 mark_last_segment)
         else:
-            return __BitDataVectorSegmenter__(data, window_size,
+            return __BitDataVectorSegmenter__(data, window_size_value,
                                               window_size_unit,
                                               shift, mark_last_segment)
 
@@ -47,10 +47,10 @@ class __CoreSegmenter__(object):
     """
     core functionality for segmenter
     """
-    def __init__(self, data, window_size=None, window_size_unit=None, shift=1,
-                 mark_last_segment=False):
+    def __init__(self, data, window_size_value=None, window_size_unit=None,
+                 shift=1, mark_last_segment=False):
         self.data = data
-        self.window_size = window_size
+        self.window_size_value = window_size_value
         self.window_size_unit = window_size_unit
         self.shift = shift
         self.__counter__ = 0
@@ -204,10 +204,10 @@ class __CoreSegmenter__(object):
 
 class __DataVectorSegmenter__(__CoreSegmenter__):
 
-    def __init__(self, data, window_size, window_size_unit, shift=1,
+    def __init__(self, data, window_size_value, window_size_unit, shift=1,
                  mark_last_segment=False):
         super(__DataVectorSegmenter__, self).__init__(data,
-                                        window_size=window_size,
+                                        window_size_value=window_size_value,
                                         window_size_unit=window_size_unit,
                                         shift=shift,
                                         mark_last_segment=mark_last_segment)
@@ -224,7 +224,7 @@ class __DataVectorSegmenter__(__CoreSegmenter__):
             #calculate multiplier of conversion between data signal unit
             #and window size unit
             multiplier = self.window_unit.expressInUnit(self.data.signal_unit)
-            self.window_size_in_signal_unit = multiplier * self.window_size
+            self.window_size_in_signal_unit = multiplier * self.window_size_value # @IgnorePep8
             if not self.data.time == None:
                 #get an array of indexes where time period of an item is
                 #greater than data window size, in this case further processing
@@ -236,7 +236,7 @@ class __DataVectorSegmenter__(__CoreSegmenter__):
                     #mark to stop further processing
                     self.stop = True
         else:
-            if self.window_size > len(self.data.time_signal):
+            if self.window_size_value > len(self.data.time_signal):
                 raise Exception('Poincare window size greater then signal size !!!') #@IgnorePep8
 
 
@@ -245,9 +245,10 @@ class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
     """
     class used to calculate segments of data vector based on number of bits
     """
-    def __init__(self, data, window_size, window_size_unit, shift,
+    def __init__(self, data, window_size_value, window_size_unit, shift,
                  mark_last_segment=False):
-        super(__BitDataVectorSegmenter__, self).__init__(data, window_size,
+        super(__BitDataVectorSegmenter__, self).__init__(data,
+                                                         window_size_value,
                                                          window_size_unit,
                                                          shift,
                                                          mark_last_segment)
@@ -274,7 +275,7 @@ class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
             #and current index
             window_size = max_index - self.__index__
         else:
-            window_size = self.window_size
+            window_size = self.window_size_value
 
         index_start = self.__index__
         index_stop = index_start + window_size
@@ -300,7 +301,7 @@ class __BitDataVectorSegmenter__(__DataVectorSegmenter__):
                                             self.data.time_signal,
                                             self.window_size_in_signal_unit)
         else:
-            window_size = self.window_size
+            window_size = self.window_size_value
         return ((self.signal_size - window_size) / self.shift) + 1 \
                 if window_size > 0 else window_size
 
@@ -310,9 +311,10 @@ class __SampledDataVectorSegmenter__(__DataVectorSegmenter__):
     """
     class used to calculate segments of data vector based on sample step
     """
-    def __init__(self, data, window_size, window_size_unit, sample_step, shift,
-                 mark_last_segment=False):
-        super(__SampledDataVectorSegmenter__, self).__init__(data, window_size,
+    def __init__(self, data, window_size_value, window_size_unit, sample_step,
+                 shift, mark_last_segment=False):
+        super(__SampledDataVectorSegmenter__, self).__init__(data,
+                                                             window_size_value,
                                                              window_size_unit,
                                                              shift,
                                                              mark_last_segment)
@@ -385,9 +387,10 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
     class used to calculate segments of data vector based on
     value of stepping size
     """
-    def __init__(self, data, window_size, window_size_unit,
+    def __init__(self, data, window_size_value, window_size_unit,
                  stepper_size, stepper_unit, shift, mark_last_segment=False):
-        super(__SteppedDataVectorSegmenter__, self).__init__(data, window_size,
+        super(__SteppedDataVectorSegmenter__, self).__init__(data,
+                                                             window_size_value,
                                                              window_size_unit,
                                                              shift,
                                                              mark_last_segment)
@@ -416,7 +419,7 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
 
         if self.window_size_unit == None and stepper_unit == None:
             #this means very simple situation when a signal is divided by
-            #self.window_size number bits and for this reason
+            #self.window_size_value number bits and for this reason
             #stepped signal size is the same as the signal size itself
             self.__stepped_signal_size__ = self.signal_size
             self.__bits_stepper__ = True
@@ -452,9 +455,9 @@ class __SteppedDataVectorSegmenter__(__DataVectorSegmenter__):
 
             if self.__bits_stepper__:
                 #this means simple division a signal by a number
-                #self.window_size bits, for this reason index_stop
-                #jumps by self.window_size bits
-                index_stop = self.__stepper_index__ + self.window_size
+                #self.window_size_value bits, for this reason index_stop
+                #jumps by self.window_size_value bits
+                index_stop = self.__stepper_index__ + self.window_size_value
             else:
                 #index_stop ends where the window size ends
                 index_stop = self.SEARCHSORTED(self.__cumsum_data__,

@@ -136,3 +136,11 @@ class DataVectorFileDataSource(object):
             time = time[true_floats]
 
         return signal, annotation, time
+
+    @property
+    def source_filename(self):
+        self.__data_source__.source_filename
+
+    @property
+    def source_pathname(self):
+        self.__data_source__.source_pathname

@@ -10,7 +10,6 @@ try:
     import glob
     from hra_core.datetime_utils import invocation_time
     from hra_core.misc import Separator
-    from hra_core.introspection import copy_private_properties
     from hra_core.introspection import print_private_properties
     from hra_core.introspection import save_private_properties
     from hra_core.collections_utils import commas
@@ -20,12 +19,10 @@ try:
     from hra_core.io_utils import create_dir
     from hra_math.model.data_vector_file_data_source \
         import DataVectorFileDataSource
-    from hra_math.model.utils import ALL_ANNOTATIONS
-    from hra_math.model.parameters.poincare_plot_parameters_manager \
-        import PoincarePlotParametersManager
+    from hra_math.model.parameters.poincare_plot_parameters \
+        import PoincarePlotParameters
     from hra_math.statistics.statistics import get_statistics_names
     from hra_math.statistics.statistics import ALL_STATISTICS
-    from hra_math.statistics.statistics_utils import available_statistics_info
     from hra_math.statistics.summary_statistics import get_summary_statistics_names # @IgnorePep8
     from hra_math.statistics.summary_statistics import ALL_SUMMARY_STATISTICS
     from hra_math.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
@@ -51,43 +48,51 @@ def getSeparatorLabels():
     return commas(Separator.getSeparatorsLabels())
 
 
-class PoincarePlotManager(PoincarePlotParametersManager):
-    def __init__(self, other=None):
-        self.prepareObjectParameters(self)
-        self.setAvailableFiltersInfoHandler(get_filters_short_names)
-        self.setAvailableStatisticsInfoHandler(available_statistics_info)
-        self.setAllAnnotationsIdent(ALL_ANNOTATIONS)
+class PoincarePlotManager(object):
 
+    def __init__(self):
+        self.__p__ = PoincarePlotParameters()
         self.__progress_mark__ = None
-        if not other == None:
-            copy_private_properties(other, self)
-
         self.__pp_generator__ = None
 
-    # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
-        return None
+        """
+        if attribute starts and ends with two underscores
+        belongs to self object, otherwise to self.__p__ member
+        """
+        if name.startswith('__') and name.endswith('__'):
+            return self.__dict__[name]
+        else:
+            return getattr(self.__dict__['__p__'], name)
+
+    def __setattr__(self, name, value):
+        """
+        if attribute starts and ends with two underscores
+        sets for self object otherwise for self.__p__ member
+        """
+        if name.startswith('__') and name.endswith('__'):
+            self.__dict__[name] = value
+        else:
+            setattr(self.__dict__['__p__'], name, value)
 
     def generate(self):
         self.__save_members__()
-        self.__pp_generator__ = PoincarePlotGenerator(
-                                            poincare_plot_parameters=self)
-        message = self.__pp_generator__.checkParameters()
+        self.__pp_generator__ = PoincarePlotGenerator(parameters=self.__p__)
+        message = self.__p__.validatePoincarePlotParameters()
         if message:
             print(message)
             return
-        self.__pp_generator__.parameters_info()
+        #self.__pp_generator__.parameters_info()
         self.__process__(self.__process_file__)
 
     def generate_movie(self):
         self.__save_members__()
-        self.__pp_generator__ = PoincarePlotGenerator(
-                                            poincare_plot_parameters=self)
-        message = self.__pp_generator__.checkParameters()
+        self.__pp_generator__ = PoincarePlotGenerator(parameters=self.__p__)
+        message = self.__p__.validatePoincarePlotParameters()
         if message:
             print(message)
             return
-        self.__pp_generator__.parameters_info()
+        #self.__pp_generator__.parameters_info()
 
         self.__process__(self.__process_file_for_movie__)
 
@@ -118,7 +123,7 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                     print('The file: ' + self.data_file + " doesn't exist")
             else:
                 file_counter = 1
-                if self.check_data_indexes(self.data_file, disp):
+                if self.__p__.check_data_indexes(self.data_file, disp):
                     _file_handler(self.data_file, disp=disp, **params)
         else:
             for _file in self.__data_filenames__():
@@ -126,7 +131,7 @@ class PoincarePlotManager(PoincarePlotParametersManager):
                     file_counter = file_counter + 1
                     if disp:
                         print('=' * sign_multiplicator)
-                    if not self.check_data_indexes(_file, disp):
+                    if not self.__p__.check_data_indexes(_file, disp):
                         continue
                     if _file_handler(_file, disp=disp, **params) == False:
                         break
@@ -225,9 +230,9 @@ class PoincarePlotManager(PoincarePlotParametersManager):
         [optional]
         prints members values
         """
-        print_private_properties(self)
+        print_private_properties(self.__p__)
         print('\n available statistics:')
-        self.available_statistics()
+        self.__p__.available_statistics()
 
     def info_handler(self, _message):
         print(_message)
@@ -240,11 +245,6 @@ class PoincarePlotManager(PoincarePlotParametersManager):
             path = self.data_dir + nvl(self.extension, '*.*')
             return [_file for _file in glob.glob(path)]
 
-    @property
-    def save_parameters(self):
-        return self.__save_parameters__
-
-    @save_parameters.setter
     def save_parameters(self, _save_parameters):
         self.__save_parameters__ = _save_parameters
 
@@ -516,8 +516,10 @@ if __name__ == '__main__':
     ppManager.movie_prefixed_by_source = __args.movie_prefixed_by_source
     ppManager.print_first_signal = __args.print_first_signal
     ppManager.group_data_filename = __args.group_data_filename
-    ppManager.save_parameters = __args.save_parameters
     ppManager.progress_mark = __args.progress_mark
+
+    ppManager.save_parameters(__args.save_parameters)
+
     _disp = False
     if __args.display_annotation_values == True:
         _disp = True

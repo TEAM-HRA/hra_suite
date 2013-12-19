@@ -19,8 +19,11 @@ try:
     from hra_core.collections_utils import commas
     from hra_core.collections_utils import get_index_of_string
     from hra_core.collections_utils import nvl
-    from hra_core.introspection import get_normal_instance_members
     from hra_math.model.parameters.core_parameters import CoreParameters
+    from hra_math.model.utils import ALL_ANNOTATIONS
+    from hra_math.time_domain.poincare_plot.filters.filter_utils \
+        import get_filters_short_names
+    from hra_math.statistics.statistics_utils import available_statistics_info
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -35,14 +38,15 @@ class PoincarePlotParameters(CoreParameters):
     NAME = "poincare_plot_parameters"
 
     def __init__(self):
+        self.__available_filters_info_handler__ = get_filters_short_names
+        self.__available_statistics_info_handler__ = available_statistics_info
+        self.__all_annotations_ident__ = ALL_ANNOTATIONS
         self.use_identity_line = True
         self.use_buffer = True
         self.window_shift = 1
         self.__excluded_annotations__ = None  # ALL_ANNOTATIONS
         self.__sample_step__ = None
         self.__stepper__ = None
-        self.__stepper_size__ = None
-        self.__stepper_unit__ = None
         self.extension = '*'
         self.output_separator = Separator.WHITE_SPACE.sign  # @UndefinedVariable # @IgnorePep8
         self.filters = []
@@ -77,12 +81,6 @@ class PoincarePlotParameters(CoreParameters):
 
         self.summary_statistics_classes = []
 
-    def setter(self, name, value):
-        self.name = value
-
-    def getter(self, name):
-        return self.name
-
     def setAllAnnotationsIdent(self, _all_annotations_ident):
         self.__all_annotations_ident__ = _all_annotations_ident
         if self.__excluded_annotations__ == None:
@@ -102,10 +100,17 @@ class PoincarePlotParameters(CoreParameters):
 
     @window_size.setter
     def window_size(self, _window_size):
-        if not _window_size == None:
-            self.__window_size__ = extract_number(_window_size, convert=int)
-            self.__window_size_unit__ = extract_alphabetic(_window_size,
-                                                       convert=str.lower)
+        self.__window_size__ = _window_size
+
+    @property
+    def window_size_unit(self):
+        if self.window_size:
+            return extract_alphabetic(self.window_size, convert=str.lower)
+
+    @property
+    def window_size_value(self):
+        if self.window_size:
+            return extract_number(self.window_size, convert=int)
 
     @property
     def excluded_annotations(self):
@@ -344,41 +349,6 @@ class PoincarePlotParameters(CoreParameters):
     def clearStatisticsClasses(self):
         self.statistics_classes = []
 
-    def setObjectPoincarePlotParameters(self, _object):
-        """
-        method which set up some parameters from this object into
-        another object, it is some kind of 'copy constructor'
-        """
-        for name in get_normal_instance_members(self):
-            if hasattr(_object, name):
-                try:
-                    setattr(_object, name, getattr(self, name))
-                except AttributeError:
-                    print('Error for name  => ' + name)
-
-        setattr(_object, 'excluded_annotations', self.excluded_annotations)
-        setattr(_object, 'window_size', self.window_size)
-        setattr(_object, 'stepper', self.stepper)
-        setattr(_object, 'output_dir', self.output_dir)
-        setattr(_object, 'output_precision', self.output_precision)
-        setattr(_object, 'data_file', self.data_file)
-        setattr(_object, 'filters_names', self.filters_names)
-        setattr(_object, 'movie_dir', self.movie_dir)
-        setattr(_object, 'movie_multiprocessing_factor',
-                                self.movie_multiprocessing_factor)
-
-#    def setObjectPoincarePlotParameters(self, _object):
-#        """
-#        method which set up some parameters from this object into
-#        another object, it is some kind of 'copy constructor'
-#        """
-#        setattr(_object, 'use_identity_line', self.use_identity_line)
-#        setattr(_object, 'use_buffer', self.use_buffer)
-#        setattr(_object, 'progress_mark', self.progress_mark)
-#        setattr(_object, 'x_label', self.x_label)
-#        setattr(_object, 'y_label', self.y_label)
-#        setattr(_object, 'print_first_signal', self.print_first_signal)
-
     def validatePoincarePlotParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.output_precision == None:
             return "Output precision is required"
@@ -394,7 +364,7 @@ class PoincarePlotParameters(CoreParameters):
 #            is_empty(self.summary_statistics_classes):
 #            return "Statistics names or classes or handlers are required"
 
-    def parameters_infoPoincarePlotParameters(self):
+    def parameters_info(self):
         if not self.data_dir == None:
             print('Data file: ' + str(self.data_file))
         elif not self.data_file == None:
@@ -440,8 +410,8 @@ class PoincarePlotParameters(CoreParameters):
         if not self.separator == None:
             print('Data separator: ' + str(self.separator))
 
-        if not self.window_size_unit == None:
-            print('Window size unit: ' + str(self.window_size_unit))
+        #if not self.window_size_unit == None:
+        #    print('Window size unit: ' + str(self.window_size_unit))
 
         if is_positive(self.signal_index):
             print('Signal index: ' + str(self.signal_index))
