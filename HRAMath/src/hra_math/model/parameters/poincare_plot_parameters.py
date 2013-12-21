@@ -75,6 +75,7 @@ class PoincarePlotParameters(CoreParameters):
         self.statistics_classes = []
 
         self.summary_statistics_classes = []
+        self.__parameters_info__ = {}
 
     def setAllAnnotationsIdent(self, _all_annotations_ident):
         self.__all_annotations_ident__ = _all_annotations_ident
@@ -442,3 +443,42 @@ class PoincarePlotParameters(CoreParameters):
             return False
         else:
             return True
+
+    def addParameterInfo(self, name, default, _help):
+        """
+        add information about poincare plot parameter
+        """
+        self.__parameters_info__[name] = __ParameterInfo__(name, default,
+                                                           _help)
+
+    @property
+    def parameters_info_count(self):
+        """
+        get parameters info count
+        """
+        return len(self.__parameters_info__)
+
+    def info(self):
+        """
+        poincare plot parameters info descriptions
+        """
+        title = "Poincare plot parameters:"
+        print(title)
+        print("=" * len(title))
+        for name in sorted(self.__parameters_info__):
+            print(self.__parameters_info__[name].format)
+        print("=" * len(title))
+
+
+class __ParameterInfo__(object):
+    """
+    poincare plot parameter info class
+    """
+    def __init__(self, name, default, _help):
+        self.name = name
+        self.default = default
+        self._help = _help
+
+    @property
+    def format(self):
+        return "%s %s %s" % (self.name, self._help, self.default)
