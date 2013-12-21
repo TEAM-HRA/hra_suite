@@ -12,6 +12,7 @@ try:
     from hra_core.misc import Separator
     from hra_core.introspection import print_private_properties
     from hra_core.introspection import save_private_properties
+    from hra_core.introspection import copy_object
     from hra_core.collections_utils import commas
     from hra_core.collections_utils import nvl
     from hra_core.io_utils import join_files
@@ -464,61 +465,9 @@ if __name__ == '__main__':
     __args = parser.parse_args()
 
     ppManager = PoincarePlotManager()
-    ppManager.data_file = __args.data_file
-    ppManager.data_dir = __args.data_dir
-    ppManager.extension = __args.extension
-    ppManager.window_size = __args.window_size
-    ppManager.window_shift = __args.window_shift
-    ppManager.output_dir = __args.output_dir
-    ppManager.statistics_names = __args.statistics_names
-    ppManager.summary_statistics_names = __args.summary_statistics_names
-    ppManager.signal_index = __args.signal_index
-    ppManager.annotation_index = __args.annotation_index
-    ppManager.time_index = __args.time_index
-    ppManager.signal_label = __args.signal_label
-    ppManager.annotation_label = __args.annotation_label
-    ppManager.time_label = __args.time_label
-    ppManager.time_format = __args.time_format
-    ppManager.separator = __args.separator
-    ppManager.headers_count = __args.headers_count
-    ppManager.output_precision = __args.output_precision
-    ppManager.filters_names = __args.filters_names
-    ppManager.excluded_annotations = __args.excluded_annotations
-    ppManager.ordinal_column_name = __args.ordinal_column_name
-    ppManager.output_separator = __args.output_separator
-    ppManager.add_headers = __args.add_headers
-    ppManager.use_identity_line = __args.use_identity_line
-    ppManager.override_existing_outcomes = __args.override_existing_outcomes
-    ppManager.use_buffer = __args.use_buffer
-    ppManager.sample_step = __args.sample_step
-    ppManager.stepper = __args.stepper
-    ppManager.movie_name = __args.movie_name
+    #copy all parameters from __args object into ppManager object
+    copy_object(__args, ppManager)
     ppManager.movie_dir = nvl(__args.movie_dir, ppManager.output_dir)
-    ppManager.movie_multiprocessing_factor = \
-                    __args.movie_multiprocessing_factor
-    ppManager.movie_fps = __args.movie_fps
-    ppManager.movie_bin_size = __args.movie_bin_size
-    ppManager.movie_skip_to_frame = __args.movie_skip_to_frame
-    ppManager.movie_experimental_code = __args.movie_experimental_code
-    ppManager.movie_animated = __args.movie_animated
-    ppManager.movie_calculate_all_frames = __args.movie_calculate_all_frames
-    ppManager.movie_standard_generation = __args.movie_standard_generation
-    ppManager.movie_dpi = __args.movie_dpi
-    ppManager.movie_width = __args.movie_width
-    ppManager.movie_height = __args.movie_height
-    ppManager.movie_active_size = __args.movie_active_size
-    ppManager.movie_inactive_size = __args.movie_inactive_size
-    ppManager.movie_centroid_size = __args.movie_centroid_size
-    ppManager.movie_clean_frames = __args.movie_clean_frames
-    ppManager.output_prefix = __args.output_prefix
-    ppManager.x_label = __args.x_label
-    ppManager.y_label = __args.y_label
-    ppManager.movie_prefixed_by_source = __args.movie_prefixed_by_source
-    ppManager.print_first_signal = __args.print_first_signal
-    ppManager.group_data_filename = __args.group_data_filename
-    ppManager.progress_mark = __args.progress_mark
-
-    ppManager.save_parameters(__args.save_parameters)
 
     _disp = False
     if __args.display_annotation_values == True:

@@ -322,38 +322,17 @@ def get_subclasses_names_with_suffix(_class, only_short_names=False,
         return names
 
 
-def get_normal_instance_members(obj, excludes=[]):
+def copy_object(src, desc, excludes=[]):
     """
-    function returns all usual instance fields (not properties or methods)
+    function copy normal user defined members from src to desc object
     """
-    properties = []
-    members = inspect.getmembers(obj)
-    for (name, member) in members:
-        if inspect.ismethod(member):
-            pass
-        elif inspect.isfunction(member):
-            pass
-        elif inspect.isclass(member):
-            pass
-        elif inspect.isroutine(member):
-            pass
-        elif inspect.isgeneratorfunction(member):
-            pass
-        elif str(type(member)) == "<type 'method-wrapper'>":
-            pass
-        elif name.startswith('__'):
-            pass
-        else:
-            if not name in excludes:
-                properties.append(name)
+    items = src.__class__.__dict__.items()
+    for (name, item, item_str) in [(name, item, str(item))
+                    for (name, item) in items if not name in excludes]:
+        if item_str.startswith('<property') or \
+            item_str.startswith('<function'):
+            setattr(desc.__class__, name, item)
 
-    return properties
-
-
-def copy_normal_instance_members(src, desc):
-    """
-    copy all normal properties from src to desc object
-    """
-    members = get_normal_instance_members(src)
-    for member in members:
-        setattr(desc, member, getattr(src, member))
+    names = [name for name in src.__dict__ if not name in excludes]
+    set_attr = lambda name: setattr(desc, name, getattr(src, name))
+    map(set_attr, names)
