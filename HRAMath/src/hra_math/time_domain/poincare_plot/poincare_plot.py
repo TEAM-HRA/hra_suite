@@ -261,7 +261,8 @@ class PoincarePlotManager(object):
                 _file.write("\nPoincare plot parameters:\n")
                 _file.write("=========================\n")
                 skip_prefix = 'movie_' if self.movie_name == None else None
-                save_private_properties(self, _file, skip_prefix=skip_prefix)
+                save_private_properties(self.__p__, _file,
+                                        skip_prefix=skip_prefix)
                 print('Poincare plot parameters saved into a file: %s '
                       % (_filename))
 
