@@ -77,9 +77,10 @@ class PoincarePlotManager(object):
             setattr(self.__dict__['__p__'], name, value)
 
     def generate(self):
+        self.__p__.prepareParameters()
         self.__save_members__()
         self.__pp_generator__ = PoincarePlotGenerator(parameters=self.__p__)
-        message = self.__p__.validatePoincarePlotParameters()
+        message = self.__p__.validateParameters()
         if message:
             print(message)
             return
@@ -87,9 +88,10 @@ class PoincarePlotManager(object):
         self.__process__(self.__process_file__)
 
     def generate_movie(self):
+        self.__p__.prepareParameters()
         self.__save_members__()
         self.__pp_generator__ = PoincarePlotGenerator(parameters=self.__p__)
-        message = self.__p__.validatePoincarePlotParameters()
+        message = self.__p__.validateParameters()
         if message:
             print(message)
             return

@@ -32,7 +32,7 @@ DEFAULT_OUTPUT_PRECISION = (10, 5)
 
 class PoincarePlotParameters(CoreParameters):
     """
-    very specific parameters concerning poincare plot
+    poincare plot parameters
     """
 
     NAME = "poincare_plot_parameters"
@@ -44,14 +44,10 @@ class PoincarePlotParameters(CoreParameters):
         self.use_identity_line = True
         self.use_buffer = True
         self.window_shift = 1
-        self.__excluded_annotations__ = None  # ALL_ANNOTATIONS
-        self.__sample_step__ = None
-        self.__stepper__ = None
         self.extension = '*'
         self.output_separator = Separator.WHITE_SPACE.sign  # @UndefinedVariable # @IgnorePep8
         self.filters = []
 
-        self.movie_name = None
         self.movie_fps = 700
         self.movie_active_color = ColorRGB(255, 0, 0)
         self.movie_inactive_color = ColorRGB(0, 0, 0)
@@ -62,7 +58,6 @@ class PoincarePlotParameters(CoreParameters):
         self.movie_dpi = 70
         self.movie_height = 550
         self.movie_width = 550
-        self.movie_dir = None
         self.movie_skip_frames = True
         self.movie_save_partial = True
         self.movie_skip_to_frame = 0
@@ -83,118 +78,8 @@ class PoincarePlotParameters(CoreParameters):
 
     def setAllAnnotationsIdent(self, _all_annotations_ident):
         self.__all_annotations_ident__ = _all_annotations_ident
-        if self.__excluded_annotations__ == None:
-            self.__excluded_annotations__ = self.__all_annotations_ident__
-
-    @property
-    def window_size(self):
-        """
-        [optional]
-        data window size expressed in number of data items or
-        in time units by suffix: s - second, m - minute, h - hour;
-        examples: 100, 5m
-        if the window size has no value it means to calculate
-        the whole recording
-        """
-        return self.__window_size__
-
-    @window_size.setter
-    def window_size(self, _window_size):
-        self.__window_size__ = _window_size
-
-    @property
-    def window_size_unit(self):
-        if self.window_size:
-            return extract_alphabetic(self.window_size, convert=str.lower)
-
-    @property
-    def window_size_value(self):
-        if self.window_size:
-            return extract_number(self.window_size, convert=int)
-
-    @property
-    def excluded_annotations(self):
-        """
-        [optional]
-        specifies, as a string separated by comma or as a list,
-        which values (separated by a comma) have to be interpreted
-        as true annotations values; if not specified then all non-0 values are
-        annotation values
-        """
-        return self.__excluded_annotations__
-
-    @excluded_annotations.setter
-    def excluded_annotations(self, _excluded_annotations):
-        if isinstance(_excluded_annotations, str):
-            self.__excluded_annotations__ = get_as_list(_excluded_annotations)
-        else:
-            self.__excluded_annotations__ = _excluded_annotations
-
-    @property
-    def stepper(self):
-        """
-        [optional]
-        stepper size is an amount by which processing window will be jump
-        during processing of data, this value could be expressed in
-        number of data items or in time units by suffix:
-        s - second, m - minute, h - hour; examples: 100, 5m
-        """
-        return self.__stepper__
-
-    @stepper.setter
-    def stepper(self, _stepper):
-        if not _stepper == None:
-            self.__stepper__ = _stepper
-            self.__stepper_size__ = extract_number(_stepper, convert=int)
-            self.__stepper_unit__ = extract_alphabetic(_stepper,
-                                                       convert=str.lower)
-
-    @property
-    def output_dir(self):
-        """
-        [obligatory]
-        a directory for outcomes files
-        """
-        if self.__output_dir__:
-            # remove leading and trailing whitespaces
-            return self.__output_dir__.strip()
-
-    @output_dir.setter
-    def output_dir(self, _output_dir):
-        self.__output_dir__ = _output_dir
-
-    @property
-    def output_precision(self):
-        """
-        [optional]
-        precision for output data [default: 10,5]
-        """
-        return DEFAULT_OUTPUT_PRECISION if self.__output_precision__ == None \
-                else self.__output_precision__
-
-    @output_precision.setter
-    def output_precision(self, _output_precision):
-        if isinstance(_output_precision, str):
-            self.__output_precision__ = get_as_tuple(_output_precision,
-                                                     convert=int)
-        else:
-            self.__output_precision__ = _output_precision
-
-    @property
-    def data_file(self):
-        """
-        [obligatory if data_dir is NOT specified]
-        this is an alternative option to set up one file
-        (with full path) as data source
-        """
-        return self.__data_file__
-
-    @data_file.setter
-    def data_file(self, _data_file):
-        self.__data_file__ = _data_file
-        #if data file is not None then grouping files have to deactivated
-        if not _data_file == None:
-            self.__group_data_filename__ = None
+        if self.excluded_annotations == None:
+            self.excluded_annotations = self.__all_annotations_ident__
 
     def setAvailableFiltersInfoHandler(self, available_filters_info_handler):
         self.__available_filters_info_handler__ = \
@@ -207,25 +92,6 @@ class PoincarePlotParameters(CoreParameters):
         """
         if not self.__available_filters_info_handler__ == None:
             print(self.__available_filters_info_handler__())
-
-    @property
-    def filters_names(self):
-        """
-        [optional]
-        use filters names (separated by comma)
-        to get list of standard filters names call a function:
-        get_filters_short_names()
-        [module: hra_math.time_domain.poincare_plot.poincare_plot]
-        """
-        return self.__filters_names__
-
-    @filters_names.setter
-    def filters_names(self, _filters_names):
-        self.__filters_names__ = _filters_names
-        if _filters_names is not None:
-            map(self.addFilter, get_as_list(_filters_names))
-        else:
-            self.filters = []
 
     def addFilter(self, name_or_object):
         """
@@ -253,34 +119,6 @@ class PoincarePlotParameters(CoreParameters):
 
     def clearFilters(self):
         self.filters = []
-
-    @property
-    def movie_dir(self):
-        """
-        [optional]
-        directory where a movie will be put
-        """
-        if self.__movie_dir__ == None and hasattr(self, 'output_dir'):
-            return getattr(self, 'output_dir')
-        return nvl(self.__movie_dir__, '')
-
-    @movie_dir.setter
-    def movie_dir(self, _movie_dir):
-        self.__movie_dir__ = _movie_dir
-
-    @property
-    def movie_multiprocessing_factor(self):
-        """
-        [optional - default: 3]
-        multiprocessing factor if multiprocessing is available
-        if this is not the case value equals 0
-        """
-        return nvl(self.__movie_multiprocessing_factor__,
-                                3 if multiprocessing.cpu_count() > 1 else 0)
-
-    @movie_multiprocessing_factor.setter
-    def movie_multiprocessing_factor(self, _movie_multiprocessing_factor):
-        self.__movie_multiprocessing_factor__ = _movie_multiprocessing_factor
 
     def setAvailableStatisticsInfoHandler(self,
                                           available_statistics_info_handler):
@@ -349,7 +187,7 @@ class PoincarePlotParameters(CoreParameters):
     def clearStatisticsClasses(self):
         self.statistics_classes = []
 
-    def validatePoincarePlotParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
+    def validateParameters(self, check_level=CoreParameters.NORMAL_CHECK_LEVEL): # @IgnorePep8
         if self.output_precision == None:
             return "Output precision is required"
         if check_level >= CoreParameters.MEDIUM_CHECK_LEVEL:
@@ -363,6 +201,47 @@ class PoincarePlotParameters(CoreParameters):
 #            is_empty(self.summary_statistics_names) and \
 #            is_empty(self.summary_statistics_classes):
 #            return "Statistics names or classes or handlers are required"
+
+    def prepareParameters(self):
+        """
+        method prepares poincare plot parameters
+        """
+        if self.stepper:
+            self.stepper_size = extract_number(self.stepper, convert=int)
+            self.stepper_unit = extract_alphabetic(self.stepper,
+                                                       convert=str.lower)
+        self.movie_dir = nvl(self.movie_dir, self.output_dir, '')
+
+        if isinstance(self.excluded_annotations, str):
+            self.excluded_annotations = get_as_list(self.excluded_annotations)
+
+        if self.filters_names is not None:
+            map(self.addFilter, get_as_list(self.filters_names))
+        else:
+            self.filters = []
+
+        if self.output_dir:
+            # remove leading and trailing whitespaces
+            self.output_dir = self.output_dir.strip()
+
+        if self.window_size:
+            self.window_size_unit = extract_alphabetic(self.window_size,
+                                                       convert=str.lower)
+            self.window_size_value = extract_number(self.window_size,
+                                                    convert=int)
+
+        self.movie_multiprocessing_factor = nvl(
+                                self.movie_multiprocessing_factor,
+                                3 if multiprocessing.cpu_count() > 1 else 0)
+
+        if not self.data_file == None:
+            self.group_data_filename = None
+
+        if isinstance(self.output_precision, str):
+            self.output_precision = get_as_tuple(self.output_precision,
+                                                     convert=int)
+        elif self.output_precision == None:
+            self.output_precision = DEFAULT_OUTPUT_PRECISION
 
     def parameters_info(self):
         if not self.data_dir == None:
@@ -504,7 +383,7 @@ class PoincarePlotParameters(CoreParameters):
             is_empty(self.statistics_handlers) and \
             is_empty(self.summary_statistics_names) and \
             is_empty(self.summary_statistics_classes):
-            print('Statistics: no statistics')
+            print('Statistics: no statistics selected')
         else:
             if not is_empty(self.statistics_names):
                 print('Statistics: ' + commas(self.statistics_names))
