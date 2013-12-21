@@ -288,43 +288,36 @@ class PoincarePlotManager(object):
             help="interactive mode (not implemented yet)", type=to_bool,
             default=False)
         parser.add_argument("-data_dir", "--data_dir",
-            help="directory where input data files are located [default: " + os.getcwd() + "]", # @IgnorePep8
+            help="directory where input data files are located",
             default=os.getcwd())
         parser.add_argument("-extension", "--extension", default="*",
             help="extension of data input files in the form <*.ext>")
         parser.add_argument("-data_file", "--data_file",
             help="alternative option to set one data source file")
         parser.add_argument("-window_size", "--window_size",
-            help="""data window size expressed in number of data items or
-                    in time units by suffix: s - second, m - minute, h - hour;
-                    examples: 100, 5m""")
+            help="""data window size expressed in number of data items or in time units by suffix: s - second, m - minute, h - hour, examples: 100, 5m""") # @IgnorePep8
         parser.add_argument("-ws", "--window_shift", type=int,
             help="window data shift between two sets of signals",
             default=1)
         parser.add_argument("-output_dir", "--output_dir",
-            help="directory for outcomes files [default: " +
-                            DEFAULT_OUTCOME_DIRECTORY + "]",
+            help="directory for outcomes files",
             default=DEFAULT_OUTCOME_DIRECTORY)
         parser.add_argument("-out_prec", "--output_precision",
-            help="precision for output data [default: 10,5]",
+            help="precision for output data",
             default="10,5")
         parser.add_argument("-statistics_names", "--statistics_names",
-            help="list of statistics names to calculate, available: " +
-                            commas(get_statistics_names(ALL_STATISTICS)))
-        parser.add_argument("-summary_statistics_names",
-                            "--summary_statistics_names",
-            help="list of summary statistics names to calculate, available: " +
-            commas(get_summary_statistics_names(ALL_SUMMARY_STATISTICS)))
+            help="list of statistics names to calculate, available: " + commas(get_statistics_names(ALL_STATISTICS))) # @IgnorePep8
+        parser.add_argument("-summary_statistics_names", "--summary_statistics_names", # @IgnorePep8
+            help="list of summary statistics names to calculate, available: " + commas(get_summary_statistics_names(ALL_SUMMARY_STATISTICS))) # @IgnorePep8
         parser.add_argument("-he", "--headers", type=to_bool,
-            help="display lines of headers [True|False]")
+            help="display lines of headers",
+            default=False)
         parser.add_argument("-signal_index", "--signal_index", type=int,
             help="index of a signal column in a data source file (0 based)",
             default=-1)
         parser.add_argument("-annotation_index", "--annotation_index",
-                            type=int,
-            help="""index of an annotation column in a data source file
-                    (0 based)""",
-            default=-1)
+            help="""index of an annotation column in a data source file (0 based)""", # @IgnorePep8
+            default=-1, type=int)
         parser.add_argument("-time_index", "--time_index", type=int,
             help="index of a time column in a data source file (0 based)",
             default=-1)
@@ -334,147 +327,106 @@ class PoincarePlotManager(object):
             help="name of a annotation header in input data [optional]")
         parser.add_argument("-time_label", "--time_label",
             help="name of a time header in input data [optional]")
-        parser.add_argument("-time_format", "--time_format", default=None,
-            help="""time format, for example, for '08:21:44.020'
-                            use %H:%M:%S.%f""")
+        parser.add_argument("-time_format", "--time_format",
+            help="""time format, for example, for '08:21:44.020' use %H:%M:%S.%f""") # @IgnorePep8
         parser.add_argument("-headers_count", "--headers_count", type=int,
-            help="""number of headers lines in data source [default 0]"
-                    program tries to determine this values on it's own""",
+            help="""number of headers lines in data source (program tries to determine this values on it's own)""", # @IgnorePep8
             default=0)
         parser.add_argument("-separator", "--separator",
-            help="a separator used between columns, one from the set: " +
-                getSeparatorLabels() + ", <custom>; note: the " +
-                "application tries to discover a separator itself",
-            default=None)
+            help="a separator used between columns, one from the set: " + getSeparatorLabels() + ", <custom>; note: the application tries to discover a separator on its own") # @IgnorePep8
         parser.add_argument("-dav", "--display_annotation_values",
-            help="display unique annotations values presented in " +
-                "data source files [True|False]",
+            help="""display unique annotations values presented in data source files""", # @IgnorePep8
             type=to_bool, default=False)
         parser.add_argument("-filters_names", "--filters_names",
-                    help="""use filters; available filters: """
-                        + commas(get_filters_short_names()))
+            help="""use filters; available filters: """ + commas(get_filters_short_names())) # @IgnorePep8
         parser.add_argument("-ea", "--excluded_annotations",
-            help="""specifies which values (separated by a comma) have to
-                be interpreted as true annotations values;
-                if not specified then all non-0 values in a annotation
-                column are such entities""")
+            help="""specifies which values (separated by a comma) have to be interpreted as true annotations values; if not specified then all non-0 values in a annotation column are such entities""")  # @IgnorePep8
         parser.add_argument("-ordinal", "--ordinal_column_name",
-            help="""name of the ordinal column, index or time it depends
-                     on window size unit, which will be the first column
-                     in outcomes""")
+            help="""name of the ordinal column, index or time it depends on window size unit, which will be the first column in outcomes""")  # @IgnorePep8
         parser.add_argument("-output_separator", "--output_separator",
-            help="a separator for output data [default: ',']",
+            help="a separator for output data",
             default=",")
         parser.add_argument("-add_headers", "--add_headers",
-            help="headers in the output files [default: True]",
+            help="headers in the output files",
             type=to_bool, default=True)
         parser.add_argument("-use_identity_line", "--use_identity_line",
-            help="during calculations use identity line [True|False]",
+            help="during calculations use identity line",
             type=to_bool, default=True)
         parser.add_argument("-use_buffer", "--use_buffer",
-            help="use buffer during statistics calculations [default: True]",
+            help="use buffer during statistics calculations",
             type=to_bool, default=True)
-        parser.add_argument("-override_existing_outcomes",
-                            "--override_existing_outcomes",
-            help="override existing outcomes [True|False]",
+        parser.add_argument("-override_existing_outcomes", "--override_existing_outcomes", # @IgnorePep8
+            help="override existing outcomes",
             type=to_bool, default=False)
         parser.add_argument("-sample_step", "--sample_step",
-            help="""how big have to be a step for window resampling size;
-                it is assumed that this quantity is expressed in signal unit
-                value 0 means no use of window resampling size at all
-                [optional]""",
+            help="""how big have to be a step for window resampling size; it is assumed that this quantity is expressed in signal unit value 0 means no use of window resampling size at all [optional]""", # @IgnorePep8
             type=int)
         parser.add_argument("-stepper", "--stepper",
-            help="""to define amount by which data window have to jump
-                during process of data expressed in number of data items
-                or in time units by suffix: s - second, m - minute, h - hour;
-                examples: 100, 5m [optional]""")
+            help="""to define amount by which data window have to jump during process of data expressed in number of data items or in time units by suffix: s - second, m - minute, h - hour; examples: 100, 5m [optional]""") # @IgnorePep8
         parser.add_argument("-movie_name", "--movie_name",
             help="""name of a movie for Poincare plot evolutions""")
         parser.add_argument("-movie_dir", "--movie_dir",
-            help="""directory for movie files, if is not present assumed
-                         output_dir [default: None]""",
-            default=None)
-        parser.add_argument("-movie_multiprocessing_factor",
-                            "--movie_multiprocessing_factor",
-            help="""to generate a poincare plot movie use multiprocessing,
-                     active on multiprocessing hardware, greater value > 0 give
-                     use more of processors
-                     """, type=int)
+            help="""directory for movie files, if is not present assumed output_dir""") # @IgnorePep8
+        parser.add_argument("-movie_multiprocessing_factor", "--movie_multiprocessing_factor", # @IgnorePep8
+            help="""to generate a poincare plot movie use multiprocessing, active on multiprocessing hardware, greater value > 0 give use a few processors""",  # @IgnorePep8
+            type=int)
         parser.add_argument("-movie_bin_size", "--movie_bin_size",
             help="""movie bin size """, type=int)
         parser.add_argument("-movie_fps", "--movie_fps",
             help="""a movie fps [optional]""", type=int)
         parser.add_argument("-movie_skip_to_frame", "--movie_skip_to_frame",
             help="""skip to a movie frame [optional]""", type=int)
-        parser.add_argument("-movie_experimental_code",
-                            "--movie_experimental_code",
-            help="""use some movie experimental code;
-                             only for tests, default False""",
+        parser.add_argument("-movie_experimental_code", "--movie_experimental_code", # @IgnorePep8
+            help="""use some movie experimental code only for tests""",
             type=to_bool, default=False)
         parser.add_argument("-movie_animated", "--movie_animated",
-            help="""use animation API to generate a movie;
-                    required mencoder and ffmpeg [default False]""",
+            help="""use animation API to generate a movie; required mencoder and ffmpeg""", # @IgnorePep8
             type=to_bool, default=False)
-        parser.add_argument("-movie_calculate_all_frames",
-                            "--movie_calculate_all_frames",
-            help="""before generation png files all frames are calculated,
-                            [default False]""",
+        parser.add_argument("-movie_calculate_all_frames", "--movie_calculate_all_frames", # @IgnorePep8
+            help="""before generation png files all frames are calculated""",
             type=to_bool, default=True)
-        parser.add_argument("-movie_standard_generation",
-                            "--movie_standard_generation",
-            help="""standard generation of movie by use of matplotlib
-                    plotting library [could be very slow for huge recordings
-                    (e.g. 24h)], [default False]""",
+        parser.add_argument("-movie_standard_generation", "--movie_standard_generation", # @IgnorePep8
+            help="""standard generation of movie by use of matplotlib plotting library [could be very slow for huge recordings (e.g. 24h)]""", # @IgnorePep8
             type=to_bool, default=False)
         parser.add_argument("-movie_dpi", "--movie_dpi",
-            help="""movie dpi """, default=70, type=int)
+            help="""movie dpi""", default=70, type=int)
         parser.add_argument("-movie_width", "--movie_width",
-            help="""movie width [default 550]""",
+            help="""movie width""",
             default=550, type=int)
         parser.add_argument("-movie_height", "--movie_height",
-            help="""movie height [default 550]""",
+            help="""movie height""",
             default=550, type=int)
         parser.add_argument("-movie_active_size", "--movie_active_size",
-            help="""movie active plot data point size [default 3]""",
+            help="""movie active plot data point size""",
             default=3, type=int)
         parser.add_argument("-movie_inactive_size", "--movie_inactive_size",
-            help="""movie inactive plot data point size [default 3]""",
+            help="""movie inactive plot data point size""",
             default=3, type=int)
         parser.add_argument("-movie_centroid_size", "--movie_centroid_size",
-            help="""movie centroid plot data point size [default 4]""",
+            help="""movie centroid plot data point size""",
             default=4, type=int)
-        parser.add_argument("-movie_prefixed_by_source",
-                            "--movie_prefixed_by_source",
-            help="""all intermediate frame files and output movie filename
-                    is prefixed by a name of a source file (minus extension)
-                    [default: True]""",
+        parser.add_argument("-movie_prefixed_by_source", "--movie_prefixed_by_source", # @IgnorePep8
+            help="""all intermediate frame files and output movie filename is prefixed by a name of a source file (minus extension)""", # @IgnorePep8
             type=to_bool, default=True)
         parser.add_argument("-movie_clean_frames", "--movie_clean_frames",
-            help="""after movie creation all frame files are deleted
-                            [default True]""",
+            help="""after movie creation all frame files are deleted""",
             type=to_bool, default=True)
         parser.add_argument("-output_prefix", "--output_prefix",
-            help="""a label included in a name of an output
-                    file [optional]""", default=None)
+            help="""a label included in a name of an output file [optional]""")
         parser.add_argument("-x_label", "--x_label",
-            help="""label of X axis of poincare plot [default None]""")
+            help="""label of X axis of poincare plot [optional]""")
         parser.add_argument("-y_label", "--y_label",
-            help="""label of Y axis of poincare plot [default None]""")
+            help="""label of Y axis of poincare plot [optional]""")
         parser.add_argument("-print_first_signal", "--print_first_signal",
-            help="""print the first row of a signal [default: False]""",
+            help="""print the first row of a signal""",
             type=to_bool, default=True)
         parser.add_argument("-group_data_filename", "--group_data_filename",
-            help="""used as a file where are stored all input files
-                    according to data_dir and extension and this overall file
-                    is used as a input file for further analisys [optional]""")
+            help="""used as a file where are stored all input files according to data_dir and extension and this overall file is used as a input file for further analisys [optional]""") # @IgnorePep8
         parser.add_argument("-save_parameters", "--save_parameters",
-            help="""save parameters of poincare plot generation
-                            [default: True]""",
+            help="""save parameters of poincare plot generation""",
             type=to_bool, default=True)
         parser.add_argument("-progress_mark", "--progress_mark",
-            help="""show progress bar during generation of statistics
-                            [default: True]""",
+            help="""show progress bar during generation of statistics""",
             type=to_bool, default=True)
 
         #add information about parameters

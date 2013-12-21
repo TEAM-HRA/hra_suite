@@ -481,4 +481,8 @@ class __ParameterInfo__(object):
 
     @property
     def format(self):
-        return "%s %s %s" % (self.name, self._help, self.default)
+        if self.default == None:
+            return "%s => %s" % (self.name, self._help)
+        else:
+            return "%s => %s [default: %s]" % (self.name, self._help,
+                                               self.default)
