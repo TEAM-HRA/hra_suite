@@ -41,41 +41,25 @@ class PoincarePlotParameters(CoreParameters):
         self.__available_filters_info_handler__ = get_filters_short_names
         self.__available_statistics_info_handler__ = available_statistics_info
         self.__all_annotations_ident__ = ALL_ANNOTATIONS
-        self.use_identity_line = True
-        self.use_buffer = True
-        self.window_shift = 1
-        self.extension = '*'
         self.output_separator = Separator.WHITE_SPACE.sign  # @UndefinedVariable # @IgnorePep8
         self.filters = []
-
-        self.movie_fps = 700
         self.movie_active_color = ColorRGB(255, 0, 0)
         self.movie_inactive_color = ColorRGB(0, 0, 0)
         self.movie_centroid_color = ColorRGB(0, 255, 0)
-        self.movie_active_size = 3
-        self.movie_inactive_size = 3
-        self.movie_centroid_size = 4
-        self.movie_dpi = 70
-        self.movie_height = 550
-        self.movie_width = 550
-        self.movie_skip_frames = True
-        self.movie_save_partial = True
-        self.movie_skip_to_frame = 0
-        self.movie_not_save = False
         self.movie_show_plot_legends = False
-        self.movie_bin_size = 500
-        self.movie_experimental_code = False
-        self.movie_animated = False
-        self.movie_calculate_all_frames = True
-        self.movie_standard_generation = False
-        self.movie_prefixed_by_source = True
-        self.movie_clean_frames = True
-
         self.statistics_handlers = []
         self.statistics_classes = []
-
         self.summary_statistics_classes = []
         self.__parameters_info__ = {}
+
+    def __getattr__(self, name):
+        """
+        check if parameter has no value and has a default value in
+        self.__parameters_info__ list then use this default value
+        """
+        info = self.__parameters_info__.get(name, None)
+        return nvl(self.__dict__.get(name, None),
+                   None if info == None else info.default)
 
     def setAllAnnotationsIdent(self, _all_annotations_ident):
         self.__all_annotations_ident__ = _all_annotations_ident

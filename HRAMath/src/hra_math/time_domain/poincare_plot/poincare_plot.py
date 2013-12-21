@@ -371,11 +371,17 @@ class PoincarePlotManager(object):
             help="""to generate a poincare plot movie use multiprocessing, active on multiprocessing hardware, greater value > 0 give use a few processors""",  # @IgnorePep8
             type=int)
         parser.add_argument("-movie_bin_size", "--movie_bin_size",
-            help="""movie bin size """, type=int)
+            help="""movie bin size """, type=int, default=500)
         parser.add_argument("-movie_fps", "--movie_fps",
-            help="""a movie fps [optional]""", type=int)
+            help="""a movie fps [optional]""", type=int, default=700)
+        parser.add_argument("-movie_save_partial", "--movie_save_partial",
+            help="""save partial generated movie""",
+            type=to_bool, default=True)
+        parser.add_argument("-movie_not_save", "--movie_not_save",
+            help="""not save a movie, used to save only frames""",
+            type=to_bool, default=False)
         parser.add_argument("-movie_skip_to_frame", "--movie_skip_to_frame",
-            help="""skip to a movie frame [optional]""", type=int)
+            help="""skip to a movie frame [optional]""", type=int, default=0)
         parser.add_argument("-movie_experimental_code", "--movie_experimental_code", # @IgnorePep8
             help="""use some movie experimental code only for tests""",
             type=to_bool, default=False)
