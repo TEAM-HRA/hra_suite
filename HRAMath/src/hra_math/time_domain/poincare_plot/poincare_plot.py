@@ -11,7 +11,6 @@ try:
     from hra_core.datetime_utils import invocation_time
     from hra_core.misc import Separator
     from hra_core.introspection import print_private_properties
-    from hra_core.introspection import save_private_properties
     from hra_core.introspection import copy_object
     from hra_core.collections_utils import commas
     from hra_core.collections_utils import nvl
@@ -30,9 +29,12 @@ try:
         import STATISTICS_PARAMETERS_GROUP
     from hra_math.statistics.statistics import get_statistics_names
     from hra_math.statistics.statistics import ALL_STATISTICS
-    from hra_math.statistics.summary_statistics import get_summary_statistics_names # @IgnorePep8
-    from hra_math.statistics.summary_statistics import ALL_SUMMARY_STATISTICS
-    from hra_math.time_domain.poincare_plot.filters.filter_utils import get_filters_short_names # @IgnorePep8
+    from hra_math.statistics.summary_statistics \
+        import get_summary_statistics_names
+    from hra_math.statistics.summary_statistics \
+        import ALL_SUMMARY_STATISTICS
+    from hra_math.time_domain.poincare_plot.filters.filter_utils \
+        import get_filters_short_names
     from hra_math.time_domain.poincare_plot.poincare_plot_generator \
         import PoincarePlotGenerator
     from hra_math.time_domain.poincare_plot.poincare_plot_generator \
@@ -90,7 +92,7 @@ class PoincarePlotManager(object):
         if message:
             print(message)
             return
-        #self.__pp_generator__.parameters_info()
+        self.info(valued_only=True)
         self.__process__(self.__process_file__)
 
     def generate_movie(self):
@@ -101,8 +103,7 @@ class PoincarePlotManager(object):
         if message:
             print(message)
             return
-        #self.__pp_generator__.parameters_info()
-
+        self.info(valued_only=True)
         self.__process__(self.__process_file_for_movie__)
 
     def __process__(self, _file_handler, disp=True, **params):
@@ -266,11 +267,8 @@ class PoincarePlotManager(object):
             _filename = as_path(self.output_dir, "pp_parameters.txt")
             create_dir(self.output_dir)
             with open(_filename, 'w') as _file:
-                _file.write("\nPoincare plot parameters:\n")
-                _file.write("=========================\n")
-                skip_prefix = 'movie_' if self.movie_name == None else None
-                save_private_properties(self.__p__, _file,
-                                        skip_prefix=skip_prefix)
+                for info_line in self.__p__.get_infos_lines(valued_only=True):
+                    _file.write(info_line + "\n")
                 print('Poincare plot parameters saved into a file: %s '
                       % (_filename))
 
@@ -463,7 +461,6 @@ class PoincarePlotManager(object):
                                         default=action.default,
                                         _help=action.help,
                                         group_description=group.description)
-
         return parser
 
 
@@ -474,7 +471,6 @@ if __name__ == '__main__':
     #copy all parameters from __args object into ppManager object
     copy_object(__args, ppManager)
     ppManager.movie_dir = nvl(__args.movie_dir, ppManager.output_dir)
-    ppManager.info(valued_only=True)
 
     _disp = False
     if __args.display_annotation_values == True:

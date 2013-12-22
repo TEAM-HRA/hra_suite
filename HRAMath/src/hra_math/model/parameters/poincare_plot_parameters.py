@@ -54,16 +54,22 @@ class PoincarePlotParameters(CoreParameters):
         self.statistics_handlers = []
         self.statistics_classes = []
         self.summary_statistics_classes = []
-        self.__parameters_info__ = {}
+        self.__parameters_groups__ = {}
 
     def __getattr__(self, name):
         """
         check if parameter has no value and has a default value in
-        self.__parameters_info__ list then use this default value
+        self.__parameters_groups__ list then use this default value
         """
-        info = self.__parameters_info__.get(name, None)
-        return nvl(self.__dict__.get(name, None),
-                   None if info == None else info.default)
+        value = self.__dict__.get(name, None)
+        if value == None:
+            g = self.__parameters_groups__  # alias
+            for group in g:
+                d = [info.default for info in g.get(group)
+                                        if info.name == name]
+                if len(d) > 0:
+                    return d[0]
+        return value
 
     def setAllAnnotationsIdent(self, _all_annotations_ident):
         self.__all_annotations_ident__ = _all_annotations_ident
@@ -190,6 +196,18 @@ class PoincarePlotParameters(CoreParameters):
 #            is_empty(self.summary_statistics_names) and \
 #            is_empty(self.summary_statistics_classes):
 #            return "Statistics names or classes or handlers are required"
+#        if is_empty(self.statistics_names) and \
+#            is_empty(self.statistics_classes) and \
+#            is_empty(self.statistics_handlers) and \
+#            is_empty(self.summary_statistics_names) and \
+#            is_empty(self.summary_statistics_classes):
+#            print('Statistics: no statistics selected')
+#        else:
+#            if not is_empty(self.statistics_names):
+#                print('Statistics: ' + commas(self.statistics_names))
+#            if not is_empty(self.summary_statistics_names):
+#                print('Summary statistics: ' +
+#                      commas(self.summary_statistics_names))
 
     def prepareParameters(self):
         """
@@ -232,159 +250,13 @@ class PoincarePlotParameters(CoreParameters):
         elif self.output_precision == None:
             self.output_precision = DEFAULT_OUTPUT_PRECISION
 
-    def parameters_info(self):
-        if not self.data_dir == None:
-            print('Data file: ' + str(self.data_file))
-        elif not self.data_file == None:
-            print('Data dir: ' + str(self.data_dir))
-
-        if not self.extension == None:
-            print('Extension: ' + str(self.extension))
-
-        if not self.override_existing_outcomes == None:
-            print('Override existing outcomes: ' + str(self.override_existing_outcomes)) # @IgnorePep8
-
-        if not self.output_dir == None:
-            print('Output dir: ' + str(self.output_dir))
-
-        if not self.output_precision == None:
-            print('Output precision: ' + str(self.output_precision))
-
-        if not self.output_separator == None:
-            print('Output separator: ' + str(self.output_separator))
-
-        if not self.output_prefix == None:
-            print('Output file name prefix: ' + str(self.output_prefix))
-
-        if self.group_data_filename:
-            print('Group data filename: ' + str(self.group_data_filename))
-
-        if not self.window_shift == 1:
-            print('Window shift: ' + str(self.window_shift))
-
-        if self.excluded_annotations == self.__all_annotations_ident__:
-            print('Excluded annotations: ALL')
-        elif not self.excluded_annotations == None:
-            print('Excluded annotations: ' + str(self.excluded_annotations))
-
-        if not self.ordinal_column_name == None:
-            print('Ordinal column name: ' + str(self.ordinal_column_name))
-
-        if self.window_size == None:
-            print('Window size: unspecified, assumed the whole recording')
-        else:
-            print('Window size: ' + str(self.window_size))
-
-        if not self.separator == None:
-            print('Data separator: ' + str(self.separator))
-
-        #if not self.window_size_unit == None:
-        #    print('Window size unit: ' + str(self.window_size_unit))
-
-        if is_positive(self.signal_index):
-            print('Signal index: ' + str(self.signal_index))
-
-        if is_positive(self.annotation_index):
-            print('Annotation index: ' + str(self.annotation_index))
-
-        if is_positive(self.time_index):
-            print('Time index: ' + str(self.time_index))
-
-        if self.signal_label:
-            print('Signal label: ' + self.signal_label)
-
-        if self.annotation_label:
-            print('Annotation label: ' + self.annotation_label)
-
-        if self.time_label:
-            print('Time label: ' + self.time_label)
-
-        if not self.sample_step == None:
-            print('Sample step: ' + str(self.sample_step))
-
-        if not self.stepper == None:
-            print('Stepper: ' + str(self.stepper))
-
-        if self.headers_count > 0:
-            print('Headers count: ' + str(self.headers_count))
-
-        if not self.time_format == None:
-            print('Time format column: ' + str(self.time_format))
-
-        if not self.use_buffer == None:
-            print('Use buffer: ' + str(self.use_buffer))
-
-        if not self.use_identity_line == None:
-            print('Use line of identity: ' + str(self.use_identity_line))
-
-        if not self.x_label == None:
-            print('X label axis: ' + self.x_label)
-
-        if not self.y_label == None:
-            print('Y label axis: ' + self.y_label)
-
-        if self.print_first_signal == True:
-            print('print_first_signal: ' + str(self.print_first_signal))
-
-        if not self.__filters_names__ == None \
-            and len(self.__filters_names__) > 0:
-            print('Filters: ' + commas(self.__filters_names__))
-
-        if not self.movie_name == None:
-            print('Movie specification: ')
-            print('    name: ' + str(self.movie_name))
-            print('    directory: ' + str(self.movie_dir))
-            print('    height: ' + str(self.movie_height))
-            print('    width: ' + str(self.movie_width))
-            print('    FPS: ' + str(self.movie_fps))
-            print('    active plot color: ' + str(self.movie_active_color))
-            print('    inactive plot color: ' +
-                                        str(self.movie_inactive_color))
-            print('    centroid color: ' + str(self.movie_centroid_color))
-            print("    active plot point's size: " +
-                                                str(self.movie_active_size))
-            print("    inactive plot point's size: " +
-                                            str(self.movie_inactive_size))
-            print("    centroid point's size: " +
-                                            str(self.movie_centroid_size))
-            print('    DPI: ' + str(self.movie_dpi))
-            print('    skip existing frames: ' + str(self.movie_skip_frames))
-            print('    save partial movie: ' + str(self.movie_save_partial))
-            print('    skip to frame: ' + str(self.movie_skip_to_frame))
-            print('    show plot legends: ' +
-                                        str(self.movie_show_plot_legends))
-            print('    movie multiprocessing factor: ' +
-                                        str(self.movie_multiprocessing_factor))
-            print('    movie bin size: ' + str(self.movie_bin_size))
-            print('    use animation API: ' + str(self.movie_animated))
-            print('    use experimental code: '
-                                         + str(self.movie_experimental_code))
-            print('    calculate all frames: '
-                                        + str(self.movie_calculate_all_frames))
-            print('    standard generation: '
-                                        + str(self.movie_standard_generation))
-            print('    prefix by source: '
-                                        + str(self.movie_prefixed_by_source))
-            print('    clean frames: ' + str(self.movie_clean_frames))
-
-        if is_empty(self.statistics_names) and \
-            is_empty(self.statistics_classes) and \
-            is_empty(self.statistics_handlers) and \
-            is_empty(self.summary_statistics_names) and \
-            is_empty(self.summary_statistics_classes):
-            print('Statistics: no statistics selected')
-        else:
-            if not is_empty(self.statistics_names):
-                print('Statistics: ' + commas(self.statistics_names))
-            if not is_empty(self.summary_statistics_names):
-                print('Summary statistics: ' +
-                      commas(self.summary_statistics_names))
-
     def check_data_indexes(self, _filename, disp):
-        #method used by client code explicitly, because of dynamic nature
-        #of placement of data columns which have to check at runtime
-        #to manage a situation when columns are specified by names and
-        #for different files they are placed in different columns
+        """
+        method used by client code explicitly, because of dynamic nature
+        of placement of data columns which have to check at runtime
+        to manage a situation when columns are specified by names and
+        for different files they are placed in different columns
+        """
         message = None
         if not nvl(self.signal_label, self.annotation_label,
                    self.time_label) == None:
@@ -436,64 +308,73 @@ class PoincarePlotParameters(CoreParameters):
         """
         add information about poincare plot parameter
         """
-        self.__parameters_info__[name] = \
-            __ParameterInfo__(group, name, default, _help, group_description)
+        infos = self.__parameters_groups__.setdefault(
+                                            (group, group_description,), [])
+        infos.append(__ParameterInfo__(name, default, _help))
 
     @property
     def parameters_info_count(self):
         """
         get parameters info count
         """
-        return len(self.__parameters_info__)
+        g = self.__parameters_groups__  # alias
+        return sum([len(g[key]) for key in g])
 
     def info(self, valued_only=False):
+        """
+        display poincare plot parameters
+        """
+        for info_line in self.get_infos_lines(valued_only):
+            print(info_line)
+
+    def get_infos_lines(self, valued_only=False):
         """
         poincare plot parameters info descriptions
         if valued_only equals True then only parameters with value != None
         are presented
         """
-        movie = not (self.movie_name == None)
-        title = "Poincare plot parameters:"
-        print(title)
-        print("=" * len(title))
-        for name in sorted(self.__parameters_info__):
-            info = self.__parameters_info__[name]
+        infos_lines = []
+        line_size = 80
+        infos_lines.append("Poincare plot parameters:")
+        infos_lines.append("=" * line_size)
+        _d = self.__dict__  # alias
+        for (group, description) in sorted(self.__parameters_groups__):
+            group_infos = self.__parameters_groups__.get((group, description))
             if valued_only:
-                if movie and info.statistics_parameter:
+                if self.movie_name and group == STATISTICS_PARAMETERS_GROUP:
                     continue
-                if not movie and info.movie_parameter:
+                if not self.movie_name and group == MOVIE_PARAMETERS_GROUP:
                     continue
-                if self.__dict__.get(name) == None:
-                    continue
-                if info.default == None:
-                    continue
-            print(info.format)
-        print("=" * len(title))
+                infos = [(info, _d.get(info.name))
+                    for info in group_infos
+                        if not _d.get(info.name) == None and
+                            not _d.get(info.name) == info.default]
+            else:
+                infos = [(info, _d.get(info.name)) for info in group_infos]
+            if len(infos) > 0:
+                infos_lines.append("-" * line_size)
+                infos_lines.append(description)
+                infos_lines.append("-" * line_size)
+                for (info, value) in sorted(infos, key=lambda i: i[0].name):
+                    for line in info.format(value):
+                        infos_lines.append(line)
+        infos_lines.append("=" * line_size)
+        return infos_lines
 
 
 class __ParameterInfo__(object):
     """
     poincare plot parameter info class
     """
-    def __init__(self, group, name, default, _help, group_description):
-        self.group = group
+    def __init__(self, name, default, _help):
         self.name = name
         self.default = default
         self._help = _help
-        self.group_description = group_description
 
-    @property
-    def format(self):
-        if self.default == None:
-            return "%s => %s" % (self.name, self._help)
+    def format(self, value):
+        if value == None:
+            return ["%s = [default: %s]" % (self.name, self.default),
+                    "    %s" % (self._help)]
         else:
-            return "%s => %s [default: %s]" % (self.name, self._help,
-                                               self.default)
+            return ["%s = %s" % (self.name, value), "    %s" % (self._help)]
 
-    @property
-    def movie_parameter(self):
-        return self.group == MOVIE_PARAMETERS_GROUP
-
-    @property
-    def statistics_parameter(self):
-        return self.group == STATISTICS_PARAMETERS_GROUP

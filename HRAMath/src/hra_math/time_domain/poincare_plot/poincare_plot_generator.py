@@ -45,10 +45,6 @@ class PoincarePlotGenerator(object):
     def __empty_info_handler__(self, message):
         pass
 
-#    def checkParameters(self, check_level=None):
-#        return self.__parameters_manager__.validateParameters(check_level)
-#        return True
-
     def precheck(self, reference_filename):
         message = None
         self.__outcome_exists__ = False
@@ -317,9 +313,6 @@ class PoincarePlotGenerator(object):
             formatted_statistics[statistic] = format_decimal(value,
                                             self.__p__.output_precision)
         return formatted_statistics
-
-#    def parameters_info(self):
-#        self.__parameters_manager__.parameters_info()
 
     def segment_count(self, data_vector):
         """
