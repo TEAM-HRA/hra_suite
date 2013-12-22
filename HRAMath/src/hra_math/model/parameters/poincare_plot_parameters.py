@@ -29,6 +29,10 @@ except ImportError as error:
 
 DEFAULT_OUTPUT_PRECISION = (10, 5)
 
+COMMON_PARAMETERS_GROUP = "common"
+MOVIE_PARAMETERS_GROUP = "movie"
+STATISTICS_PARAMETERS_GROUP = "statistics"
+
 
 class PoincarePlotParameters(CoreParameters):
     """
@@ -428,12 +432,12 @@ class PoincarePlotParameters(CoreParameters):
         else:
             return True
 
-    def addParameterInfo(self, name, default, _help):
+    def addParameterInfo(self, group, name, default, _help, group_description):
         """
         add information about poincare plot parameter
         """
-        self.__parameters_info__[name] = __ParameterInfo__(name, default,
-                                                           _help)
+        self.__parameters_info__[name] = \
+            __ParameterInfo__(group, name, default, _help, group_description)
 
     @property
     def parameters_info_count(self):
@@ -442,15 +446,28 @@ class PoincarePlotParameters(CoreParameters):
         """
         return len(self.__parameters_info__)
 
-    def info(self):
+    def info(self, valued_only=False):
         """
         poincare plot parameters info descriptions
+        if valued_only equals True then only parameters with value != None
+        are presented
         """
+        movie = not (self.movie_name == None)
         title = "Poincare plot parameters:"
         print(title)
         print("=" * len(title))
         for name in sorted(self.__parameters_info__):
-            print(self.__parameters_info__[name].format)
+            info = self.__parameters_info__[name]
+            if valued_only:
+                if movie and info.statistics_parameter:
+                    continue
+                if not movie and info.movie_parameter:
+                    continue
+                if self.__dict__.get(name) == None:
+                    continue
+                if info.default == None:
+                    continue
+            print(info.format)
         print("=" * len(title))
 
 
@@ -458,10 +475,12 @@ class __ParameterInfo__(object):
     """
     poincare plot parameter info class
     """
-    def __init__(self, name, default, _help):
+    def __init__(self, group, name, default, _help, group_description):
+        self.group = group
         self.name = name
         self.default = default
         self._help = _help
+        self.group_description = group_description
 
     @property
     def format(self):
@@ -470,3 +489,11 @@ class __ParameterInfo__(object):
         else:
             return "%s => %s [default: %s]" % (self.name, self._help,
                                                self.default)
+
+    @property
+    def movie_parameter(self):
+        return self.group == MOVIE_PARAMETERS_GROUP
+
+    @property
+    def statistics_parameter(self):
+        return self.group == STATISTICS_PARAMETERS_GROUP
