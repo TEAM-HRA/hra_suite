@@ -337,27 +337,29 @@ class PoincarePlotParameters(CoreParameters):
         line_size = 80
         infos_lines.append("Poincare plot parameters:")
         infos_lines.append("=" * line_size)
-        _d = self.__dict__  # alias
+        # get value of parameter based on info.name
+        _v = lambda info: self.__dict__.get(info.name)
         for (group, description) in sorted(self.__parameters_groups__):
-            group_infos = self.__parameters_groups__.get((group, description))
+            #sorting by info.name member
+            group_infos = sorted(
+                        self.__parameters_groups__.get((group, description)))
             if valued_only:
                 if self.movie_name and group == STATISTICS_PARAMETERS_GROUP:
                     continue
                 if not self.movie_name and group == MOVIE_PARAMETERS_GROUP:
                     continue
-                infos = [(info, _d.get(info.name))
-                    for info in group_infos
-                        if not _d.get(info.name) == None and
-                            not _d.get(info.name) == info.default]
+                #get properties which are not None and
+                #are not equal to default value
+                infos = [(info, _v(info)) for info in group_infos
+                    if not _v(info) == None and not _v(info) == info.default]
             else:
-                infos = [(info, _d.get(info.name)) for info in group_infos]
+                infos = [(info, _v(info)) for info in group_infos]
             if len(infos) > 0:
                 infos_lines.append("-" * line_size)
                 infos_lines.append(description)
                 infos_lines.append("-" * line_size)
-                for (info, value) in sorted(infos, key=lambda i: i[0].name):
-                    for line in info.format(value):
-                        infos_lines.append(line)
+                for (info, value) in infos:
+                    map(infos_lines.append, info.format(value))
         infos_lines.append("=" * line_size)
         return infos_lines
 
@@ -378,3 +380,8 @@ class __ParameterInfo__(object):
         else:
             return ["%s = %s" % (self.name, value), "    %s" % (self._help)]
 
+    def __lt__(self, other):
+        """
+        operator used by sorted function
+        """
+        return other.__lt__(self.name)
