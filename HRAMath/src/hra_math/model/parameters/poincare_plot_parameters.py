@@ -248,6 +248,13 @@ class PoincarePlotParameters(CoreParameters):
         elif self.output_precision == None:
             self.output_precision = DEFAULT_OUTPUT_PRECISION
 
+        if self.add_headers == None:
+            self.add_headers = True
+
+        if len(self.statistics_classes) > 0:
+            self.statistics_names = [s.__name__.replace("Statistic", "")
+                                     for s in self.statistics_classes]
+
     def check_data_indexes(self, _filename, disp):
         """
         method used by client code explicitly, because of dynamic nature
