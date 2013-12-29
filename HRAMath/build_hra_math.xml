@@ -1,4 +1,5 @@
 <project name="HRAMath" default="build.egg">
-	<property file="../HRAMath/build_hra_math.properties" />	
+	<property file="../HRAMath/build_hra_math.properties" />
+	<property name="pylint.package" location="src/hra_math"/>
 	<import file="../HRASetup/commons.xml"/>
 </project>

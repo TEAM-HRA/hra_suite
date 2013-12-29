@@ -1,4 +1,6 @@
 <project name="HRACommon" default="build.egg">
-	<property file="../HRACommon/build_hra_common.properties" />	
-	<import file="../HRASetup/commons.xml"/>	
+	<property file="../HRACommon/build_hra_common.properties" />
+	<property name="pylint.package" location="src/hra_common"/>
+	<import file="../HRASetup/commons.xml"/>
+
 </project>

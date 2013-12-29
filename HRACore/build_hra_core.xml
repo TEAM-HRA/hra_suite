@@ -1,4 +1,5 @@
 <project name="HRACore" default="build.egg">
 	<property file="../HRACore/build_hra_core.properties" />
+	<property name="pylint.package" location="src/hra_core"/>
 	<import file="../HRASetup/commons.xml"/>
 </project>

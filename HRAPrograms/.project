@@ -3,6 +3,7 @@
 	<name>HRAPrograms</name>
 	<comment></comment>
 	<projects>
+		<project>HRACommon</project>
 		<project>HRACore</project>
 		<project>HRAGUI</project>
 		<project>HRAMath</project>

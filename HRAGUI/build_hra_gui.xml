@@ -1,4 +1,5 @@
 <project name="HRAGUI" default="build.egg">
 	<property file="../HRAGUI/build_hra_gui.properties" />
-	<import file="../HRASetup/commons.xml"/>	
+	<property name="pylint.package" location="src/hra_gui"/>
+	<import file="../HRASetup/commons.xml"/>
 </project>
