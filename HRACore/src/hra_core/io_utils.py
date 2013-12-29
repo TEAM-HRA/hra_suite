@@ -192,7 +192,7 @@ class CSVFile(object):
                  reference_filename=None, sort_headers=True,
                  ordinal_column_name=None, output_separator=None,
                  add_headers=False, ordered_headers=None,
-                 output_prefix=None):
+                 output_prefix=None, ordered_headers_aliases=None):
         self.__output_file__ = None
         self.__file__ = None  # means file descriptor
         self.__headers__ = None
@@ -222,6 +222,8 @@ class CSVFile(object):
 
         self.__error_message__ = None
         self.__info_message__ = None
+        self.__ordered_headers_aliases__ = ordered_headers_aliases
+        self.__headers_aliases__ = None
 
     def __enter__(self):
         self.__saved__ = False
@@ -245,8 +247,11 @@ class CSVFile(object):
                 self.__headers__ = _data.keys()
                 if not self.__ordered_headers__ == None:
                     self.__headers__ = get_ordered_list_of_strings(
-                                            self.__ordered_headers__,
-                                            self.__headers__)
+                                    self.__ordered_headers__, self.__headers__)
+                    if not self.__ordered_headers_aliases__ == None:
+                        self.__headers_aliases__ = get_ordered_list_of_strings(
+                                    self.__ordered_headers__, self.__headers__,
+                                    ordered_aliases_identifiers=self.__ordered_headers_aliases__) # @IgnorePep8
                 elif self.__sort_headers__:
                     self.__headers__ = sorted(self.__headers__)
 
@@ -275,6 +280,10 @@ class CSVFile(object):
     @property
     def headers(self):
         return self.__headers__
+
+    @property
+    def headers_aliases(self):
+        return self.__headers_aliases__
 
     @property
     def ordinal_column_name(self):

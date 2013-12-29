@@ -102,7 +102,8 @@ class PoincarePlotGenerator(object):
                     sort_headers=False,
                     add_headers=self.p.add_headers,
                     output_prefix=self.p.output_prefix,
-                    ordered_headers=self.p.statistics_names) as csv:
+                    ordered_headers=self.p.statistics_names,
+                    ordered_headers_aliases=self.p.headers_aliases) as csv:
 
             if not start_progress == None:
                 start_progress.reference_filename = reference_filename

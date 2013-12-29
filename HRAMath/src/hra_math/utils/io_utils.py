@@ -22,14 +22,16 @@ class NumpyCSVFile(CSVFile):
                  output_precision=None, print_output_file=False,
                  ordinal_column_name=None, output_separator=None,
                  add_headers=False, ordered_headers=None,
-                 message=None, output_prefix=None):
+                 message=None, output_prefix=None,
+                 ordered_headers_aliases=None):
         super(NumpyCSVFile, self).__init__(output_file, output_dir,
                     output_suffix, reference_filename, sort_headers,
                     ordinal_column_name=ordinal_column_name,
                     output_separator=output_separator,
                     add_headers=add_headers,
                     ordered_headers=ordered_headers,
-                    output_prefix=output_prefix)
+                    output_prefix=output_prefix,
+                    ordered_headers_aliases=ordered_headers_aliases)
         self.array_data = None
         self.__output_precision__ = get_as_tuple(output_precision, convert=int)
         self.__print_output_file__ = print_output_file
@@ -51,7 +53,9 @@ class NumpyCSVFile(CSVFile):
                 contents = memory_file.getvalue()
                 _file = open(self.output_file, 'w')
                 if self.add_headers:
-                    _file.write(self.__format_headers__(contents[:contents.find('\n')])) # @IgnorePep8
+                    _file.write(self.__format_headers__(
+                                    contents[:contents.find('\n')],
+                                    nvl(self.headers_aliases, self.headers)))
                 _file.write(contents)
                 _file.close()
                 self.saved = True
@@ -75,13 +79,13 @@ class NumpyCSVFile(CSVFile):
             else:
                 self.array_data = np.vstack([self.array_data, values])
 
-    def __format_headers__(self, referenced_line):
-        if not self.headers == None:
+    def __format_headers__(self, referenced_line, _headers):
+        if not _headers == None:
             if len(self.output_separator.strip()) == 0:
                 sizes = map(len, referenced_line.split())
             else:
                 sizes = map(len, referenced_line.split(self.output_separator))
-            return self.output_separator.join(map(fixed_size_string, self.headers, sizes)) + '\n'  # @IgnorePep8
+            return self.output_separator.join(map(fixed_size_string, _headers, sizes)) + '\n'  # @IgnorePep8
 
 
 def save_arrays_into_file(filename, *arrays):

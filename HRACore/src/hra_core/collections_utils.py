@@ -177,13 +177,19 @@ def commas(*iterable, **params):
 
 
 def get_ordered_list_of_strings(ordered_identifiers, list_to_order,
-                        order_identifier_separator=',', case_sensitive=False):
+                        order_identifier_separator=',', case_sensitive=False,
+                        ordered_aliases_identifiers=None):
     """
     functions sorts a list of string items according to sorted
     strings included in ordered_identifiers parameter;
     this function returns a new list object
     ordered_identifiers parameter could be a string of identifiers
     separated by separator or a list of identifiers
+    ordered_aliases_identifiers is a set of aliases identifiers
+    which are used in returned list instead of identifiers included
+    in ordered_identifiers parameter;
+    number of items in ordered_aliases_identifiers should be the same
+    as in ordered_identifiers
     """
     if ordered_identifiers == None or list_to_order == None \
         or len(ordered_identifiers) == 0 or len(list_to_order) == 0:
@@ -194,15 +200,30 @@ def get_ordered_list_of_strings(ordered_identifiers, list_to_order,
     else:
         ordered_names = get_as_list(
                     ordered_identifiers, separator=order_identifier_separator)
-    for ordered_name in ordered_names:
+    ordered_aliases_names = None
+    if not ordered_aliases_identifiers == None:
+        if isinstance(ordered_aliases_identifiers, list):
+            ordered_aliases_names = ordered_aliases_identifiers
+        else:
+            ordered_aliases_names = get_as_list(ordered_aliases_identifiers,
+                                        separator=order_identifier_separator)
+    for idx, ordered_name in enumerate(ordered_names):
         for name in list_to_order:
             if (case_sensitive is False
                     and name.lower() == ordered_name.lower()) \
                 or (case_sensitive is True and name == ordered_name):
-                list_ordered.append(name)
+                if ordered_aliases_names == None:
+                    list_ordered.append(name)
+                else:
+                    if idx < len(ordered_aliases_names):
+                        list_ordered.append(ordered_aliases_names[idx])
+                    else:
+                        list_ordered.append(name)
                 break
-    #append to the end items not founded in ordered_identifiers
-    list_ordered[len(list_ordered):] = \
+    if ordered_aliases_identifiers == None:
+        #append to the end items not founded in ordered_identifiers
+        #do it only when alias are not specified
+        list_ordered[len(list_ordered):] = \
                 [name for name in list_to_order if name not in list_ordered]
     if not len(list_ordered) == len(list_to_order):
         raise RuntimeError("size if ordered list doesn't equal source list")
