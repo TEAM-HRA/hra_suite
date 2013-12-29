@@ -146,6 +146,7 @@ class PoincarePlotGenerator(object):
                      output_suffix='_sum',
                      ordered_headers=ordered_headers,
                      output_prefix=self.p.output_prefix,
+                     ordered_headers_aliases=self.p.summary_headers_aliases,
                      message='\nSummary statistics saved into the file: ') as summary_csv: # @IgnorePep8
                     summary_csv.write(get_summary_statistics_for_csv(
                                         self.p.summary_statistics))

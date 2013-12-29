@@ -390,6 +390,8 @@ class PoincarePlotManager(object):
             help="""used as a file where are stored all input files according to data_dir and extension and this overall file is used as a input file for further analisys [optional]""") # @IgnorePep8
         statistics_group.add_argument("-headers_aliases", "--headers_aliases",
             help="""aliases for output headers, this parameter must correspond to items of statistics_names""")  # @IgnorePep8
+        statistics_group.add_argument("-summary_headers_aliases", "--summary_headers_aliases", # @IgnorePep8
+            help="""aliases for output summary headers, this parameter must correspond to items of summary_statistics_names""")  # @IgnorePep8
 
         movie_group = parser.add_argument_group(
                             title=MOVIE_PARAMETERS_GROUP,
