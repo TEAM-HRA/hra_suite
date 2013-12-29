@@ -224,8 +224,6 @@ class PoincarePlotParameters(CoreParameters):
 
         if self.filters_names is not None:
             map(self.addFilter, get_as_list(self.filters_names))
-        else:
-            self.filters = []
 
         if self.output_dir:
             # remove leading and trailing whitespaces

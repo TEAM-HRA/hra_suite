@@ -65,9 +65,9 @@ class OutputSpecificationWidget(GroupBoxWidget):
             #                    FileDataParameters.NAME, FileDataParameters)
             parameters = container.getParametersObject(
                         PoincarePlotParameters.NAME, PoincarePlotParameters)
-            return parameters.output_precision
-        else:
-            return DEFAULT_OUTPUT_PRECISION
+            if not parameters.output_precision == None:
+                return parameters.output_precision
+        return DEFAULT_OUTPUT_PRECISION
 
     def __getSeparator__(self):
         return self.__separator__.getSeparatorSign()

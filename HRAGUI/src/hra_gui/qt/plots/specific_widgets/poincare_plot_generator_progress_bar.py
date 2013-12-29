@@ -9,6 +9,8 @@ try:
     from PyQt4.QtCore import *  # @UnusedWildImport
     from hra_core.misc import Params
     from hra_core.collections_utils import nvl
+    from hra_math.model.parameters.poincare_plot_parameters \
+        import PoincarePlotParameters
     from hra_math.time_domain.poincare_plot.poincare_plot_generator import PoincarePlotGenerator # @IgnorePep8
     from hra_math.time_domain.poincare_plot.poincare_plot_generator import ProgressHandlerGenerator # @IgnorePep8
     from hra_math.time_domain.poincare_plot.poincare_plot_generator import StartProgressGenerator # @IgnorePep8
@@ -47,9 +49,12 @@ class PoincarePlotGeneratorProgressBar(object):
         progressManager = ProgressDialogManager(self.parent,
                                 count=len(self.__data_vector_accessor_list__))
         for data_vector_accessor in self.__data_vector_accessor_list__:
+            parameters = \
+                data_vector_accessor.parameters_container.parameters.get(PoincarePlotParameters.NAME) #  alias @IgnorePep8
+            parameters.prepareParameters()
             pp_generator = PoincarePlotGenerator(
                         output_file_listener=self.params.output_file_listener,
-                        **data_vector_accessor.parameters_container.parameters)
+                        parameters=parameters)
             if self.params.save_csv == True:
                 (ok, _) = pp_generator.precheck(
                                         data_vector_accessor.source_name)
@@ -59,7 +64,7 @@ class PoincarePlotGeneratorProgressBar(object):
                                         data_vector_accessor.source_name)
                     continue
 
-            message = pp_generator.checkParameters(self.params.check_level)
+            message = parameters.validateParameters(self.params.check_level)
             if message:
                 ErrorWindow(message=message)
                 return

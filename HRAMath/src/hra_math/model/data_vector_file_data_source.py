@@ -139,8 +139,8 @@ class DataVectorFileDataSource(object):
 
     @property
     def source_filename(self):
-        self.__data_source__.source_filename
+        return self.__data_source__.source_filename
 
     @property
     def source_pathname(self):
-        self.__data_source__.source_pathname
+        return self.__data_source__.source_pathname

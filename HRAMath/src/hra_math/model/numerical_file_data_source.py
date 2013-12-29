@@ -31,10 +31,16 @@ class NumericalFileDataSource(FileSource):
                               skiprows=self.headers_count,
                               unpack=True)
         else:
-            _data = pl.loadtxt(self._file,
+            try:
+                _data = pl.loadtxt(self._file,
                               skiprows=self.headers_count,
                               unpack=True,
                               delimiter=self.params.separator)
+            except ValueError:
+                #try to load without a separator
+                _data = pl.loadtxt(self._file,
+                              skiprows=self.headers_count,
+                              unpack=True)
 
         #some issues with preparing data, details in prepare_data_arrays func.
         return prepare_data_arrays(self._file, self.headers_count, _data)

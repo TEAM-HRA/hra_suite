@@ -13,6 +13,7 @@ try:
     from hra_core.misc import get_max_number_between_signs
     from hra_core.collections_utils import any_indexes
     from hra_core.collections_utils import or_values
+    from hra_core.collections_utils import nvl
     from hra_core.globals import GLOBALS
     from hra_core.introspection import get_class_object
     from hra_core.io_utils import normalize_filenames
@@ -135,7 +136,8 @@ def QuestionWindow(buttons_list, parent=None, default_button=None, **params):
     return box.exec_()
 
 
-def AreYouSureWindow(parent=None, default_button=QMessageBox.Yes, **params):
+def AreYouSureWindow(parent=None, **params):
+    default_button = nvl(params.get('default_button', None), QMessageBox.Yes)
     ret = QuestionWindow([QMessageBox.Yes, QMessageBox.No],
                          parent,
                          default_button=default_button,
