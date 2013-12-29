@@ -34,7 +34,7 @@ class PoincarePlotGenerator(object):
     def __init__(self, **params):
         self.__error_message__ = None
         self.__info_message__ = None
-        self.__p__ = params.get("parameters")
+        self.p = params.get("parameters")
         self.__info_handler__ = params.get("info_handler",
                                        self.__empty_info_handler__)
 
@@ -48,18 +48,18 @@ class PoincarePlotGenerator(object):
     def precheck(self, reference_filename):
         message = None
         self.__outcome_exists__ = False
-        if self.__p__.override_existing_outcomes == False \
+        if self.p.override_existing_outcomes == False \
             and reference_filename:
             #check if output file for normal statistics exists already
-            with NumpyCSVFile(output_dir=self.__p__.output_dir,
+            with NumpyCSVFile(output_dir=self.p.output_dir,
                            reference_filename=reference_filename,
-                           output_prefix=self.__p__.output_prefix) as csv:
+                           output_prefix=self.p.output_prefix) as csv:
                 if not os.path.exists(csv.output_file):
                     #check if output file for summary statistics exists already
-                    with NumpyCSVFile(output_dir=self.__p__.output_dir,
+                    with NumpyCSVFile(output_dir=self.p.output_dir,
                         reference_filename=reference_filename,
                         output_suffix='_sum',
-                        output_prefix=self.__p__.output_prefix) as csv:
+                        output_prefix=self.p.output_prefix) as csv:
                         pass
             if os.path.exists(csv.output_file):
                 message = 'Skipping processing, the outcome file ' + str(csv.output_file) + ' exists !' # @IgnorePep8
@@ -80,7 +80,7 @@ class PoincarePlotGenerator(object):
         if not start_progress == None:
             if hasattr(start_progress, 'progress_mark'):
                 if start_progress.progress_mark == None:
-                    start_progress.progress_mark = self.__p__.progress_mark
+                    start_progress.progress_mark = self.p.progress_mark
             if hasattr(start_progress, 'info_handler'):
                 if start_progress.info_handler == None:
                     start_progress.info_handler = self.__info_handler__
@@ -93,22 +93,22 @@ class PoincarePlotGenerator(object):
         """
         generates poincare plots and saves outcomes to csv files
         """
-        with NumpyCSVFile(output_dir=self.__p__.output_dir,
+        with NumpyCSVFile(output_dir=self.p.output_dir,
                     reference_filename=reference_filename,
-                    output_precision=self.__p__.output_precision,
+                    output_precision=self.p.output_precision,
                     print_output_file=True,
-                    ordinal_column_name=self.__p__.ordinal_column_name,
-                    output_separator=self.__p__.output_separator,
+                    ordinal_column_name=self.p.ordinal_column_name,
+                    output_separator=self.p.output_separator,
                     sort_headers=False,
-                    add_headers=self.__p__.add_headers,
-                    output_prefix=self.__p__.output_prefix,
-                    ordered_headers=self.__p__.statistics_names) as csv:
+                    add_headers=self.p.add_headers,
+                    output_prefix=self.p.output_prefix,
+                    ordered_headers=self.p.statistics_names) as csv:
 
             if not start_progress == None:
                 start_progress.reference_filename = reference_filename
                 if hasattr(start_progress, 'progress_mark'):
                     if start_progress.progress_mark == None:
-                        start_progress.progress_mark = self.__p__.progress_mark
+                        start_progress.progress_mark = self.p.progress_mark
                 if hasattr(start_progress, 'info_handler'):
                     if start_progress.info_handler == None:
                         start_progress.info_handler = self.__info_handler__
@@ -122,36 +122,36 @@ class PoincarePlotGenerator(object):
 
         if not_interrupted:
             #if csv.info_message:
-            #    self.__p__.info_handler(csv.info_message)
+            #    self.p.info_handler(csv.info_message)
             if csv.error_message:
                 self.__info_handler__(csv.error_message)
                 return
 
             #give info about saved file
-            if csv.saved and self.__p__.output_file_listener:
-                self.__p__.output_file_listener(csv.output_file)
+            if csv.saved and self.p.output_file_listener:
+                self.p.output_file_listener(csv.output_file)
 
-            if not self.__p__.summary_statistics == None:
+            if not self.p.summary_statistics == None:
                 #get ordered headers for summary statistics
                 ordered_headers = get_summary_statistics_order_for_csv(
-                                    self.__p__.summary_statistics_order)
-                with NumpyCSVFile(output_dir=self.__p__.output_dir,
+                                    self.p.summary_statistics_order)
+                with NumpyCSVFile(output_dir=self.p.output_dir,
                      reference_filename=reference_filename,
-                     output_precision=self.__p__.output_precision,
+                     output_precision=self.p.output_precision,
                      print_output_file=True,
-                     output_separator=self.__p__.output_separator,
+                     output_separator=self.p.output_separator,
                      sort_headers=False,
-                     add_headers=self.__p__.add_headers,
+                     add_headers=self.p.add_headers,
                      output_suffix='_sum',
                      ordered_headers=ordered_headers,
-                     output_prefix=self.__p__.output_prefix,
+                     output_prefix=self.p.output_prefix,
                      message='\nSummary statistics saved into the file: ') as summary_csv: # @IgnorePep8
                     summary_csv.write(get_summary_statistics_for_csv(
-                                        self.__p__.summary_statistics))
+                                        self.p.summary_statistics))
 
                 #give info about saved summary file
-                if summary_csv.saved and self.__p__.output_file_listener:
-                    self.__p__.output_file_listener(summary_csv.output_file)
+                if summary_csv.saved and self.p.output_file_listener:
+                    self.p.output_file_listener(summary_csv.output_file)
         return not_interrupted
 
     def generate_movie(self, data_vector, reference_filename, start_progress):
@@ -162,7 +162,7 @@ class PoincarePlotGenerator(object):
             start_progress.reference_filename = reference_filename
             if hasattr(start_progress, 'progress_mark'):
                 if start_progress.progress_mark == None:
-                    start_progress.progress_mark = self.__p__.progress_mark
+                    start_progress.progress_mark = self.p.progress_mark
             if hasattr(start_progress, 'info_handler'):
                 if start_progress.info_handler == None:
                     start_progress.info_handler = self.__info_handler__
@@ -178,38 +178,38 @@ class PoincarePlotGenerator(object):
         """
         core functionality to generate poincare plots
         """
-        filter_manager = FilterManager(_shift=self.__p__.window_shift,
-                    _excluded_annotations=self.__p__.excluded_annotations,
-                    _filters=self.__p__.filters)
+        filter_manager = FilterManager(_shift=self.p.window_shift,
+                    _excluded_annotations=self.p.excluded_annotations,
+                    _filters=self.p.filters)
 
         #there could be the case when only statistics name are defined
         #and then we have to extract from the names corresponding classes
         statistics_classes = extended_statistics_classes(
-                self.__p__.statistics_classes,
-                self.__p__.statistics_names,
-                self.__p__.summary_statistics_classes,
-                self.__p__.summary_statistics_names)
+                self.p.statistics_classes,
+                self.p.statistics_names,
+                self.p.summary_statistics_classes,
+                self.p.summary_statistics_names)
 
         statisticsFactory = StatisticsFactory(
-                    statistics_names=self.__p__.statistics_names,
+                    statistics_names=self.p.statistics_names,
                     statistics_classes=statistics_classes,
-                    statistics_handlers=self.__p__.statistics_handlers,
-                    _use_identity_line=self.__p__.use_identity_line,
-                    use_buffer=self.__p__.use_buffer)
+                    statistics_handlers=self.p.statistics_handlers,
+                    _use_identity_line=self.p.use_identity_line,
+                    use_buffer=self.p.use_buffer)
         if not statisticsFactory.has_statistics:
             return True
         summaryStatisticsFactory = SummaryStatisticsFactory(
-            summary_statistics_names=self.__p__.summary_statistics_names,
-            summary_statistics_classes=self.__p__.summary_statistics_classes)
+            summary_statistics_names=self.p.summary_statistics_names,
+            summary_statistics_classes=self.p.summary_statistics_classes)
 
         segmenter = SegmenterManager.getDataVectorSegmenter(data_vector,
-                                            self.__p__.window_size_value,
-                                            self.__p__.window_size_unit,
-                                            self.__p__.sample_step,
-                                            self.__p__.window_shift,
-                                            self.__p__.stepper_size,
-                                            self.__p__.stepper_unit)
-        if self.__p__.print_first_signal:
+                                            self.p.window_size_value,
+                                            self.p.window_size_unit,
+                                            self.p.sample_step,
+                                            self.p.window_shift,
+                                            self.p.stepper_size,
+                                            self.p.stepper_unit)
+        if self.p.print_first_signal:
             print('Signal data [first row]: ' + str(data_vector.signal))
 
         if segmenter.stop:
@@ -279,11 +279,11 @@ class PoincarePlotGenerator(object):
                 parameters_old = parameters
                 data_segment_old = data_segment
 
-        self.__p__.summary_statistics = None
+        self.p.summary_statistics = None
         if interrupter.isInterrupted() == False:
             if summaryStatisticsFactory.has_summary_statistics > 0:
-                self.__p__.summary_statistics = summaryStatisticsFactory.summary_statistics # @IgnorePep8
-                self.__p__.summary_statistics_order = summaryStatisticsFactory.summary_statistics_order # @IgnorePep8
+                self.p.summary_statistics = summaryStatisticsFactory.summary_statistics # @IgnorePep8
+                self.p.summary_statistics_order = summaryStatisticsFactory.summary_statistics_order # @IgnorePep8
 
         if progress:
             close = getattr(progress, 'close')
@@ -311,7 +311,7 @@ class PoincarePlotGenerator(object):
         formatted_statistics = {}
         for statistic, value in self.summary_statistics.items():
             formatted_statistics[statistic] = format_decimal(value,
-                                            self.__p__.output_precision)
+                                            self.p.output_precision)
         return formatted_statistics
 
     def segment_count(self, data_vector):
@@ -320,12 +320,12 @@ class PoincarePlotGenerator(object):
         processing of poincare plot
         """
         segmenter = SegmenterManager.getDataVectorSegmenter(data_vector,
-                                            self.__p__.window_size_value,
-                                            self.__p__.window_size_unit,
-                                            self.__p__.sample_step,
-                                            self.__p__.window_shift,
-                                            self.__p__.stepper_size,
-                                            self.__p__.stepper_unit)
+                                            self.p.window_size_value,
+                                            self.p.window_size_unit,
+                                            self.p.sample_step,
+                                            self.p.window_shift,
+                                            self.p.stepper_size,
+                                            self.p.stepper_unit)
         return segmenter.segment_count()
 
     def __generate_movie__(self, data_vector, start_progress,
@@ -333,17 +333,17 @@ class PoincarePlotGenerator(object):
         """
         core functionality to generate poincare plot movie
         """
-        filter_manager = FilterManager(_shift=self.__p__.window_shift,
-                    _excluded_annotations=self.__p__.excluded_annotations,
-                    _filters=self.__p__.filters)
+        filter_manager = FilterManager(_shift=self.p.window_shift,
+                    _excluded_annotations=self.p.excluded_annotations,
+                    _filters=self.p.filters)
 
         segmenter = SegmenterManager.getDataVectorSegmenter(data_vector,
-                                            self.__p__.window_size_value,
-                                            self.__p__.window_size_unit,
-                                            self.__p__.sample_step,
-                                            self.__p__.window_shift,
-                                            self.__p__.stepper_size,
-                                            self.__p__.stepper_unit,
+                                            self.p.window_size_value,
+                                            self.p.window_size_unit,
+                                            self.p.sample_step,
+                                            self.p.window_shift,
+                                            self.p.stepper_size,
+                                            self.p.stepper_unit,
                                             mark_last_segment=True)
         if segmenter.stop:
             return True  # to avoid interrupt processing many data sources
@@ -359,7 +359,7 @@ class PoincarePlotGenerator(object):
 
         self.__movie_progress__ = progress
 
-        movie_maker = PoincarePlotMovieMaker(data_vector, self.__p__,
+        movie_maker = PoincarePlotMovieMaker(data_vector, self.p,
                             segment_count=segmenter.segment_count(),
                             filter_manager=filter_manager,
                             info_message_handler=self.__info_message_handler__,
@@ -404,7 +404,7 @@ class PoincarePlotGenerator(object):
         interrupted = interrupter.isInterrupted()
         interrupter.clean()
 
-        if not interrupted or self.__p__.movie_save_partial:
+        if not interrupted or self.p.movie_save_partial:
             movie_maker.save_movie()
             self.__info_handler__(movie_maker.info_message)
 
