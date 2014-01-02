@@ -23,6 +23,7 @@ try:
         import extended_statistics_classes
     from hra_math.time_domain.poincare_plot.filters.filter_manager \
         import FilterManager
+    from hra_math.utils.plot_utils import create_2_plots
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -131,6 +132,12 @@ class PoincarePlotGenerator(object):
             #give info about saved file
             if csv.saved and self.p.output_file_listener:
                 self.p.output_file_listener(csv.output_file)
+
+            if csv.saved and not self.p.dynamic_2_plots_headers == None:
+                create_2_plots(csv.output_file,
+                              self.p.dynamic_2_plots_headers,
+                              self.p.output_separator,
+                              window_size=self.p.window_size)
 
             if not self.p.summary_statistics == None:
                 #get ordered headers for summary statistics

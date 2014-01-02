@@ -523,6 +523,13 @@ def join_files(_filenames, outfilename, first_headers_only=True,
                 fout.write(line)
         return True
     return False
+
+
+def get_first_lines(_file, count=1):
+    """
+    get first count lines of a text file
+    """
+    return [line for idx, line in enumerate(open(_file)) if idx < count]
 #if __name__ == "__main__":
 #    _filenames = ['/tmp/a.txt', '/tmp/b.txt', '/tmp/c.txt']
 #    outfilename = '/tmp/all.txt'

@@ -768,6 +768,26 @@ class AsymmetryStatistic(Statistic, Asymmetry):
         return C1d > C1a and C2a > C2d and Ca > Cd
 
 
+class NdStatistic(Statistic, Asymmetry):
+    """
+    Porta index for decelerations
+    """
+    def __calculate__(self):
+        d_count = len(pl.find(self.signal_minus > self.signal_plus))
+        all_count = d_count + len(pl.find(self.signal_minus < self.signal_plus)) # @IgnorePep8
+        return (1.0 * d_count) / all_count
+
+
+class NaStatistic(Statistic, Asymmetry):
+    """
+    Porta index for accelerations
+    """
+    def __calculate__(self):
+        a_count = len(pl.find(self.signal_minus < self.signal_plus))
+        all_count = a_count + len(pl.find(self.signal_minus > self.signal_plus)) # @IgnorePep8
+        return (1.0 * a_count) / all_count
+
+
 class StatisticsFactory(object):
 
     def __init__(self, statistics_names=None, statistics_handlers=None,
