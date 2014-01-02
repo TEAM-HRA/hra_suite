@@ -396,8 +396,8 @@ class PoincarePlotManager(object):
             help="""aliases for output headers, this parameter must correspond to items of statistics_names""")  # @IgnorePep8
         statistics_group.add_argument("-summary_headers_aliases", "--summary_headers_aliases", # @IgnorePep8
             help="""aliases for output summary headers, this parameter must correspond to items of summary_statistics_names""")  # @IgnorePep8
-        statistics_group.add_argument("-dynamic_2_plots_headers", "--dynamic_2_plots_headers", # @IgnorePep8
-            help="""identifiers of headers (included in output files), used to draw two plots of parameters in one picture, one could include many pairs of parameters, all separated by comma""")  # @IgnorePep8
+        statistics_group.add_argument("-dynamic_plots_headers", "--dynamic_plots_headers", # @IgnorePep8
+            help="""draw many plots base on data from _source_file and collection of headers grouped by a semicolon, elements in a group are separated by a comma""")  # @IgnorePep8
 
         movie_group = parser.add_argument_group(
                             title=MOVIE_PARAMETERS_GROUP,

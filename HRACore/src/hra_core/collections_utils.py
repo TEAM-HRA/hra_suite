@@ -260,10 +260,6 @@ def remove_suffix(_collection, _suffix):
             [name for name in _collection if name.endswith(_suffix)]]
 
 
-def get_as_string(_iterarable):
-    pass
-
-
 def get_chunks(arr, chunk_size=10):
     """
     function generates chunks of arrays of chunk_size size
