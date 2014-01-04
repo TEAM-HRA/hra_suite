@@ -33,4 +33,5 @@ plt.plot(C2s)
 plt.legend(['C2w', 'C2s'], loc='upper left')
 plt.axes().set_xlabel('Time')
 
-plt.show()
+#plt.show()  # show plot
+plt.savefig("/home/tmp/my_fig.png") # save plot
