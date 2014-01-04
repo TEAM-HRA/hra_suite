@@ -4,40 +4,45 @@ Created on Jan 3, 2014
 @author: jurek
 '''
 import argparse
+import glob
+from shutil import copyfile
 from openpyxl import Workbook
 from openpyxl import load_workbook
-import glob
 from hra_core.io_utils import get_first_lines
 from hra_core.io_utils import get_filename
-#from hra_core.io_utils import get_dirname
 from hra_core.misc import extract_number
 
 # example of eclipse parameters:
-#-source_xls '/home/jurek/tmp/klinika.xlsx'
-#-source_csv_files_mask '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/SVR_team/*.res_out'  # @IgnorePep8
+#-source_xls '/home/jurek/tmp/klinika0.xlsx'
+#-output_xls '/home/jurek/tmp/klinika_out.xlsx'
+#-sources_csv_files_mask '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/CO_team/*.res_out',  # @IgnorePep8 one line
+#                        '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/IVRT_team/*.res_out',  # @IgnorePep8   one line
+#                        '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/PEP_team/*.res_out',  # @IgnorePep8   one line
+#                        '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/SV_team/*.res_out',  # @IgnorePep8   one line
+#                        '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/SVR_team/*.res_out'  # @IgnorePep8   one line
 #-separator ';'
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-source_xls", "--source_xls", help="source xls file")
-parser.add_argument("-source_csv_files_mask", "--source_csv_files_mask",
+parser.add_argument("-output_xls", "--output_xls", help="output xls file")
+parser.add_argument("-sources_csv_files_mask", "--sources_csv_files_mask",
                     help="source csv files list mask")
 parser.add_argument("-separator", "--separator", help="separator")
 __args = parser.parse_args()
 
 
-def merge_xls(source_xls, source_csv_files_mask, separator):
-    #output_xls = "%s/%s_out.xlsx" % (get_dirname(source_xls),
-    #                                 get_filename(source_xls))
-
+def merge_xls(output_xls, source_csv_files_mask, separator):
+    print('***************************************************')
+    print('csv source files: ' + source_csv_files_mask)
     xls = None
     merged_sheet = None
     for file_nr, _file in enumerate(glob.glob(source_csv_files_mask)):
         #if file_nr == 2:
         #    break
-        print('*****************************')
+        print('===================================')
         print('Processing file: ' + str(_file))
         if xls == None:
-            xls = load_workbook(source_xls)
+            xls = load_workbook(output_xls)
             merged_sheet = xls.get_sheet_by_name('merged')
             lp_cells = merged_sheet.columns[0]
             headers_cells = merged_sheet.rows[0]
@@ -82,15 +87,23 @@ def merge_xls(source_xls, source_csv_files_mask, separator):
             print('No item in xls file for ' + str(_file))
             return
         if save:
-            print("Saving " + source_xls)
-            xls.save(source_xls)
+            print("Saving " + output_xls)
+            xls.save(output_xls)
+            print(".. done")
             xls = None
 
     if not xls == None:
-        print("Saving " + source_xls)
-        xls.save(source_xls)
+        print("Saving " + output_xls)
+        xls.save(output_xls)
+        print(".. done")
 
 
-merge_xls(__args.source_xls, __args.source_csv_files_mask, __args.separator)
+#copy source xml file into output xml file
+print("Copy source xml file into output xml file")
+copyfile(__args.source_xls, __args.output_xls)
+print(".. done")
+
+for source_csv_files_mask in __args.sources_csv_files_mask.split(','):
+    merge_xls(__args.output_xls, source_csv_files_mask, __args.separator)
 
 print('The End')
