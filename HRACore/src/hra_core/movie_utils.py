@@ -11,6 +11,7 @@ from hra_core.system_utils import execute_command
 from hra_core.system_utils import run_command
 from hra_core.io_utils import as_path
 from hra_core.misc import is_empty
+from hra_core.collections_utils import nvl
 
 
 MovieSpecification = collections.namedtuple('MovieSpecification',
@@ -62,6 +63,7 @@ def generate_movie(movie_name, movie_dir,
     specified parameters; at this time multiprocessing
     version is used only for Linux OS
     """
+    movie_clean_frames = nvl(movie_clean_frames, True)
     if _platform.find("linux") >= 0:
         return __generate_multiprocessing_movie__(movie_name, movie_dir,
                                               movie_width, movie_height,
@@ -95,7 +97,9 @@ def __generate_multiprocessing_movie__(movie_name, movie_dir,
 
     #create listing of all files
     listing_file = str(as_path(movie_dir, movie_name + ".lst"))
-    command = 'ls %s > %s' % (as_path(movie_dir, movie_frames), listing_file)
+    #command = 'ls %s > %s' % (as_path(movie_dir, movie_frames), listing_file)
+    #a better version with no trouble with a limit of number of files of ls command
+    command = '(cd %s; find $PWD -name \'*.png\' | sort > %s)' % (movie_dir, listing_file)
     execute_command(command)
 
     #get number of movie frames
@@ -175,4 +179,10 @@ def __generate_multiprocessing_movie__(movie_name, movie_dir,
 #vcodec=mpeg4:mbd=2:trell -oac copy -o output.avi
 
 if __name__ == '__main__':
-    generate_movie("pp_movie", "/tmp", 500, 500, 700)
+    #generate_movie("pp_movie", "/tmp", 500, 500, 700, movie_clean_frames=False)
+    generate_movie('pp_movie', '/home/tmp/movie_NIEZ40_P_24h/rr_m_NIEZ40_P/',
+                   movie_width=600, movie_height=600,
+                   movie_frames = '*.png',
+                   movie_fps = 40000,
+                   movie_clean_frames=False)
+

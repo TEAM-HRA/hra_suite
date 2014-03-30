@@ -398,6 +398,9 @@ class PoincarePlotManager(object):
             help="""aliases for output summary headers, this parameter must correspond to items of summary_statistics_names""")  # @IgnorePep8
         statistics_group.add_argument("-dynamic_plots_headers", "--dynamic_plots_headers", # @IgnorePep8
             help="""draw many plots base on data from _source_file and collection of headers grouped by a semicolon, elements in a group are separated by a comma""")  # @IgnorePep8
+        statistics_group.add_argument("-timing", "--timing",
+            help="add timing column",
+            type=to_bool, default=False)
 
         movie_group = parser.add_argument_group(
                             title=MOVIE_PARAMETERS_GROUP,

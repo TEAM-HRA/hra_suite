@@ -6,6 +6,7 @@ Created on 24 kwi 2013
 from hra_math.utils.utils import print_import_error
 try:
     import os
+    import numpy as np
     from hra_core.misc import format_decimal
     from hra_core.utils import ProgressMark
     from hra_core.utils import ControlInterruptHandler
@@ -38,6 +39,7 @@ class PoincarePlotGenerator(object):
         self.p = params.get("parameters")
         self.__info_handler__ = params.get("info_handler",
                                        self.__empty_info_handler__)
+        self.__timing__ = None
 
     # if parameter is not set in the __init__() this method then returns None
     def __getattr__(self, name):
@@ -240,7 +242,7 @@ class PoincarePlotGenerator(object):
             if segmenter.data_changed:
                 parameters.clear()
                 parameters_old = None
-                data_segment_old = None
+                #data_segment_old = None
             else:
                 parameters = parameters_old
                 data_segment = data_segment_old
@@ -269,6 +271,10 @@ class PoincarePlotGenerator(object):
                     continue
 
             if segmenter.data_changed:
+                #add timing info into parameters
+                if self.p.timing:
+                    self.__add_timing__(parameters, data_segment,
+                                        data_segment_old)
                 statistics = statisticsFactory.statistics(data_segment)
                 parameters.update(statistics)
 
@@ -426,6 +432,28 @@ class PoincarePlotGenerator(object):
             self.__movie_progress__.tick(additional_message=_message)
         else:
             self.__info_handler__(_message)
+
+    def __add_timing__(self, parameters, data_segment, data_segment_old):
+        """
+        add timing values as first items acquired from every previous signal;
+        because of the implementation this method is suitable only with
+        sliding data windows
+        """
+        if self.__timing__ == None:
+            self.__timing__ = 0
+        else:
+            timing = 0
+            if not data_segment_old == None:
+                timing = data_segment_old.signal_plus[0]
+                s_old = len(data_segment_old.signal_plus)
+                if len(data_segment.signal_plus) > s_old:
+                    #if a previous signal starts like the current one
+                    #the mean value of the previous signal is take into account
+                    if np.array_equal(data_segment.signal_plus[:s_old],
+                                      data_segment_old.signal_plus):
+                        timing = np.mean(data_segment_old.signal_plus)
+            self.__timing__ = self.__timing__ + int(timing)
+        parameters['timing'] = self.__timing__
 
 
 class StartProgressGenerator(object):
