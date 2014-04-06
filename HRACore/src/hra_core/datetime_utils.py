@@ -49,9 +49,19 @@ def invocation_time(method):
 
 
 def get_time_label_for_miliseconds(miliseconds):
+    time_ = get_time_for_miliseconds(miliseconds)
+    return 'H : %02d, M : %02d, S : %02d' % time_
+
+
+def get_time_label_parts_for_miliseconds(miliseconds):
+    time_ = get_time_for_miliseconds(miliseconds)
+    return ('H:%02d' % time_[0], 'M:%02d' % time_[1], 'S:%02d' % time_[2])
+
+
+def get_time_for_miliseconds(miliseconds):
     hours, remainder = divmod(miliseconds / 1000, 3600)
     minutes, seconds = divmod(remainder, 60)
-    return 'H : %02d, M : %02d, S : %02d' % (hours, minutes, seconds)
+    return (hours, minutes, seconds)
 
 
 def __format_as_datetime__(_s_datetime):
