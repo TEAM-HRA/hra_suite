@@ -22,7 +22,8 @@ from hra_core.misc import extract_number
 #                        '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/IVRT_team/*.res_out',  # @IgnorePep8   one line
 #                        '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/PEP_team/*.res_out',  # @IgnorePep8   one line
 #                        '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/SV_team/*.res_out',  # @IgnorePep8   one line
-#                        '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/SVR_team/*.res_out'  # @IgnorePep8   one line
+#                        '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/SVR_team/*.res_out',  # @IgnorePep8   one line
+#                        '/home/jurek/volumes/doctoral/monitor_do_impedancji_niccomo_wyniki/LVET_team/*.res_out'  # @IgnorePep8   one line
 #-separator ';'
 #-index_file_xls '/home/jurek/tmp/indexes.xlsx'
 #-index_code_name kodlast7
@@ -224,8 +225,8 @@ print(".. done")
 for source_csv_files_mask in __args.sources_csv_files_mask.split(','):
     if not __args.index_file_xls == None:
         merge_xls_by_index_file(__args.output_xls,
-                                __args.output_sheet_name,
-                                __args.output_file_column_idx,
+                                #__args.output_sheet_name,
+                                #__args.output_file_column_idx,
                                 source_csv_files_mask, __args.separator,
                                 __args.index_file_xls, __args.index_sheet_name)
     elif not __args.output_file_column_idx == None:
