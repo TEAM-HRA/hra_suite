@@ -17,7 +17,7 @@ try:
     from chaco.label_axis import LabelAxis
     from chaco.scatterplot import render_markers
     from kiva.constants import CIRCLE_MARKER as CIRCLE
-    from hra_core.datetime_utils import get_time_label_for_miliseconds
+    from hra_core.datetime_utils import get_time_label_parts_for_miliseconds
     from hra_core.collections_utils import nvl
 except ImportError as error:
     print_import_error(__name__, error)
@@ -37,9 +37,9 @@ class PoincarePlotFastMovieMakerWorker(object):
 
         #set up specific values for fonts sizes based on products of a movie
         #height and arbitrary constants to give looking good picture
-        self.axis_font = 'modern ' + str(self.manager.movie_height / 53)
-        self.title_font = 'modern ' + str(self.manager.movie_height / 40)
-        self.text_font = 'modern ' + str(self.manager.movie_height / 61)
+        self.axis_font = 'modern ' + str(self.manager.movie_height / 38)
+        self.title_font = 'modern ' + str(self.manager.movie_height / 30)
+        self.text_font = 'modern ' + str(self.manager.movie_height / 35)
 
     def initiate(self):
         if len(self.pp_specs) == 0:
@@ -54,7 +54,7 @@ class PoincarePlotFastMovieMakerWorker(object):
         y_min = pl.amin(y)
         y_max = pl.amax(y)
         value_min = x_min if x_min < y_min else y_min
-        value_max = x_max if x_max > y_max else y_max
+        self.value_max = x_max if x_max > y_max else y_max
 
         self.pd = ArrayPlotData()
         self.pd.set_data("index", x)
@@ -70,8 +70,8 @@ class PoincarePlotFastMovieMakerWorker(object):
 
         self._plot.index_mapper.stretch_data = False
         self._plot.value_mapper.stretch_data = False
-        self._plot.value_range.set_bounds(value_min, value_max)
-        self._plot.index_range.set_bounds(value_min, value_max)
+        self._plot.value_range.set_bounds(value_min, self.value_max)
+        self._plot.index_range.set_bounds(value_min, self.value_max)
 
         # Create the index and value mappers using the plot data ranges
         imapper = LinearMapper(range=self._plot.index_range)
@@ -80,12 +80,12 @@ class PoincarePlotFastMovieMakerWorker(object):
         # add axis labels
         bottom_axis = LabelAxis(self._plot, orientation='bottom',
                                title=nvl(self.manager.x_label, 'RR(n) [ms]'),
-                               positions=range(1, int(value_max / 10)),
+                               positions=range(1, int(self.value_max / 10)),
                                title_font=self.axis_font)
         self._plot.underlays.append(bottom_axis)
         left_axis = LabelAxis(self._plot, orientation='left',
                                title=nvl(self.manager.y_label, 'RR(n+1) [ms]'),
-                               positions=range(1, int(value_max / 10)),
+                               positions=range(1, int(self.value_max / 10)),
                                title_font=self.axis_font)
         self._plot.underlays.append(left_axis)
 
@@ -109,10 +109,10 @@ class PoincarePlotFastMovieMakerWorker(object):
                         )
         self._plot.add(self.scatter)
 
-        self._plot.plots['var_size_scatter'] = [self.scatter]
+        #self._plot.plots['var_size_scatter'] = [self.scatter]
 
         # Tweak some of the plot properties
-        self._plot.title = "Poincare plot"
+        self._plot.title = nvl(self.manager.movie_title, "Poincare plot")
         self._plot.title_font = self.title_font
         self._plot.line_width = 0.5
         self._plot.padding = 50
@@ -131,13 +131,6 @@ class PoincarePlotFastMovieMakerWorker(object):
         self.x_mean_old = None
         self.y_mean_old = None
         self._font = None
-
-        self.tw = None
-        self.th = None
-        self.tx = None
-        self.ty = None
-        self.w = None
-        self.h = None
 
         return True
 
@@ -169,41 +162,39 @@ class PoincarePlotFastMovieMakerWorker(object):
 
         self._draw_time_text(self.gc, p)
         self.gc.save_state()
+
+        if self.manager.movie_frame_step > 0 and idx > 0:
+            # only frames module movie_frame_step are generated
+            if not self.manager.movie_frame_step % idx == 0:
+                return
+
+        if self.manager.movie_identity_line:
+            __draw_identity_line__(self.gc, self.value_max, self.scatter)
+
         self.gc.save(p.frame_file)
 
     def _draw_time_text(self, gc, pp_spec):
         if pp_spec.level == 0:
-            text = get_time_label_for_miliseconds(0)
+            (H, M, S) = get_time_label_parts_for_miliseconds(0)
         else:
-            text = get_time_label_for_miliseconds(pp_spec.cum_inactive)
+            (H, M, S) = get_time_label_parts_for_miliseconds(pp_spec.cum_inactive)
 
         if not self._font:
             self._font = str_to_font(None, None, self.text_font)
 
         gc.set_font(self._font)
 
-        if not self.tw:
-            _, _, self.tw, self.th = gc.get_text_extent(text)
-
-            w_shift = self._plot.outer_bounds[0] - self._plot.width \
-                        + self._plot.padding_right
-            # divided by 2 because time label will be put at a title level
-            # this means horizontal distance could be shorter
-            h_shift = (self._plot.outer_bounds[1] - self._plot.height \
-                        + self._plot.padding_top) / 2
-
-            self.x = self._plot.outer_bounds[0] - self.tw - w_shift
-            self.y = self._plot.outer_bounds[1] - self.th - h_shift
-            self.w = self.tw + 2
-            self.h = self.th + 2
-            self.tx = self.x + self.w / 2.0 - self.tw / 2.0
-            self.ty = self.y + self.h / 2.0 - self.th / 2.0
-
-        gc.set_fill_color((1.0, 1.0, 1.0, 1.0))
-        gc.rect(self.x, self.y, self.w, self.h)
-        gc.draw_path()
-        gc.set_fill_color((0.0, 0.0, 0.0, 1.0))
-        gc.show_text_at_point(text, self.tx, self.ty)
+        shift = 10
+        for idx, time_e in enumerate([H, M, S]):
+            _, _, tw, th = gc.get_text_extent(time_e)
+            x = self._plot.outer_bounds[0] - tw - self._plot.padding_right
+            y = self._plot.outer_bounds[1] / 2 - idx * (th + shift)
+            gc.set_fill_color((1.0, 1.0, 1.0, 1.0))
+            #gc.rect(x, y, tw + shift, th)
+            gc.rect(x, y, tw, th + shift)
+            gc.draw_path()
+            gc.set_fill_color((0.0, 0.0, 0.0, 1.0))
+            gc.show_text_at_point(time_e, x, y)
 
         return
 
@@ -296,3 +287,14 @@ def __update_graphics_context__(gc, scatter, pp_spec, manager, first=False):
         r_points = scatter.map_screen(r_points)
         gc.set_fill_color(m.active_color_as_tuple)
         gc.draw_marker_at_points(r_points, m.active_point_size, CIRCLE)
+
+
+def __draw_identity_line__(gc, v_max, scatter_plot):
+    gc.set_stroke_color((0.517, 0.517, 0.517))
+    gc.set_line_width(2)
+    gc.begin_path()
+    gc.move_to(0, 0)
+    r_points = pl.array([[v_max, v_max]])
+    pp = scatter_plot.map_screen(r_points)
+    gc.line_to(pp[0][0], pp[0][0])
+    gc.stroke_path()

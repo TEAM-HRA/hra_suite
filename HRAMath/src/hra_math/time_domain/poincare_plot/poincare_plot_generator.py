@@ -236,6 +236,7 @@ class PoincarePlotGenerator(object):
         parameters = {}
         parameters_old = None
         data_segment_old = None
+        self.__timing__ = None
         for data_segment in segmenter:
             if interrupter.isInterrupted():
                 break
@@ -435,23 +436,27 @@ class PoincarePlotGenerator(object):
 
     def __add_timing__(self, parameters, data_segment, data_segment_old):
         """
-        add timing values as first items acquired from every previous signal;
-        because of the implementation this method is suitable only with
-        sliding data windows
+        add timing values as first items acquired from every previous signal,
+        suitable only for sliding data windows;
+        for stepping window the whole previous signal is a shift in time
         """
         if self.__timing__ == None:
             self.__timing__ = 0
         else:
             timing = 0
             if not data_segment_old == None:
-                timing = data_segment_old.signal_plus[0]
-                s_old = len(data_segment_old.signal_plus)
-                if len(data_segment.signal_plus) > s_old:
-                    #if a previous signal starts like the current one
-                    #the mean value of the previous signal is take into account
-                    if np.array_equal(data_segment.signal_plus[:s_old],
+                if self.p.stepper == None:
+                    timing = data_segment_old.signal_plus[0]
+                    s_old = len(data_segment_old.signal_plus)
+                    if len(data_segment.signal_plus) > s_old:
+                        #if a previous signal starts like the current one
+                        #the mean value of the previous signal is take into account
+                        if np.array_equal(data_segment.signal_plus[:s_old],
                                       data_segment_old.signal_plus):
-                        timing = np.mean(data_segment_old.signal_plus)
+                            timing = np.mean(data_segment_old.signal_plus)
+                else:
+                    #for stepping window the whole previous signal is a shift in time
+                    timing = np.sum(data_segment_old.signal_plus)
             self.__timing__ = self.__timing__ + int(timing)
         parameters['timing'] = self.__timing__
 

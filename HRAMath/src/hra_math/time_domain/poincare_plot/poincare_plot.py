@@ -452,7 +452,7 @@ class PoincarePlotManager(object):
             default=3, type=int)
         movie_group.add_argument("-movie_centroid_size", "--movie_centroid_size", # @IgnorePep8
             help="""movie centroid plot data point size""",
-            default=4, type=int)
+            default=6, type=int)
         movie_group.add_argument("-movie_prefixed_by_source", "--movie_prefixed_by_source", # @IgnorePep8
             help="""all intermediate frame files and output movie filename is prefixed by a name of a source file (minus extension)""", # @IgnorePep8
             type=to_bool, default=True)
@@ -463,6 +463,14 @@ class PoincarePlotManager(object):
             help="""label of X axis of poincare plot [optional]""")
         movie_group.add_argument("-y_label", "--y_label",
             help="""label of Y axis of poincare plot [optional]""")
+        movie_group.add_argument("-movie_title", "--movie_title",
+            help="""movie title [optional]""")
+        movie_group.add_argument("-movie_frame_step", "--movie_frame_step",
+            help="""only every movie step a frame is generated""",
+            default=-1, type=int)
+        movie_group.add_argument("-movie_identity_line", "--movie_identity_line",
+            help="""draw identity line in Poincare plot """,
+            type=to_bool, default=False)
 
         #add information about parameters
         for group in parser._action_groups:

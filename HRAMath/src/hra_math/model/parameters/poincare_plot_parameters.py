@@ -49,7 +49,7 @@ class PoincarePlotParameters(CoreParameters):
         self.filters = []
         self.movie_active_color = ColorRGB(255, 0, 0)
         self.movie_inactive_color = ColorRGB(0, 0, 0)
-        self.movie_centroid_color = ColorRGB(0, 255, 0)
+        self.movie_centroid_color = ColorRGB(0, 255, 255)
         self.movie_show_plot_legends = False
         self.statistics_handlers = []
         self.statistics_classes = []
