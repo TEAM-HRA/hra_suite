@@ -12,13 +12,13 @@ import matplotlib
 #matplotlib.use('GTK')
 import matplotlib.pyplot as plt
 import numpy as np
-import pylab
+import pylab as pl
 import Image
 import matplotlib.image as mpimg
 import matplotlib.gridspec as gridspec
 
-pylab.rc('text', usetex=True)
-pylab.rc('text.latex',unicode=True)
+pl.rc('text', usetex=True)
+pl.rc('text.latex',unicode=True)
 
 preamble = [
             '\usepackage[polish]{babel}',
@@ -26,10 +26,10 @@ preamble = [
             #'\usepackage[T1]{polski}'
             ]
 #pylab.rc('text.latex',preamble=preamble)
-pylab.rc('text.latex',preamble='\usepackage[T1]{polski}') # oryg
+pl.rc('text.latex',preamble='\usepackage[T1]{polski}') # oryg
 #pylab.rc('text.latex',preamble='\usepackage[T1]{fontenc}')
 #pylab.rc('text.latex',preamble='\usepackage{polski}')
-pylab.rcParams['text.latex.preamble'] = [r'\boldmath']
+pl.rcParams['text.latex.preamble'] = [r'\boldmath']
 
 
 class Spec(object):
@@ -95,11 +95,12 @@ specs = [
     Spec((8,9,10), ["SDNN_d", "SDNN_a"], file_),
     Spec((6,7,10), ["SD2_d", "SD2_a"], file_),
     Spec((4,5,10), ["SD1_d", "SD1_a"], file_),
-    Spec((1,), ["RR"], file_rr, title="Tachogram", share_plot=True),
+    Spec((1,2,), ["RR"], file_rr, title="Tachogram", share_plot=True),
     ]
 
 gs = gridspec.GridSpec(5, 1, height_ratios=[10,24,24,24,18])
 #gs.update(left=0.03, right=0.98, hspace=0.15, wspace=0.9)
+gs.update(left=0.04, right=0.99, wspace=0.1, hspace=0.2, bottom=0.04, top=0.97)
 
 num_plot = (len(specs) + 1) * 100 + 10
 num_plot = num_plot + 1
@@ -120,8 +121,12 @@ for idx, spec in enumerate(specs):
         des1, des2, timing = np.loadtxt(spec.file_, usecols=spec.usecols,
                             skiprows=1, delimiter=';', unpack=True) # @IgnorePep8
     else:
-        des1 = np.loadtxt(spec.file_, usecols=spec.usecols,
-                            skiprows=1, unpack=False)
+        des1, annotation = np.loadtxt(spec.file_, usecols=spec.usecols,
+                            skiprows=1, unpack=True)
+        #odfiltrowanie adnotacji
+        if (len(pl.array(pl.find(annotation != 0)) > 0)):
+            des1 = des1[pl.array(pl.find(annotation == 0))]
+
         timing = np.cumsum(des1)
     timing = timing / 3600000
 
