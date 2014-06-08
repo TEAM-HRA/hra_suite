@@ -37,9 +37,18 @@ class PoincarePlotFastMovieMakerWorker(object):
 
         #set up specific values for fonts sizes based on products of a movie
         #height and arbitrary constants to give looking good picture
-        self.axis_font = 'modern ' + str(self.manager.movie_height / 38)
-        self.title_font = 'modern ' + str(self.manager.movie_height / 30)
-        self.text_font = 'modern ' + str(self.manager.movie_height / 35)
+        if self.manager.movie_axis_font_size > 0:
+            self.axis_font = 'modern ' + str(self.manager.movie_axis_font_size)
+        else:
+            self.axis_font = 'modern ' + str(self.manager.movie_height / 38)
+        if self.manager.movie_title_font_size > 0:
+            self.title_font = 'modern ' + str(self.manager.movie_title_font_size)
+        else:
+            self.title_font = 'modern ' + str(self.manager.movie_height / 30)
+        if self.manager.movie_time_label_font_size > 0:
+            self.time_label_font = 'modern ' + str(self.manager.movie_time_label_font_size)
+        else:
+            self.time_label_font = 'modern ' + str(self.manager.movie_height / 35)
 
     def initiate(self):
         if len(self.pp_specs) == 0:
@@ -130,7 +139,7 @@ class PoincarePlotFastMovieMakerWorker(object):
 
         self.x_mean_old = None
         self.y_mean_old = None
-        self._font = None
+        self._time_label_font = None
 
         return True
 
@@ -175,26 +184,47 @@ class PoincarePlotFastMovieMakerWorker(object):
 
     def _draw_time_text(self, gc, pp_spec):
         if pp_spec.level == 0:
-            (H, M, S) = get_time_label_parts_for_miliseconds(0)
+            (H, M, S) = get_time_label_parts_for_miliseconds(0,
+                                hour_label=self.manager.movie_hour_label,
+                                minute_label=self.manager.movie_minute_label,
+                                second_label=self.manager.movie_second_label)
         else:
-            (H, M, S) = get_time_label_parts_for_miliseconds(pp_spec.cum_inactive)
+            (H, M, S) = get_time_label_parts_for_miliseconds(
+                                pp_spec.cum_inactive,
+                                hour_label=self.manager.movie_hour_label,
+                                minute_label=self.manager.movie_minute_label,
+                                second_label=self.manager.movie_second_label)
 
-        if not self._font:
-            self._font = str_to_font(None, None, self.text_font)
+        if not self._time_label_font:
+            self._time_label_font = str_to_font(None, None, self.time_label_font)
 
-        gc.set_font(self._font)
+        gc.set_font(self._time_label_font)
 
         shift = 10
-        for idx, time_e in enumerate([H, M, S]):
-            _, _, tw, th = gc.get_text_extent(time_e)
-            x = self._plot.outer_bounds[0] - tw - self._plot.padding_right
-            y = self._plot.outer_bounds[1] / 2 - idx * (th + shift)
+        if self.manager.movie_time_label_in_line == True:
+            if self.manager.movie_time_label_prefix:
+                time_line = '%s %s %s %s' % (self.manager.movie_time_label_prefix, H, M, S)
+            else:
+                time_line = '%s %s %s' % (H, M, S)
+            _, _, tw, th = gc.get_text_extent(time_line)
+            x = self._plot.outer_bounds[0] / 2 - tw / 2 - self._plot.padding_left
+            y = self._plot.outer_bounds[1] - self._plot.padding_top - th
             gc.set_fill_color((1.0, 1.0, 1.0, 1.0))
-            #gc.rect(x, y, tw + shift, th)
             gc.rect(x, y, tw, th + shift)
             gc.draw_path()
             gc.set_fill_color((0.0, 0.0, 0.0, 1.0))
-            gc.show_text_at_point(time_e, x, y)
+            gc.show_text_at_point(time_line, x, y)
+        else:
+            for idx, time_e in enumerate([H, M, S]):
+                _, _, tw, th = gc.get_text_extent(time_e)
+                x = self._plot.outer_bounds[0] - tw - self._plot.padding_right
+                y = self._plot.outer_bounds[1] / 2 - idx * (th + shift)
+                gc.set_fill_color((1.0, 1.0, 1.0, 1.0))
+                #gc.rect(x, y, tw + shift, th)
+                gc.rect(x, y, tw, th + shift)
+                gc.draw_path()
+                gc.set_fill_color((0.0, 0.0, 0.0, 1.0))
+                gc.show_text_at_point(time_e, x, y)
 
         return
 

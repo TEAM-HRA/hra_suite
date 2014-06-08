@@ -105,6 +105,14 @@ class PoincarePlotMovieMaker(object):
             self.pp_spec_manager.movie_title = self.p.movie_title
             self.pp_spec_manager.movie_frame_step = self.p.movie_frame_step
             self.pp_spec_manager.movie_identity_line = self.p.movie_identity_line
+            self.pp_spec_manager.movie_hour_label = self.p.movie_hour_label
+            self.pp_spec_manager.movie_minute_label = self.p.movie_minute_label
+            self.pp_spec_manager.movie_second_label = self.p.movie_second_label
+            self.pp_spec_manager.movie_time_label_in_line = self.p.movie_time_label_in_line
+            self.pp_spec_manager.movie_time_label_font_size = self.p.movie_time_label_font_size
+            self.pp_spec_manager.movie_time_label_prefix = self.p.movie_time_label_prefix
+            self.pp_spec_manager.movie_title_font_size = self.p.movie_title_font_size
+            self.pp_spec_manager.movie_axis_font_size = self.p.movie_axis_font_size
 
             self.pp_specs_managers = []
             self.pp_specs_managers.append(self.pp_spec_manager)
@@ -279,6 +287,14 @@ class PoincarePlotMovieMaker(object):
                 self.pp_spec_manager.movie_title = self.p.movie_title
                 self.pp_spec_manager.movie_frame_step = self.p.movie_frame_step
                 self.pp_spec_manager.movie_identity_line = self.p.movie_identity_line
+                self.pp_spec_manager.movie_hour_label = self.p.movie_hour_label
+                self.pp_spec_manager.movie_minute_label = self.p.movie_minute_label
+                self.pp_spec_manager.movie_second_label = self.p.movie_second_label
+                self.pp_spec_manager.movie_time_label_in_line = self.p.movie_time_label_in_line
+                self.pp_spec_manager.movie_time_label_font_size = self.p.movie_time_label_font_size
+                self.pp_spec_manager.movie_time_label_prefix = self.p.movie_time_label_prefix
+                self.pp_spec_manager.movie_title_font_size = self.p.movie_title_font_size
+                self.pp_spec_manager.movie_axis_font_size = self.p.movie_axis_font_size
 
                 #add all previous pp specs
                 for pp_spec in old_pp_spec_manager.getMiniPoincarePlotSpecs():
@@ -423,6 +439,14 @@ class MiniPoincarePlotSpecManager(object):
         self.__clean_frames__ = True
         self.__movie_title__ = None
         self.__movie_frame_step__ = None
+        self.__movie_hour_label__ = None
+        self.__movie_minute_label__ = None
+        self.__movie_second_label__ = None
+        self.__movie_time_label_in_line__ = None
+        self.__movie_time_label_font_size__ = None
+        self.__movie_time_label_prefix__ = None
+        self.__movie_title_font_size__ = None
+        self.__movie_axis_font_size__ = None
 
     def addMiniPoincarePlotSpec(self, pp_spec):
         self.__pp_specs__.append(pp_spec)
@@ -577,6 +601,70 @@ class MiniPoincarePlotSpecManager(object):
     @movie_title.setter
     def movie_title(self, _movie_title):
         self.__movie_title__ = _movie_title
+
+    @property
+    def movie_hour_label(self):
+        return self.__movie_hour_label__
+
+    @movie_hour_label.setter
+    def movie_hour_label(self, _movie_hour_label):
+        self.__movie_hour_label__ = _movie_hour_label
+
+    @property
+    def movie_minute_label(self):
+        return self.__movie_minute_label__
+
+    @movie_minute_label.setter
+    def movie_minute_label(self, _movie_minute_label):
+        self.__movie_minute_label__ = _movie_minute_label
+
+    @property
+    def movie_second_label(self):
+        return self.__movie_second_label__
+
+    @movie_second_label.setter
+    def movie_second_label(self, _movie_second_label):
+        self.__movie_second_label__ = _movie_second_label
+
+    @property
+    def movie_time_label_in_line(self):
+        return self.__movie_time_label_in_line__
+
+    @movie_time_label_in_line.setter
+    def movie_time_label_in_line(self, _movie_time_label_in_line):
+        self.__movie_time_label_in_line__ = _movie_time_label_in_line
+
+    @property
+    def movie_time_label_font_size(self):
+        return self.__movie_time_label_font_size__
+
+    @movie_time_label_font_size.setter
+    def movie_time_label_font_size(self, _movie_time_label_font_size):
+        self.__movie_time_label_font_size__ = _movie_time_label_font_size
+
+    @property
+    def movie_time_label_prefix(self):
+        return self.__movie_time_label_prefix__
+
+    @movie_time_label_prefix.setter
+    def movie_time_label_prefix(self, _movie_time_label_prefix):
+        self.__movie_time_label_prefix__ = _movie_time_label_prefix
+
+    @property
+    def movie_title_font_size(self):
+        return self.__movie_title_font_size__
+
+    @movie_title_font_size.setter
+    def movie_title_font_size(self, _movie_title_font_size):
+        self.__movie_title_font_size__ = _movie_title_font_size
+
+    @property
+    def movie_axis_font_size(self):
+        return self.__movie_axis_font_size__
+
+    @movie_axis_font_size.setter
+    def movie_axis_font_size(self, _movie_axis_font_size):
+        self.__movie_axis_font_size__ = _movie_axis_font_size
 
     def __color_as_tuple__(self, _color):
         _c = _color

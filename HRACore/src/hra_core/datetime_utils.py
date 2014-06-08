@@ -53,9 +53,12 @@ def get_time_label_for_miliseconds(miliseconds):
     return 'H : %02d, M : %02d, S : %02d' % time_
 
 
-def get_time_label_parts_for_miliseconds(miliseconds):
+def get_time_label_parts_for_miliseconds(miliseconds,
+                 hour_label='H', minute_label='M', second_label='S'):
     time_ = get_time_for_miliseconds(miliseconds)
-    return ('H:%02d' % time_[0], 'M:%02d' % time_[1], 'S:%02d' % time_[2])
+    return ('%s: %02d' % (hour_label, time_[0]),
+            '%s: %02d' % (minute_label, time_[1]),
+            '%s: %02d' % (second_label, time_[2]))
 
 
 def get_time_for_miliseconds(miliseconds):

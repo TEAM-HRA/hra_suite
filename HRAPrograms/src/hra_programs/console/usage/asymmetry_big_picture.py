@@ -168,7 +168,7 @@ vertices = np.array(vertices, float)
 path = Path(vertices, codes)
 pathpatch = PathPatch(path, facecolor='None', edgecolor='red', zorder=3, lw=4)
 ax_left_tachogram.add_patch(pathpatch)
-ax_left_tachogram.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych"], loc='upper left')
+ax_left_tachogram.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 24 godziny"], loc='upper left')
 # LEFT TACHOGRAM STOP
 
 # RIGHT TACHOGRAM START
@@ -204,7 +204,7 @@ for idx, lw in zip(range(max_idx - 1, -1, -1), lws):
     pathpatch = PathPatch(path, facecolor='None', edgecolor='red', zorder=3, lw=lw)
     pathpatch.set_fill(False)
     ax_right_tachogram.add_patch(pathpatch)
-ax_right_tachogram.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych"], loc='upper left', numpoints=5)
+ax_right_tachogram.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 5 minut"], loc='upper left', numpoints=5)
 
 arrow_size = 4
 arrow_window_right = mpatches.Arrow(max_idx / 2 - arrow_size / 2,

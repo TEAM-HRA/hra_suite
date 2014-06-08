@@ -471,6 +471,27 @@ class PoincarePlotManager(object):
         movie_group.add_argument("-movie_identity_line", "--movie_identity_line",
             help="""draw identity line in Poincare plot """,
             type=to_bool, default=False)
+        movie_group.add_argument("-movie_hour_label", "--movie_hour_label",
+            help="""label of hour in a Poincare plot [optional]""")
+        movie_group.add_argument("-movie_minute_label", "--movie_minute_label",
+            help="""label of minute in a Poincare plot [optional]""")
+        movie_group.add_argument("-movie_second_label", "--movie_second_label",
+            help="""label of second in a Poincare plot [optional]""")
+        movie_group.add_argument("-movie_time_label_in_line", "--movie_time_label_in_line",
+            help="""draw time label (hour, minute, second) in one line at a Poincare plot [optional]""",
+            type=to_bool, default=False)
+        movie_group.add_argument("-movie_time_label_font_size", "--movie_time_label_font_size",
+            help="""movie time label font size [optional]""",
+            default=-1, type=int)
+        movie_group.add_argument("-movie_time_label_prefix", "--movie_time_label_prefix",
+            help="""movie time label prefix [optional]""",
+            default=None)
+        movie_group.add_argument("-movie_title_font_size", "--movie_title_font_size",
+            help="""movie title font size [optional]""",
+            default=-1, type=int)
+        movie_group.add_argument("-movie_axis_font_size", "--movie_axis_font_size",
+            help="""movie axis font size [optional]""",
+            default=-1, type=int)
 
         #add information about parameters
         for group in parser._action_groups:
