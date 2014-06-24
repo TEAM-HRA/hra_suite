@@ -17,6 +17,7 @@ try:
     from hra_core.io_utils import join_files
     from hra_core.io_utils import as_path
     from hra_core.io_utils import create_dir
+    from hra_math.utils.io_utils import shuffle_file
     from hra_math.model.data_vector_file_data_source \
         import DataVectorFileDataSource
     from hra_math.model.parameters.poincare_plot_parameters \
@@ -132,13 +133,14 @@ class PoincarePlotManager(object):
                     print('Using group data file: ' + self.data_file)
 
         if self.data_file:  # data_file parameter is superior to data_dir parameter @IgnorePep8
-            if os.path.exists(self.data_file) == False:
+            _data_file = self.__shuffle_file__(self.data_file)
+            if os.path.exists(_data_file) == False:
                 if disp:
-                    print('The file: ' + self.data_file + " doesn't exist")
+                    print('The file: ' + _data_file + " doesn't exist")
             else:
                 file_counter = 1
-                if self.__p__.check_data_indexes(self.data_file, disp):
-                    _file_handler(self.data_file, disp=disp, **params)
+                if self.__p__.check_data_indexes(_data_file, disp):
+                    _file_handler(_data_file, disp=disp, **params)
         else:
             for _file in self.__data_filenames__():
                 if os.path.isfile(_file):
@@ -160,7 +162,10 @@ class PoincarePlotManager(object):
     @invocation_time
     def __process_file__(self, _file, disp=False):
         if disp:
-            print('Processing file: ' + str(_file) + '\n')
+            if self.shuffle_data:
+                print('Processing shuffled file: ' + str(_file) + '\n')
+            else:
+                print('Processing file: ' + str(_file) + '\n')
         file_data_source = DataVectorFileDataSource(_file=_file,
                                signal_index=self.signal_index,
                                annotation_index=self.annotation_index,
@@ -183,6 +188,7 @@ class PoincarePlotManager(object):
         start_progress = CSVStartProgressGenerator()
         start_progress.progress_mark = self.progress_mark
         start_progress.info_handler = self.info_handler
+        start_progress.shuffle_data = self.shuffle_data
         return self.__pp_generator__.generate_CSV(data_vector, _file,
                             start_progress=start_progress,
                             progress_handler=CSVProgressHandlerGenerator())
@@ -257,7 +263,7 @@ class PoincarePlotManager(object):
         """
         if self.data_dir:
             path = self.data_dir + nvl(self.extension, '*.*')
-            return [_file for _file in glob.glob(path)]
+            return [self.__shuffle_file__(_file) for _file in glob.glob(path)]
 
     def save_parameters(self, _save_parameters):
         self.__save_parameters__ = _save_parameters
@@ -283,6 +289,13 @@ class PoincarePlotManager(object):
         if self.__p__.parameters_info_count == 0:
             self.getParser()
         self.__p__.info(valued_only=valued_only)
+
+    def __shuffle_file__(self, _file):
+        if self.shuffle_data:
+            return shuffle_file(_file, output_dir=self.output_dir,
+                                headers_count=self.headers_count)
+        else:
+            return _file
 
     def getParser(self):
         """
@@ -370,9 +383,12 @@ class PoincarePlotManager(object):
         common_group.add_argument("-progress_mark", "--progress_mark",
             help="""show progress bar during generation of statistics""",
             type=to_bool, default=True)
-        common_group.add_argument("-print_first_signal", "--print_first_signal", # @IgnorePep8
+        common_group.add_argument("-print_first_signal", "--print_first_signal",
             help="""print the first row of a signal""",
             type=to_bool, default=True)
+        common_group.add_argument("-shuffle_data", "--shuffle_data",
+            help="""shuffle data""",
+            type=to_bool, default=False)
 
         statistics_group = parser.add_argument_group(
                             title=STATISTICS_PARAMETERS_GROUP,

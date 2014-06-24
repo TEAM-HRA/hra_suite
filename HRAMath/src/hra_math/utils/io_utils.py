@@ -5,9 +5,11 @@ Created on 10-02-2013
 '''
 from hra_math.utils.utils import print_import_error
 try:
+    import os
     import gc
     import StringIO
     import numpy as np
+    from hra_core.io_utils import get_filename
     from hra_core.io_utils import CSVFile
     from hra_core.misc import fixed_size_string
     from hra_core.collections_utils import get_as_tuple
@@ -103,3 +105,24 @@ def save_arrays_into_file(filename, *arrays):
 
     arrays = np.column_stack(tuple(arrays))
     np.savetxt(filename, arrays, fmt='%15s')
+
+
+def shuffle_file(_file, headers_count=0, output_dir=None, shuffled_prefix='S_'):
+    """
+    shuffle contexts of a text file
+    """
+    if not output_dir:
+        output_dir = os.path.abspath(_file)
+    shuffled_filename = shuffled_prefix + get_filename(_file, with_extension=True)
+    shuffled_file = os.path.join(output_dir, shuffled_filename)
+    with open(_file, 'r') as _f:
+        file_data = [line for line in _f]
+        shuffled_idxs = np.random.permutation(len(file_data) - 1) \
+                    + headers_count
+        with open(shuffled_file, 'w') as _shuffled_file:
+            #write header lines
+            for line in file_data[:headers_count]:
+                _shuffled_file.write(line)
+            for i in np.arange(headers_count, len(file_data)):
+                _shuffled_file.write(file_data[shuffled_idxs[i - 1]])
+    return shuffled_file

@@ -510,13 +510,15 @@ class CSVStartProgressGenerator(StartProgressGenerator):
     """
     def __call__(self):
         if self.check():
+            const_label = 'Processing shuffled file: ' \
+                        if self.shuffle_data else 'Processing file: '
             if self.progress_mark:
                 self.__progress__ = ProgressMark(
-                                _label='Processing file ' +
+                                _label=const_label +
                                 self.reference_filename + ' ...',
                                 _max_count=self.segmenter.segment_count())
             else:
-                self.info_handler('Processing file: ' + self.reference_filename) # @IgnorePep8
+                self.info_handler(const_label + self.reference_filename)
 
 
 class CSVProgressHandlerGenerator(ProgressHandlerGenerator):

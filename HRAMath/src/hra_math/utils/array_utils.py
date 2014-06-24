@@ -88,3 +88,20 @@ def get_datetimes_array_as_miliseconds_intervals(datetimes, _format):
         return np.array(miliseconds)
     return datetimes if isinstance(datetimes, np.array) \
                         else np.array(datetimes)
+
+
+def shuffle_array(array, shuffled_indexes=None,
+                  ret_shuffled_indexes=False):
+    """
+    shuffle an array;
+    if ret_shuffled_indexes = True then shuffled indexes are returned
+    """
+    if not array == None:
+        size = len(array)
+        if shuffled_indexes == None:
+            shuffled_indexes = np.random.permutation(size)
+        shuffled_array = array_copy(array)
+        for idx, shuffled_idx in np.ndenumerate(shuffled_indexes):
+            shuffled_array[idx] = array[shuffled_idx]
+        array = shuffled_array
+    return (array, shuffled_indexes) if ret_shuffled_indexes else array
