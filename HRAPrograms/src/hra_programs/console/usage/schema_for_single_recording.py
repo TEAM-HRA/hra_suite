@@ -213,8 +213,8 @@ f = plt.figure(figsize=(17, 21))
 #print(f.get_figheight(), f.get_figwidth())
 
 start_hour = None
-#start_hour = 10
-stop_hour = 12
+#start_hour = 11
+stop_hour = 13
 
 font_1 = font_0.copy()
 font_1.set_size('20')
@@ -284,8 +284,8 @@ if can_show(show_rows, row_number):
     y_lim = ax_tachogram.get_ylim()[1]
     if not start_hour == None:
         codes = [Path.MOVETO] + [Path.LINETO] * 3 + [Path.CLOSEPOLY]
-        vertices = [(start_hour, y_lim),
-                    (stop_hour, y_lim),
+        vertices = [(start_hour, y_lim - 20),
+                    (stop_hour, y_lim - 20),
                     (stop_hour, 0),
                     (start_hour, 0), (0, 0)]
         vertices = np.array(vertices, float)
@@ -675,6 +675,7 @@ if can_show(show_rows, row_number):
                    tail_width=30,
                    color=sym_color,
                    text_color=sym_color,
+                   head_length=20,
                    )
     arrow_asym_x = 20.0
     draw_simple_arrow(ax_shapes, #path=path,
@@ -684,6 +685,7 @@ if can_show(show_rows, row_number):
                    tail_width=30,
                    color=asym_color,
                    text_color=asym_color,
+                   head_length=20,
                    )
 
     txt = u"Test binomialny"
@@ -700,6 +702,7 @@ if can_show(show_rows, row_number):
                    posB=(x_sym + b_width, y_sym - b_height/2.0),
                    tail_width=5,
                    color=binomial_color,
+                   head_length=25,
                    )
 
     #right binomial arrow
@@ -708,19 +711,21 @@ if can_show(show_rows, row_number):
                    posB=(x_asym - b_width, y_sym - b_height/2.0),
                    tail_width=5,
                    color=binomial_color,
+                   head_length=25,
                    )
 
     outcome_color = "orange"
     # outcome arrow
-    x_outcome = 11.5
+    x_outcome = x_binomial + t_b_width / 2.0
     o_height = 700
     y_outcome_shift = 50
     draw_simple_arrow(ax_shapes, #path=path,
                    posA=(x_outcome, y_sym - t_b_height - y_outcome_shift),
                    posB=(x_outcome, y_sym - t_b_height - y_outcome_shift - o_height),
                    text=u"Wynik",
-                   tail_width=100,
+                   tail_width=150,
                    color=outcome_color,
+                   head_length=40,
                    text_fontsize=20,
                    )
 
