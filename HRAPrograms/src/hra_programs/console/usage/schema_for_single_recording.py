@@ -177,8 +177,6 @@ def create_empty_plot(gs1, row_number):
     return row_number + 1
 
 
-max_idx = 24
-
 def get_min_idx(idxs, shift=1):
 
     for idx in idxs:
@@ -212,7 +210,11 @@ def change_ticks_for_5_minutes(ax):
 
 f = plt.figure(figsize=(17, 21))
 #f = plt.figure()
-print(f.get_figheight(), f.get_figwidth())
+#print(f.get_figheight(), f.get_figwidth())
+
+start_hour = None
+#start_hour = 10
+stop_hour = 12
 
 font_1 = font_0.copy()
 font_1.set_size('20')
@@ -220,10 +222,18 @@ font_1.set_weight('bold')
 plt.suptitle(u"Schemat wyznaczania HRA dla pojedynczego 24-godzinnego nagrania odstępów RR.",
             fontproperties=font_1, y=0.995, fontsize=25)
 
-
 empty_ratio = 0.2
-all_ratios = [1.0, 0.4, 1.0, empty_ratio,
+if start_hour == None:
+    max_idx = 23
+    all_ratios = [1.0, empty_ratio, 0.4, empty_ratio,  1.0, empty_ratio,
               0.5, empty_ratio, 1.0, 2.0]
+    tachogram_label_pos = 18
+else:
+    max_idx = 24
+    all_ratios = [1.0, 0.4, 1.0, empty_ratio,
+                  0.5, empty_ratio, 1.0, 2.0]
+    tachogram_label_pos = 17
+
 show_rows = [True] * len(all_ratios)
 height_ratios = [all_ratios[idx] for idx, s in enumerate(show_rows) if s == True]
 num_rows = len([s for s in show_rows if s == True])
@@ -246,7 +256,7 @@ if (len(pl.array(pl.find(annotation != 0)) > 0)):
     des1 = des1[pl.array(pl.find(annotation == 0))]
 
 timing_0 = np.cumsum(des1)
-print('timing_0: ', timing_0)
+#print('timing_0: ', timing_0)
 timing = timing_0 / 3600000
 des1_max = np.max(des1)
 des1_min = np.min(des1)
@@ -257,8 +267,6 @@ sym_indexes = [1, 5, 6, 12, 21] # only multiple of window_step are allowed
 
 #font0 = FontProperties()
 
-start_hour = 10
-stop_hour = 12
 slice_color = "black"
 
 if can_show(show_rows, row_number):
@@ -273,16 +281,18 @@ if can_show(show_rows, row_number):
     font_1.set_size('11')
     font_1.set_weight('bold')
 
-    codes = [Path.MOVETO] + [Path.LINETO] * 3 + [Path.CLOSEPOLY]
-    vertices = [(start_hour, des1_max),
-                    (stop_hour, des1_max),
+    y_lim = ax_tachogram.get_ylim()[1]
+    if not start_hour == None:
+        codes = [Path.MOVETO] + [Path.LINETO] * 3 + [Path.CLOSEPOLY]
+        vertices = [(start_hour, y_lim),
+                    (stop_hour, y_lim),
                     (stop_hour, 0),
                     (start_hour, 0), (0, 0)]
-    vertices = np.array(vertices, float)
-    path = Path(vertices, codes)
-    pathpatch = PathPatch(path, facecolor='None', edgecolor=slice_color, zorder=3, lw=3)
-    pathpatch.set_fill(False)
-    ax_tachogram.add_patch(pathpatch)
+        vertices = np.array(vertices, float)
+        path = Path(vertices, codes)
+        pathpatch = PathPatch(path, facecolor='None', edgecolor=slice_color, zorder=3, lw=3)
+        pathpatch.set_fill(False)
+        ax_tachogram.add_patch(pathpatch)
 
 
     #ax_tachogram.legend(['$\mathbf{%s}$' % ("RR")], loc='upper left')
@@ -299,15 +309,16 @@ if can_show(show_rows, row_number):
     font_1.set_size('18')
     font_1.set_weight('bold')
     #max_idx - max_idx / 11.8
-    ax_tachogram.text(17, des1_max - des1_max / 70,
+    ax_tachogram.text(tachogram_label_pos, y_lim - 100,
                       u"Tachogram - 24 godziny", fontproperties = font_1
                       #size=20
                       )
     row_number = row_number + 1
 
-# if can_show(show_rows, row_number):
-#     # empty plot
-#     row_number = create_empty_plot(gs1, row_number)
+if can_show(show_rows, row_number):
+    # empty plot
+    if start_hour == None:
+        row_number = create_empty_plot(gs1, row_number)
 
 if can_show(show_rows, row_number):
     ax_arrow_down = plt.subplot(gs1[row_number, :])
@@ -315,49 +326,56 @@ if can_show(show_rows, row_number):
     ax_arrow_down.set_frame_on(False)
     ax_arrow_down.set_xlim(0, max_timing)
 
-#     tail_width = 800
-#     head_width = tail_width + tail_width / 5.0
-#     head_length = 70
-#     draw_simple_arrow(ax_arrow_down, posA=(0.5, 1.0), posB=(0.5, 0.0),
-#                    tail_width=tail_width, head_width=head_width,
-#                    head_length=head_length, #color="brown",
-#                    text=u"Zastosowanie 5-minutowego okna danych",
-#                    )
-
-    codes = [Path.MOVETO] + [Path.LINETO]
-    vertices = [(start_hour, 1.0), (0, 0)]
-    vertices = np.array(vertices, float)
-    path = Path(vertices, codes)
-    pathpatch = PathPatch(path, facecolor='None', edgecolor=slice_color, zorder=3, lw=3)
-    pathpatch.set_fill(False)
-    ax_arrow_down.add_patch(pathpatch)
-
-    codes = [Path.MOVETO] + [Path.LINETO]
-    vertices = [(stop_hour, 1.0), (max_timing, 0)]
-    vertices = np.array(vertices, float)
-    path = Path(vertices, codes)
-    pathpatch = PathPatch(path, facecolor='None', edgecolor=slice_color, zorder=3, lw=3)
-    pathpatch.set_fill(False)
-    ax_arrow_down.add_patch(pathpatch)
-
-
-    font_1 = font_0.copy()
-    font_1.set_size('14')
-    font_1.set_weight('bold')
-
     alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
-    ax_arrow_down.text(stop_hour-1, 0.3, u"Zastosowanie 5-minutowego okna danych",
-                      fontproperties=font_1,
-                      **alignment
-                      #size=20
-                      )
+    text_fontsize = 14
+
+    if start_hour == None:
+        tail_width = 800
+        head_width = tail_width + tail_width / 5.0
+        head_length = 70
+        draw_simple_arrow(ax_arrow_down, posA=(max_idx / 2.0, 1.0), posB=(max_idx / 2.0, 0.0),
+                       tail_width=tail_width, head_width=head_width,
+                       head_length=head_length, #color="brown",
+                       text=u"Zastosowanie 5-minutowego okna danych",
+                       text_fontsize=text_fontsize,
+                       )
+    else:
+        font_1 = font_0.copy()
+        font_1.set_size(text_fontsize)
+        font_1.set_weight('bold')
+
+        codes = [Path.MOVETO] + [Path.LINETO]
+        vertices = [(start_hour, 1.0), (0, 0)]
+        vertices = np.array(vertices, float)
+        path = Path(vertices, codes)
+        pathpatch = PathPatch(path, facecolor='None', edgecolor=slice_color, zorder=3, lw=3)
+        pathpatch.set_fill(False)
+        ax_arrow_down.add_patch(pathpatch)
+
+        codes = [Path.MOVETO] + [Path.LINETO]
+        vertices = [(stop_hour, 1.0), (max_timing, 0)]
+        vertices = np.array(vertices, float)
+        path = Path(vertices, codes)
+        pathpatch = PathPatch(path, facecolor='None', edgecolor=slice_color, zorder=3, lw=3)
+        pathpatch.set_fill(False)
+        ax_arrow_down.add_patch(pathpatch)
+
+
+
+
+        ax_arrow_down.text(stop_hour-1, 0.3, u"Zastosowanie 5-minutowego okna danych",
+                          fontproperties=font_1,
+                          **alignment
+                          #size=20
+                          )
 
     row_number = row_number + 1
 
 
-# if can_show(show_rows, row_number):
-#     # empty plot
-#     row_number = create_empty_plot(gs1, row_number)
+if can_show(show_rows, row_number):
+    if start_hour == None:
+        # empty plot
+        row_number = create_empty_plot(gs1, row_number)
 
 
 if can_show(show_rows, row_number):
@@ -365,19 +383,20 @@ if can_show(show_rows, row_number):
     ax_tachogram_1 = plt.subplot(gs1[row_number,0])
     ax_tachogram_1.set_color_cycle(['blue', 'red'])
 
-    # create slice of 24 recording
-    start_time = start_hour * 60 * 60 * 1000 # 10 hour
-    stop_time = stop_hour * 60 * 60 * 1000  # 12 hour
-    start_idx = np.where(timing_0 >= start_time)[0][0]
-    stop_idx = np.where(timing_0 >= stop_time)[0][0]
+    if not start_hour == None:
+        # create slice of 24 recording
+        start_time = start_hour * 60 * 60 * 1000 # 10 hour
+        stop_time = stop_hour * 60 * 60 * 1000  # 12 hour
+        start_idx = np.where(timing_0 >= start_time)[0][0]
+        stop_idx = np.where(timing_0 >= stop_time)[0][0]
 
-    des1 = des1[start_idx:stop_idx]
-    timing = np.cumsum(des1)
-    timing = timing / (5*60*1000) # 5 minute
+        des1 = des1[start_idx:stop_idx]
+        timing = np.cumsum(des1)
+        timing = timing / (5*60*1000) # 5 minute
 
-    des1_max = np.max(des1)
-    des1_min = np.min(des1)
-    max_timing = np.max(timing)
+        des1_max = np.max(des1)
+        des1_min = np.min(des1)
+        max_timing = np.max(timing)
 
 
     ax_tachogram_1.plot(timing, des1)
@@ -389,7 +408,11 @@ if can_show(show_rows, row_number):
     font_1.set_size('11')
     font_1.set_weight('bold')
 
-    ax_tachogram_1.set_xlabel(u"Czas [minuty]", fontproperties = font_1)
+    if start_hour == None:
+        x_label = u"Czas [godziny]"
+    else:
+        x_label = u"Czas [minuty]"
+    ax_tachogram_1.set_xlabel(x_label, fontproperties = font_1)
     ax_tachogram_1.set_ylabel(u"Wartość [ms]", fontproperties = font_1)
 
     #ax_tachogram_1.set_xlabel(r'\large{Czas [godziny]}')
@@ -399,8 +422,13 @@ if can_show(show_rows, row_number):
     font_1.set_size('18')
     font_1.set_weight('bold')
 
-    ax_tachogram_1.text(17, des1_max - des1_max / 70,
-                      u"Tachogram - fragment 2 godziny", fontproperties=font_1
+    y_lim = ax_tachogram_1.get_ylim()[1]
+    if start_hour == None:
+        tach_label = u"Tachogram - 24 godziny"
+    else:
+        tach_label = u"Tachogram - fragment 2 godziny"
+    ax_tachogram_1.text(tachogram_label_pos, y_lim - 100,
+                      tach_label, fontproperties=font_1
                       #size=20
                       )
     #ax_tachogram_1.legend(numpoints=10)
@@ -432,7 +460,8 @@ if can_show(show_rows, row_number):
     arrow_window_right.set_fill(True)
     ax_tachogram_1.add_patch(arrow_window_right)
 
-    change_ticks_for_5_minutes(ax_tachogram_1)
+    if not start_hour == None:
+        change_ticks_for_5_minutes(ax_tachogram_1)
 
     row_number = row_number + 1
 
@@ -487,7 +516,12 @@ if can_show(show_rows, row_number):
     font_1.set_size('11')
     font_1.set_weight('bold')
 
-    ax_tachogram_2.set_xlabel(u"Czas [minuty]", fontproperties = font_1)
+
+    if start_hour == None:
+        x_label = u"Czas [godziny]"
+    else:
+        x_label = u"Czas [minuty]"
+    ax_tachogram_2.set_xlabel(x_label, fontproperties = font_1)
     ax_tachogram_2.set_ylabel(u"Wartość [ms]", fontproperties = font_1)
 
     font_1 = font_0.copy()
@@ -496,8 +530,15 @@ if can_show(show_rows, row_number):
 
     #ax_tachogram_2.set_xlabel(r'\large{Czas [godziny]}')
     #ax_tachogram_2.set_ylabel(r'\large{Wartość [ms]}')
-    ax_tachogram_2.text(17, des1_max - des1_max / 70,
-                      u"Tachogram - fragment 2 godziny", fontproperties=font_1)
+
+    if start_hour == None:
+        tach_label = u"Tachogram - 24 godziny"
+    else:
+        tach_label = u"Tachogram - fragment 2 godziny"
+
+    y_lim = ax_tachogram_2.get_ylim()[1]
+    ax_tachogram_2.text(tachogram_label_pos, y_lim - 100,
+                      tach_label, fontproperties=font_1)
 
     for idx, lw in zip(range(max_idx - 1, -1, -1), lws):
         #if idx % window_step == 1:
@@ -569,7 +610,8 @@ if can_show(show_rows, row_number):
     leg = ax_tachogram_2.legend([line], [label] , loc='upper center')
     ax_tachogram_2.add_artist(leg)
 
-    change_ticks_for_5_minutes(ax_tachogram_2)
+    if not start_hour == None:
+        change_ticks_for_5_minutes(ax_tachogram_2)
 
     row_number = row_number + 1
 
