@@ -88,7 +88,8 @@ def draw_line_1(ax, idx, y_min, y_max, color='black', zorder=3):
     ax.add_patch(pathpatch)
 
 
-def draw_box_with_text(ax, x, y, width, height, text, color='black', zorder=3, text_fontsize=15):
+def draw_box_with_text(ax, x, y, width, height, text, color='black', zorder=3, text_fontsize=15,
+                       text_color="black"):
 
     alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
 
@@ -104,7 +105,7 @@ def draw_box_with_text(ax, x, y, width, height, text, color='black', zorder=3, t
     pathpatch.set_fill(False)
     ax.text(x + width / 2.0, y - height / 2.0,
             text,
-            #size=text_fontsize, #fontproperties=font_zero_one,
+            color=text_color,
             fontproperties=font_1,
             **alignment)
     ax.add_patch(pathpatch)
@@ -225,8 +226,8 @@ f = plt.figure(figsize=(17, 21))
 #f = plt.figure()
 #print(f.get_figheight(), f.get_figwidth())
 
-start_hour = None
-#start_hour = 11
+#start_hour = None
+start_hour = 11
 stop_hour = 13
 
 font_1 = font_0.copy()
@@ -678,18 +679,20 @@ if can_show(show_rows, row_number):
     b_width = 5
 
     txt = '%s' % (u"Licznik okien bez asymetrii")
-    draw_box_with_text(ax_shapes, x_sym, y_sym, b_width, b_height, txt, color=sym_color)
+    draw_box_with_text(ax_shapes, x_sym, y_sym, b_width, b_height, txt, color=sym_color,
+                       text_color=sym_color)
 
     x_asym = get_max_idx(asym_indexes, shift=0.5)
     txt = '%s' % (u"Licznik okien z asymetrią")
-    draw_box_with_text(ax_shapes, x_asym, y_sym, -b_width, b_height, txt, color=asym_color)
+    draw_box_with_text(ax_shapes, x_asym, y_sym, -b_width, b_height, txt, color=asym_color,
+                       text_color=asym_color)
 
     arrow_sym_x = 4.0
     draw_simple_arrow(ax_shapes, #path=path,
                    posA=(arrow_sym_x, y_max_shapes - sym_shift),
                    posB=(arrow_sym_x, y_sym),
                    text=u"%s" % (len(sym_indexes)),
-                   tail_width=30,
+                   tail_width=40,
                    color=sym_color,
                    text_color=sym_color,
                    head_length=20,
@@ -699,7 +702,7 @@ if can_show(show_rows, row_number):
                    posA=(arrow_asym_x, y_max_shapes - asym_shift),
                    posB=(arrow_asym_x, y_sym),
                    text=u"%s" % (len(asym_indexes)),
-                   tail_width=30,
+                   tail_width=40,
                    color=asym_color,
                    text_color=asym_color,
                    head_length=20,
