@@ -208,6 +208,19 @@ def change_ticks_for_5_minutes(ax):
     ax.set_xticklabels(x_labels)
 
 
+def bold_ticks_labels(ax, fontsize=10):
+    # We need to draw the canvas, otherwise the labels won't be positioned and
+    # won't have values yet.
+    f.canvas.draw()
+    x_labels = [item.get_text() for item in ax.get_xticklabels()]
+    y_labels = [item.get_text() for item in ax.get_yticklabels()]
+    font_1 = font_0.copy()
+    font_1.set_size(fontsize)
+    font_1.set_weight('bold')
+    ax.set_xticklabels(x_labels, fontproperties=font_1)
+    ax.set_yticklabels(y_labels, fontproperties=font_1)
+
+
 f = plt.figure(figsize=(17, 21))
 #f = plt.figure()
 #print(f.get_figheight(), f.get_figwidth())
@@ -313,6 +326,7 @@ if can_show(show_rows, row_number):
                       u"Tachogram - 24 godziny", fontproperties = font_1
                       #size=20
                       )
+    bold_ticks_labels(ax_tachogram)
     row_number = row_number + 1
 
 if can_show(show_rows, row_number):
@@ -327,7 +341,7 @@ if can_show(show_rows, row_number):
     ax_arrow_down.set_xlim(0, max_timing)
 
     alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
-    text_fontsize = 14
+    text_fontsize = 18
 
     if start_hour == None:
         tail_width = 800
@@ -462,6 +476,7 @@ if can_show(show_rows, row_number):
 
     if not start_hour == None:
         change_ticks_for_5_minutes(ax_tachogram_1)
+    bold_ticks_labels(ax_tachogram_1)
 
     row_number = row_number + 1
 
@@ -476,7 +491,7 @@ if can_show(show_rows, row_number):
     ax_arrow_down.set_axis_off()
     ax_arrow_down.set_frame_on(False)
 
-    tail_width = 800
+    tail_width = 1100
     head_width = tail_width + tail_width / 5.0
     head_length = 70
     txt = u"Obliczanie deskryptorów asymetrii: $\mathbf{SD1_d,\,SD1_a,\,SD2_d,\,SD2_a,\,SDNN_d,\,SDNN_a}$"
@@ -484,6 +499,7 @@ if can_show(show_rows, row_number):
                    tail_width=tail_width, head_width=head_width,
                    head_length=head_length, # color="green",
                    label="Dane z EKG", text=txt,
+                   text_fontsize=18,
                    )
     row_number = row_number + 1
 
@@ -612,6 +628,7 @@ if can_show(show_rows, row_number):
 
     if not start_hour == None:
         change_ticks_for_5_minutes(ax_tachogram_2)
+    bold_ticks_labels(ax_tachogram_2)
 
     row_number = row_number + 1
 
