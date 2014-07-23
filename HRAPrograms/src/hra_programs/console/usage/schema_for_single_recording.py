@@ -22,6 +22,7 @@ from matplotlib.collections import PatchCollection
 from matplotlib.patches import PathPatch, Rectangle
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
+#from mpl_toolkits.axes_grid1.axes_divider import make_axes_area_auto_adjustable
 
 #COMMENT
 #pl.rc('text', usetex=True)
@@ -113,19 +114,27 @@ def draw_box_with_text(ax, x, y, width, height, text, color='black', zorder=3, t
 
 def draw_simple_arrow(ax, posA=None, posB=None, path=None, tail_width=5, head_width=None, head_length=10,
                     color="black", label="", text=None, text_fontsize=14, x_text_pos=None, y_text_pos=None,
-                    text_color="black"):
-    arrow_down = mpatches.FancyArrowPatch(posA=posA, posB=posB, path=path, color=color, label=label, lw=3.0)
-    arrow_down.set_fill(False)
+                    text_color="black", fill=False, lw=3.0):
+    arrow_down = mpatches.FancyArrowPatch(posA=posA, posB=posB, path=path, color=color, label=label, lw=lw)
+    arrow_down.set_fill(fill)
     if head_width == None and not tail_width == None:
         head_width = 3 * tail_width
     arrowstyle =mpatches.ArrowStyle.Simple(head_length=head_length, head_width=head_width, tail_width=tail_width)
     arrow_down.set_arrowstyle(arrowstyle)
     ax.add_patch(arrow_down)
     if not text == None:
-        if x_text_pos == None and posA[0] == posA[0]:
+        #when x is the same
+        if x_text_pos == None and posA[0] == posB[0]:
             x_text_pos = posA[0]
-        if y_text_pos == None and posA[0] == posA[0]:
-            y_text_pos = posB[1] + (posA[1] - posB[1]) / 2
+        if y_text_pos == None and posA[0] == posB[0]:
+            y_text_pos = posB[1] + abs((posA[1] - posB[1])) / 2.0
+
+        #when y is the same
+        if x_text_pos == None and posA[1] == posB[1]:
+            x_text_pos = posA[0] + abs((posA[0] - posB[0])) / 2.0
+        if y_text_pos == None and posA[1] == posB[1]:
+            y_text_pos = posA[1]
+
         alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
 
         font_1 = font_0.copy()
@@ -209,17 +218,20 @@ def change_ticks_for_5_minutes(ax):
     ax.set_xticklabels(x_labels)
 
 
-def bold_ticks_labels(ax, fontsize=10):
+def bold_ticks_labels(ax, fontsize=11):
     # We need to draw the canvas, otherwise the labels won't be positioned and
     # won't have values yet.
     f.canvas.draw()
+
     x_labels = [item.get_text() for item in ax.get_xticklabels()]
     y_labels = [item.get_text() for item in ax.get_yticklabels()]
     font_1 = font_0.copy()
     font_1.set_size(fontsize)
     font_1.set_weight('bold')
+
     ax.set_xticklabels(x_labels, fontproperties=font_1)
     ax.set_yticklabels(y_labels, fontproperties=font_1)
+
 
 
 f = plt.figure(figsize=(17, 21))
@@ -400,14 +412,14 @@ if can_show(show_rows, row_number):
 
     if not start_hour == None:
         # create slice of 24 recording
-        start_time = start_hour * 60 * 60 * 1000 # 10 hour
-        stop_time = stop_hour * 60 * 60 * 1000  # 12 hour
+        start_time = start_hour * 60 * 60 * 1000 # hours expressed in miliseconds
+        stop_time = stop_hour * 60 * 60 * 1000 # hours expressed in miliseconds
         start_idx = np.where(timing_0 >= start_time)[0][0]
         stop_idx = np.where(timing_0 >= stop_time)[0][0]
 
         des1 = des1[start_idx:stop_idx]
         timing = np.cumsum(des1)
-        timing = timing / (5*60*1000) # 5 minute
+        timing = timing / (5*60*1000) # 5 minute expressed in miliseconds
 
         des1_max = np.max(des1)
         des1_min = np.min(des1)
@@ -466,15 +478,19 @@ if can_show(show_rows, row_number):
         ax_tachogram_1.add_patch(pathpatch)
     ax_tachogram_1.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 5 minut"], loc='upper left', numpoints=5)
 
-
-    arrow_size = 4
-    arrow_window_right = mpatches.Arrow(max_idx / 2 - arrow_size / 2,
-                                        des1_max - des1_max / 35,
-                                        4, 0,
-                                        width=100, color="red") #, zorder=3)
-    arrow_window_right.set_fill(True)
-    ax_tachogram_1.add_patch(arrow_window_right)
-
+    arrow_size = 4.5
+    head_width = 45
+    tail_width = 25
+    head_length = 40
+    draw_simple_arrow(ax_tachogram_1,
+                      posA=(max_idx / 2.0 - arrow_size / 2.0, y_lim - head_width - 40),
+                      posB=(max_idx / 2.0 + arrow_size / 2.0, y_lim - head_width - 40),
+                      tail_width=tail_width, head_width=head_width,
+                      head_length=head_length, color="red",
+                      text=u"Kierunek przesuwania okna",
+                      text_fontsize=12,
+                      lw=2.0,
+                   )
     if not start_hour == None:
         change_ticks_for_5_minutes(ax_tachogram_1)
     bold_ticks_labels(ax_tachogram_1)
