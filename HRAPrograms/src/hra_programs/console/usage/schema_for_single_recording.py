@@ -821,47 +821,46 @@ def create_shapes_plot(gs1, row_number, timing, max_idx, sym_indexes=None,
     return row_number + 1
 
 
-only_2_hours = True #True # show only 2-hours tachogram
+def initialize_figure(start_hour, stop_hour):
+    f = plt.figure(figsize=(17, 21))
+
+    font_1 = font_0.copy()
+    font_1.set_size('20')
+    font_1.set_weight('bold')
+    plt.suptitle(u"Schemat wyznaczania HRA dla pojedynczego 24-godzinnego nagrania odstępów RR.",
+                fontproperties=font_1, y=0.995, fontsize=25)
+
+    empty_ratio = 0.2
+    if start_hour == None or is_only_2_hours(start_hour, stop_hour) == True:
+        height_ratios = [1.0, 1.0, 1.0, empty_ratio, 0.4, empty_ratio,  1.0, empty_ratio,
+                  0.5, empty_ratio, 1.0, 2.0]
+    else:
+        height_ratios = [1.0, 1.0, 1.0, 0.4, 1.0, empty_ratio,
+                      0.5, empty_ratio, 1.0, 2.0]
+
+    #height_ratios = all_ratios
+    num_rows = len(height_ratios)
+    num_cols = 1
+
+    row_number = 0
+
+    gs1 = GridSpec(num_rows, num_cols, height_ratios=height_ratios) #[3, 0.3, 3, 0.5, 4])
+    gs1.update(left=0.04, right=0.99, wspace=0.1, hspace=0.0, bottom=0.04, top=0.98)
+    return f, gs1
+
 
 start_hour = None
 start_hour = 11
 stop_hour = 13
-
-
 if start_hour == None:
     max_idx = 23
 else:
     max_idx = 24
-
-
-f = plt.figure(figsize=(17, 21))
-
-font_1 = font_0.copy()
-font_1.set_size('20')
-font_1.set_weight('bold')
-plt.suptitle(u"Schemat wyznaczania HRA dla pojedynczego 24-godzinnego nagrania odstępów RR.",
-            fontproperties=font_1, y=0.995, fontsize=25)
-
-empty_ratio = 0.2
-if start_hour == None or is_only_2_hours(start_hour, stop_hour) == True:
-    height_ratios = [1.0, 1.0, 1.0, empty_ratio, 0.4, empty_ratio,  1.0, empty_ratio,
-              0.5, empty_ratio, 1.0, 2.0]
-else:
-    height_ratios = [1.0, 1.0, 1.0, 0.4, 1.0, empty_ratio,
-                  0.5, empty_ratio, 1.0, 2.0]
-
-#height_ratios = all_ratios
-num_rows = len(height_ratios)
-num_cols = 1
-
 row_number = 0
-
-gs1 = GridSpec(num_rows, num_cols, height_ratios=height_ratios) #[3, 0.3, 3, 0.5, 4])
-gs1.update(left=0.04, right=0.99, wspace=0.1, hspace=0.0, bottom=0.04, top=0.98)
-
-
 window_step = 1 # 1 hour
 sym_indexes = [1, 5, 6, 12, 21] # only multiple of window_step are allowed
+
+(f, gs1) = initialize_figure(start_hour, stop_hour)
 
 (des1, timing, timing_0) = get_24h_data()
 
