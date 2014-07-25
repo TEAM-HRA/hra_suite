@@ -318,7 +318,11 @@ def create_24_tachogram(gs1, row_number, timing, des1,
         pathpatch.set_fill(False)
         ax_24_tachogram.add_patch(pathpatch)
 
-    ax_24_tachogram.legend(['$\mathbf{%s}$' % ("RR")], loc='upper left')
+    leg = ax_24_tachogram.legend(['$\mathbf{%s}$' % ("RR")], loc='upper left')
+    #change legend font properties
+    plt.setp(leg.get_texts(), fontsize='large')
+    plt.setp(leg.get_texts(), fontweight='bold')
+
     ax_24_tachogram.set_xlabel(u"Czas [godziny]", fontproperties = font_1)
     ax_24_tachogram.set_ylabel(u"Wartość [ms]", fontproperties = font_1)
 
@@ -326,7 +330,7 @@ def create_24_tachogram(gs1, row_number, timing, des1,
     font_1 = font_0.copy()
     font_1.set_size('18')
     font_1.set_weight('bold')
-    ax_24_tachogram.text(tachogram_label_pos, y_lim - 100,
+    ax_24_tachogram.text(tachogram_label_pos, y_lim - 200,
                       u"Tachogram - 24 godziny", fontproperties = font_1)
     bold_ticks_labels(ax_24_tachogram)
 
@@ -341,11 +345,8 @@ def is_only_2_hours(start_hour, stop_hour):
 
 
 def create_simple_tachogram(gs1, row_number, timing, des1,
-                    tachogram_title=u"Tachogram - 24 godziny",
-                    x_label=u"Czas [godziny]",
                     slice_color="black", show_window=False,
-                    start_hour=None, stop_hour=None,
-                    tachogram_label_pos=17):
+                    start_hour=None, stop_hour=None):
 
     max_timing = np.max(timing)
     only_2_hours = is_only_2_hours(start_hour, stop_hour)
@@ -374,13 +375,27 @@ def create_simple_tachogram(gs1, row_number, timing, des1,
         pathpatch.set_fill(False)
         ax_tachogram.add_patch(pathpatch)
 
-    ax_tachogram.legend(['$\mathbf{%s}$' % ("RR")], loc='upper left')
+    if only_2_hours:
+        tachogram_label_pos = 17
+        tachogram_title=u"Tachogram - fragment 2 godziny"
+        x_label=u"Czas [minuty]"
+    else:
+        tachogram_label_pos = 19
+        tachogram_title=u"Tachogram - 24 godziny"
+        x_label=u"Czas [godziny]"
+
+    leg = ax_tachogram.legend(['$\mathbf{%s}$' % ("RR")], loc='upper left')
+    #change legend font properties
+    plt.setp(leg.get_texts(), fontsize='large')
+    plt.setp(leg.get_texts(), fontweight='bold')
+
     ax_tachogram.set_xlabel(x_label, fontproperties = font_1)
     ax_tachogram.set_ylabel(u"Wartość [ms]", fontproperties = font_1)
 
     font_1 = font_0.copy()
     font_1.set_size('18')
     font_1.set_weight('bold')
+
     ax_tachogram.text(tachogram_label_pos, y_lim - 100,
                       tachogram_title, fontproperties = font_1)
 
@@ -427,16 +442,16 @@ def create_zoom_plot(gs1, row_number, timing,
     pathpatch.set_fill(False)
     ax_zoom.add_patch(pathpatch)
 
-    ax_zoom.text(stop_hour-1, 0.3, u"Zastosowanie 5-minutowego okna danych",
-                      fontproperties=font_1,
-                      **alignment
-                      #size=20
-                      )
+#     ax_zoom.text(stop_hour-1, 0.3, u"2-godzinny wycinek tachogramu",
+#                       fontproperties=font_1,
+#                       **alignment
+#                       #size=20
+#                       )
 
     return row_number + 1
 
 
-def create_arrow_plot(gs1, row_number, timing, max_idx=None):
+def create_arrow_plot_5m(gs1, row_number, timing, max_idx=None):
     max_timing = np.max(timing)
 
     ax_arrow_plot = plt.subplot(gs1[row_number, :])
@@ -460,8 +475,7 @@ def create_arrow_plot(gs1, row_number, timing, max_idx=None):
 
 
 def create_windowed_tachogram(gs1, row_number, timing, des1, max_idx,
-                              start_hour=None, stop_hour=None,
-                              tachogram_label_pos=18):
+                              start_hour=None, stop_hour=None):
     # RIGHT TACHOGRAM START
     ax_windowed_tachogram = plt.subplot(gs1[row_number,0])
     ax_windowed_tachogram.set_color_cycle(['blue', 'red'])
@@ -494,8 +508,10 @@ def create_windowed_tachogram(gs1, row_number, timing, des1, max_idx,
 
     y_lim = ax_windowed_tachogram.get_ylim()[1]
     if start_hour == None:
+        tachogram_label_pos = 19
         tach_label = u"Tachogram - 24 godziny"
     else:
+        tachogram_label_pos = 17
         tach_label = u"Tachogram - fragment 2 godziny"
     ax_windowed_tachogram.text(tachogram_label_pos, y_lim - 100,
                       tach_label, fontproperties=font_1
@@ -518,7 +534,10 @@ def create_windowed_tachogram(gs1, row_number, timing, des1, max_idx,
         pathpatch = PathPatch(path, facecolor='None', edgecolor='red', zorder=3, lw=lw)
         pathpatch.set_fill(False)
         ax_windowed_tachogram.add_patch(pathpatch)
-    ax_windowed_tachogram.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 5 minut"], loc='upper left', numpoints=5)
+    leg = ax_windowed_tachogram.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 5 minut"], loc='upper left', numpoints=5)
+    #change legend font properties
+    plt.setp(leg.get_texts(), fontsize='large')
+    plt.setp(leg.get_texts(), fontweight='bold')
 
     arrow_size = 4.5
     head_width = 45
@@ -561,7 +580,7 @@ def create_descriptors_arrow(gs1, row_number):
 
 
 def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx,
-                        sym_indexes, start_hour=None, stop_hour=None, tachogram_label_pos=17,
+                        sym_indexes, start_hour=None, stop_hour=None,
                         sym_color="brown", asym_color="green"):
 
     first_lw = 0.5
@@ -596,8 +615,8 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
         x_label = u"Czas [godziny]"
     else:
         x_label = u"Czas [minuty]"
-    ax_windowed_desc.set_xlabel(x_label, fontproperties = font_1)
-    ax_windowed_desc.set_ylabel(u"Wartość [ms]", fontproperties = font_1)
+    ax_windowed_desc.set_xlabel(x_label, fontproperties=font_1)
+    ax_windowed_desc.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
 
     font_1 = font_0.copy()
     font_1.set_size('18')
@@ -605,8 +624,10 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
 
     if start_hour == None:
         tach_label = u"Tachogram - 24 godziny"
+        tachogram_label_pos = 19
     else:
         tach_label = u"Tachogram - fragment 2 godziny"
+        tachogram_label_pos = 17
 
     y_lim = ax_windowed_desc.get_ylim()[1]
     ax_windowed_desc.text(tachogram_label_pos, y_lim - 100,
@@ -666,13 +687,19 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
                             **alignment)
         ax_windowed_desc.add_patch(pathpatch)
 
-    leg = ax_windowed_desc.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 5 minut "],
+    leg = ax_windowed_desc.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 5 minut"],
                            loc='upper left', numpoints=5)
     ax_windowed_desc.add_artist(leg)
+    #change legend font properties
+    plt.setp(leg.get_texts(), fontsize='large')
+    plt.setp(leg.get_texts(), fontweight='bold')
 
     line = Line2D(range(1), range(1), linestyle='None', marker='None', color="blue")
-    label = 'Oznaczenia: $\mathbf{%s}$ - asymetria, $\mathbf{%s}$ - brak asymetrii' % ("A", "0")
+    label = 'Oznaczenia: %s - asymetria, %s - brak asymetrii' % ("A", "0")
     leg = ax_windowed_desc.legend([line], [label] , loc='upper center')
+    #change legend font properties
+    plt.setp(leg.get_texts(), fontsize='large')
+    plt.setp(leg.get_texts(), fontweight='bold')    
     ax_windowed_desc.add_artist(leg)
 
     if not start_hour == None:
@@ -682,7 +709,6 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
     if only_2_hours == True:
         change_xtickslabels_2_hours(ax_windowed_desc)
 
-
     return row_number + 1
 
 
@@ -690,7 +716,7 @@ def create_shapes_plot(gs1, row_number, timing, max_idx, sym_indexes=None,
                        sym_color="brown", asym_color="green"):
 
     max_timing = np.max(timing)
-    y_max_shapes = 4450
+    y_max_shapes = 4550
     asym_indexes = [idx for idx in range(max_idx) if idx not in sym_indexes]
     first_lw = 0.5
     lws = np.linspace(first_lw, 4, max_idx + 1 + first_lw)[::-1]
@@ -810,7 +836,7 @@ def create_shapes_plot(gs1, row_number, timing, max_idx, sym_indexes=None,
 
     # outcome ellipse
     e_width = 8
-    e_height = 1500
+    e_height = 1650
     e_shift = 50
     e_y = y_sym - t_b_height - o_height - e_height / 2 - e_shift - y_outcome_shift
     draw_simple_ellipse(ax_shapes, x_outcome, e_y, e_width, e_height, color=outcome_color,
@@ -831,14 +857,21 @@ def initialize_figure(start_hour, stop_hour):
                 fontproperties=font_1, y=0.995, fontsize=25)
 
     empty_ratio = 0.2
-    if start_hour == None or is_only_2_hours(start_hour, stop_hour) == True:
-        height_ratios = [1.0, 1.0, 1.0, empty_ratio, 0.4, empty_ratio,  1.0, empty_ratio,
-                  0.5, empty_ratio, 1.0, 2.0]
-    else:
-        height_ratios = [1.0, 1.0, 1.0, 0.4, 1.0, empty_ratio,
-                      0.5, empty_ratio, 1.0, 2.0]
+    height_ratios = [
+                     0.5, #1 24-tachogram
+                     0.3, #2 plot 24h -> 2h pass
+                     0.9, #3 2-hour tachogram
+                     empty_ratio, #4 empty
+                     0.45, #5 5-min window arrow plot
+                     #empty_ratio, #6
+                     0.9, #7 2-hour windowed tachogram
+                     empty_ratio, #8 empty plot
+                     0.55, #9 calculate descriptors arrow plot
+                     empty_ratio, #10 empty plot
+                     0.9,  #11 2-hour windowed tachogram with asymmetry signs
+                     2.0   #12 schema for binomial test
+                     ]
 
-    #height_ratios = all_ratios
     num_rows = len(height_ratios)
     num_cols = 1
 
@@ -864,36 +897,47 @@ sym_indexes = [1, 5, 6, 12, 21] # only multiple of window_step are allowed
 
 (des1, timing, timing_0) = get_24h_data()
 
-
+#1
 row_number = create_24_tachogram(gs1, row_number, timing, des1,
                     start_hour=start_hour, stop_hour=stop_hour)
 
+#2
 row_number = create_zoom_plot(gs1, row_number, timing,
                                start_hour=start_hour, stop_hour=stop_hour)
 
 (des1, timing) = get_5m_data(des1, timing_0, start_hour, stop_hour)
 
+#3
 row_number = create_simple_tachogram(gs1, row_number, timing, des1,
                             start_hour=start_hour, stop_hour=stop_hour)
 
+#4
 row_number = create_empty_plot(gs1, row_number)
 
-row_number = create_arrow_plot(gs1, row_number, timing, max_idx)
+#5
+row_number = create_arrow_plot_5m(gs1, row_number, timing, max_idx)
 
-row_number = create_empty_plot(gs1, row_number)
+#6
+#row_number = create_empty_plot(gs1, row_number)
 
+#7
 row_number = create_windowed_tachogram(gs1, row_number, timing, des1,
                     max_idx, start_hour=start_hour, stop_hour=stop_hour)
 
+#8
 row_number = create_empty_plot(gs1, row_number)
 
+#9
 row_number = create_descriptors_arrow(gs1, row_number)
 
+#10
 row_number = create_empty_plot(gs1, row_number)
 
+#11
 row_number = create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx,
                         sym_indexes=sym_indexes, start_hour=start_hour, stop_hour=stop_hour)
 
+#12
 row_number = create_shapes_plot(gs1, row_number, timing, max_idx, sym_indexes=sym_indexes)
 
 file_ = "/tmp/schemat_HRA_1.png"
