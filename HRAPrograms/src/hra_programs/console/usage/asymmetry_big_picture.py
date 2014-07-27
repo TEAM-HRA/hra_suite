@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-#-*- coding:utf-8 -*-
+# coding: utf-8
 '''
 Created on Nov 26, 2013
 
@@ -19,24 +19,42 @@ import matplotlib.gridspec as gridspec
 from matplotlib.path import Path
 from matplotlib.collections import PatchCollection
 from matplotlib.patches import PathPatch
+from matplotlib.font_manager import FontProperties
 
-pl.rc('text', usetex=True)
-pl.rc('text.latex',unicode=True)
+font_0 = FontProperties('DejaVu Sans')
 
-preamble = [
-            '\usepackage[polish]{babel}',
-            #'\usepackage[utf8]{inputenc}',
-            #'\usepackage[T1]{polski}'
-            ]
+#pl.rc('text', usetex=True)
+#pl.rc('text.latex',unicode=True)
+
+# preamble = [
+#             '\usepackage[polish]{babel}',
+#             #'\usepackage[utf8]{inputenc}',
+#             #'\usepackage[T1]{polski}'
+#             ]
 #pylab.rc('text.latex',preamble=preamble)
-pl.rc('text.latex',preamble='\usepackage[T1]{polski}') # oryg
+#pl.rc('text.latex',preamble='\usepackage[T1]{polski}') # oryg
 #pylab.rc('text.latex',preamble='\usepackage[T1]{fontenc}')
 #pylab.rc('text.latex',preamble='\usepackage{polski}')
-pl.rcParams['text.latex.preamble'] = [r'\boldmath']
+#pl.rcParams['text.latex.preamble'] = [r'\boldmath']
 
 
 from matplotlib.gridspec import GridSpec
 import matplotlib.patches as mpatches
+
+def bold_ticks_labels(ax, fontsize=11):
+    # We need to draw the canvas, otherwise the labels won't be positioned and
+    # won't have values yet.
+    f.canvas.draw()
+
+    x_labels = [item.get_text() for item in ax.get_xticklabels()]
+    y_labels = [item.get_text() for item in ax.get_yticklabels()]
+    font_1 = font_0.copy()
+    font_1.set_size(fontsize)
+    font_1.set_weight('bold')
+
+    ax.set_xticklabels(x_labels, fontproperties=font_1)
+    ax.set_yticklabels(y_labels, fontproperties=font_1)
+
 
 
 def make_ticklabels_invisible(fig):
@@ -81,8 +99,13 @@ if can_show(show_rows, 0):
     ax_ekg.set_axis_off()
     ax_ekg.set_frame_on(False)
     ax_ekg.autoscale_view(tight=True)
-    #ax_ekg.set_title("EKG")
-    ax_ekg.text(0.1, 0.1, "EKG", va="center", ha="left", size=20)
+
+    alignment = {'horizontalalignment':'left', 'verticalalignment':'center'}
+    text_fontsize = 20
+    font_1 = font_0.copy()
+    font_1.set_size(text_fontsize)
+    font_1.set_weight('bold')
+    ax_ekg.text(0.1, 0.1, u"EKG", fontproperties=font_1, **alignment)
     row_number = row_number + 1
 
 if can_show(show_rows, 1):
@@ -113,19 +136,33 @@ des1_max = np.max(des1)
 des1_min = np.min(des1)
 max_timing = np.max(timing)
 
+
 if can_show(show_rows, 2):
     ax_tachogram = plt.subplot(gs1[row_number, :])
     ax_tachogram.set_color_cycle(['blue'])
     ax_tachogram.plot(timing, des1)
     ax_tachogram.ticklabel_format(style='sci', axis='x', scilimits=(0, max_timing))
-    ax_tachogram.xaxis.set_ticks(np.arange(0, int(max_timing)+1, 1))
+    ax_tachogram.xaxis.set_ticks(np.arange(0, int(max_timing) + 1, 1))
     ax_tachogram.set_xlim(0, max_timing)
-    ax_tachogram.legend(['$\mathbf{%s}$' % ("RR"),], loc='upper left')
-    ax_tachogram.set_xlabel(r'\large{Czas [godziny]}')
-    ax_tachogram.set_ylabel(r'\large{Wartość [ms]}')
+    leg = ax_tachogram.legend([u"$\mathbf{%s}$" % ("RR")], loc='upper left')
+    plt.setp(leg.get_texts(), fontsize='large')
+    plt.setp(leg.get_texts(), fontweight='bold')
+
+    font_1 = font_0.copy()
+    font_1.set_size('11')
+    font_1.set_weight('bold')
+    ax_tachogram.set_xlabel(u"Czas [godziny]", fontproperties=font_1)
+    ax_tachogram.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
     #ax_tachogram.set_text(0.8, 0.8, 'Tachogram')
+
+    tachogram_label_pos = 20
+    font_1 = font_0.copy()
+    font_1.set_size('18')
+    font_1.set_weight('bold')
     ax_tachogram.text(max_idx - max_idx / 11.8, des1_max - des1_max / 70,
-                      "Tachogram", size=20)
+                      u"Tachogram", fontproperties=font_1)
+    bold_ticks_labels(ax_tachogram)
+
     #print('Title: ' + str(ax_tachogram.get_title()))
     #ax_tachogram.set_title(None)
     row_number = row_number + 1
@@ -134,6 +171,13 @@ if can_show(show_rows, 2):
 #arrow = mpatches.Arrow(grid[5, 0]-0.05, grid[5, 1]-0.05, 0.1, 0.1, width=0.1)
 
 if can_show(show_rows, 3):
+
+    text_fontsize = 20
+    alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+    font_1 = font_0.copy()
+    font_1.set_size(text_fontsize)
+    font_1.set_weight('bold')
+
     arrow_left = mpatches.Arrow(0.9, 1.1, -0.05, -1, width=0.15, color="black", label="Analiza")
     arrow_left.set_fill(True)
     #patches = []
@@ -142,7 +186,8 @@ if can_show(show_rows, 3):
     #colors = np.linspace(0, 1, len(patches))
     #collection.set_array(np.array(colors))
     ax_arrow_left = plt.subplot(gs1[row_number,0])
-    ax_arrow_left.text(0.5, 0.5, "Standardowa analiza HRA całego nagrania" , va="center", ha="center", size=20)
+    ax_arrow_left.text(0.5, 0.5, u"Standardowa analiza HRA całego nagrania" ,
+                       fontproperties=font_1, **alignment)
     ax_arrow_left.set_axis_off()
     ax_arrow_left.set_frame_on(False)
     #ax_arrow_left.autoscale_view(tight=True)
@@ -153,8 +198,8 @@ if can_show(show_rows, 3):
     arrow_right = mpatches.Arrow(0.1, 1.1, 0.05, -1, width=0.15, color="green")
     arrow_right.set_fill(True)
     ax_arrow_right = plt.subplot(gs1[row_number,1])
-    ax_arrow_right.text(0.5, 0.5, "Nowa analiza HRA przy pomocy okna danych",
-                         va="center", ha="center", color="green",  size=20)
+    ax_arrow_right.text(0.5, 0.5, u"Nowa analiza HRA przy pomocy okna danych", color="green",
+                        fontproperties=font_1, **alignment)
     ax_arrow_right.set_axis_off()
     ax_arrow_right.set_frame_on(False)
     #ax_arrow_right.autoscale_view(tight=True)
@@ -170,14 +215,22 @@ if can_show(show_rows, 4):
     ax_left_tachogram.ticklabel_format(style='sci', axis='x', scilimits=(0, max_timing))
     ax_left_tachogram.xaxis.set_ticks(np.arange(0, int(max_timing)+1, 1))
     ax_left_tachogram.set_xlim(0, max_timing)
-    #ax_left_tachogram.legend(['Tachogram'], loc='upper right')
-    ax_left_tachogram.set_xlabel(r'\large{Czas [godziny]}')
-    ax_left_tachogram.set_ylabel(r'\large{Wartość [ms]}')
-    ax_left_tachogram.text(max_idx - max_idx / 7, des1_max - des1_max / 70,
-                      "Tachogram", size=20)
+
+    font_1 = font_0.copy()
+    font_1.set_size('11')
+    font_1.set_weight('bold')
+
+    ax_left_tachogram.set_xlabel(u"Czas [godziny]", fontproperties=font_1)
+    ax_left_tachogram.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
+
+    font_1 = font_0.copy()
+    font_1.set_size('20')
+    font_1.set_weight('bold')
+    ax_left_tachogram.text(max_idx - 4, des1_max - des1_max / 70,
+                      u"Tachogram", fontproperties=font_1)
     #ax_left_tachogram.set_title("Tachogram")
 
-
+    bold_ticks_labels(ax_left_tachogram)
 
     vertices = []
     codes = []
@@ -190,7 +243,9 @@ if can_show(show_rows, 4):
     path = Path(vertices, codes)
     pathpatch = PathPatch(path, facecolor='None', edgecolor='red', zorder=3, lw=4)
     ax_left_tachogram.add_patch(pathpatch)
-    ax_left_tachogram.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 24 godziny"], loc='upper left')
+    leg  = ax_left_tachogram.legend([u"$\mathbf{%s}$" % ("RR"), u"Okno danych - 24 godziny"], loc='upper left')
+    plt.setp(leg.get_texts(), fontsize='large')
+    plt.setp(leg.get_texts(), fontweight='bold')
     # LEFT TACHOGRAM STOP
 
     # RIGHT TACHOGRAM START
@@ -200,14 +255,21 @@ if can_show(show_rows, 4):
     ax_right_tachogram.ticklabel_format(style='sci', axis='x', scilimits=(0, max_timing))
     ax_right_tachogram.xaxis.set_ticks(np.arange(0, int(max_timing)+1, 1))
     ax_right_tachogram.set_xlim(0, max_timing)
-    ax_right_tachogram.set_xlabel(r'\large{Czas [godziny]}')
-    ax_right_tachogram.set_ylabel(r'\large{Wartość [ms]}')
-    ax_right_tachogram.text(max_idx - max_idx / 7, des1_max - des1_max / 70,
-                      "Tachogram", size=20)
+
+    font_1 = font_0.copy()
+    font_1.set_size('11')
+    font_1.set_weight('bold')
+    ax_right_tachogram.set_xlabel(u"Czas [godziny]", fontproperties=font_1)
+    ax_right_tachogram.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
+
+    font_1 = font_0.copy()
+    font_1.set_size('20')
+    font_1.set_weight('bold')
+    ax_right_tachogram.text(max_idx - 4, des1_max - des1_max / 70,
+                      u"Tachogram", fontproperties=font_1)
 
     max_idx = 23
     #ax_right_tachogram.legend(numpoints=10)
-
 
     first_lw = 0.5
     lws = np.linspace(first_lw, 4, max_idx + 1 + first_lw)[::-1]
@@ -226,8 +288,13 @@ if can_show(show_rows, 4):
         pathpatch = PathPatch(path, facecolor='None', edgecolor='red', zorder=3, lw=lw)
         pathpatch.set_fill(False)
         ax_right_tachogram.add_patch(pathpatch)
-    ax_right_tachogram.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 5 minut"], loc='upper left', numpoints=5)
 
+    leg = ax_right_tachogram.legend([u"$\mathbf{%s}$" % ("RR"), "Okno danych - 5 minut"],
+                                     loc='upper left', numpoints=5)
+    plt.setp(leg.get_texts(), fontsize='large')
+    plt.setp(leg.get_texts(), fontweight='bold')
+
+    bold_ticks_labels(ax_right_tachogram)
 
     arrow_size = 4
     arrow_window_right = mpatches.Arrow(max_idx / 2 - arrow_size / 2,
@@ -238,21 +305,6 @@ if can_show(show_rows, 4):
     ax_right_tachogram.add_patch(arrow_window_right)
     row_number = row_number + 1
 
-#ax_right_tachogram.axis('equal')
-#ax_right_tachogram.axis('scaled')
-#ax_right_tachogram.dataLim.update_from_data_xy(vertices)
-#ax_right_tachogram.autoscale_view()
-# RIGHT TACHOGRAM STOP
-
-
-#ax4 = plt.subplot(gs1[-1, :-1])
-#ax5 = plt.subplot(gs1[-1, -1])
-
-#gs2 = GridSpec(3, 3)
-#gs2.update(left=0.55, right=0.98, hspace=0.05)
-#ax4 = plt.subplot(gs2[:, :-1])
-#ax5 = plt.subplot(gs2[:-1, -1])
-#ax6 = plt.subplot(gs2[-1, -1])
 
 make_ticklabels_invisible(plt.gcf())
 

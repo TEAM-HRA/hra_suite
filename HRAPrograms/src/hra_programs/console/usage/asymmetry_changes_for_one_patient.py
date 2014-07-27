@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*-
-#@PydevCodeAnalysisIgnore
-
+# coding: utf-8
 
 '''
 Created on Nov 26, 2013
@@ -21,24 +19,32 @@ import pylab as pl
 import Image
 import matplotlib.image as mpimg
 import matplotlib.gridspec as gridspec
+from matplotlib.font_manager import FontProperties
 import glob
 
-pl.rc('text', usetex=True)
-pl.rc('text.latex', unicode=True)
+font_0 = FontProperties('DejaVu Sans')
+
+# 1
+# pl.rc('text', usetex=True)
+# pl.rc('text.latex', unicode=True)
 
 save_plot = False
-figsize = (30.0, 15.0)
+#figsize = (30.0, 15.0)
+figsize = (17, 21)
 
-preamble = [
-            '\usepackage[polish]{babel}',
-            # '\usepackage[utf8]{inputenc}',
-            # '\usepackage[T1]{polski}'
-            ]
+# 1
+# preamble = [
+#             '\usepackage[polish]{babel}',
+#             # '\usepackage[utf8]{inputenc}',
+#             # '\usepackage[T1]{polski}'
+#             ]
 # pylab.rc('text.latex',preamble=preamble)
-pl.rc('text.latex', preamble='\usepackage[T1]{polski}')  # oryg
+# 1
+# pl.rc('text.latex', preamble='\usepackage[T1]{polski}')  # oryg
 # pylab.rc('text.latex',preamble='\usepackage[T1]{fontenc}')
 # pylab.rc('text.latex',preamble='\usepackage{polski}')
-pl.rcParams['text.latex.preamble'] = [r'\boldmath']
+# 1
+# pl.rcParams['text.latex.preamble'] = [r'\boldmath']
 
 
 def get_first_lines(_file, count=1):
@@ -70,9 +76,6 @@ class Sources(object):
         self.file_ = file_
         self.file_rr = file_rr
 
-# x = np.arange(10)
-
-# matplotlib.use('GTK')
 
 # file_ = '/home/jurek/volumes/doctoral/doktorat_przewod/dane/SVR_sliding__0001.res_out'
 # file_ = '/home/tmp/ANDRZ29_P/rr__small_24.rea_out'
@@ -87,27 +90,49 @@ class Sources(object):
 #         '/home/jurek/volumes/doctoral/doktorat_wyniki/rr__NIEZ40_P_MAX_ASYMMETRY.rea_out'
 #         ]
 
+def create_ax_title(gs):
+    # empty plot
+    title_plot = plt.subplot(gs[0])
+    title_plot.grid(False)
+    title_plot.set_frame_on(False)
+    title_plot.title.set_visible(False)
+    title_plot.xaxis.set_major_locator(plt.NullLocator())
+    title_plot.yaxis.set_major_locator(plt.NullLocator())
+    for tl in title_plot.get_xticklabels():
+        tl.set_visible(False)
+    for tl in title_plot.get_yticklabels():
+        tl.set_visible(False)
+
+    alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+
+    text_fontsize = 18
+    font_1 = font_0.copy()
+    font_1.set_size(text_fontsize)
+    font_1.set_weight('bold')
+
+    text = u"Dynamika parametrów wariancyjnych HRV zwolnień i przyspieszeń rytmu serca w 24-godzinnym nagraniu"
+    text_color = "black"
+    title_plot.text(0.5, 0.7, text,
+            #fontsize=text_fontsize,
+            color=text_color,
+            fontproperties=font_1,
+            **alignment)
+
+    text_fontsize = 13
+    font_1 = font_0.copy()
+    font_1.set_size(text_fontsize)
+    font_1.set_weight('bold')
+    text = u"[Do obliczeń wykorzystano przesuwające się 5-minutowe okno danych]"
+    title_plot.text(0.5, 0.3, text,
+            #fontsize=text_fontsize,
+            color=text_color,
+            fontproperties=font_1,
+            **alignment)
+
 
 fig = plt.figure(figsize=figsize)
 
-# adjustprops = dict(wspace=1)
-# fig.subplots_adjust(**adjustprops)
 
-# im = Image.open('/home/jurek/tmp/szeroki_tytul.png')
-# height = im.size[1]
-# im = np.array(im).astype(np.float) / 255
-# fig.figimage(im, 0, fig.bbox.ymax - height, zorder=10)
-# fig.figimage(im, 600, 930, zorder=10)
-
-
-# plt.title(
-#          r'\huge{Dynamika parametrów wariancyjnych HRV zwolnień i przyspieszeń rytmu serca w 24-godzinnym nagraniu}' # @IgnorePep8
-#          + '\n' + u'Do obliczeń wykorzystano przesuwające się 5-minutowe okno danych'
-#
-#          )
-# plt.title(r'\huge{Dynamika parametrów wariancyjnych HRV zwolnień i przyspieszeń rytmu serca w 24-godzinnym nagraniu EKG ść}')
-
-# plt.text(3.0, 0.6, r'żź do obliczeń wykorzystano przesuwające się 5-minutowe okno danych')
 plt.xticks([])
 plt.yticks([])
 
@@ -145,7 +170,6 @@ sources = [Sources(file_, file_rr)]
 #    file_ = fs.normpath(fs.join(path, filename))
 #    sources.append(Sources(file_, file_rr))
 
-
 def get_idx(_list, value):
     value = value.lower()
     return _list.index(value) if _list.count(value) == 1 else -1
@@ -160,31 +184,29 @@ def generate_asymmetry_changes(file_, file_rr):
     t_idx = get_idx(headers, 'timing')
 
     specs = [
-        Spec((get_idx(headers, 'C1d'), t_idx), ["C1_d"], file_, plot_type='o', value=0.5),
-        Spec((get_idx(headers, 'C2a'), t_idx), ["C2_a"], file_, plot_type='o', value=0.5),
-        Spec((get_idx(headers, 'C2a'), t_idx), ["Ca"], file_, plot_type='o', value=0.5),
+        Spec((get_idx(headers, 'C1d'), t_idx), ["C1_d"], file_, value=0.5),#, plot_type='o'),
+        Spec((get_idx(headers, 'C2a'), t_idx), ["C2_a"], file_, value=0.5),#, plot_type='o'),
+        Spec((get_idx(headers, 'C2a'), t_idx), ["Ca"], file_, value=0.5),#, plot_type='o'),
         # Spec((0,3,10), ["C1_d", "C2_a"], file_, plot_type='o'),
         Spec((get_idx(headers, 'sd1d'), get_idx(headers, 'sd1a'), t_idx),
-             ["SD1_d", "SD1_a"], file_, plot_type='o'),
+             ["SD1_d", "SD1_a"], file_), #, plot_type='o'),
         Spec((get_idx(headers, 'sd2d'), get_idx(headers, 'sd2a'), t_idx),
-             ["SD2_d", "SD2_a"], file_, plot_type='o'),
+             ["SD2_d", "SD2_a"], file_), #, plot_type='o'),
         Spec((get_idx(headers, 'sdnnd'), get_idx(headers, 'sdnna'), t_idx),
-             ["SDNN_d", "SDNN_a"], file_, plot_type='o'),
+             ["SDNN_d", "SDNN_a"], file_), #, plot_type='o'),
         Spec((1, 2,), ["RR"], file_rr, title="Tachogram", share_plot=True,
              annotation=True, time_label=True),
         ]
 
     ss = len(specs)
-    height_ratios = [10]
-    height_ratios.extend([90.0 / ss] * ss)
+    height_ratios = [4]
+    height_ratios.extend([(100 - height_ratios[0]) / ss] * ss)
     # print 'height_ratios: ', height_ratios
 
     gs = gridspec.GridSpec(
                            # 5,
                            ss + 1,
                            1,
-                           # height_ratios=[10,24,24,24,18],
-                           # height_ratios=[10, 10, 14, 24, 24, 18]
                            height_ratios=height_ratios
                            )
     # gs.update(left=0.03, right=0.98, hspace=0.15, wspace=0.9)
@@ -192,14 +214,8 @@ def generate_asymmetry_changes(file_, file_rr):
 
     num_plot = (len(specs) + 1) * 100 + 10
     num_plot = num_plot + 1
-    # ax_title = fig.add_subplot(num_plot)
-    ax_title = plt.subplot(gs[0])
-    # pyp = mpimg.imread('/home/jurek/tmp/tytul_hrv.png')
-    pyp = mpimg.imread('/home/jurek/volumes/doctoral/doktorat_wyniki/szeroki_tytul.png')
-    ax_title.imshow(pyp)  # , origin='lower')
-    ax_title.set_axis_off()
-    ax_title.set_frame_on(False)
-    ax_title.autoscale_view('tight')
+
+    create_ax_title(gs)
 
     sharex = None
 
@@ -261,9 +277,7 @@ def generate_asymmetry_changes(file_, file_rr):
             des1_count = len(np.where(des1 > spec.value)[0])
 
         if spec.title:
-            # ax.text(len(timing)/2 - 100 , des1_max, spec.title, size=15)
             ax.text(np.mean(timing) , des1_max, spec.title, size=15)
-            # ax.set_title(spec.title)
 
         ax.plot(timing, des1, spec.plot_type)
         if len(spec.labels) == 2:
@@ -272,8 +286,6 @@ def generate_asymmetry_changes(file_, file_rr):
             ax.axhline(des2_mean, lw=3, color='green')
         else:
             ax.axhline(des1_mean, lw=3, color='black')
-
-        # ax.axhline(0.5, lw=3)
 
         if len(spec.labels) == 2:
             des2_min = np.min(des2)
@@ -288,44 +300,30 @@ def generate_asymmetry_changes(file_, file_rr):
         max_timing = np.max(timing)
         # print('max_timing: ' + str(max_timing))
 
-        # #plt.ticklabel_format(style='sci', axis='x', scilimits=(0,max_timing))
         ax.ticklabel_format(style='sci', axis='x', scilimits=(0, max_timing))
-        # ax.xticks(np.arange(0, int(max_timing)+1, 1))
-        # #plt.yticks(np.arange(c_min - 0.1, c_max + 0.1, 0.1))
-        # ax.yticks(np.arange(0, 1, 0.1))
         ax.xaxis.set_ticks(np.arange(0, int(max_timing) + 1, 1))
         ax.set_xlim(0, max_timing)
-        # plt.axes().set_ylim(c_min - 0.1, c_max + 0.1)
-        # ax.yaxis.set_ticks(np.arange(0, 1, 0.1))
-        # ax.set_ylim(0, 1)
-        #
-        # #plt.legend(['SD2w', 'SD2s'], loc='upper left')
+
         if len(spec.labels) == 2:
-            ax.legend(['$\mathbf{%s}$ Ilość $[%i]$ Średnia $[%i]$' % (spec.labels[0], des1_count, des1_mean),
-                       '$\mathbf{%s}$ Ilość $[%i]$ Średnia $[%i]$' % (spec.labels[1], des2_count, des2_mean),
-                   # 'Średnia $\mathbf{%s}$' % (spec.labels[0]), 'Średnia $\mathbf{%s}$' % (spec.labels[1])
-                   ],
+            ax.legend([u"$\mathbf{%s}$ Ilość $[%i]$ Średnia $[%i]$" % (spec.labels[0], des1_count, des1_mean),
+                       u"$\mathbf{%s}$ Ilość $[%i]$ Średnia $[%i]$" % (spec.labels[1], des2_count, des2_mean),],
                   loc='upper left')
         else:
             if spec.value == None:
-                ax.legend(['$\mathbf{%s}$' % (spec.labels[0]),
-                            # 'Średnia $\mathbf{%s}$' % (spec.labels[0]), 'Średnia $\mathbf{%s}$' % (spec.labels[1])
-                            ],
+                ax.legend(['$\mathbf{%s}$' % (spec.labels[0])],
                           loc='upper left')
             else:
-                ax.legend(['$\mathbf{%s}$ Ilość $[%i]$' % (spec.labels[0], des1_count),
-                   # 'Średnia $\mathbf{%s}$' % (spec.labels[0]), 'Średnia $\mathbf{%s}$' % (spec.labels[1])
-                   ],
+                ax.legend([u"$\mathbf{%s}$ Ilość $[%i]$" % (spec.labels[0], des1_count)],
                   loc='upper left')
-        if spec.time_label:
-            ax.set_xlabel(r'\Large{Czas [%s]}' % time_unit)
-        ax.set_ylabel(r'\Large{Wartość [ms]}')
 
-    # fig.text(
-    #        0.5, 0.05,
-    #        r'do obliczen wykorzystano 5-minutowe przesuwajace sie okno danych',
-    #        ha='left')
-    # plt.subplots_adjust(bottom=0.15)
+        font_1 = font_0.copy()
+        font_1.set_size('11')
+        font_1.set_weight('bold')
+
+        if spec.time_label:
+            ax.set_xlabel(u"Czas [%s]" % time_unit, fontproperties=font_1)
+        ax.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
+
     if save_plot:
         path = fs.dirname(file_)
         png_filename = os.path.basename(file_) + ".png"
@@ -339,96 +337,3 @@ def generate_asymmetry_changes(file_, file_rr):
 
 for source in sources:
     generate_asymmetry_changes(source.file_, source.file_rr)
-
-# plt.gca().set_color_cycle(['red', 'green', 'blue', 'yellow'])
-
-# print(timing.dtype)
-
-# timing = timing.astype(np.int32, copy=False)
-# print(timing)
-# plt.plot(x, x)
-# plt.plot(x, 2 * x)
-# plt.plot(x, 3 * x)
-# plt.plot(x, 4 * x)
-
-# plt.legend(['y = x', 'y = 2x', 'y = 3x', 'y = 4x'], loc='upper left')
-
-
-# plt.plot(SD2w)
-# plt.plot(SD2s)
-
-# fig = plt.figure()
-# x = np.arange(55)
-# ax1 = fig.add_subplot(311)
-# ax1.plot(x, x)
-# ax2 = fig.add_subplot(312, sharex=ax1)
-# ax2.plot(2 * x, 2 * x)
-# ax3 = fig.add_subplot(313, sharex=ax1)
-# ax3.plot(3 * x, 3 * x)
-# plt.show()
-
-
-# plt.title(r'\huge{Kompensacja asymetrii $\mathbf{C1_d}$, $\mathbf{C2_d}$ w 24-godzinnym nagraniu}')
-# plt.plot(timing, C1d)
-# plt.plot(timing, C2d)
-# plt.axhline(0.5, lw=3)
-#
-# c1d_min = np.min(C1d)
-# c1d_max = np.max(C1d)
-#
-# c2d_min = np.min(C2d)
-# c2d_max = np.max(C2d)
-#
-# c_min = np.round(np.max([c1d_min, c2d_min]), decimals=1)
-# c_max = np.round(np.max([c1d_max, c2d_max]), decimals=1)
-#
-#
-# max_timing = np.max(timing)
-# #print('max_timing: ' + str(max_timing))
-#
-#
-# #plt.ticklabel_format(style='sci', axis='x', scilimits=(0,max_timing))
-# plt.xticks(np.arange(0, int(max_timing)+1, 1))
-# #plt.yticks(np.arange(c_min - 0.1, c_max + 0.1, 0.1))
-# plt.yticks(np.arange(0, 1, 0.1))
-#
-# plt.axes().set_xlim(0, max_timing)
-# #plt.axes().set_ylim(c_min - 0.1, c_max + 0.1)
-# plt.axes().set_ylim(0, 1)
-# #
-# ##plt.legend(['SD2w', 'SD2s'], loc='upper left')
-# plt.legend(['$\mathbf{C1_d}$', '$\mathbf{C2_d}$'], loc='upper left')
-# plt.axes().set_xlabel(r'\Large{Czas [godziny]}')
-# plt.axes().set_ylabel(r'\Large{Wartość}')
-# #
-# plt.show()  # show plot
-# #plt.savefig("/home/tmp/my_fig.png") # save plot
-
-
-
-# import sys
-# sys.path.append('/ssd_dev/git_repos/HRA/HRAMath/src')
-# sys.path.append('/ssd_dev/git_repos/HRA/HRACore/src')
-# import hra_math.time_domain.poincare_plot.poincare_plot as poincare
-# pp = poincare.PoincarePlotManager()
-# pp.annotation_index = 2
-# pp.annotation_label = 'flags'
-# #pp.data_file = '/home/jurek/volumes/doctoral/dane/24h_shuffled/part1/S_jakubas_RR.rea'
-# #pp.data_file = '/home/jurek/volumes/doctoral/dane/long_corrected/bucior_RR_P.rea'
-# pp.data_file = '/home/jurek/volumes/doctoral/dane/long_corrected/kolter_RR_P.rea'
-# pp.data_file = '/tmp/kolter_RR_P/Skolter_RR_P.rea'
-# pp.extension = '*.rea'
-# pp.filters_names = 'annotation'
-# pp.headers_count = 1
-# pp.output_dir = '/tmp/kolter_RR_P/'
-# pp.output_prefix = 'rr_'
-# pp.override_existing_outcomes = True
-# pp.signal_index = 1
-# pp.signal_label = 'rri'
-# pp.window_size = '5m'
-# #pp.output_precision = '(10, 5)'
-# pp.output_separator = ';'
-# pp.statistics_names = 'c1d, c2d, c1a, c2a, sd1d, sd1a, sd2d, sd2a, sdnnd, sdnna'
-# pp.stepper = '5m'
-# pp.timing = True
-# pp.generate()

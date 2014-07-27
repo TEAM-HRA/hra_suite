@@ -1,4 +1,5 @@
-#encoding=utf-8
+#!/usr/bin/env python
+# coding: utf-8
 '''
 Created on Nov 26, 2013
 
@@ -13,15 +14,33 @@ import pylab
 from os.path import basename
 import os.path as fs
 import glob
+from matplotlib.font_manager import FontProperties
 
-pylab.rc('text', usetex=True)
-pylab.rc('text.latex',unicode=True)
-pylab.rc('text.latex',preamble='\usepackage[T1]{polski}')
-pylab.rcParams['text.latex.preamble'] = [r'\boldmath']
+# pylab.rc('text', usetex=True)
+# pylab.rc('text.latex',unicode=True)
+# pylab.rc('text.latex',preamble='\usepackage[T1]{polski}')
+# pylab.rcParams['text.latex.preamble'] = [r'\boldmath']
 
 #x = np.arange(10)
 
 #matplotlib.use('GTK')
+
+
+def bold_ticks_labels(plt, fontsize=11):
+    # We need to draw the canvas, otherwise the labels won't be positioned and
+    # won't have values yet.
+    plt.draw()
+    axes = plt.axes()
+    x_labels = [item.get_text() for item in axes.get_xaxis().get_ticklabels()]
+    y_labels = [item.get_text() for item in axes.get_yaxis().get_ticklabels()]
+    font_1 = font_0.copy()
+    font_1.set_size(fontsize)
+    font_1.set_weight('bold')
+
+    axes.get_xaxis().set_ticklabels(x_labels, fontproperties=font_1)
+    axes.get_yaxis().set_ticklabels(y_labels, fontproperties=font_1)
+
+font_0 = FontProperties('DejaVu Sans')
 
 file__ = '/home/jurek/volumes/doctoral/doktorat_przewod/dane/SVR_sliding__0001.res_out'
 file__ = '/home/tmp/ANDRZ29_P/rr__small_24.rea_out'
@@ -55,6 +74,7 @@ for idx, file_ in enumerate(files):
 
     C1d, C2d, timing = np.loadtxt(file_,  usecols=usecols,
                            skiprows=1, delimiter=';', unpack=True) # @IgnorePep8
+    #f = plt.figure()
     plt.gca().set_color_cycle(['red', 'green', 'blue', 'yellow'])
 
     #print('C1d: ' + str(C1d))
@@ -88,10 +108,16 @@ for idx, file_ in enumerate(files):
     #ax3.plot(3 * x, 3 * x)
     #plt.show()
 
-    plt.title(r'\huge{Kompensacja asymetrii $\mathbf{C1_a}$, $\mathbf{C2_a}$ w 24-godzinnym nagraniu EKG}')
+    font_1 = font_0.copy()
+    font_1.set_size('20')
+    font_1.set_weight('bold')
+
+    #plt.title(r'\huge{Kompensacja asymetrii $\mathbf{C1_a}$, $\mathbf{C2_a}$ w 24-godzinnym nagraniu EKG}')
+    plt.title(u"Kompensacja asymetrii $\mathbf{C1_a}$, $\mathbf{C2_a}$ w 24-godzinnym nagraniu EKG", fontproperties=font_1)
     plt.plot(timing, C1d)
     plt.plot(timing, C2d)
     plt.axhline(0.5, lw=3)
+
 
     c1d_min = np.min(C1d)
     c1d_max = np.max(C1d)
@@ -119,9 +145,18 @@ for idx, file_ in enumerate(files):
     plt.axes().set_ylim(0, 1)
     #
     ##plt.legend(['SD2w', 'SD2s'], loc='upper left')
-    plt.legend(['$\mathbf{C1_a}$', '$\mathbf{C2_a}$'], loc='upper left')
-    plt.axes().set_xlabel(r'\Large{Czas [godziny]}')
-    plt.axes().set_ylabel(r'\Large{Wartość}')
+    leg = plt.legend([u"$\mathbf{C1_a}$", u"$\mathbf{C2_a}$"], loc='upper left')
+    plt.setp(leg.get_texts(), fontsize='large')
+    plt.setp(leg.get_texts(), fontweight='bold')
+
+    bold_ticks_labels(plt)
+
+    font_1 = font_0.copy()
+    font_1.set_size('11')
+    font_1.set_weight('bold')
+
+    plt.axes().set_xlabel(u"Czas [godziny]", fontproperties=font_1)
+    plt.axes().set_ylabel(u"Wartość [%]", fontproperties=font_1)
     #
 
     png_file = output_dir + str(basename(file_)) + "_timing.png"
