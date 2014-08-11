@@ -22,15 +22,16 @@ import matplotlib.gridspec as gridspec
 from matplotlib.font_manager import FontProperties
 import glob
 
+
 font_0 = FontProperties('DejaVu Sans')
 
 # 1
-# pl.rc('text', usetex=True)
-# pl.rc('text.latex', unicode=True)
+#pl.rc('text', usetex=True)
+#pl.rc('text.latex', unicode=True)
 
-save_plot = False
+save_plot = True
 #figsize = (30.0, 15.0)
-figsize = (17, 21)
+figsize = (18, 21)
 
 # 1
 # preamble = [
@@ -52,6 +53,28 @@ def get_first_lines(_file, count=1):
     get first count lines of a text file
     """
     return [line for idx, line in enumerate(open(_file)) if idx < count]
+
+
+def bold_ticks_labels(ax, fontsize=11):
+    # We need to draw the canvas, otherwise the labels won't be positioned and
+    # won't have values yet.
+    fig.canvas.draw()
+
+    x_labels = [item.get_text() for item in ax.get_xticklabels()]
+    y_labels = [item.get_text() for item in ax.get_yticklabels()]
+
+    font_1 = font_0.copy()
+    font_1.set_size(fontsize)
+    font_1.set_weight('bold')
+
+    ax.set_xticklabels(x_labels, fontproperties=font_1)
+    ax.set_yticklabels(y_labels, fontproperties=font_1)
+
+
+def bold_legend(leg):
+    #change legend font properties
+    plt.setp(leg.get_texts(), fontsize='large')
+    plt.setp(leg.get_texts(), fontweight='bold')
 
 
 class Spec(object):
@@ -105,7 +128,7 @@ def create_ax_title(gs):
 
     alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
 
-    text_fontsize = 18
+    text_fontsize = 20
     font_1 = font_0.copy()
     font_1.set_size(text_fontsize)
     font_1.set_weight('bold')
@@ -118,12 +141,12 @@ def create_ax_title(gs):
             fontproperties=font_1,
             **alignment)
 
-    text_fontsize = 13
+    text_fontsize = 15
     font_1 = font_0.copy()
     font_1.set_size(text_fontsize)
     font_1.set_weight('bold')
     text = u"[Do obliczeń wykorzystano przesuwające się 5-minutowe okno danych]"
-    title_plot.text(0.5, 0.3, text,
+    title_plot.text(0.5, 0.25, text,
             #fontsize=text_fontsize,
             color=text_color,
             fontproperties=font_1,
@@ -184,17 +207,17 @@ def generate_asymmetry_changes(file_, file_rr):
     t_idx = get_idx(headers, 'timing')
 
     specs = [
-        Spec((get_idx(headers, 'C1d'), t_idx), ["C1_d"], file_, value=0.5),#, plot_type='o'),
-        Spec((get_idx(headers, 'C2a'), t_idx), ["C2_a"], file_, value=0.5),#, plot_type='o'),
-        Spec((get_idx(headers, 'C2a'), t_idx), ["Ca"], file_, value=0.5),#, plot_type='o'),
+        #Spec((get_idx(headers, 'C1d'), t_idx), ["C1_d"], file_, value=0.5),#, plot_type='o'),
+        #Spec((get_idx(headers, 'C2a'), t_idx), ["C2_a"], file_, value=0.5),#, plot_type='o'),
+        #Spec((get_idx(headers, 'C2a'), t_idx), ["Ca"], file_, value=0.5),#, plot_type='o'),
         # Spec((0,3,10), ["C1_d", "C2_a"], file_, plot_type='o'),
         Spec((get_idx(headers, 'sd1d'), get_idx(headers, 'sd1a'), t_idx),
-             ["SD1_d", "SD1_a"], file_), #, plot_type='o'),
+             ["SD1_d", "SD1_a"], file_, title=u"(A) Zmienność krótkoterminowa", share_plot=False), #, plot_type='o'),
         Spec((get_idx(headers, 'sd2d'), get_idx(headers, 'sd2a'), t_idx),
-             ["SD2_d", "SD2_a"], file_), #, plot_type='o'),
+             ["SD2_d", "SD2_a"], file_, title=u"(B) Zmienność długoterminowa"), #, plot_type='o'),
         Spec((get_idx(headers, 'sdnnd'), get_idx(headers, 'sdnna'), t_idx),
-             ["SDNN_d", "SDNN_a"], file_), #, plot_type='o'),
-        Spec((1, 2,), ["RR"], file_rr, title="Tachogram", share_plot=True,
+             ["SDNN_d", "SDNN_a"], file_, title=u"(C) Zmienność całkowita"), #, plot_type='o'),
+        Spec((1, 2,), ["RR"], file_rr, title="Tachogram", #share_plot=True,
              annotation=True, time_label=True),
         ]
 
@@ -277,7 +300,11 @@ def generate_asymmetry_changes(file_, file_rr):
             des1_count = len(np.where(des1 > spec.value)[0])
 
         if spec.title:
-            ax.text(np.mean(timing) , des1_max, spec.title, size=15)
+            font_1 = font_0.copy()
+            font_1.set_size('18')
+            font_1.set_weight('bold')
+
+            ax.text(np.mean(timing) , des1_max, spec.title, fontproperties=font_1) # size=15)
 
         ax.plot(timing, des1, spec.plot_type)
         if len(spec.labels) == 2:
@@ -300,34 +327,39 @@ def generate_asymmetry_changes(file_, file_rr):
         max_timing = np.max(timing)
         # print('max_timing: ' + str(max_timing))
 
-        ax.ticklabel_format(style='sci', axis='x', scilimits=(0, max_timing))
+        if spec.share_plot == False:
+            ax.ticklabel_format(style='sci', axis='x', scilimits=(0, max_timing))
         ax.xaxis.set_ticks(np.arange(0, int(max_timing) + 1, 1))
         ax.set_xlim(0, max_timing)
 
         if len(spec.labels) == 2:
-            ax.legend([u"$\mathbf{%s}$ Ilość $[%i]$ Średnia $[%i]$" % (spec.labels[0], des1_count, des1_mean),
-                       u"$\mathbf{%s}$ Ilość $[%i]$ Średnia $[%i]$" % (spec.labels[1], des2_count, des2_mean),],
+            leg = ax.legend([u"$\mathbf{%s}$ Ilość [%i] Średnia [%i]" % (spec.labels[0], des1_count, des1_mean),
+                       u"$\mathbf{%s}$ Ilość [%i] Średnia [%i]" % (spec.labels[1], des2_count, des2_mean),],
                   loc='upper left')
         else:
             if spec.value == None:
-                ax.legend(['$\mathbf{%s}$' % (spec.labels[0])],
+                leg = ax.legend(['$\mathbf{%s}$' % (spec.labels[0])],
                           loc='upper left')
             else:
-                ax.legend([u"$\mathbf{%s}$ Ilość $[%i]$" % (spec.labels[0], des1_count)],
+                leg = ax.legend([u"$\mathbf{%s}$ Ilość [%i]" % (spec.labels[0], des1_count)],
                   loc='upper left')
+        bold_legend(leg)
 
         font_1 = font_0.copy()
-        font_1.set_size('11')
+        font_1.set_size('14')
         font_1.set_weight('bold')
 
         if spec.time_label:
             ax.set_xlabel(u"Czas [%s]" % time_unit, fontproperties=font_1)
         ax.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
 
+        bold_ticks_labels(ax)
+
     if save_plot:
         path = fs.dirname(file_)
         png_filename = os.path.basename(file_) + ".png"
         png_file = fs.normpath(fs.join(path, png_filename))
+        png_file = "/tmp/hrv_1_24h.png"
         plt.savefig(png_file)
         print('Plot: ' + str(png_file) + ' saved.')
     else:
