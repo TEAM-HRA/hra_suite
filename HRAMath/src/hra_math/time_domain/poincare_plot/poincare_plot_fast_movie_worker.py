@@ -14,11 +14,12 @@ try:
     from chaco.api import ColormappedScatterPlot
     from chaco.api import LinearMapper
     from chaco.api import ArrayDataSource
-    from chaco.label_axis import LabelAxis
+    from chaco.axis import PlotAxis
     from chaco.scatterplot import render_markers
     from kiva.constants import CIRCLE_MARKER as CIRCLE
     from hra_core.datetime_utils import get_time_label_parts_for_miliseconds
     from hra_core.collections_utils import nvl
+    from hra_core.collections_utils import nvl_and_positive
 except ImportError as error:
     print_import_error(__name__, error)
 
@@ -37,18 +38,23 @@ class PoincarePlotFastMovieMakerWorker(object):
 
         #set up specific values for fonts sizes based on products of a movie
         #height and arbitrary constants to give looking good picture
-        if self.manager.movie_axis_font_size > 0:
-            self.axis_font = 'modern ' + str(self.manager.movie_axis_font_size)
+        if self.manager.movie_axis_font == None:
+            self.axis_font = 'modern ' + str(nvl_and_positive(
+                self.manager.movie_axis_font_size, self.manager.movie_height / 38))
         else:
-            self.axis_font = 'modern ' + str(self.manager.movie_height / 38)
-        if self.manager.movie_title_font_size > 0:
-            self.title_font = 'modern ' + str(self.manager.movie_title_font_size)
+            self.axis_font = self.manager.movie_axis_font
+
+        if self.manager.movie_title_font == None:
+            self.title_font = 'modern ' + str(nvl_and_positive(
+                self.manager.movie_title_font_size, self.manager.movie_height / 30))
         else:
-            self.title_font = 'modern ' + str(self.manager.movie_height / 30)
-        if self.manager.movie_time_label_font_size > 0:
-            self.time_label_font = 'modern ' + str(self.manager.movie_time_label_font_size)
-        else:
-            self.time_label_font = 'modern ' + str(self.manager.movie_height / 35)
+            self.title_font = self.manager.movie_title_font
+
+        self.time_label_font = 'modern ' + str(nvl_and_positive(
+            self.manager.movie_time_label_font_size, self.manager.movie_height / 35))
+
+        self.tick_font = nvl(self.manager.movie_tick_font, None)
+        self.frame_pad = nvl_and_positive(self.manager.movie_frame_pad, 50)
 
     def initiate(self):
         if len(self.pp_specs) == 0:
@@ -74,6 +80,35 @@ class PoincarePlotFastMovieMakerWorker(object):
 
         # Create the plot
         self._plot = Plot(self.pd)
+
+        axis_defaults = {
+                         #'axis_line_weight': 2,
+                         #'tick_weight': 2,
+                         #'tick_label_color': 'green',
+                         'title_font': self.axis_font,
+                         }
+        if self.tick_font:
+            axis_defaults['tick_label_font'] = self.tick_font
+
+        #a very important and weird trick; used to remove default ticks labels
+        self._plot.x_axis = None
+        self._plot.y_axis = None
+        #end trick
+
+        #add new x label and x's ticks labels
+        x_axis = PlotAxis(orientation='bottom',
+                  title=nvl(self.manager.x_label, 'RR(n) [ms]'),
+                  mapper=self._plot.x_mapper,
+                  **axis_defaults)
+        self._plot.overlays.append(x_axis)
+
+        #add new y label and y's ticks labels
+        y_axis = PlotAxis(orientation='left',
+                   title=nvl(self.manager.y_label, 'RR(n+1) [ms]'),
+                   mapper=self._plot.y_mapper,
+                   **axis_defaults)
+        self._plot.overlays.append(y_axis)
+
         self._plot.index_range.add(index_ds)
         self._plot.value_range.add(value_ds)
 
@@ -85,18 +120,6 @@ class PoincarePlotFastMovieMakerWorker(object):
         # Create the index and value mappers using the plot data ranges
         imapper = LinearMapper(range=self._plot.index_range)
         vmapper = LinearMapper(range=self._plot.value_range)
-
-        # add axis labels
-        bottom_axis = LabelAxis(self._plot, orientation='bottom',
-                               title=nvl(self.manager.x_label, 'RR(n) [ms]'),
-                               positions=range(1, int(self.value_max / 10)),
-                               title_font=self.axis_font)
-        self._plot.underlays.append(bottom_axis)
-        left_axis = LabelAxis(self._plot, orientation='left',
-                               title=nvl(self.manager.y_label, 'RR(n+1) [ms]'),
-                               positions=range(1, int(self.value_max / 10)),
-                               title_font=self.axis_font)
-        self._plot.underlays.append(left_axis)
 
         color = "white"
 
@@ -124,7 +147,7 @@ class PoincarePlotFastMovieMakerWorker(object):
         self._plot.title = nvl(self.manager.movie_title, "Poincare plot")
         self._plot.title_font = self.title_font
         self._plot.line_width = 0.5
-        self._plot.padding = 50
+        self._plot.padding = self.frame_pad
 
         self._plot.do_layout(force=True)
         self._plot.outer_bounds = [self.manager.movie_width,

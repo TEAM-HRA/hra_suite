@@ -508,6 +508,18 @@ class PoincarePlotManager(object):
         movie_group.add_argument("-movie_axis_font_size", "--movie_axis_font_size",
             help="""movie axis font size [optional]""",
             default=-1, type=int)
+        movie_group.add_argument("-movie_axis_font", "--movie_axis_font",
+            help="""movie axis font, example: '15 pt bold italic' [optional]""",
+            default=None)
+        movie_group.add_argument("-movie_title_font", "--movie_title_font",
+            help="""movie title font, example: '15 pt bold italic' [optional]""",
+            default=None)
+        movie_group.add_argument("-movie_tick_font", "--movie_tick_font",
+            help="""movie tick font, example: '15 pt bold italic' [optional]""",
+            default=None)
+        movie_group.add_argument("-movie_frame_pad", "--movie_frame_pad",
+            help="""movie frame pad, the space used for axes and ticks labels [optional]""",
+            default=-1, type=int)
 
         #add information about parameters
         for group in parser._action_groups:

@@ -114,6 +114,15 @@ def nvl(*iterable):
             return _iter
 
 
+def nvl_and_positive(*iterable):
+    """
+    returns first not None and positive value in collection
+    """
+    for _iter in iterable:
+        if not _iter == None and _iter > 0:
+            return _iter
+
+
 def get_subdict(_dict, keys=None, not_keys=None):
     """
     function which returns sub dict of _dict dictionary

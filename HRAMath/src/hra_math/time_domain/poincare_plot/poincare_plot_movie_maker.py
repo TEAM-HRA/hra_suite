@@ -113,6 +113,10 @@ class PoincarePlotMovieMaker(object):
             self.pp_spec_manager.movie_time_label_prefix = self.p.movie_time_label_prefix
             self.pp_spec_manager.movie_title_font_size = self.p.movie_title_font_size
             self.pp_spec_manager.movie_axis_font_size = self.p.movie_axis_font_size
+            self.pp_spec_manager.movie_axis_font = self.p.movie_axis_font
+            self.pp_spec_manager.movie_title_font = self.p.movie_title_font
+            self.pp_spec_manager.movie_tick_font = self.p.movie_tick_font
+            self.pp_spec_manager.movie_frame_pad = self.p.movie_frame_pad
 
             self.pp_specs_managers = []
             self.pp_specs_managers.append(self.pp_spec_manager)
@@ -295,6 +299,10 @@ class PoincarePlotMovieMaker(object):
                 self.pp_spec_manager.movie_time_label_prefix = self.p.movie_time_label_prefix
                 self.pp_spec_manager.movie_title_font_size = self.p.movie_title_font_size
                 self.pp_spec_manager.movie_axis_font_size = self.p.movie_axis_font_size
+                self.pp_spec_manager.movie_axis_font = self.p.movie_axis_font
+                self.pp_spec_manager.movie_title_font = self.p.movie_title_font
+                self.pp_spec_manager.movie_tick_font = self.p.movie_tick_font
+                self.pp_spec_manager.movie_frame_pad = self.p.movie_frame_pad                
 
                 #add all previous pp specs
                 for pp_spec in old_pp_spec_manager.getMiniPoincarePlotSpecs():
@@ -447,6 +455,10 @@ class MiniPoincarePlotSpecManager(object):
         self.__movie_time_label_prefix__ = None
         self.__movie_title_font_size__ = None
         self.__movie_axis_font_size__ = None
+        self.__movie_axis_font__ = None
+        self.__movie_title_font__ = None
+        self.__movie_tick_font__ = None
+        self.__movie_frame_pad__ = None
 
     def addMiniPoincarePlotSpec(self, pp_spec):
         self.__pp_specs__.append(pp_spec)
@@ -665,6 +677,38 @@ class MiniPoincarePlotSpecManager(object):
     @movie_axis_font_size.setter
     def movie_axis_font_size(self, _movie_axis_font_size):
         self.__movie_axis_font_size__ = _movie_axis_font_size
+
+    @property
+    def movie_axis_font(self):
+        return self.__movie_axis_font__
+
+    @movie_axis_font.setter
+    def movie_axis_font(self, _movie_axis_font):
+        self.__movie_axis_font__ = _movie_axis_font
+
+    @property
+    def movie_title_font(self):
+        return self.__movie_title_font__
+
+    @movie_title_font.setter
+    def movie_title_font(self, _movie_title_font):
+        self.__movie_title_font__ = _movie_title_font
+
+    @property
+    def movie_tick_font(self):
+        return self.__movie_tick_font__
+
+    @movie_tick_font.setter
+    def movie_tick_font(self, _movie_tick_font):
+        self.__movie_tick_font__ = _movie_tick_font
+
+    @property
+    def movie_frame_pad(self):
+        return self.__movie_frame_pad__
+
+    @movie_frame_pad.setter
+    def movie_frame_pad(self, _movie_frame_pad):
+        self.__movie_frame_pad__ = _movie_frame_pad
 
     def __color_as_tuple__(self, _color):
         _c = _color
