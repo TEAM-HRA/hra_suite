@@ -206,6 +206,8 @@ class PoincarePlotFastMovieMakerWorker(object):
         self.gc.save(p.frame_file)
 
     def _draw_time_text(self, gc, pp_spec):
+        if self.manager.movie_create_time_label == False:
+            return
         if pp_spec.level == 0:
             (H, M, S) = get_time_label_parts_for_miliseconds(0,
                                 hour_label=self.manager.movie_hour_label,

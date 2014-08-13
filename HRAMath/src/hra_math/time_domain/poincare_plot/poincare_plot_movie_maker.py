@@ -117,6 +117,7 @@ class PoincarePlotMovieMaker(object):
             self.pp_spec_manager.movie_title_font = self.p.movie_title_font
             self.pp_spec_manager.movie_tick_font = self.p.movie_tick_font
             self.pp_spec_manager.movie_frame_pad = self.p.movie_frame_pad
+            self.pp_spec_manager.movie_create_time_label = self.p.movie_create_time_label
 
             self.pp_specs_managers = []
             self.pp_specs_managers.append(self.pp_spec_manager)
@@ -302,7 +303,8 @@ class PoincarePlotMovieMaker(object):
                 self.pp_spec_manager.movie_axis_font = self.p.movie_axis_font
                 self.pp_spec_manager.movie_title_font = self.p.movie_title_font
                 self.pp_spec_manager.movie_tick_font = self.p.movie_tick_font
-                self.pp_spec_manager.movie_frame_pad = self.p.movie_frame_pad                
+                self.pp_spec_manager.movie_frame_pad = self.p.movie_frame_pad
+                self.pp_spec_manager.movie_create_time_label = self.p.movie_create_time_label
 
                 #add all previous pp specs
                 for pp_spec in old_pp_spec_manager.getMiniPoincarePlotSpecs():
