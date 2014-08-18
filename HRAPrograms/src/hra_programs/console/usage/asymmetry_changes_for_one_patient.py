@@ -81,7 +81,7 @@ class Spec(object):
 
     def __init__(self, usecols, labels, file_, title=None, share_plot=True,
                  plot_type='-', annotation=False, value=None,
-                 time_label=False):
+                 time_label=False, numpoints=2):
         self.usecols = usecols
         self.labels = labels
         self.file_ = file_
@@ -91,6 +91,7 @@ class Spec(object):
         self.annotation = annotation
         self.value = value
         self.time_label = time_label
+        self.numpoints = numpoints
 
 
 class Sources(object):
@@ -141,16 +142,17 @@ def create_ax_title(gs):
             fontproperties=font_1,
             **alignment)
 
-    text_fontsize = 15
-    font_1 = font_0.copy()
-    font_1.set_size(text_fontsize)
-    font_1.set_weight('bold')
-    text = u"[Do obliczeń wykorzystano przesuwające się 5-minutowe okno danych]"
-    title_plot.text(0.5, 0.25, text,
-            #fontsize=text_fontsize,
-            color=text_color,
-            fontproperties=font_1,
-            **alignment)
+    if skokowo == False:
+        text_fontsize = 15
+        font_1 = font_0.copy()
+        font_1.set_size(text_fontsize)
+        font_1.set_weight('bold')
+        text = u"[Do obliczeń wykorzystano przesuwające się 5-minutowe okno danych]"
+        title_plot.text(0.5, 0.25, text,
+                #fontsize=text_fontsize,
+                color=text_color,
+                fontproperties=font_1,
+                **alignment)
 
 
 fig = plt.figure(figsize=figsize)
@@ -182,6 +184,9 @@ file_ = '/tmp/kolter_RR_P/rr__S_kolter_RR_P.rea_out'
 file_ = '/home/tmp/outcomes_4/rr__S_jakubas_RR_P_1_32.rea_out'
 file_ = '/tmp/bucior_RR_P/rr__bucior_RR_P.rea_out'
 file_ = "/home/tmp/jakubas_RR_P_timing/rr__jakubas_RR_P.rea_out"
+file_ = "/home/tmp/jakubas_RR_P_timing/rr_skokowo_jakubas_RR_P.rea_out"
+skokowo = True
+
 
 sources = [Sources(file_, file_rr)]
 
@@ -211,14 +216,17 @@ def generate_asymmetry_changes(file_, file_rr):
         #Spec((get_idx(headers, 'C2a'), t_idx), ["C2_a"], file_, value=0.5),#, plot_type='o'),
         #Spec((get_idx(headers, 'C2a'), t_idx), ["Ca"], file_, value=0.5),#, plot_type='o'),
         # Spec((0,3,10), ["C1_d", "C2_a"], file_, plot_type='o'),
-        Spec((get_idx(headers, 'sd1d'), get_idx(headers, 'sd1a'), t_idx),
-             ["SD1_d", "SD1_a"], file_, title=u"(A) Zmienność krótkoterminowa", share_plot=False), #, plot_type='o'),
-        Spec((get_idx(headers, 'sd2d'), get_idx(headers, 'sd2a'), t_idx),
-             ["SD2_d", "SD2_a"], file_, title=u"(B) Zmienność długoterminowa"), #, plot_type='o'),
-        Spec((get_idx(headers, 'sdnnd'), get_idx(headers, 'sdnna'), t_idx),
-             ["SDNN_d", "SDNN_a"], file_, title=u"(C) Zmienność całkowita"), #, plot_type='o'),
         Spec((1, 2,), ["RR"], file_rr, title="Tachogram", #share_plot=True,
-             annotation=True, time_label=True),
+             annotation=True), #, time_label=True),
+        Spec((get_idx(headers, 'sd1d'), get_idx(headers, 'sd1a'), t_idx),
+             ["SD1_d", "SD1_a"], file_, title=u"(A) Zmienność krótkoterminowa",
+             share_plot=False, plot_type='o', numpoints=1),
+        Spec((get_idx(headers, 'sd2d'), get_idx(headers, 'sd2a'), t_idx),
+             ["SD2_d", "SD2_a"], file_, title=u"(B) Zmienność długoterminowa",
+             plot_type='o', numpoints=1),
+        Spec((get_idx(headers, 'sdnnd'), get_idx(headers, 'sdnna'), t_idx),
+             ["SDNN_d", "SDNN_a"], file_, title=u"(C) Zmienność całkowita",
+             time_label=True, plot_type='o', numpoints=1),
         ]
 
     ss = len(specs)
@@ -304,7 +312,8 @@ def generate_asymmetry_changes(file_, file_rr):
             font_1.set_size('18')
             font_1.set_weight('bold')
 
-            ax.text(np.mean(timing) , des1_max, spec.title, fontproperties=font_1) # size=15)
+            #ax.text(np.mean(timing) , des1_max, spec.title, fontproperties=font_1) # size=15)
+            ax.text(0.5, 0.9, spec.title, fontproperties=font_1, transform=ax.transAxes)
 
         ax.plot(timing, des1, spec.plot_type)
         if len(spec.labels) == 2:
@@ -332,17 +341,25 @@ def generate_asymmetry_changes(file_, file_rr):
         ax.xaxis.set_ticks(np.arange(0, int(max_timing) + 1, 1))
         ax.set_xlim(0, max_timing)
 
+        leg_spec = {}
+        leg_spec["loc"] = 'upper left'
+        if spec.numpoints:
+            leg_spec["numpoints"] = spec.numpoints
+
         if len(spec.labels) == 2:
             leg = ax.legend([u"$\mathbf{%s}$ Ilość [%i] Średnia [%i]" % (spec.labels[0], des1_count, des1_mean),
                        u"$\mathbf{%s}$ Ilość [%i] Średnia [%i]" % (spec.labels[1], des2_count, des2_mean),],
-                  loc='upper left')
+                    **leg_spec
+                  )
         else:
             if spec.value == None:
                 leg = ax.legend(['$\mathbf{%s}$' % (spec.labels[0])],
-                          loc='upper left')
+                          **leg_spec
+                          )
             else:
                 leg = ax.legend([u"$\mathbf{%s}$ Ilość [%i]" % (spec.labels[0], des1_count)],
-                  loc='upper left')
+                  **leg_spec
+                  )
         bold_legend(leg)
 
         font_1 = font_0.copy()

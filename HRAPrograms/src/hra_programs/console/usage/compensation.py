@@ -49,7 +49,8 @@ file__ = '/home/jurek/volumes/doctoral/doktorat_wyniki/rr__sprzacz_RR_P_MEDIUM_A
 file__ = '/home/jurek/volumes/doctoral/doktorat_wyniki/rr__NIEZ40_P_MAX_ASYMMETRY.rea_out'
 file__ = '/home/jurek/volumes/doctoral/doktorat_wyniki/rr__PRECZ05_P_MEDIUM_2_ASYMMETRY.rea_out'
 
-file__ = '/home/tmp/jakubas_RR_P_timing/rr__jakubas_RR_P.rea_out'
+file__ = '/home/tmp/jakubas_RR_P_timing/rr__jakubas_RR_P_przesuwajace.rea_out'
+file__ = '/home/tmp/jakubas_RR_P_timing/rr_skokowo_jakubas_RR_P.rea_out'
 
 save_fig = False
 output_dir = "/home/tmp/timing_pngs/"
@@ -114,8 +115,8 @@ for idx, file_ in enumerate(files):
 
     #plt.title(r'\huge{Kompensacja asymetrii $\mathbf{C1_a}$, $\mathbf{C2_a}$ w 24-godzinnym nagraniu EKG}')
     plt.title(u"Kompensacja asymetrii $\mathbf{C1_a}$, $\mathbf{C2_a}$ w 24-godzinnym nagraniu EKG", fontproperties=font_1)
-    plt.plot(timing, C1d)
-    plt.plot(timing, C2d)
+    plt.plot(timing, C1d, 'o')
+    plt.plot(timing, C2d, 'o')
     plt.axhline(0.5, lw=3)
 
 
@@ -145,7 +146,7 @@ for idx, file_ in enumerate(files):
     plt.axes().set_ylim(0, 1)
     #
     ##plt.legend(['SD2w', 'SD2s'], loc='upper left')
-    leg = plt.legend([u"$\mathbf{C1_a}$", u"$\mathbf{C2_a}$"], loc='upper left')
+    leg = plt.legend([u"$\mathbf{C1_a}$", u"$\mathbf{C2_a}$"], loc='upper left', numpoints=1)
     plt.setp(leg.get_texts(), fontsize='large')
     plt.setp(leg.get_texts(), fontweight='bold')
 

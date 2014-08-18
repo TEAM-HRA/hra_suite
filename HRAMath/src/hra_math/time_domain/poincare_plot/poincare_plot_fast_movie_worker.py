@@ -18,10 +18,13 @@ try:
     from chaco.scatterplot import render_markers
     from kiva.constants import CIRCLE_MARKER as CIRCLE
     from hra_core.datetime_utils import get_time_label_parts_for_miliseconds
+    from hra_core.datetime_utils import get_time_for_miliseconds
     from hra_core.collections_utils import nvl
     from hra_core.collections_utils import nvl_and_positive
 except ImportError as error:
     print_import_error(__name__, error)
+
+PNG_EXTENSION = ".png"
 
 
 class PoincarePlotFastMovieMakerWorker(object):
@@ -158,7 +161,7 @@ class PoincarePlotFastMovieMakerWorker(object):
         self.gc.render_component(self._plot)
         self.gc.set_line_width(0)
 
-        self.gc.save(self.p0.frame_file)
+        self.gc.save(self._get_filename(self.p0))
 
         self.x_mean_old = None
         self.y_mean_old = None
@@ -203,7 +206,7 @@ class PoincarePlotFastMovieMakerWorker(object):
         if self.manager.movie_identity_line:
             __draw_identity_line__(self.gc, self.value_max, self.scatter)
 
-        self.gc.save(p.frame_file)
+        self.gc.save(self._get_filename(p))
 
     def _draw_time_text(self, gc, pp_spec):
         if self.manager.movie_create_time_label == False:
@@ -252,6 +255,15 @@ class PoincarePlotFastMovieMakerWorker(object):
                 gc.show_text_at_point(time_e, x, y)
 
         return
+
+    def _get_filename(self, pp_spec):
+        if self.manager.movie_frame_filename_with_time:
+            (H, M, S) = get_time_for_miliseconds(0 if pp_spec.level == 0
+                                                 else pp_spec.cum_inactive)
+            if pp_spec.frame_file.endswith(PNG_EXTENSION):
+                filename = pp_spec.frame_file.rsplit(PNG_EXTENSION)[0]
+                return '%s_%02d_%02d_%02d%s' % (filename, H, M, S, PNG_EXTENSION)
+        return pp_spec.frame_file
 
 
 class __PoincarePlotScatterPlot__(ColormappedScatterPlot):

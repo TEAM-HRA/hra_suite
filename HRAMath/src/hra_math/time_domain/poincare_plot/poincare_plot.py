@@ -523,7 +523,9 @@ class PoincarePlotManager(object):
         movie_group.add_argument("-movie_create_time_label", "--movie_create_time_label",
             help="""does it create time label ? (default=True)[optional]""",
             type=to_bool, default=True)
-
+        movie_group.add_argument("-movie_frame_filename_with_time", "--movie_frame_filename_with_time",
+            help="""movie frame filename includes timestamp (default=False)[optional]""",
+            type=to_bool, default=False)
 
         #add information about parameters
         for group in parser._action_groups:
