@@ -191,7 +191,7 @@ font_1 = font_0.copy()
 font_1.set_size('15')
 font_1.set_weight('bold')
 ax_tachogram.set_xlabel(u"Czas [godziny]", fontproperties=font_1)
-ax_tachogram.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
+ax_tachogram.set_ylabel(u"RR [ms]", fontproperties=font_1)
 #ax_tachogram.set_text(0.8, 0.8, 'Tachogram')
 
 tachogram_label_pos = 20
@@ -243,7 +243,7 @@ ax_arrow.text(0.25, 0.6, u"(A) Analiza HRA całego 24-godzinnego nagrania" ,
 draw_simple_arrow(ax_arrow, posA=(0.7, 1.0), posB=(0.4, 0.1), tail_width=10, head_width=45, head_length=70,
                   fill=True, lw=6.0)
 
-ax_arrow.text(0.87, 0.5, u"(B) Analiza HRA 24-godzinnego\nnagrania przy pomocy okna danych", color="green",
+ax_arrow.text(0.87, 0.7, u"(B) Analiza HRA 24-godzinnego\nnagrania przy pomocy\n5-min. okna danych", color="green",
                     fontproperties=font_1, **alignment)
 
 draw_simple_arrow(ax_arrow, posA=(0.72, 1.0), posB=(0.72, 0.1), tail_width=10, head_width=45, head_length=70,
@@ -264,7 +264,7 @@ font_1.set_size('15')
 font_1.set_weight('bold')
 
 ax_left_tachogram.set_xlabel(u"Czas [godziny]", fontproperties=font_1)
-ax_left_tachogram.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
+ax_left_tachogram.set_ylabel(u"RR [ms]", fontproperties=font_1)
 
 font_1 = font_0.copy()
 font_1.set_size('20')
@@ -306,7 +306,7 @@ font_1 = font_0.copy()
 font_1.set_size('15')
 font_1.set_weight('bold')
 ax_right_tachogram.set_xlabel(u"Czas [godziny]", fontproperties=font_1)
-ax_right_tachogram.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
+ax_right_tachogram.set_ylabel(u"RR [ms]", fontproperties=font_1)
 
 font_1 = font_0.copy()
 font_1.set_size('20')

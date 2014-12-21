@@ -81,7 +81,8 @@ class Spec(object):
 
     def __init__(self, usecols, labels, file_, title=None, share_plot=True,
                  plot_type='-', annotation=False, value=None,
-                 time_label=False, numpoints=2):
+                 time_label=False, numpoints=2, mean_line=False,
+                 y_label=u"Wartość [ms]", percentage=False):
         self.usecols = usecols
         self.labels = labels
         self.file_ = file_
@@ -92,6 +93,9 @@ class Spec(object):
         self.value = value
         self.time_label = time_label
         self.numpoints = numpoints
+        self.mean_line = mean_line
+        self.y_label = y_label
+        self.percentage = percentage
 
 
 class Sources(object):
@@ -142,13 +146,15 @@ def create_ax_title(gs):
             fontproperties=font_1,
             **alignment)
 
-    if skokowo == False:
-        text_fontsize = 15
-        font_1 = font_0.copy()
-        font_1.set_size(text_fontsize)
-        font_1.set_weight('bold')
+    text_fontsize = 15
+    font_1 = font_0.copy()
+    font_1.set_size(text_fontsize)
+    font_1.set_weight('bold')
+    if skokowo:
+        text = u"[Do obliczeń parametrów wariancyjnych użyto 5-minutowe sąsiadujące okna danych]"
+    else:
         text = u"[Do obliczeń wykorzystano przesuwające się 5-minutowe okno danych]"
-        title_plot.text(0.5, 0.25, text,
+    title_plot.text(0.5, 0.25, text,
                 #fontsize=text_fontsize,
                 color=text_color,
                 fontproperties=font_1,
@@ -185,6 +191,7 @@ file_ = '/home/tmp/outcomes_4/rr__S_jakubas_RR_P_1_32.rea_out'
 file_ = '/tmp/bucior_RR_P/rr__bucior_RR_P.rea_out'
 file_ = "/home/tmp/jakubas_RR_P_timing/rr__jakubas_RR_P.rea_out"
 file_ = "/home/tmp/jakubas_RR_P_timing/rr_skokowo_jakubas_RR_P.rea_out"
+file_ = "/x/tmp/jakubas_RR_P_timing/rr_skokowo_jakubas_RR_P.rea_out"
 skokowo = True
 
 
@@ -217,16 +224,22 @@ def generate_asymmetry_changes(file_, file_rr):
         #Spec((get_idx(headers, 'C2a'), t_idx), ["Ca"], file_, value=0.5),#, plot_type='o'),
         # Spec((0,3,10), ["C1_d", "C2_a"], file_, plot_type='o'),
         Spec((1, 2,), ["RR"], file_rr, title="Tachogram", #share_plot=True,
-             annotation=True), #, time_label=True),
+             annotation=True, y_label=u"RR [ms]"), #, time_label=True),
         Spec((get_idx(headers, 'sd1d'), get_idx(headers, 'sd1a'), t_idx),
              ["SD1_d", "SD1_a"], file_, title=u"(A) Zmienność krótkoterminowa",
-             share_plot=False, plot_type='o', numpoints=1),
+             share_plot=False, plot_type='o', numpoints=1,
+             y_label=u"Wartość $\mathbf{SD1_d}$/$\mathbf{SD1_a}$ [ms]",
+             percentage=True),
         Spec((get_idx(headers, 'sd2d'), get_idx(headers, 'sd2a'), t_idx),
              ["SD2_d", "SD2_a"], file_, title=u"(B) Zmienność długoterminowa",
-             plot_type='o', numpoints=1),
+             plot_type='o', numpoints=1,
+             y_label=u"Wartość $\mathbf{SD2_d}$/$\mathbf{SD2_a}$ [ms]",
+             percentage=True),
         Spec((get_idx(headers, 'sdnnd'), get_idx(headers, 'sdnna'), t_idx),
              ["SDNN_d", "SDNN_a"], file_, title=u"(C) Zmienność całkowita",
-             time_label=True, plot_type='o', numpoints=1),
+             time_label=True, plot_type='o', numpoints=1,
+             y_label=u"Wartość $\mathbf{SDNN_d}$/$\mathbf{SDNN_a}$ [ms]",
+             percentage=True),
         ]
 
     ss = len(specs)
@@ -318,8 +331,9 @@ def generate_asymmetry_changes(file_, file_rr):
         ax.plot(timing, des1, spec.plot_type)
         if len(spec.labels) == 2:
             ax.plot(timing, des2, spec.plot_type)
-            ax.axhline(des1_mean, lw=3, color='red')
-            ax.axhline(des2_mean, lw=3, color='green')
+            if spec.mean_line:
+                ax.axhline(des1_mean, lw=3, color='red')
+                ax.axhline(des2_mean, lw=3, color='green')
         else:
             ax.axhline(des1_mean, lw=3, color='black')
 
@@ -346,20 +360,38 @@ def generate_asymmetry_changes(file_, file_rr):
         if spec.numpoints:
             leg_spec["numpoints"] = spec.numpoints
 
+        des1_percentage = 0.0
+        des2_percentage = 0.0
+        if spec.percentage:
+            des1_percentage = des1_count / (1.0 * (des1_count + des2_count))
+            des2_percentage = des2_count / (1.0 * (des1_count + des2_count))
+        #print(des1_percentage, des2_percentage)
         if len(spec.labels) == 2:
-            leg = ax.legend([u"$\mathbf{%s}$ Ilość [%i] Średnia [%i]" % (spec.labels[0], des1_count, des1_mean),
-                       u"$\mathbf{%s}$ Ilość [%i] Średnia [%i]" % (spec.labels[1], des2_count, des2_mean),],
-                    **leg_spec
-                  )
+            if spec.mean_line:
+                if spec.percentage:
+                    leg = ax.legend([u"$\mathbf{%s}$ Całkowity udział [%4.2f] Średnia [%i]" % (spec.labels[0], des1_percentage, des1_mean),
+                                 u"$\mathbf{%s}$ Całkowity udział [%4.2f] Średnia [%i]" % (spec.labels[1], des2_percentage, des2_mean),],
+                                **leg_spec)
+                else:
+                    leg = ax.legend([u"$\mathbf{%s}$ Ilość [%i] Średnia [%i]" % (spec.labels[0], des1_count, des1_mean),
+                                 u"$\mathbf{%s}$ Ilość [%i] Średnia [%i]" % (spec.labels[1], des2_count, des2_mean),],
+                                **leg_spec)
+            else:
+                if spec.percentage:
+                    leg = ax.legend([u"$\mathbf{%s}$ Całkowity udział [%4.2f]" % (spec.labels[0], des1_percentage),
+                                     u"$\mathbf{%s}$ Całkowity udział [%4.2f]" % (spec.labels[1], des2_percentage),],
+                                    **leg_spec)
+                else:
+                    leg = ax.legend([u"$\mathbf{%s}$ Ilość [%i]" % (spec.labels[0], des1_count),
+                                     u"$\mathbf{%s}$ Ilość [%i]" % (spec.labels[1], des2_count),],
+                                    **leg_spec)
         else:
-            if spec.value == None:
+            if spec.value is None:
                 leg = ax.legend(['$\mathbf{%s}$' % (spec.labels[0])],
-                          **leg_spec
-                          )
+                                **leg_spec)
             else:
                 leg = ax.legend([u"$\mathbf{%s}$ Ilość [%i]" % (spec.labels[0], des1_count)],
-                  **leg_spec
-                  )
+                                **leg_spec)
         bold_legend(leg)
 
         font_1 = font_0.copy()
@@ -368,7 +400,7 @@ def generate_asymmetry_changes(file_, file_rr):
 
         if spec.time_label:
             ax.set_xlabel(u"Czas [%s]" % time_unit, fontproperties=font_1)
-        ax.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
+        ax.set_ylabel(spec.y_label, fontproperties=font_1)
 
         bold_ticks_labels(ax)
 
@@ -376,7 +408,7 @@ def generate_asymmetry_changes(file_, file_rr):
         path = fs.dirname(file_)
         png_filename = os.path.basename(file_) + ".png"
         png_file = fs.normpath(fs.join(path, png_filename))
-        png_file = "/tmp/hrv_1_24h.png"
+        png_file = "/tmp/hrv_1_24h_skokowo.png" if skokowo else "/tmp/hrv_1_24h.png"
         plt.savefig(png_file)
         print('Plot: ' + str(png_file) + ' saved.')
     else:

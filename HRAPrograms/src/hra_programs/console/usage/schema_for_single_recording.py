@@ -324,7 +324,7 @@ def create_24_tachogram(gs1, row_number, timing, des1,
     plt.setp(leg.get_texts(), fontweight='bold')
 
     ax_24_tachogram.set_xlabel(u"Czas [godziny]", fontproperties = font_1)
-    ax_24_tachogram.set_ylabel(u"Wartość [ms]", fontproperties = font_1)
+    ax_24_tachogram.set_ylabel(u"RR [ms]", fontproperties = font_1)
 
     tachogram_label_pos = 18
     font_1 = font_0.copy()
@@ -390,7 +390,7 @@ def create_simple_tachogram(gs1, row_number, timing, des1,
     plt.setp(leg.get_texts(), fontweight='bold')
 
     ax_tachogram.set_xlabel(x_label, fontproperties = font_1)
-    ax_tachogram.set_ylabel(u"Wartość [ms]", fontproperties = font_1)
+    ax_tachogram.set_ylabel(u"RR [ms]", fontproperties = font_1)
 
     font_1 = font_0.copy()
     font_1.set_size('18')
@@ -500,7 +500,7 @@ def create_windowed_tachogram(gs1, row_number, timing, des1, max_idx,
     else:
         x_label = u"Czas [minuty]"
     ax_windowed_tachogram.set_xlabel(x_label, fontproperties=font_1)
-    ax_windowed_tachogram.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
+    ax_windowed_tachogram.set_ylabel(u"RR [ms]", fontproperties=font_1)
 
     font_1 = font_0.copy()
     font_1.set_size('18')
@@ -616,7 +616,7 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
     else:
         x_label = u"Czas [minuty]"
     ax_windowed_desc.set_xlabel(x_label, fontproperties=font_1)
-    ax_windowed_desc.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
+    ax_windowed_desc.set_ylabel(u"RR [ms]", fontproperties=font_1)
 
     font_1 = font_0.copy()
     font_1.set_size('18')
@@ -699,7 +699,7 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
     leg = ax_windowed_desc.legend([line], [label] , loc='upper center')
     #change legend font properties
     plt.setp(leg.get_texts(), fontsize='large')
-    plt.setp(leg.get_texts(), fontweight='bold')    
+    plt.setp(leg.get_texts(), fontweight='bold')
     ax_windowed_desc.add_artist(leg)
 
     if not start_hour == None:
