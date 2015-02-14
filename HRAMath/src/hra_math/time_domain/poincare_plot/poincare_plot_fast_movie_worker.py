@@ -147,8 +147,11 @@ class PoincarePlotFastMovieMakerWorker(object):
         #self._plot.plots['var_size_scatter'] = [self.scatter]
 
         # Tweak some of the plot properties
-        self._plot.title = nvl(self.manager.movie_title, "Poincare plot")
-        self._plot.title_font = self.title_font
+        _title = nvl(self.manager.movie_title, "Poincare plot")
+        if len(_title) > 0:
+            self._plot.title = _title
+            self._plot.title_font = self.title_font
+
         self._plot.line_width = 0.5
         self._plot.padding = self.frame_pad
 
