@@ -16,7 +16,7 @@ try:
     from hra_gui.qt.plots.tachogram_plot_canvas import HistogramTachogramPlotEngine # @IgnorePep8
     from hra_gui.qt.docks.tachogram_plot_settings_dock_widget import TachogramPlotSettingsDockWidget # @IgnorePep8
     from hra_gui.qt.docks.tachogram_plot_statistics_dock_widget import TachogramPlotStatisticsDockWidget # @IgnorePep8
-    from hra_gui.qt.docks.tabular_data_vector_preview_dock_widget import TabularDataVectorPreviewDockWidget # @IgnorePep8    
+    from hra_gui.qt.docks.tabular_data_vector_preview_dock_widget import TabularDataVectorPreviewDockWidget # @IgnorePep8
 except ImportError as error:
     ImportErrorMessage(error, __name__)
 
@@ -65,7 +65,7 @@ class TachogramPlotNavigationToolbar(NavigationToolbar):
         self.addAction(data_vector_preview_action)
 
     def __createAction__(self, **params):
-        return create_action(self.parent(), ActionSpec(**params))
+        return create_action(self.parent, ActionSpec(**params))
 
     def __normalPlot__(self):
         self.canvas.plot(NormalTachogramPlotEngine)

@@ -10,7 +10,7 @@ Created on Nov 26, 2013
 
 import sys
 import matplotlib
-#matplotlib.use('GTK')
+# matplotlib.use('GTK')
 import matplotlib.pyplot as plt
 import numpy as np
 import pylab as pl
@@ -23,39 +23,37 @@ from matplotlib.patches import PathPatch, Rectangle
 from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 import glob
-#from mpl_toolkits.axes_grid1.axes_divider import make_axes_area_auto_adjustable
+# from mpl_toolkits.axes_grid1.axes_divider import make_axes_area_auto_adjustable
 
-#COMMENT
-#pl.rc('text', usetex=True)
-#pl.rc('text.latex',unicode=True)
+# COMMENT
+# pl.rc('text', usetex=True)
+# pl.rc('text.latex',unicode=True)
 
 font_0 = FontProperties('DejaVu Sans')
 
-preamble = [
-            '\usepackage[polish]{babel}',
-            #'\usepackage[utf8]{inputenc}',
-            #'\usepackage[T1]{polski}'
+preamble = ['\usepackage[polish]{babel}',
+            # '\usepackage[utf8]{inputenc}',
+            # '\usepackage[T1]{polski}'
             ]
-preamble = [
-            '\usepackage[polish]{babel}',
+preamble = ['\usepackage[polish]{babel}',
             '\usepackage[utf8]{inputenc}'
-            #'\usepackage[utf8]{fontenc}',
-            #'\usepackage[utf8]{inputenc}',
-            #'\usepackage[english,polish]{babel}',
-            #'\usepackage{polski}'
-            #'\usepackage[T1]{polski}'
+            # '\usepackage[utf8]{fontenc}',
+            # '\usepackage[utf8]{inputenc}',
+            # '\usepackage[english,polish]{babel}',
+            # '\usepackage{polski}'
+            # '\usepackage[T1]{polski}'
             ]
-###pylab.rc('text.latex',preamble=preamble)
-#pl.rc('text.latex',preamble='\usepackage[T1]{polski}') # oryg
+# pylab.rc('text.latex',preamble=preamble)
+# pl.rc('text.latex',preamble='\usepackage[T1]{polski}') # oryg
 
-#COMMENT
-#pl.rc('text.latex',preamble=preamble) # v2
+# COMMENT
+# pl.rc('text.latex',preamble=preamble) # v2
 
-#pylab.rc('text.latex',preamble='\usepackage[T1]{fontenc}')
-#pylab.rc('text.latex',preamble='\usepackage{polski}')
+# pylab.rc('text.latex',preamble='\usepackage[T1]{fontenc}')
+# pylab.rc('text.latex',preamble='\usepackage{polski}')
 
-#COMMENT
-#pl.rcParams['text.latex.preamble'] = [r'\boldmath']
+# COMMENT
+# pl.rcParams['text.latex.preamble'] = [r'\boldmath']
 
 
 from matplotlib.gridspec import GridSpec
@@ -69,6 +67,20 @@ save_fig = True
 #         #ax.text(0.5, 0.5, "ax%d" % (i+1), va="center", ha="center")
 #         for tl in ax.get_xticklabels() + ax.get_yticklabels():
 #             tl.set_visible(False)
+
+
+def set_border(ax):
+    ax.spines['top'].set_visible(True)
+    ax.spines['right'].set_visible(True)
+    ax.spines['bottom'].set_visible(True)
+    ax.spines['left'].set_visible(True)
+
+    ax.spines['top'].set_linewidth(0.5)
+    ax.spines['right'].set_linewidth(0.5)
+    ax.spines['bottom'].set_linewidth(0.5)
+    ax.spines['left'].set_linewidth(0.5)
+
+    ax.set_frame_on(True)
 
 
 def join_lines(ax, min_idx, max_idx, y, color='black'):
@@ -94,7 +106,7 @@ def draw_line_1(ax, idx, y_min, y_max, color='black', zorder=3):
 def draw_box_with_text(ax, x, y, width, height, text, color='black', zorder=3, text_fontsize=15,
                        text_color="black"):
 
-    alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+    alignment = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
 
     font_1 = font_0.copy()
     font_1.set_size(text_fontsize)
@@ -115,7 +127,7 @@ def draw_box_with_text(ax, x, y, width, height, text, color='black', zorder=3, t
 
 
 def draw_simple_ellipse(ax, x, y, width, height, angle=0.0, color="black", label="",
-                    text=None, text_fontsize=14, x_text_pos=None, y_text_pos=None, fill=False):
+                        text=None, text_fontsize=14, x_text_pos=None, y_text_pos=None, fill=False):
     ellipse = mpatches.Ellipse((x, y), width, height, angle=angle, color=color, label=label, lw=3.0)
     ellipse.set_fill(fill)
     ax.add_patch(ellipse)
@@ -129,9 +141,9 @@ def draw_simple_ellipse(ax, x, y, width, height, angle=0.0, color="black", label
             x_text_pos = x
         if y_text_pos == None:
             y_text_pos = y
-        alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+        alignment = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
         ax.text(x_text_pos, y_text_pos, text,
-                #fontsize=text_fontsize,
+                # fontsize=text_fontsize,
                 fontproperties=font_1,
                 **alignment)
 
@@ -184,11 +196,10 @@ def get_24h_data():
     usecols = (1, 2,)
     des1, annotation = np.loadtxt(file_rr, usecols=usecols, skiprows=1, unpack=True)
 
-    #odfiltrowanie adnotacji
+    # odfiltrowanie adnotacji
     if (len(pl.array(pl.find(annotation != 0)) > 0)):
         des1 = des1[pl.array(pl.find(annotation == 0))]
         timing_0 = np.cumsum(des1)
-
 
     unit = 60*60*1000  # 1h
     timing = np.cumsum(des1)
@@ -197,17 +208,16 @@ def get_24h_data():
 
 
 def get_5m_data(des1, timing_0, start_hour, stop_hour):
-    unit = 5*60*1000 # 5 minute expressed in miliseconds
+    unit = 5*60*1000  # 5 minute expressed in miliseconds
     # create slice of 24 recording
-    start_time = start_hour * 60 * 60 * 1000 # hours expressed in miliseconds
-    stop_time = stop_hour * 60 * 60 * 1000 # hours expressed in miliseconds
+    start_time = start_hour * 60 * 60 * 1000  # hours expressed in miliseconds
+    stop_time = stop_hour * 60 * 60 * 1000  # hours expressed in miliseconds
     start_idx = np.where(timing_0 >= start_time)[0][0]
     stop_idx = np.where(timing_0 >= stop_time)[0][0]
     des1 = des1[start_idx:stop_idx]
 
     timing = np.cumsum(des1)
     timing = timing / unit
-
 
     return des1, timing
 
@@ -245,8 +255,8 @@ def is_only_2_hours(start_hour, stop_hour):
 
 
 def create_simple_tachogram(gs1, row_number, timing, des1,
-                    slice_color="black", show_window=False,
-                    start_hour=None, stop_hour=None):
+                            slice_color="black", show_window=False,
+                            start_hour=None, stop_hour=None):
 
     max_timing = np.max(timing)
     only_2_hours = is_only_2_hours(start_hour, stop_hour)
@@ -277,27 +287,27 @@ def create_simple_tachogram(gs1, row_number, timing, des1,
 
     if only_2_hours:
         tachogram_label_pos = 17
-        tachogram_title=u"Tachogram - fragment 2 godziny"
-        x_label=u"Czas [minuty]"
+        tachogram_title = u"Tachogram - fragment 2 godziny"
+        x_label = u"Czas [minuty]"
     else:
         tachogram_label_pos = 19
-        tachogram_title=u"Tachogram - 24 godziny"
-        x_label=u"Czas [godziny]"
+        tachogram_title = u"Tachogram - 24 godziny"
+        x_label = u"Czas [godziny]"
 
     leg = ax_tachogram.legend(['$\mathbf{%s}$' % ("RR")], loc='upper left')
-    #change legend font properties
+    # change legend font properties
     plt.setp(leg.get_texts(), fontsize='large')
     plt.setp(leg.get_texts(), fontweight='bold')
 
-    ax_tachogram.set_xlabel(x_label, fontproperties = font_1)
-    ax_tachogram.set_ylabel(u"Wartość [ms]", fontproperties = font_1)
+    ax_tachogram.set_xlabel(x_label, fontproperties=font_1)
+    ax_tachogram.set_ylabel(u"Wartość [ms]", fontproperties=font_1)
 
     font_1 = font_0.copy()
     font_1.set_size('18')
     font_1.set_weight('bold')
 
     ax_tachogram.text(tachogram_label_pos, y_lim - 100,
-                      tachogram_title, fontproperties = font_1)
+                      tachogram_title, fontproperties=font_1)
 
     if not start_hour == None:
         change_ticks_for_5_minutes(ax_tachogram)
@@ -309,8 +319,8 @@ def create_simple_tachogram(gs1, row_number, timing, des1,
 
 
 def create_zoom_plot(gs1, row_number, timing,
-                      start_hour=None, stop_hour=None,
-                      slice_color="black"):
+                     start_hour=None, stop_hour=None,
+                     slice_color="black"):
 
     max_timing = np.max(timing)
 
@@ -319,7 +329,7 @@ def create_zoom_plot(gs1, row_number, timing,
     ax_zoom.set_frame_on(False)
     ax_zoom.set_xlim(0, max_timing)
 
-    alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+    alignment = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
     text_fontsize = 18
 
     font_1 = font_0.copy()
@@ -359,25 +369,25 @@ def create_arrow_plot_5m(gs1, row_number, timing, max_idx=None):
     ax_arrow_plot.set_frame_on(False)
     ax_arrow_plot.set_xlim(0, max_timing)
 
-    alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+    alignment = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
     text_fontsize = 18
 
     tail_width = 800
     head_width = tail_width + tail_width / 5.0
     head_length = 70
     draw_simple_arrow(ax_arrow_plot, posA=(max_idx / 2.0, 1.0), posB=(max_idx / 2.0, 0.0),
-                   tail_width=tail_width, head_width=head_width,
-                   head_length=head_length, #color="brown",
-                   text=u"Zastosowanie 5-minutowego okna danych",
-                   text_fontsize=text_fontsize,
-                   )
+                      tail_width=tail_width, head_width=head_width,
+                      head_length=head_length,  # color="brown",
+                      text=u"Zastosowanie 5-minutowego okna danych",
+                      text_fontsize=text_fontsize,
+                      )
     return row_number + 1
 
 
 def create_windowed_tachogram(gs1, row_number, timing, des1, max_idx,
                               start_hour=None, stop_hour=None):
     # RIGHT TACHOGRAM START
-    ax_windowed_tachogram = plt.subplot(gs1[row_number,0])
+    ax_windowed_tachogram = plt.subplot(gs1[row_number, 0])
     ax_windowed_tachogram.set_color_cycle(['blue', 'red'])
 
     max_timing = np.max(timing)
@@ -414,9 +424,9 @@ def create_windowed_tachogram(gs1, row_number, timing, des1, max_idx,
         tachogram_label_pos = 17
         tach_label = u"Tachogram - fragment 2 godziny"
     ax_windowed_tachogram.text(tachogram_label_pos, y_lim - 100,
-                      tach_label, fontproperties=font_1
-                      #size=20
-                      )
+                               tach_label, fontproperties=font_1
+                               # size=20
+                               )
 
     first_lw = 0.5
     lws = np.linspace(first_lw, 4, max_idx + 1 + first_lw)[::-1]
@@ -435,7 +445,7 @@ def create_windowed_tachogram(gs1, row_number, timing, des1, max_idx,
         pathpatch.set_fill(False)
         ax_windowed_tachogram.add_patch(pathpatch)
     leg = ax_windowed_tachogram.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 5 minut"], loc='upper left', numpoints=5)
-    #change legend font properties
+    # change legend font properties
     plt.setp(leg.get_texts(), fontsize='large')
     plt.setp(leg.get_texts(), fontweight='bold')
 
@@ -452,7 +462,7 @@ def create_windowed_tachogram(gs1, row_number, timing, des1, max_idx,
                       text=u"Kierunek przesuwania okna",
                       text_fontsize=12,
                       lw=2.0,
-                   )
+                      )
     if not start_hour == None:
         change_ticks_for_5_minutes(ax_windowed_tachogram)
     bold_ticks_labels(ax_windowed_tachogram)
@@ -471,17 +481,17 @@ def create_descriptors_arrow(gs1, row_number):
     head_length = 70
     txt = u"Obliczanie deskryptorów asymetrii: $\mathbf{SD1_d,\,SD1_a,\,SD2_d,\,SD2_a,\,SDNN_d,\,SDNN_a}$"
     draw_simple_arrow(ax_descriptors, posA=(0.5, 1.0), posB=(0.5, 0.0),
-                   tail_width=tail_width, head_width=head_width,
-                   head_length=head_length, # color="green",
-                   label="Dane z EKG", text=txt,
-                   text_fontsize=18,
-                   )
+                      tail_width=tail_width, head_width=head_width,
+                      head_length=head_length,  # color="green",
+                      label="Dane z EKG", text=txt,
+                      text_fontsize=18,
+                      )
     return row_number + 1
 
 
 def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx,
-                        sym_indexes, start_hour=None, stop_hour=None,
-                        sym_color="brown", asym_color="green"):
+                                          sym_indexes, start_hour=None, stop_hour=None,
+                                          sym_color="brown", asym_color="green"):
 
     first_lw = 0.5
     lws = np.linspace(first_lw, 4, max_idx + 1 + first_lw)[::-1]
@@ -497,7 +507,7 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
     des1_min = np.min(des1)
 
     # RIGHT TACHOGRAM START
-    ax_windowed_desc = plt.subplot(gs1[row_number,0])
+    ax_windowed_desc = plt.subplot(gs1[row_number, 0])
     ax_windowed_desc.set_color_cycle(['blue', 'red'])
     ax_windowed_desc.plot(timing, des1)
     ax_windowed_desc.ticklabel_format(style='sci', axis='x', scilimits=(0, max_timing))
@@ -509,7 +519,6 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
     font_1 = font_0.copy()
     font_1.set_size('11')
     font_1.set_weight('bold')
-
 
     if start_hour == None:
         x_label = u"Czas [godziny]"
@@ -531,10 +540,10 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
 
     y_lim = ax_windowed_desc.get_ylim()[1]
     ax_windowed_desc.text(tachogram_label_pos, y_lim - 100,
-                      tach_label, fontproperties=font_1)
+                          tach_label, fontproperties=font_1)
 
     for idx, lw in zip(range(max_idx - 1, -1, -1), lws):
-        #if idx % window_step == 1:
+        # if idx % window_step == 1:
         if not (idx % window_step == 0):
             continue
         vertices = []
@@ -557,8 +566,8 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
 
     zero_one_y = des1_min - 50
 
-    alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
-    #zero_one_font_size = 20
+    alignment = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
+    # zero_one_font_size = 20
 
     font_1 = font_0.copy()
     font_1.set_size('20')
@@ -578,25 +587,24 @@ def create_windowed_descriptors_tachogram(gs1, row_number, timing, des1, max_idx
         pathpatch = PathPatch(path, facecolor='None', edgecolor='black', zorder=3, lw=0)
         pathpatch.set_fill(False)
 
-
         ax_windowed_desc.text(idx+window_step/2.0, zero_one_y,
-                            u"%s" % (zero_ones[idx]),
-                            #size=zero_one_font_size,
-                            color=asym_color if idx in asym_indexes else sym_color,
-                            fontproperties=font_1,
-                            **alignment)
+                              u"%s" % (zero_ones[idx]),
+                              # size=zero_one_font_size,
+                              color=asym_color if idx in asym_indexes else sym_color,
+                              fontproperties=font_1,
+                              **alignment)
         ax_windowed_desc.add_patch(pathpatch)
 
     leg = ax_windowed_desc.legend(['$\mathbf{%s}$' % ("RR"), "Okno danych - 5 minut"],
-                           loc='upper left', numpoints=5)
+                                  loc='upper left', numpoints=5)
     ax_windowed_desc.add_artist(leg)
-    #change legend font properties
+    # change legend font properties
     plt.setp(leg.get_texts(), fontsize='large')
     plt.setp(leg.get_texts(), fontweight='bold')
 
     lines = [3] * Line2D(range(1), range(1), linestyle='None', marker='None', color="blue")
     labels = ['G: - godzina', 'M: - minuta', 'S: - sekunda']
-    leg = ax_windowed_desc.legend([lines], [labels] , loc='upper right')
+    leg = ax_windowed_desc.legend([lines], [labels], loc='upper right')
     plt.setp(leg.get_texts(), fontsize='large')
     plt.setp(leg.get_texts(), fontweight='bold')
     ax_windowed_desc.add_artist(leg)
@@ -622,8 +630,7 @@ def create_shapes_plot(gs1, row_number, timing, max_idx, sym_indexes=None,
     max_lws = max(lws)
     lws = [max_lws] * len(lws)
 
-
-    ax_shapes = plt.subplot(gs1[row_number,0])
+    ax_shapes = plt.subplot(gs1[row_number, 0])
     ax_shapes.set_ylim(0, y_max_shapes)
     ax_shapes.set_xlim(0, max_timing)
     ax_shapes.grid(False)
@@ -649,11 +656,11 @@ def create_shapes_plot(gs1, row_number, timing, max_idx, sym_indexes=None,
                         color=asym_color, zorder=4)
 
     join_lines(ax_shapes, get_min_idx(asym_indexes, shift=window_step),
-                        get_max_idx(asym_indexes, shift=window_step),
-                        y_max_shapes - asym_shift, color=asym_color)
+               get_max_idx(asym_indexes, shift=window_step),
+               y_max_shapes - asym_shift, color=asym_color)
     join_lines(ax_shapes, get_min_idx(sym_indexes, shift=window_step),
-                        get_max_idx(sym_indexes, shift=window_step),
-                        y_max_shapes - sym_shift, color=sym_color)
+               get_max_idx(sym_indexes, shift=window_step),
+               y_max_shapes - sym_shift, color=sym_color)
 
     y_shift = max([sym_shift, asym_shift])
     b_y_shift = y_shift + 100
@@ -672,66 +679,66 @@ def create_shapes_plot(gs1, row_number, timing, max_idx, sym_indexes=None,
                        text_color=asym_color)
 
     arrow_sym_x = 4.0
-    draw_simple_arrow(ax_shapes, #path=path,
-                   posA=(arrow_sym_x, y_max_shapes - sym_shift),
-                   posB=(arrow_sym_x, y_sym),
-                   text=u"%s" % (len(sym_indexes)),
-                   tail_width=40,
-                   color=sym_color,
-                   text_color=sym_color,
-                   head_length=20,
-                   )
+    draw_simple_arrow(ax_shapes,  # path=path,
+                      posA=(arrow_sym_x, y_max_shapes - sym_shift),
+                      posB=(arrow_sym_x, y_sym),
+                      text=u"%s" % (len(sym_indexes)),
+                      tail_width=40,
+                      color=sym_color,
+                      text_color=sym_color,
+                      head_length=20,
+                      )
     arrow_asym_x = 20.0
-    draw_simple_arrow(ax_shapes, #path=path,
-                   posA=(arrow_asym_x, y_max_shapes - asym_shift),
-                   posB=(arrow_asym_x, y_sym),
-                   text=u"%s" % (len(asym_indexes)),
-                   tail_width=40,
-                   color=asym_color,
-                   text_color=asym_color,
-                   head_length=20,
-                   )
+    draw_simple_arrow(ax_shapes,  # path=path,
+                      posA=(arrow_asym_x, y_max_shapes - asym_shift),
+                      posB=(arrow_asym_x, y_sym),
+                      text=u"%s" % (len(asym_indexes)),
+                      tail_width=40,
+                      color=asym_color,
+                      text_color=asym_color,
+                      head_length=20,
+                      )
 
     txt = u"Test binomialny"
     binomial_color = "black"
     t_b_width = b_width + 2
     t_b_height = b_height + 200
-    x_binomial = max_idx / 2 -  t_b_width / 2
+    x_binomial = max_idx / 2 - t_b_width / 2
     draw_box_with_text(ax_shapes, x_binomial, y_sym, t_b_width, t_b_height, txt, color=binomial_color,
                        text_fontsize=20)
 
-    #left binomial arrow
-    draw_simple_arrow(ax_shapes, #path=path,
-                   posA=(x_binomial, y_sym - b_height/2.0),
-                   posB=(x_sym + b_width, y_sym - b_height/2.0),
-                   tail_width=5,
-                   color=binomial_color,
-                   head_length=25,
-                   )
+    # left binomial arrow
+    draw_simple_arrow(ax_shapes,  # path=path,
+                      posA=(x_binomial, y_sym - b_height/2.0),
+                      posB=(x_sym + b_width, y_sym - b_height/2.0),
+                      tail_width=5,
+                      color=binomial_color,
+                      head_length=25,
+                      )
 
-    #right binomial arrow
-    draw_simple_arrow(ax_shapes, #path=path,
-                   posA=(x_binomial + t_b_width, y_sym - b_height/2.0),
-                   posB=(x_asym - b_width, y_sym - b_height/2.0),
-                   tail_width=5,
-                   color=binomial_color,
-                   head_length=25,
-                   )
+    # right binomial arrow
+    draw_simple_arrow(ax_shapes,  # path=path,
+                      posA=(x_binomial + t_b_width, y_sym - b_height/2.0),
+                      posB=(x_asym - b_width, y_sym - b_height/2.0),
+                      tail_width=5,
+                      color=binomial_color,
+                      head_length=25,
+                      )
 
     outcome_color = "orange"
     # outcome arrow
     x_outcome = x_binomial + t_b_width / 2.0
     o_height = 700
     y_outcome_shift = 50
-    draw_simple_arrow(ax_shapes, #path=path,
-                   posA=(x_outcome, y_sym - t_b_height - y_outcome_shift),
-                   posB=(x_outcome, y_sym - t_b_height - y_outcome_shift - o_height),
-                   text=u"Wynik",
-                   tail_width=150,
-                   color=outcome_color,
-                   head_length=40,
-                   text_fontsize=20,
-                   )
+    draw_simple_arrow(ax_shapes,  # path=path,
+                      posA=(x_outcome, y_sym - t_b_height - y_outcome_shift),
+                      posB=(x_outcome, y_sym - t_b_height - y_outcome_shift - o_height),
+                      text=u"Wynik",
+                      tail_width=150,
+                      color=outcome_color,
+                      head_length=40,
+                      text_fontsize=20,
+                      )
 
     # outcome ellipse
     e_width = 8
@@ -739,64 +746,65 @@ def create_shapes_plot(gs1, row_number, timing, max_idx, sym_indexes=None,
     e_shift = 50
     e_y = y_sym - t_b_height - o_height - e_height / 2 - e_shift - y_outcome_shift
     draw_simple_ellipse(ax_shapes, x_outcome, e_y, e_width, e_height, color=outcome_color,
-                    text=u"Asymetria \n lub \n brak asymetrii \n dla pojedynczego nagrania",
-                    text_fontsize=20,
-                    fill=True)
+                        text=u"Asymetria \n lub \n brak asymetrii \n dla pojedynczego nagrania",
+                        text_fontsize=20,
+                        fill=True)
 
     return row_number + 1
 
 
 picture_set = "/home/tmp/pp/*.png"
+picture_set = "/x/tmp/pp/*.png"
+picture_set = "/x/tmp/pp2/*.png"
 png_files = glob.glob(picture_set)
 png_files = sorted(png_files)
 
-positions = [
-             2, # 2 hours in milis
-             6.5, # 6 hours, 30 minutes in milis
-             11.5, # 11 hours in milis
-             16, # 16 hours in milis
-             20.5, # 20 hours, 30 minutes in milis
+positions = [2,  # 2 hours in milis
+             6.5,  # 6 hours, 30 minutes in milis
+             11.5,  # 11 hours in milis
+             16,  # 16 hours in milis
+             20.5,  # 20 hours, 30 minutes in milis
              ]
 
 
 def draw_simple_arrow(ax, posA=None, posB=None, path=None, tail_width=5, head_width=None, head_length=10,
-                    color="black", label="", text=None, text_fontsize=14, x_text_pos=None, y_text_pos=None,
-                    text_color="black", fill=False, lw=3.0):
+                      color="black", label="", text=None, text_fontsize=14, x_text_pos=None, y_text_pos=None,
+                      text_color="black", fill=False, lw=3.0):
     arrow_down = mpatches.FancyArrowPatch(posA=posA, posB=posB, path=path, color=color, label=label, lw=lw)
     arrow_down.set_fill(fill)
     if head_width == None and not tail_width == None:
         head_width = 3 * tail_width
-    arrowstyle =mpatches.ArrowStyle.Simple(head_length=head_length, head_width=head_width, tail_width=tail_width)
+    arrowstyle = mpatches.ArrowStyle.Simple(head_length=head_length, head_width=head_width, tail_width=tail_width)
     arrow_down.set_arrowstyle(arrowstyle)
     ax.add_patch(arrow_down)
     if not text == None:
-        #when x is the same
+        # when x is the same
         if x_text_pos == None and posA[0] == posB[0]:
             x_text_pos = posA[0]
         if y_text_pos == None and posA[0] == posB[0]:
             y_text_pos = posB[1] + abs((posA[1] - posB[1])) / 2.0
 
-        #when y is the same
+        # when y is the same
         if x_text_pos == None and posA[1] == posB[1]:
             x_text_pos = posA[0] + abs((posA[0] - posB[0])) / 2.0
         if y_text_pos == None and posA[1] == posB[1]:
             y_text_pos = posA[1]
 
-        alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+        alignment = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
 
         font_1 = font_0.copy()
         font_1.set_size(text_fontsize)
         font_1.set_weight('bold')
 
         ax.text(x_text_pos, y_text_pos, text,
-                #fontsize=text_fontsize,
+                # fontsize=text_fontsize,
                 color=text_color,
                 fontproperties=font_1,
                 **alignment)
 
 
 def create_24_tachogram(gs1, row_number, timing, des1,
-                    slice_color="black"):
+                        slice_color="black"):
 
     max_timing = np.max(timing)
 
@@ -811,7 +819,7 @@ def create_24_tachogram(gs1, row_number, timing, des1,
     font_1.set_size('13')
     font_1.set_weight('bold')
 
-    alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+    alignment = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
 
     y_lim_min = ax_24_tachogram.get_ylim()[0]
     y_lim_max = ax_24_tachogram.get_ylim()[1]
@@ -831,22 +839,21 @@ def create_24_tachogram(gs1, row_number, timing, des1,
         ax_24_tachogram.add_patch(pathpatch)
 
         ax_24_tachogram.text(position, y_lim_min + 2 * shift, u"5 min.", fontproperties=font_1,
-                             **alignment) # size=15)
+                             **alignment)  # size=15)
 
     leg = ax_24_tachogram.legend(['$\mathbf{%s}$' % ("RR")], loc='upper left')
-    #change legend font properties
+    # change legend font properties
     plt.setp(leg.get_texts(), fontsize='large')
     plt.setp(leg.get_texts(), fontweight='bold')
 
-    ax_24_tachogram.set_xlabel(u"Czas [godziny]", fontproperties = font_1)
-    ax_24_tachogram.set_ylabel(u"Wartość [ms]", fontproperties = font_1)
+    ax_24_tachogram.set_xlabel(u"Czas [godziny]", fontproperties=font_1)
+    ax_24_tachogram.set_ylabel(u"RR [ms]", fontproperties=font_1)
 
     tachogram_label_pos = 18
     font_1 = font_0.copy()
     font_1.set_size('18')
     font_1.set_weight('bold')
-    ax_24_tachogram.text(0.85, 0.9, u"Tachogram - 24 godziny", fontproperties=font_1, transform=ax_24_tachogram.transAxes) # size=15)
-
+    ax_24_tachogram.text(0.85, 0.9, u"Tachogram - 24 godziny", fontproperties=font_1, transform=ax_24_tachogram.transAxes)  # size=15)
 
     arrow_size = 4.5
     head_width = 45
@@ -856,8 +863,8 @@ def create_24_tachogram(gs1, row_number, timing, des1,
     pos_start = positions[2] + 0.75
     pos_stop = positions[3] - 0.75
     draw_simple_arrow(ax_24_tachogram,
-                      #posA=(pos_x - arrow_size / 2.0, y_lim_max - head_width - arrow_shift),
-                      #posB=(pos_x + arrow_size / 2.0, y_lim_max - head_width - arrow_shift),
+                      # posA=(pos_x - arrow_size / 2.0, y_lim_max - head_width - arrow_shift),
+                      # posB=(pos_x + arrow_size / 2.0, y_lim_max - head_width - arrow_shift),
                       posA=(pos_start, y_lim_max - head_width - arrow_shift),
                       posB=(pos_stop, y_lim_max - head_width - arrow_shift),
                       tail_width=tail_width, head_width=head_width,
@@ -865,21 +872,20 @@ def create_24_tachogram(gs1, row_number, timing, des1,
                       text=u"Kierunek przesuwania okna",
                       text_fontsize=12,
                       lw=2.0,
-                   )
+                      )
 
-    #ax_24_tachogram.text(tachogram_label_pos, y_lim - 200,
+    # ax_24_tachogram.text(tachogram_label_pos, y_lim - 200,
     #                  u"Tachogram - 24 godziny", fontproperties = font_1)
     bold_ticks_labels(ax_24_tachogram, fontsize=13)
-
 
     return row_number + 1
 
 
-def create_empty_plot(gs1, row_number):
+def create_empty_plot(gs1, row_number, ret_plot=False):
     # empty plot
     empty_plot = plt.subplot(gs1[row_number, :])
     empty_plot.set_ylim(0, 20)
-    #empty_plot.set_xlim(0, max_timing)
+    # empty_plot.set_xlim(0, max_timing)
     empty_plot.grid(False)
     empty_plot.set_frame_on(False)
     empty_plot.title.set_visible(False)
@@ -889,6 +895,25 @@ def create_empty_plot(gs1, row_number):
         tl.set_visible(False)
     for tl in empty_plot.get_yticklabels():
         tl.set_visible(False)
+    if ret_plot:
+        return row_number + 1, empty_plot
+    else:
+        return row_number + 1
+
+
+def create_poincare_windows_label(gs1, row_number):
+    (_, label_plot) = create_empty_plot(gs1, row_number, ret_plot=True)
+
+    #set_border(label_plot)
+    #plt.setp(label_plot, frame_on=True)
+
+    font_1 = font_0.copy()
+    font_1.set_size('18')
+    font_1.set_weight('bold')
+
+    alignment = {'horizontalalignment': 'center', 'verticalalignment': 'bottom'}
+
+    label_plot.text(0.5, 0.5, u"Chwilowe 5-minutowe wykresy mini-Poincaré", fontproperties=font_1, **alignment)
     return row_number + 1
 
 
@@ -898,10 +923,12 @@ def create_poincare_windows_plot(gs1, row_number, timing, max_idx):
 
         ax_poincare_plot_png = plt.subplot(gs1[row_number, num])
         poincare_plot_png = mpimg.imread(png_file)
-        ax_poincare_plot_png.imshow(poincare_plot_png) #, aspect='auto') #, origin='lower')
+        ax_poincare_plot_png.imshow(poincare_plot_png)  # , aspect='auto') #, origin='lower')
         ax_poincare_plot_png.set_axis_off()
         ax_poincare_plot_png.set_frame_on(False)
-        #ax_poincare_plot_png.autoscale_view(tight=True)
+        # ax_poincare_plot_png.autoscale_view(tight=True)
+
+        plt.setp(ax_poincare_plot_png, frame_on=True)
 
 #         alignment = {'horizontalalignment':'left', 'verticalalignment':'center'}
 #         text_fontsize = 20
@@ -914,8 +941,7 @@ def create_poincare_windows_plot(gs1, row_number, timing, max_idx):
 
 def create_arrows_plot(gs1, row_number, timing, max_idx=None):
 
-    position_labels = [
-                       "G: 02 \n M: 00 \n S: 00",
+    position_labels = ["G: 02 \n M: 00 \n S: 00",
                        "G: 06 \n M: 30 \n S: 00",
                        "G: 11 \n M: 30 \n S: 00",
                        "G: 16 \n M: 00 \n S: 00",
@@ -928,7 +954,7 @@ def create_arrows_plot(gs1, row_number, timing, max_idx=None):
     ax_arrow_plot.set_frame_on(False)
     ax_arrow_plot.set_xlim(0, max_timing)
 
-    alignment = {'horizontalalignment':'center', 'verticalalignment':'center'}
+    alignment = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
     text_fontsize = 12
 
     for idx, pos_x in enumerate(positions):
@@ -936,15 +962,15 @@ def create_arrows_plot(gs1, row_number, timing, max_idx=None):
         head_width = tail_width + 30
         head_length = 40
         draw_simple_arrow(ax_arrow_plot, posA=(pos_x, 1.0), posB=(pos_x, 0.0),
-                   tail_width=tail_width, head_width=head_width,
-                   head_length=head_length, color="green",
-                   text=position_labels[idx],
-                   text_fontsize=text_fontsize,
-                   )
+                          tail_width=tail_width, head_width=head_width,
+                          head_length=head_length, color="green",
+                          text=position_labels[idx],
+                          text_fontsize=text_fontsize,
+                          )
 
     line = Line2D(range(1), range(1), linestyle='None', marker='None', color="blue")
     labels = 'G: - godzina\n M: - minuta \nS: - sekunda'
-    leg = ax_arrow_plot.legend([line], [labels] , loc='upper right')
+    leg = ax_arrow_plot.legend([line], [labels], loc='upper right')
     plt.setp(leg.get_texts(), fontsize='large')
     plt.setp(leg.get_texts(), fontweight='bold')
     ax_arrow_plot.add_artist(leg)
@@ -953,25 +979,25 @@ def create_arrows_plot(gs1, row_number, timing, max_idx=None):
 
 
 def initialize_figure(start_hour, stop_hour):
-    #f = plt.figure(figsize=(70, 20))
-    #f = plt.figure(figsize=(40, 15))
-    #proc = 10 / 100.0
-    #f = plt.figure(figsize=(40-40*proc, 15-15*proc))
+    # f = plt.figure(figsize=(70, 20))
+    # f = plt.figure(figsize=(40, 15))
+    # proc = 10 / 100.0
+    # f = plt.figure(figsize=(40-40*proc, 15-15*proc))
     f = plt.figure(figsize=(26, 15))
 
     font_1 = font_0.copy()
     font_1.set_size('20')
     font_1.set_weight('bold')
     plt.suptitle(u"Dynamika zmian asymetrii rytmu serca w wykresach mini-Poincaré w 24-godzinnym nagraniu",
-                fontproperties=font_1, y=0.995, fontsize=25)
+                 fontproperties=font_1, y=0.995, fontsize=25)
 
     empty_ratio = 0.2
-    height_ratios = [
-                     empty_ratio,
-                     3-2.5*empty_ratio, #1 24-tachogram
+    height_ratios = [empty_ratio,
+                     3-2.5*empty_ratio,  # 1 24-tachogram
                      1.5*empty_ratio,
-                     0.8, #2 arrows
-                     3, #3 poincare plot windows
+                     0.8,  # 2 arrows
+                     0.1, # label for poincare windows
+                     3,  # 3 poincare plot windows
                      ]
 
     num_rows = len(height_ratios)
@@ -994,14 +1020,14 @@ if start_hour == None:
 else:
     max_idx = 24
 row_number = 0
-window_step = 1 # 1 hour
-sym_indexes = [1, 5, 6, 12, 21] # only multiple of window_step are allowed
+window_step = 1  # 1 hour
+sym_indexes = [1, 5, 6, 12, 21]  # only multiple of window_step are allowed
 
 (f, gs1) = initialize_figure(start_hour, stop_hour)
 
 (des1, timing, timing_0) = get_24h_data()
 
-#1
+# 1
 row_number = create_empty_plot(gs1, row_number)
 
 row_number = create_24_tachogram(gs1, row_number, timing, des1, slice_color="red")
@@ -1009,6 +1035,8 @@ row_number = create_24_tachogram(gs1, row_number, timing, des1, slice_color="red
 row_number = create_empty_plot(gs1, row_number)
 
 row_number = create_arrows_plot(gs1, row_number, timing, max_idx)
+
+row_number = create_poincare_windows_label(gs1, row_number)
 
 row_number = create_poincare_windows_plot(gs1, row_number, timing, max_idx)
 
