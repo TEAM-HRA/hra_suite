@@ -761,14 +761,20 @@ def create_shapes_plot(gs1, row_number, timing, max_idx, sym_indexes=None,
     b_height = 600
     x_sym = get_min_idx(sym_indexes, shift=0.5)
     y_sym = y_max_shapes - y_shift - b_y_shift
-    b_width = 5
+    b_width = 5.2
 
-    txt = '%s' % (u"Licznik okien bez asymetrii")
+    txt = '%s' % (
+        u"Liczniki okien bez asymetrii:\n"
+          "$\mathbf{C_d,\, C1_d,\, C2_d,\, C_a,\, C1_a,\, C2_a}$"
+    )
     draw_box_with_text(ax_shapes, x_sym, y_sym, b_width, b_height, txt, color=sym_color,
                        text_color=sym_color)
 
     x_asym = get_max_idx(asym_indexes, shift=0.5)
-    txt = '%s' % (u"Licznik okien z asymetrią")
+    txt = '%s' % (
+        u"Liczniki okien z asymetrią:\n"
+          "$\mathbf{C_d,\, C1_d,\, C2_d,\, C_a,\, C1_a,\, C2_a}$"
+    )
     draw_box_with_text(ax_shapes, x_asym, y_sym, -b_width, b_height, txt, color=asym_color,
                        text_color=asym_color)
 

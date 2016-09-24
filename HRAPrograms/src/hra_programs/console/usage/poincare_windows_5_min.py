@@ -104,7 +104,7 @@ def draw_line_1(ax, idx, y_min, y_max, color='black', zorder=3):
 
 
 def draw_box_with_text(ax, x, y, width, height, text, color='black', zorder=3, text_fontsize=15,
-                       text_color="black"):
+                       text_color="black", edgecolor='black', linewidth=4, linestyle=None):
 
     alignment = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
 
@@ -116,7 +116,11 @@ def draw_box_with_text(ax, x, y, width, height, text, color='black', zorder=3, t
     vertices = [(x, y), (x + width, y), (x + width, y - height), (x, y - height), (0, 0)]
     vertices = np.array(vertices, float)
     path = Path(vertices, codes)
-    pathpatch = PathPatch(path, facecolor='None', edgecolor=color, zorder=zorder, lw=4)
+    pathpatch = PathPatch(
+        path, #facecolor='None',
+        edgecolor=edgecolor, zorder=zorder,# lw=linewidth,
+        linewidth=linewidth, linestyle=linestyle
+    )
     pathpatch.set_fill(False)
     ax.text(x + width / 2.0, y - height / 2.0,
             text,
@@ -881,10 +885,10 @@ def create_24_tachogram(gs1, row_number, timing, des1,
     return row_number + 1
 
 
-def create_empty_plot(gs1, row_number, ret_plot=False):
+def create_empty_plot(gs1, row_number, ret_plot=False, ylim=20):
     # empty plot
     empty_plot = plt.subplot(gs1[row_number, :])
-    empty_plot.set_ylim(0, 20)
+    empty_plot.set_ylim(0, ylim)
     # empty_plot.set_xlim(0, max_timing)
     empty_plot.grid(False)
     empty_plot.set_frame_on(False)
@@ -902,7 +906,7 @@ def create_empty_plot(gs1, row_number, ret_plot=False):
 
 
 def create_poincare_windows_label(gs1, row_number):
-    (_, label_plot) = create_empty_plot(gs1, row_number, ret_plot=True)
+    (_, label_plot) = create_empty_plot(gs1, row_number, ret_plot=True, ylim=3)
 
     #set_border(label_plot)
     #plt.setp(label_plot, frame_on=True)
@@ -914,6 +918,8 @@ def create_poincare_windows_label(gs1, row_number):
     alignment = {'horizontalalignment': 'center', 'verticalalignment': 'bottom'}
 
     label_plot.text(0.5, 0.5, u"Chwilowe 5-minutowe wykresy mini-Poincaré", fontproperties=font_1, **alignment)
+
+    #label_plot.set_title(u"Chwilowe 5-minutowe wykresy mini-Poincaré", fontproperties=font_1, **alignment)
     return row_number + 1
 
 
@@ -960,8 +966,8 @@ def create_arrows_plot(gs1, row_number, timing, max_idx=None):
     for idx, pos_x in enumerate(positions):
         tail_width = 80
         head_width = tail_width + 30
-        head_length = 40
-        draw_simple_arrow(ax_arrow_plot, posA=(pos_x, 1.0), posB=(pos_x, 0.0),
+        head_length = 30
+        draw_simple_arrow(ax_arrow_plot, posA=(pos_x, 1.0), posB=(pos_x, 0.4),
                           tail_width=tail_width, head_width=head_width,
                           head_length=head_length, color="green",
                           text=position_labels[idx],
@@ -969,11 +975,85 @@ def create_arrows_plot(gs1, row_number, timing, max_idx=None):
                           )
 
     line = Line2D(range(1), range(1), linestyle='None', marker='None', color="blue")
-    labels = 'G: - godzina\n M: - minuta \nS: - sekunda'
+    labels = 'G - godzina\n M - minuta \nS - sekunda'
     leg = ax_arrow_plot.legend([line], [labels], loc='upper right')
     plt.setp(leg.get_texts(), fontsize='large')
     plt.setp(leg.get_texts(), fontweight='bold')
     ax_arrow_plot.add_artist(leg)
+
+    return row_number + 1
+
+
+def create_data_plot(gs1, row_number, timing, max_idx=None):
+
+    data = [
+        {'SD1_d': '20,21', 'SD1_a': '14,57', 'SD2_d': '72,21',
+         'SD2_a': '81,65', 'SDNN_d': '\,53,02',  'SDNN_a': '\,58,65'},
+        {'SD1_d': '20,71', 'SD1_a': '15,62', 'SD2_d': '52,85',
+         'SD2_a': '70,90', 'SDNN_d': ' 40,14',  'SDNN_a': ' 51,34'},
+        {'SD1_d': '16,70', 'SD1_a': '13,09', 'SD2_d': '80,15',
+         'SD2_a': '39,35', 'SDNN_d': ' 57,89',  'SDNN_a': ' 63,85'},
+        {'SD1_d': '24,07', 'SD1_a': '24,29', 'SD2_d': '48,60',
+         'SD2_a': '41,79', 'SDNN_d': '38,34',  'SDNN_a': '34,18'},
+        {'SD1_d': '23,36', 'SD1_a': '20,77', 'SD2_d': '54,89',
+         'SD2_a': '59,10', 'SDNN_d': '42,18',  'SDNN_a': '44,30'},
+    ]
+
+    labels = ['SD1_d', 'SD2_d', 'SDNN_d', 'SD1_a', 'SD2_a', 'SDNN_a']
+
+    def get_math_label(data_item):
+        item_labels1 = ";\,".join(["{}={}".format(
+            label, data_item[label]) for label in labels[:3]]
+        )
+        item_labels2 = ";\,".join(["{}={}".format(
+            label, data_item[label]) for label in labels[3:]]
+        )
+
+        #item_labels1 = ",\,".join([label for label in labels])
+        #item_labels2 = ",\,".join([data_item[label] for label in labels])
+        return "$\mathbf{" + item_labels1 + "}$\n$\mathbf{" + item_labels2 + "}$"
+
+    position_labels = [get_math_label(data_item) for data_item in data]
+    max_timing = np.max(timing)
+
+    ax_data_plot = plt.subplot(gs1[row_number, :])
+    ax_data_plot.set_axis_off()
+    ax_data_plot.set_frame_on(False)
+    p_height = 0.9
+    b_height = p_height - 0.1
+
+    ax_data_plot.set_xlim(0, max_timing)
+    ax_data_plot.set_ylim(0, p_height)
+    ax_data_plot.grid(False)
+    ax_data_plot.title.set_visible(False)
+
+    #alignment = {'horizontalalignment': 'center', 'verticalalignment': 'center'}
+    #text_fontsize = 12
+
+    positions = [2,  # 2 hours in milis
+             6.6,  # 6 hours, 30 minutes in milis
+             11.3,  # 11 hours in milis
+             15.9,  # 16 hours in milis
+             20.5,  # 20 hours, 30 minutes in milis
+             ]
+
+    b_width = 3.3
+    y = p_height
+    text_fontsize = 13
+    for idx, pos_x in enumerate(positions):
+        draw_box_with_text(ax_data_plot,
+                           pos_x-1.3, y,
+                           b_width, b_height,
+                           position_labels[idx],
+                           text_fontsize=text_fontsize,
+                           linewidth=0,
+                           #linestyle='dotted'
+                           #edgecolor='None'
+                           #text_fontsize=5,
+                           #txt,
+                           #color='black',
+                           #text_color='red'
+                           )
 
     return row_number + 1
 
@@ -996,8 +1076,12 @@ def initialize_figure(start_hour, stop_hour):
                      3-2.5*empty_ratio,  # 1 24-tachogram
                      1.5*empty_ratio,
                      0.8,  # 2 arrows
+                     #0.1, # label for poincare windows
                      0.1, # label for poincare windows
-                     3,  # 3 poincare plot windows
+                     #3,  # 3 poincare plot windows
+                     2.5,  # 3 poincare plot windows
+                     0.001,  # empty plot
+                     0.499,  # data row
                      ]
 
     num_rows = len(height_ratios)
@@ -1040,6 +1124,9 @@ row_number = create_poincare_windows_label(gs1, row_number)
 
 row_number = create_poincare_windows_plot(gs1, row_number, timing, max_idx)
 
+row_number = create_empty_plot(gs1, row_number)
+
+row_number = create_data_plot(gs1, row_number, timing, max_idx)
 # #2
 # row_number = create_zoom_plot(gs1, row_number, timing,
 #                                start_hour=start_hour, stop_hour=stop_hour)
@@ -1079,9 +1166,11 @@ row_number = create_poincare_windows_plot(gs1, row_number, timing, max_idx)
 # #12
 # row_number = create_shapes_plot(gs1, row_number, timing, max_idx, sym_indexes=sym_indexes)
 
+#plt.tight_layout()
 if save_fig:
     file_ = "/tmp/poincare_plots_5_min.png"
-    plt.savefig(file_)
+    plt.savefig(file_, bbox_inches='tight', pad_inches=0.1)
+    #plt.savefig(file_)
     print('Save into ', file_)
 else:
     plt.show()
